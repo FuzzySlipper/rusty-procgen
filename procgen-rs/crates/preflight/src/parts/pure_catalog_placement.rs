@@ -405,6 +405,9 @@ fn div_ceil_i32(value: i32, divisor: i32) -> i32 {
 }
 
 fn pure_catalog_origin_candidates(
+    plan: &PieceBuildPlan,
+    requirement: &PieceRequirement,
+    candidate: &MatchedPiece,
     constraints: &PureCatalogPlacementConstraints,
     max_alternatives: u32,
 ) -> Vec<GridCell> {
@@ -418,6 +421,7 @@ fn pure_catalog_origin_candidates(
         .collect::<Vec<_>>();
     origins.sort_by_key(|origin| {
         (
+            pure_catalog_origin_target_distance(plan, requirement, candidate, origin),
             (origin.x * 2 - center_x_twice).abs() + (origin.y * 2 - center_y_twice).abs(),
             origin.y,
             origin.x,
@@ -425,6 +429,28 @@ fn pure_catalog_origin_candidates(
     });
     origins.truncate(max_alternatives as usize);
     origins
+}
+
+fn pure_catalog_origin_target_distance(
+    plan: &PieceBuildPlan,
+    requirement: &PieceRequirement,
+    candidate: &MatchedPiece,
+    origin: &GridCell,
+) -> i32 {
+    candidate
+        .exit_map
+        .iter()
+        .filter_map(|exit| {
+            pure_catalog_linked_exit_target(plan, requirement, exit.requirement_exit_id.as_str())
+                .map(|mut target| {
+                    let (dx, dy) = direction_vector(exit.direction.as_str());
+                    target.x += dx;
+                    target.y += dy;
+                    (origin.x + exit.x - target.x).abs()
+                        + (origin.y + exit.y - target.y).abs()
+                })
+        })
+        .sum()
 }
 
 fn pure_catalog_origin_satisfies_constraints(
@@ -447,6 +473,81 @@ fn pure_catalog_origin_satisfies_constraints(
             .iter()
             .all(|cell| grid_distance_to_segment(cell, &lane.from, &lane.to) <= lane.envelope_cells)
     })
+}
+
+fn pure_catalog_origin_satisfies_constraints_with_fixed_port(
+    shape: &CatalogShape,
+    transform: &str,
+    origin: &GridCell,
+    constraints: &PureCatalogPlacementConstraints,
+    fixed_neighbor: Option<(&PieceLink, &PieceInstance)>,
+) -> bool {
+    if pure_catalog_origin_satisfies_constraints(shape, transform, origin, constraints) {
+        return true;
+    }
+    if constraints.origin_bounds.is_some() {
+        return false;
+    }
+    let Some(lane) = constraints.lane_constraint.as_ref() else {
+        return false;
+    };
+    if lane.from == lane.to {
+        return false;
+    }
+    let Some((link, neighbor)) = fixed_neighbor else {
+        return false;
+    };
+    let neighbor_exit_id = if link.from_piece == neighbor.piece_id {
+        link.from_exit.as_str()
+    } else {
+        link.to_exit.as_str()
+    };
+    let Some(fixed_exit) = neighbor
+        .exit_map
+        .iter()
+        .find(|exit| exit.requirement_exit_id == neighbor_exit_id)
+    else {
+        return false;
+    };
+    let fixed = GridCell {
+        x: fixed_exit.x,
+        y: fixed_exit.y,
+    };
+    if grid_distance_to_segment(&fixed, &lane.from, &lane.to)
+        > lane.envelope_cells.saturating_mul(2)
+    {
+        return false;
+    }
+    let (extended_from, extended_to) = if lane.from.y == lane.to.y && fixed.y == lane.from.y {
+        (
+            GridCell {
+                x: lane.from.x.min(lane.to.x).min(fixed.x),
+                y: lane.from.y,
+            },
+            GridCell {
+                x: lane.from.x.max(lane.to.x).max(fixed.x),
+                y: lane.from.y,
+            },
+        )
+    } else if lane.from.x == lane.to.x && fixed.x == lane.from.x {
+        (
+            GridCell {
+                x: lane.from.x,
+                y: lane.from.y.min(lane.to.y).min(fixed.y),
+            },
+            GridCell {
+                x: lane.from.x,
+                y: lane.from.y.max(lane.to.y).max(fixed.y),
+            },
+        )
+    } else {
+        return false;
+    };
+    transform_cells(&shape.footprint, transform, origin)
+        .iter()
+        .all(|cell| {
+            grid_distance_to_segment(cell, &extended_from, &extended_to) <= lane.envelope_cells
+        })
 }
 
 fn grid_distance_to_segment(cell: &GridCell, from: &GridCell, to: &GridCell) -> i32 {
@@ -620,7 +721,40 @@ fn search_pure_catalog_placement(
         })
         .collect::<Vec<_>>();
 
-    for candidate in domains.get(next)? {
+    let mut ordered_candidates = domains.get(next)?.iter().collect::<Vec<_>>();
+    if let Some((link, neighbor)) = linked_placed.first() {
+        ordered_candidates.sort_by_key(|candidate| {
+            let Some(shape) = shapes.get(candidate.shape_id.as_str()).copied() else {
+                return (2_u8, 2_u8, i32::MAX, candidate.candidate_rank);
+            };
+            let constraints =
+                pure_catalog_constraints(requirement, candidate, shape, &catalog.placement_policy);
+            let Some(origin) = pure_catalog_anchored_origin(link, next, candidate, neighbor) else {
+                return (2_u8, 2_u8, i32::MAX, candidate.candidate_rank);
+            };
+            let geometry_rank = u8::from(!pure_catalog_origin_satisfies_constraints_with_fixed_port(
+                shape,
+                candidate.transform.as_str(),
+                &origin,
+                &constraints,
+                Some((*link, *neighbor)),
+            ));
+            let closure_rank = u8::from(!pure_catalog_candidate_closes_fixed_ports(
+                next,
+                candidate,
+                shape,
+                &origin,
+                &linked_placed,
+            ));
+            (
+                closure_rank,
+                geometry_rank,
+                pure_catalog_origin_target_distance(plan, requirement, candidate, &origin),
+                candidate.candidate_rank,
+            )
+        });
+    }
+    for candidate in ordered_candidates {
         let shape = shapes.get(candidate.shape_id.as_str()).copied()?;
         let constraints =
             pure_catalog_constraints(requirement, candidate, shape, &catalog.placement_policy);
@@ -639,6 +773,9 @@ fn search_pure_catalog_placement(
             vec![origin]
         } else {
             pure_catalog_origin_candidates(
+                plan,
+                requirement,
+                candidate,
                 &constraints,
                 catalog.catalog_search_policy.max_room_origin_alternatives,
             )
@@ -684,11 +821,12 @@ fn search_pure_catalog_placement(
                 *expansions += 1;
                 counters.chain_expansions += 1;
             }
-            if !pure_catalog_origin_satisfies_constraints(
+            if !pure_catalog_origin_satisfies_constraints_with_fixed_port(
                 shape,
                 candidate.transform.as_str(),
                 &origin,
                 &constraints,
+                linked_placed.first().map(|(link, neighbor)| (*link, *neighbor)),
             ) {
                 let failure = pure_catalog_failure_evidence(
                     requirement,
@@ -721,9 +859,11 @@ fn search_pure_catalog_placement(
                     allowed_contact_instances.insert(instance.instance_id.clone());
                 }
             }
+            let active_candidate_exits =
+                pure_catalog_unresolved_exits(plan, next, &candidate.exit_map, &state.instances);
             if !origin_available(
                 shape,
-                &candidate.exit_map,
+                &active_candidate_exits,
                 candidate.transform.as_str(),
                 &origin,
                 &catalog.placement_policy,
@@ -747,8 +887,12 @@ fn search_pure_catalog_placement(
                 requirement,
                 candidate,
                 shape,
-                origin,
+                origin.clone(),
                 &constraints,
+                &mut next_state,
+            );
+            rebuild_pure_catalog_exit_protection(
+                plan,
                 &catalog.placement_policy,
                 &mut next_state,
             );
@@ -800,6 +944,49 @@ fn search_pure_catalog_placement(
         }
     }
     None
+}
+
+fn pure_catalog_candidate_closes_fixed_ports(
+    piece_id: &str,
+    candidate: &MatchedPiece,
+    shape: &CatalogShape,
+    origin: &GridCell,
+    linked_placed: &[(&PieceLink, &PieceInstance)],
+) -> bool {
+    let occupied = transform_cells(&shape.footprint, candidate.transform.as_str(), origin)
+        .into_iter()
+        .map(|cell| (cell.x, cell.y))
+        .collect::<BTreeSet<_>>();
+    linked_placed.iter().all(|(link, neighbor)| {
+        let (neighbor_exit_id, new_exit_id) = if link.from_piece == piece_id {
+            (link.to_exit.as_str(), link.from_exit.as_str())
+        } else {
+            (link.from_exit.as_str(), link.to_exit.as_str())
+        };
+        let Some(neighbor_exit) = neighbor
+            .exit_map
+            .iter()
+            .find(|exit| exit.requirement_exit_id == neighbor_exit_id)
+        else {
+            return false;
+        };
+        let Some(new_exit) = candidate
+            .exit_map
+            .iter()
+            .find(|exit| exit.requirement_exit_id == new_exit_id)
+        else {
+            return false;
+        };
+        let new_x = new_exit.x + origin.x;
+        let new_y = new_exit.y + origin.y;
+        new_x.abs_diff(neighbor_exit.x) + new_y.abs_diff(neighbor_exit.y) == 1
+            && opposite_direction(neighbor_exit.direction.as_str()) == new_exit.direction
+            && occupied.contains(&(neighbor_exit.x, neighbor_exit.y))
+            && neighbor
+                .occupied_cells
+                .iter()
+                .any(|cell| cell.x == new_x && cell.y == new_y)
+    })
 }
 
 fn pure_catalog_has_unplanned_contact(
@@ -934,14 +1121,11 @@ fn add_pure_catalog_instance(
     shape: &CatalogShape,
     origin: GridCell,
     constraints: &PureCatalogPlacementConstraints,
-    policy: &PiecePlacementPolicy,
     state: &mut PureCatalogPlacementState,
 ) {
     let instance_id = format!("instance.{}", slugify_label(candidate.piece_id.as_str()));
     let occupied = transform_cells(&shape.footprint, candidate.transform.as_str(), &origin);
     let reserved = transform_cells(&shape.reserved_cells, candidate.transform.as_str(), &origin);
-    let exit_protection =
-        exit_route_protection(&candidate.exit_map, &origin, &occupied, policy);
     for cell in &occupied {
         state
             .occupied_positions
@@ -959,13 +1143,6 @@ fn add_pure_catalog_instance(
             x: cell.x,
             y: cell.y,
         });
-    }
-    for position in exit_protection {
-        state
-            .exit_protected_positions
-            .entry(position)
-            .or_default()
-            .insert(instance_id.clone());
     }
     let exit_map = candidate
         .exit_map
@@ -1005,6 +1182,61 @@ fn add_pure_catalog_instance(
         origin_bounds: constraints.origin_bounds.clone(),
         lane_constraint: constraints.lane_constraint.clone(),
     });
+}
+
+fn pure_catalog_unresolved_exits(
+    plan: &PieceBuildPlan,
+    piece_id: &str,
+    exit_map: &[MatchedExit],
+    instances: &[PieceInstance],
+) -> Vec<MatchedExit> {
+    let placed = instances
+        .iter()
+        .map(|instance| instance.piece_id.as_str())
+        .collect::<BTreeSet<_>>();
+    exit_map
+        .iter()
+        .filter(|exit| {
+            plan.links.iter().any(|link| {
+                if link.from_piece == piece_id && link.from_exit == exit.requirement_exit_id {
+                    !placed.contains(link.to_piece.as_str())
+                } else if link.to_piece == piece_id && link.to_exit == exit.requirement_exit_id {
+                    !placed.contains(link.from_piece.as_str())
+                } else {
+                    false
+                }
+            })
+        })
+        .cloned()
+        .collect()
+}
+
+fn rebuild_pure_catalog_exit_protection(
+    plan: &PieceBuildPlan,
+    policy: &PiecePlacementPolicy,
+    state: &mut PureCatalogPlacementState,
+) {
+    state.exit_protected_positions.clear();
+    for instance in &state.instances {
+        let unresolved = pure_catalog_unresolved_exits(
+            plan,
+            instance.piece_id.as_str(),
+            &instance.exit_map,
+            &state.instances,
+        );
+        for position in exit_route_protection(
+            &unresolved,
+            &instance.origin,
+            &instance.occupied_cells,
+            policy,
+        ) {
+            state
+                .exit_protected_positions
+                .entry(position)
+                .or_default()
+                .insert(instance.instance_id.clone());
+        }
+    }
 }
 
 fn pure_catalog_placed_links_direct(

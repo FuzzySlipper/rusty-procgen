@@ -273,6 +273,7 @@ try {
   const voxel3dInteraction = await exerciseEngineInspection(
     chromium,
     `${baseUrl}/?candidate=${encodeURIComponent(voxelEntry.candidateId)}#voxel3d`,
+    voxelEntry.candidateId,
     alternateVoxelEntry?.candidateId,
   );
   const screenshots = [
@@ -467,7 +468,7 @@ async function dumpEngineDom(chromium, url) {
   return stdout;
 }
 
-async function exerciseEngineInspection(chromium, url, alternateCandidateId) {
+async function exerciseEngineInspection(chromium, url, primaryCandidateId, alternateCandidateId) {
   const profileDir = join(outDir, 'chromium-cdp-profile');
   const cdpPort = Number(process.env.VIEWER_SMOKE_CDP_PORT ?? port + 1000);
   await rm(profileDir, { recursive: true, force: true, maxRetries: 5, retryDelay: 100 });
@@ -577,6 +578,26 @@ async function exerciseEngineInspection(chromium, url, alternateCandidateId) {
       throw new Error(`invalid generation config was not explained inline: ${JSON.stringify(invalidGenerationConfigReadout)}`);
     }
 
+    if (alternateCandidateId === undefined) {
+      throw new Error('pure catalog rejection smoke requires an alternate candidate');
+    }
+    const switchedToRejectingCandidate = await evaluateCdp(cdp, `(() => {
+      const button = [...document.querySelectorAll('.candidate-button')]
+        .find((candidate) => candidate.dataset.candidateId === ${JSON.stringify(alternateCandidateId)});
+      button?.click();
+      return button !== undefined;
+    })()`);
+    if (!switchedToRejectingCandidate) {
+      throw new Error(`pure catalog rejection candidate was not found: ${alternateCandidateId}`);
+    }
+    await waitForCdpValue(cdp, `document.querySelector('#voxel-3d-diagnostic')?.dataset.state`, 'ready');
+    await waitForCdpValue(
+      cdp,
+      `document.querySelector('#voxel-3d-panel')?.dataset.placementId !== ${JSON.stringify(initial.placementId)}`,
+      true,
+    );
+    const pureCatalogBaseline = await inspectionDataset(cdp);
+
     const submittedPureCatalogConfig = await evaluateCdp(cdp, `(() => {
       const form = document.querySelector('#generation-config-form');
       const gap = document.querySelector('#generation-config-initial-column-gap');
@@ -604,7 +625,7 @@ async function exerciseEngineInspection(chromium, url, alternateCandidateId) {
       cdp,
       `document.querySelector('#generation-config-status')?.dataset.state`,
       'error',
-      30_000,
+      120_000,
     );
     const pureCatalogFailure = await evaluateCdp(cdp, `(() => ({
       configState: document.querySelector('#generation-config-panel')?.dataset.configState,
@@ -613,7 +634,7 @@ async function exerciseEngineInspection(chromium, url, alternateCandidateId) {
     }))()`);
     if (
       pureCatalogFailure.configState !== 'unsaved'
-      || pureCatalogFailure.frameHash !== initial.frameHash
+      || pureCatalogFailure.frameHash !== pureCatalogBaseline.frameHash
       || !String(pureCatalogFailure.status).includes('Rebuild failed; persisted configuration and current result were unchanged')
       || !String(pureCatalogFailure.status).includes('Required endpoints:')
       || !String(pureCatalogFailure.status).includes('Lane point:')
@@ -622,6 +643,21 @@ async function exerciseEngineInspection(chromium, url, alternateCandidateId) {
     ) {
       throw new Error(`pure catalog rejection was not retained and explained: ${JSON.stringify(pureCatalogFailure)}`);
     }
+    const switchedBackToPrimaryCandidate = await evaluateCdp(cdp, `(() => {
+      const button = [...document.querySelectorAll('.candidate-button')]
+        .find((candidate) => candidate.dataset.candidateId === ${JSON.stringify(primaryCandidateId)});
+      button?.click();
+      return button !== undefined;
+    })()`);
+    if (!switchedBackToPrimaryCandidate) {
+      throw new Error(`primary candidate button was not found: ${primaryCandidateId}`);
+    }
+    await waitForCdpValue(cdp, `document.querySelector('#voxel-3d-diagnostic')?.dataset.state`, 'ready');
+    await waitForCdpValue(
+      cdp,
+      `document.querySelector('#voxel-3d-panel')?.dataset.placementId === ${JSON.stringify(initial.placementId)}`,
+      true,
+    );
 
     const submittedGenerationConfig = await evaluateCdp(cdp, `(() => {
       const form = document.querySelector('#generation-config-form');

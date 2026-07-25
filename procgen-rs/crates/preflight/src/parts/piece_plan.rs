@@ -105,8 +105,13 @@ fn emit_piece_build_plan(
         let edge = edges_by_id.get(corridor.source_edge.as_str()).copied();
         match args.corridor_realization {
             CorridorRealization::Catalog => {
-                let corridor_pieces =
-                    emit_corridor_piece_requirements(corridor, connector, edge, &mut requirements)?;
+                let corridor_pieces = emit_corridor_piece_requirements(
+                    corridor,
+                    connector,
+                    edge,
+                    true,
+                    &mut requirements,
+                )?;
                 link_pure_catalog_corridor(
                     corridor,
                     edge,
@@ -118,8 +123,13 @@ fn emit_piece_build_plan(
                 debug_assert!(!corridor_pieces.is_empty());
             }
             CorridorRealization::Hybrid => {
-                let corridor_pieces =
-                    emit_corridor_piece_requirements(corridor, connector, edge, &mut requirements)?;
+                let corridor_pieces = emit_corridor_piece_requirements(
+                    corridor,
+                    connector,
+                    edge,
+                    false,
+                    &mut requirements,
+                )?;
                 link_hybrid_corridor(
                     corridor,
                     edge,
@@ -298,6 +308,7 @@ struct CatalogRouteSegment {
     to: GeometryPoint,
     direction: String,
     target_cells: i32,
+    direct_target_cells: i32,
 }
 
 #[derive(Clone, Debug)]
@@ -311,11 +322,16 @@ const MAX_CATALOG_ROUTE_PIECES_PER_SECTION: usize = 64;
 const CATALOG_ROUTE_PIXELS_PER_PLACEMENT_CELL: i32 = 6;
 const CATALOG_SMALL_BEND_ALLOWANCE_CELLS: i32 = 4;
 const CATALOG_LARGE_BEND_THRESHOLD_CELLS: i32 = 16;
+const CATALOG_TIGHT_BEND_THRESHOLD_CELLS: i32 = 3;
+const PURE_CATALOG_TIGHT_BEND_AXIS_CELLS: i32 = 1;
+const PURE_CATALOG_SMALL_BEND_AXIS_CELLS: i32 = 2;
+const PURE_CATALOG_LARGE_BEND_AXIS_CELLS: i32 = 3;
 
 fn emit_corridor_piece_requirements(
     corridor: &GeometryCorridor,
     connector: Option<&IntermediateConnector>,
     edge: Option<&Edge>,
+    pure_catalog: bool,
     requirements: &mut Vec<PieceRequirement>,
 ) -> Result<Vec<CatalogRoutePiece>, String> {
     let segments = catalog_route_segments(corridor)?;
@@ -326,18 +342,29 @@ fn emit_corridor_piece_requirements(
     for (segment_index, segment) in segments.iter().enumerate() {
         let starts_at_bend = segment_index > 0;
         let ends_at_bend = segment_index + 1 < segments.len();
-        let reserved_cells = if starts_at_bend {
-            CATALOG_SMALL_BEND_ALLOWANCE_CELLS
+        let reserved_cells = if pure_catalog {
+            let start_allowance = starts_at_bend
+                .then(|| catalog_bend_axis_cells(&segments[segment_index - 1], segment))
+                .unwrap_or(0);
+            let end_allowance = ends_at_bend
+                .then(|| catalog_bend_axis_cells(segment, &segments[segment_index + 1]))
+                .unwrap_or(0);
+            start_allowance + end_allowance
         } else {
-            0
-        } + if ends_at_bend {
-            CATALOG_SMALL_BEND_ALLOWANCE_CELLS
-        } else {
-            0
+            i32::from(starts_at_bend) * CATALOG_SMALL_BEND_ALLOWANCE_CELLS
+                + i32::from(ends_at_bend) * CATALOG_SMALL_BEND_ALLOWANCE_CELLS
         };
-        let straight_spans = catalog_straight_spans(
-            segment.target_cells.saturating_sub(reserved_cells),
-        )
+        let segment_cells = if pure_catalog {
+            segment.direct_target_cells
+        } else {
+            segment.target_cells
+        };
+        let uncovered_cells = segment_cells.saturating_sub(reserved_cells);
+        let straight_spans = if pure_catalog {
+            pure_catalog_straight_spans(uncovered_cells)
+        } else {
+            catalog_straight_spans(uncovered_cells)
+        }
         .map_err(|remaining| {
             format!(
                 "catalog corridor {} segment {} exceeds bounded piece coverage with {} cell(s) remaining",
@@ -368,7 +395,9 @@ fn emit_corridor_piece_requirements(
         }
 
         if let Some(next_segment) = segments.get(segment_index + 1) {
-            let bend_size = if segment.target_cells.min(next_segment.target_cells)
+            let bend_size = if pure_catalog {
+                catalog_bend_family(segment, next_segment)
+            } else if segment.target_cells.min(next_segment.target_cells)
                 >= CATALOG_LARGE_BEND_THRESHOLD_CELLS
             {
                 "bend_large"
@@ -400,6 +429,33 @@ fn emit_corridor_piece_requirements(
         ));
     }
     Ok(pieces)
+}
+
+fn catalog_bend_axis_cells(
+    incoming: &CatalogRouteSegment,
+    outgoing: &CatalogRouteSegment,
+) -> i32 {
+    match catalog_bend_family(incoming, outgoing) {
+        "bend_large" => PURE_CATALOG_LARGE_BEND_AXIS_CELLS,
+        "bend_tight" => PURE_CATALOG_TIGHT_BEND_AXIS_CELLS,
+        _ => PURE_CATALOG_SMALL_BEND_AXIS_CELLS,
+    }
+}
+
+fn catalog_bend_family(
+    incoming: &CatalogRouteSegment,
+    outgoing: &CatalogRouteSegment,
+) -> &'static str {
+    let shortest = incoming
+        .direct_target_cells
+        .min(outgoing.direct_target_cells);
+    if shortest >= CATALOG_LARGE_BEND_THRESHOLD_CELLS {
+        "bend_large"
+    } else if shortest <= CATALOG_TIGHT_BEND_THRESHOLD_CELLS {
+        "bend_tight"
+    } else {
+        "bend_small"
+    }
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -441,6 +497,28 @@ fn catalog_straight_spans(
     }
 }
 
+fn pure_catalog_straight_spans(
+    mut target_cells: i32,
+) -> Result<Vec<CatalogStraightSpan>, i32> {
+    let mut spans = Vec::new();
+    while target_cells > 0 && spans.len() < MAX_CATALOG_ROUTE_PIECES_PER_SECTION {
+        let (span, covered_cells) = if target_cells >= 7 {
+            (CatalogStraightSpan::Long, 7)
+        } else if target_cells >= 3 {
+            (CatalogStraightSpan::Medium, 3)
+        } else {
+            (CatalogStraightSpan::Short, 1)
+        };
+        spans.push(span);
+        target_cells -= covered_cells;
+    }
+    if target_cells > 0 {
+        Err(target_cells)
+    } else {
+        Ok(spans)
+    }
+}
+
 fn catalog_route_segments(corridor: &GeometryCorridor) -> Result<Vec<CatalogRouteSegment>, String> {
     let mut points = Vec::new();
     for point in &corridor.points {
@@ -471,11 +549,14 @@ fn catalog_route_segments(corridor: &GeometryCorridor) -> Result<Vec<CatalogRout
         let target_cells =
             (pixels + CATALOG_ROUTE_PIXELS_PER_PLACEMENT_CELL - 1)
                 / CATALOG_ROUTE_PIXELS_PER_PLACEMENT_CELL;
+        let direct_target_cells = target_cells
+            + i32::from(pixels % CATALOG_ROUTE_PIXELS_PER_PLACEMENT_CELL == 0);
         segments.push(CatalogRouteSegment {
             from: from.clone(),
             to: to.clone(),
             direction,
             target_cells,
+            direct_target_cells,
         });
     }
     if segments.is_empty() {

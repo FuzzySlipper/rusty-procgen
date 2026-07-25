@@ -1600,6 +1600,15 @@ mod tests {
             vec![CatalogStraightSpan::Long, CatalogStraightSpan::Short]
         );
         assert!(catalog_straight_spans(10_000).is_err());
+        assert_eq!(
+            pure_catalog_straight_spans(20).expect("exact direct-glue span"),
+            vec![
+                CatalogStraightSpan::Long,
+                CatalogStraightSpan::Long,
+                CatalogStraightSpan::Medium,
+                CatalogStraightSpan::Medium,
+            ]
+        );
     }
 
     #[test]
@@ -1749,9 +1758,9 @@ mod tests {
                 max_y: 0,
             })
         );
-        assert!(
-            search.room_origin_attempts > search.selected.len() as u32,
-            "the preferred x=0 origin must fail before the later in-zone x=1 origin succeeds"
+        assert_eq!(
+            search.room_origin_attempts, 2,
+            "geometry-linked origin ordering should choose the aligned room origin directly"
         );
         assert!(search
             .selected

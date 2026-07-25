@@ -17,6 +17,7 @@ const generationConfigPath = process.env.ASHA_PROCGEN_GENERATION_CONFIG_PATH ===
 const args = parseArgs(process.argv.slice(2));
 const host = args.host ?? process.env.HOST ?? process.env.npm_config_host ?? '0.0.0.0';
 const port = Number(args.port ?? process.env.PORT ?? process.env.npm_config_port ?? 5183);
+const PROCGEN_COMMAND_TIMEOUT_MS = 120_000;
 
 const routes = new Map([
   ['/', join(repoRoot, 'viewer/index.html')],
@@ -396,6 +397,12 @@ async function runGenerationConfigRebuild(payload) {
       '--connectivity', 'four-way',
       '--out', placementPath,
     ]);
+    const configRef = 'config/viewer-generation.json';
+    const placement = JSON.parse(await readFile(placementPath, 'utf8'));
+    placement.sourcePlanRef = `${configRef}:${payload.candidateId}:${corridorRealization}:piece-plan`;
+    placement.sourceCatalogRef = `${configRef}:placement-policy`;
+    placement.sourceMatchRef = `${configRef}:${payload.candidateId}:${corridorRealization}:shape-match`;
+    await writeFile(placementPath, `${JSON.stringify(placement, null, 2)}\n`, 'utf8');
     await runProcgen([
       'build', 'validate-placement',
       '--state', placementPath,
@@ -412,7 +419,6 @@ async function runGenerationConfigRebuild(payload) {
 
     const geometry = JSON.parse(await readFile(geometryPath, 'utf8'));
     const geometryValidation = JSON.parse(await readFile(geometryValidationPath, 'utf8'));
-    const placement = JSON.parse(await readFile(placementPath, 'utf8'));
     const placementValidation = JSON.parse(await readFile(placementValidationPath, 'utf8'));
     const builtFlowValidation = JSON.parse(await readFile(builtFlowValidationPath, 'utf8'));
     if (
@@ -427,7 +433,6 @@ async function runGenerationConfigRebuild(payload) {
       );
     }
 
-    const configRef = 'config/viewer-generation.json';
     geometry.sourceCandidateRef = entry.artifactRef;
     geometry.sourceIntermediateRef = entry.intermediateBreakdownRef;
     geometry.sourceConnectionPlanRef = entry.physicalConnectionPlanRef;
@@ -786,6 +791,11 @@ async function runCorridorRealizationExperiment(payload) {
       '--connectivity', 'four-way',
       '--out', placementPath,
     ]);
+    const placement = JSON.parse(await readFile(placementPath, 'utf8'));
+    placement.sourcePlanRef = `experiment:${entry.candidateId}:${payload.corridorRealization}`;
+    placement.sourceCatalogRef = entry.shapeCatalogRef;
+    placement.sourceMatchRef = `experiment:${entry.candidateId}:${payload.corridorRealization}`;
+    await writeFile(placementPath, `${JSON.stringify(placement, null, 2)}\n`, 'utf8');
     await runProcgen([
       'build', 'validate-placement',
       '--state', placementPath,
@@ -799,12 +809,8 @@ async function runCorridorRealizationExperiment(payload) {
       '--piece-placement', placementPath,
       '--out', builtFlowValidationPath,
     ]);
-    const placement = JSON.parse(await readFile(placementPath, 'utf8'));
     const placementValidation = JSON.parse(await readFile(placementValidationPath, 'utf8'));
     const builtFlowValidation = JSON.parse(await readFile(builtFlowValidationPath, 'utf8'));
-    placement.sourcePlanRef = `experiment:${entry.candidateId}:${payload.corridorRealization}`;
-    placement.sourceCatalogRef = entry.shapeCatalogRef;
-    placement.sourceMatchRef = `experiment:${entry.candidateId}:${payload.corridorRealization}`;
     builtFlowValidation.candidateRef = entry.artifactRef;
     builtFlowValidation.geometryRef = entry.geometryRef;
     builtFlowValidation.piecePlanRef = `experiment:${entry.candidateId}:${payload.corridorRealization}:piece-plan`;
@@ -1085,7 +1091,7 @@ async function runProcgen(args) {
     cwd: repoRoot,
     encoding: 'utf8',
     maxBuffer: 1024 * 1024,
-    timeout: 30_000,
+    timeout: PROCGEN_COMMAND_TIMEOUT_MS,
   });
 }
 

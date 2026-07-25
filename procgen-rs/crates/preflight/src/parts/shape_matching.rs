@@ -106,6 +106,8 @@ struct CandidateShapeMatch {
     tie_key: u64,
 }
 
+const MAX_PURE_CATALOG_EXIT_MAPS_PER_ORIENTATION: usize = 64;
+
 fn pure_catalog_match_candidates(
     catalog: &ShapeCatalog,
     requirement: &PieceRequirement,
@@ -132,47 +134,77 @@ fn pure_catalog_match_candidates(
                 &[0]
             };
             for direction_offset in direction_offsets {
-                let Some(exit_map) =
-                    match_exits_with_direction_offset(
-                        requirement,
-                        &transformed_exits,
-                        *direction_offset,
-                    )
-                else {
-                    continue;
-                };
-                let socket_map = match_sockets(requirement, shape);
-                let signature =
-                    pure_catalog_transform_signature(shape, transform, &exit_map);
-                if !signatures.insert(signature) {
-                    continue;
-                }
-                let offset = i32::from(*direction_offset);
-                let semantic_facing_preference = 48 - offset.min(4 - offset) * 12;
-                candidates.push(CandidateShapeMatch {
-                    matched_piece: MatchedPiece {
-                        piece_id: requirement.piece_id.clone(),
-                        requirement_kind: requirement.kind.clone(),
-                        shape_id: shape.shape_id.clone(),
-                        transform: transform.clone(),
-                        score: shape_match_score(
-                            shape,
+                let mut exit_variants = match_exit_variants_with_direction_offset(
+                    requirement,
+                    &transformed_exits,
+                    *direction_offset,
+                );
+                if is_room_requirement(requirement) {
+                    exit_variants.sort_by(|left, right| {
+                        pure_catalog_exit_alignment_score(
+                            plan,
                             requirement,
+                            shape,
+                            transform,
+                            right,
+                        )
+                        .cmp(&pure_catalog_exit_alignment_score(
+                            plan,
+                            requirement,
+                            shape,
+                            transform,
+                            left,
+                        ))
+                        .then_with(|| {
+                            pure_catalog_exit_map_key(left)
+                                .cmp(&pure_catalog_exit_map_key(right))
+                        })
+                    });
+                    exit_variants.truncate(MAX_PURE_CATALOG_EXIT_MAPS_PER_ORIENTATION);
+                }
+                for exit_map in exit_variants {
+                    let socket_map = match_sockets(requirement, shape);
+                    let signature =
+                        pure_catalog_transform_signature(shape, transform, &exit_map);
+                    if !signatures.insert(signature) {
+                        continue;
+                    }
+                    let offset = i32::from(*direction_offset);
+                    let semantic_facing_preference = 48 - offset.min(4 - offset) * 12;
+                    let geometry_alignment_preference =
+                        pure_catalog_exit_alignment_score(
+                            plan,
+                            requirement,
+                            shape,
+                            transform,
                             &exit_map,
-                            &socket_map,
-                        ) + semantic_facing_preference,
-                        candidate_rank: 0,
-                        candidate_count: 0,
-                        source_requirement_ref: format!(
-                            "piecePlan:{};requirement:{};semanticFacingOffset:{}",
-                            plan.plan_id, requirement.piece_id, direction_offset
-                        ),
-                        exit_map,
-                        socket_map,
-                    },
-                    tie_key: stable_match_tie_key(seed, requirement, shape, transform)
-                        ^ u64::from(*direction_offset),
-                });
+                        );
+                    candidates.push(CandidateShapeMatch {
+                        matched_piece: MatchedPiece {
+                            piece_id: requirement.piece_id.clone(),
+                            requirement_kind: requirement.kind.clone(),
+                            shape_id: shape.shape_id.clone(),
+                            transform: transform.clone(),
+                            score: shape_match_score(
+                                shape,
+                                requirement,
+                                &exit_map,
+                                &socket_map,
+                            ) + semantic_facing_preference
+                                + geometry_alignment_preference,
+                            candidate_rank: 0,
+                            candidate_count: 0,
+                            source_requirement_ref: format!(
+                                "piecePlan:{};requirement:{};semanticFacingOffset:{}",
+                                plan.plan_id, requirement.piece_id, direction_offset
+                            ),
+                            exit_map,
+                            socket_map,
+                        },
+                        tie_key: stable_match_tie_key(seed, requirement, shape, transform)
+                            ^ u64::from(*direction_offset),
+                    });
+                }
             }
         }
     }
@@ -184,6 +216,10 @@ fn pure_catalog_match_candidates(
             .then_with(|| left.tie_key.cmp(&right.tie_key))
             .then_with(|| left.matched_piece.shape_id.cmp(&right.matched_piece.shape_id))
             .then_with(|| left.matched_piece.transform.cmp(&right.matched_piece.transform))
+            .then_with(|| {
+                pure_catalog_exit_map_key(&left.matched_piece.exit_map)
+                    .cmp(&pure_catalog_exit_map_key(&right.matched_piece.exit_map))
+            })
     });
     let candidate_count = candidates.len();
     candidates
@@ -197,30 +233,53 @@ fn pure_catalog_match_candidates(
         .collect()
 }
 
-fn match_exits_with_direction_offset(
+fn match_exit_variants_with_direction_offset(
     requirement: &PieceRequirement,
     transformed_exits: &[CatalogExit],
     direction_offset: u8,
-) -> Option<Vec<MatchedExit>> {
-    let mut mapped = Vec::new();
-    let mut used = BTreeSet::new();
+) -> Vec<Vec<MatchedExit>> {
     let mut required_exits = requirement.required_exits.iter().collect::<Vec<_>>();
     required_exits.sort_by(|left, right| left.id.cmp(&right.id));
-    for required_exit in required_exits {
-        let preferred_direction =
-            rotate_direction_steps(required_exit.direction.as_str(), direction_offset);
-        let candidate = transformed_exits
-            .iter()
-            .enumerate()
-            .filter(|(index, exit)| {
-                !used.contains(index)
-                    && exit.direction == preferred_direction
-                    && exit_width_compatible(required_exit.width, exit.width)
-            })
-            .min_by(|(_, left), (_, right)| left.id.cmp(&right.id));
-        let Some((index, catalog_exit)) = candidate else {
-            return None;
-        };
+    let mut variants = Vec::new();
+    append_exit_map_variants(
+        &required_exits,
+        transformed_exits,
+        direction_offset,
+        0,
+        &mut BTreeSet::new(),
+        &mut Vec::new(),
+        &mut variants,
+    );
+    variants
+}
+
+#[allow(clippy::too_many_arguments)]
+fn append_exit_map_variants(
+    required_exits: &[&PieceExitRequirement],
+    transformed_exits: &[CatalogExit],
+    direction_offset: u8,
+    required_index: usize,
+    used: &mut BTreeSet<usize>,
+    mapped: &mut Vec<MatchedExit>,
+    variants: &mut Vec<Vec<MatchedExit>>,
+) {
+    let Some(required_exit) = required_exits.get(required_index) else {
+        variants.push(mapped.clone());
+        return;
+    };
+    let preferred_direction =
+        rotate_direction_steps(required_exit.direction.as_str(), direction_offset);
+    let mut compatible = transformed_exits
+        .iter()
+        .enumerate()
+        .filter(|(index, exit)| {
+            !used.contains(index)
+                && exit.direction == preferred_direction
+                && exit_width_compatible(required_exit.width, exit.width)
+        })
+        .collect::<Vec<_>>();
+    compatible.sort_by(|(_, left), (_, right)| left.id.cmp(&right.id));
+    for (index, catalog_exit) in compatible {
         used.insert(index);
         mapped.push(MatchedExit {
             requirement_exit_id: required_exit.id.clone(),
@@ -230,8 +289,171 @@ fn match_exits_with_direction_offset(
             direction: catalog_exit.direction.clone(),
             width: catalog_exit.width,
         });
+        append_exit_map_variants(
+            required_exits,
+            transformed_exits,
+            direction_offset,
+            required_index + 1,
+            used,
+            mapped,
+            variants,
+        );
+        mapped.pop();
+        used.remove(&index);
     }
-    Some(mapped)
+}
+
+fn pure_catalog_exit_alignment_score(
+    plan: &PieceBuildPlan,
+    requirement: &PieceRequirement,
+    shape: &CatalogShape,
+    transform: &str,
+    exit_map: &[MatchedExit],
+) -> i32 {
+    let mapped_targets = exit_map
+        .iter()
+        .filter_map(|exit| {
+            pure_catalog_linked_exit_target(plan, requirement, exit.requirement_exit_id.as_str())
+                .map(|mut target| {
+                    let (dx, dy) = direction_vector(exit.direction.as_str());
+                    target.x += dx;
+                    target.y += dy;
+                    (exit, target)
+                })
+        })
+        .collect::<Vec<_>>();
+    let pairwise_error = mapped_targets
+        .iter()
+        .enumerate()
+        .flat_map(|(index, left)| {
+            mapped_targets.iter().skip(index + 1).map(move |right| {
+                let target_dx = right.1.x - left.1.x;
+                let target_dy = right.1.y - left.1.y;
+                let exit_dx = right.0.x - left.0.x;
+                let exit_dy = right.0.y - left.0.y;
+                (target_dx - exit_dx).abs() + (target_dy - exit_dy).abs()
+            })
+        })
+        .sum::<i32>();
+    let absolute_error =
+        pure_catalog_minimum_room_alignment_error(plan, requirement, shape, transform, exit_map);
+    -(pairwise_error.saturating_mul(32) + absolute_error.saturating_mul(16))
+}
+
+fn pure_catalog_minimum_room_alignment_error(
+    plan: &PieceBuildPlan,
+    requirement: &PieceRequirement,
+    shape: &CatalogShape,
+    transform: &str,
+    exit_map: &[MatchedExit],
+) -> i32 {
+    let Some((x, y, width, height)) = requirement
+        .placement_hints
+        .iter()
+        .find_map(|hint| parse_geometry_rect(hint))
+    else {
+        return 0;
+    };
+    let targets = exit_map
+        .iter()
+        .filter_map(|exit| {
+            pure_catalog_linked_exit_target(plan, requirement, exit.requirement_exit_id.as_str())
+                .map(|mut target| {
+                    let (dx, dy) = direction_vector(exit.direction.as_str());
+                    target.x += dx;
+                    target.y += dy;
+                    (exit, target)
+                })
+        })
+        .collect::<Vec<_>>();
+    if targets.is_empty() {
+        return 0;
+    }
+    let transformed = transform_cells(
+        &shape.footprint,
+        transform,
+        &GridCell { x: 0, y: 0 },
+    );
+    let footprint_width = transformed.iter().map(|cell| cell.x).max().unwrap_or(0) + 1;
+    let footprint_height = transformed.iter().map(|cell| cell.y).max().unwrap_or(0) + 1;
+    let min_x = x.div_euclid(CATALOG_ROUTE_PIXELS_PER_PLACEMENT_CELL);
+    let min_y = y.div_euclid(CATALOG_ROUTE_PIXELS_PER_PLACEMENT_CELL);
+    let max_x = div_ceil_i32(x + width, CATALOG_ROUTE_PIXELS_PER_PLACEMENT_CELL)
+        - footprint_width;
+    let max_y = div_ceil_i32(y + height, CATALOG_ROUTE_PIXELS_PER_PLACEMENT_CELL)
+        - footprint_height;
+    (min_y..=max_y)
+        .flat_map(|origin_y| {
+            let targets = &targets;
+            (min_x..=max_x).map(move |origin_x| {
+                targets
+                    .iter()
+                    .map(|(exit, target)| {
+                        (origin_x + exit.x - target.x).abs()
+                            + (origin_y + exit.y - target.y).abs()
+                    })
+                    .sum::<i32>()
+            })
+        })
+        .min()
+        .unwrap_or(i32::MAX / 2)
+}
+
+fn pure_catalog_linked_exit_target(
+    plan: &PieceBuildPlan,
+    requirement: &PieceRequirement,
+    exit_id: &str,
+) -> Option<GridCell> {
+    let (linked_piece, linked_exit) = plan.links.iter().find_map(|link| {
+        if link.from_piece == requirement.piece_id && link.from_exit == exit_id {
+            Some((link.to_piece.as_str(), link.to_exit.as_str()))
+        } else if link.to_piece == requirement.piece_id && link.to_exit == exit_id {
+            Some((link.from_piece.as_str(), link.from_exit.as_str()))
+        } else {
+            None
+        }
+    })?;
+    let linked_requirement = plan
+        .requirements
+        .iter()
+        .find(|candidate| candidate.piece_id == linked_piece)?;
+    let (x, y) = linked_requirement
+        .placement_hints
+        .iter()
+        .find_map(|hint| {
+            let segment = parse_geometry_segment(hint)?;
+            if linked_exit.ends_with(".in") {
+                Some((segment.0, segment.1))
+            } else if linked_exit.ends_with(".out") {
+                Some((segment.2, segment.3))
+            } else {
+                None
+            }
+        })
+        .or_else(|| {
+            linked_requirement
+                .placement_hints
+                .iter()
+                .find_map(|hint| parse_geometry_point(hint))
+        })?;
+    Some(GridCell {
+        x: x.div_euclid(CATALOG_ROUTE_PIXELS_PER_PLACEMENT_CELL),
+        y: y.div_euclid(CATALOG_ROUTE_PIXELS_PER_PLACEMENT_CELL),
+    })
+}
+
+fn pure_catalog_exit_map_key(exit_map: &[MatchedExit]) -> Vec<(&str, &str)> {
+    let mut key = exit_map
+        .iter()
+        .map(|exit| {
+            (
+                exit.requirement_exit_id.as_str(),
+                exit.catalog_exit_id.as_str(),
+            )
+        })
+        .collect::<Vec<_>>();
+    key.sort();
+    key
 }
 
 fn rotate_direction_steps(direction: &str, steps: u8) -> &'static str {
@@ -286,6 +508,15 @@ fn match_requirement(
     let mut candidates = Vec::new();
     let mut rejections = Vec::new();
     for shape in &catalog.shapes {
+        if shape.tags.iter().any(|tag| tag == "pure_catalog_only") {
+            rejections.push(ShapeMatchRejection {
+                piece_id: requirement.piece_id.clone(),
+                shape_id: shape.shape_id.clone(),
+                transform: None,
+                reasons: vec!["mode_mismatch: pure_catalog_only".to_owned()],
+            });
+            continue;
+        }
         let static_reasons = static_shape_rejection_reasons(shape, requirement);
         if !static_reasons.is_empty() {
             rejections.push(ShapeMatchRejection {
