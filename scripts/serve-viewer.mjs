@@ -69,6 +69,9 @@ const server = createServer(async (request, response) => {
       sendJson(response, statusCode, {
         error: error instanceof ExperimentError ? error.code : 'generation_config_rebuild_failed',
         detail: error instanceof Error ? error.message : String(error),
+        ...(error instanceof ExperimentError && error.evidence !== undefined
+          ? { evidence: error.evidence }
+          : {}),
       });
     }
     return;
@@ -89,6 +92,9 @@ const server = createServer(async (request, response) => {
       sendJson(response, statusCode, {
         error: error instanceof ExperimentError ? error.code : 'experiment_failed',
         detail: error instanceof Error ? error.message : String(error),
+        ...(error instanceof ExperimentError && error.evidence !== undefined
+          ? { evidence: error.evidence }
+          : {}),
       });
     }
     return;
@@ -109,6 +115,9 @@ const server = createServer(async (request, response) => {
       sendJson(response, statusCode, {
         error: error instanceof ExperimentError ? error.code : 'experiment_failed',
         detail: error instanceof Error ? error.message : String(error),
+        ...(error instanceof ExperimentError && error.evidence !== undefined
+          ? { evidence: error.evidence }
+          : {}),
       });
     }
     return;
@@ -129,6 +138,9 @@ const server = createServer(async (request, response) => {
       sendJson(response, statusCode, {
         error: error instanceof ExperimentError ? error.code : 'experiment_failed',
         detail: error instanceof Error ? error.message : String(error),
+        ...(error instanceof ExperimentError && error.evidence !== undefined
+          ? { evidence: error.evidence }
+          : {}),
       });
     }
     return;
@@ -208,10 +220,33 @@ function sendJson(response, statusCode, value) {
 }
 
 class ExperimentError extends Error {
-  constructor(statusCode, code, message) {
+  constructor(statusCode, code, message, evidence = undefined) {
     super(message);
     this.statusCode = statusCode;
     this.code = code;
+    this.evidence = evidence;
+  }
+}
+
+function pureCatalogExhaustionEvidence(detail) {
+  const marker = 'evidence=';
+  const markerIndex = detail.lastIndexOf(marker);
+  if (markerIndex < 0) {
+    return undefined;
+  }
+  try {
+    const evidence = JSON.parse(detail.slice(markerIndex + marker.length).trim());
+    if (
+      evidence?.kind !== 'asha_procgen.pure_catalog_exhaustion.v1'
+      || evidence.schemaVersion !== 1
+      || typeof evidence.failure !== 'object'
+      || typeof evidence.budgets !== 'object'
+    ) {
+      return undefined;
+    }
+    return evidence;
+  } catch {
+    return undefined;
   }
 }
 
@@ -440,7 +475,7 @@ async function runGenerationConfigRebuild(payload) {
         : detail.includes('pure catalog search exhausted')
           ? 'pure_catalog_search_exhausted'
           : 'generation_config_rebuild_failed';
-    throw new ExperimentError(422, code, detail);
+    throw new ExperimentError(422, code, detail, pureCatalogExhaustionEvidence(detail));
   } finally {
     await rm(buildDir, { recursive: true, force: true });
   }
@@ -671,7 +706,7 @@ async function runGeometryLayoutPolicyExperiment(payload) {
     const code = detail.includes('geometry search exhausted')
       ? 'geometry_search_exhausted'
       : 'geometry_generation_failed';
-    throw new ExperimentError(422, code, detail);
+    throw new ExperimentError(422, code, detail, pureCatalogExhaustionEvidence(detail));
   } finally {
     await rm(experimentDir, { recursive: true, force: true });
   }
@@ -817,7 +852,7 @@ async function runCorridorRealizationExperiment(payload) {
       : detail.includes('pure catalog search exhausted')
         ? 'pure_catalog_search_exhausted'
         : 'corridor_realization_failed';
-    throw new ExperimentError(422, code, detail);
+    throw new ExperimentError(422, code, detail, pureCatalogExhaustionEvidence(detail));
   } finally {
     await rm(experimentDir, { recursive: true, force: true });
   }

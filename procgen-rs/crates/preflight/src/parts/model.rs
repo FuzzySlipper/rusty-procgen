@@ -846,6 +846,29 @@ struct CatalogPlacementDecision {
     candidate_rank: u32,
     candidate_count: u32,
     origin: GridCell,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    origin_bounds: Option<CatalogGridBounds>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    lane_constraint: Option<CatalogLaneConstraint>,
+}
+
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[serde(rename_all = "camelCase")]
+struct CatalogGridBounds {
+    min_x: i32,
+    max_x: i32,
+    min_y: i32,
+    max_y: i32,
+}
+
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[serde(rename_all = "camelCase")]
+struct CatalogLaneConstraint {
+    source_hint: String,
+    from: GridCell,
+    to: GridCell,
+    envelope_cells: i32,
+    bounds: CatalogGridBounds,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]

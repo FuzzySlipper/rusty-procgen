@@ -500,6 +500,56 @@ interface PlacementPolicyExperimentResponse {
 interface PlacementPolicyExperimentError {
   readonly error: string;
   readonly detail: string;
+  readonly evidence?: PureCatalogExhaustionEvidence;
+}
+
+interface PureCatalogExhaustionEvidence {
+  readonly kind: 'asha_procgen.pure_catalog_exhaustion.v1';
+  readonly schemaVersion: 1;
+  readonly failure: {
+    readonly reason: string;
+    readonly detail: string;
+    readonly pieceId: string;
+    readonly requirementKind: string;
+    readonly requiredEndpoints: readonly {
+      readonly id: string;
+      readonly direction: string;
+    }[];
+    readonly fixedPort?: {
+      readonly neighborPieceId: string;
+      readonly neighborExitId: string;
+      readonly cell: { readonly x: number; readonly y: number };
+      readonly direction: string;
+      readonly requiredOppositeDirection: string;
+      readonly offsetFromEnvelopeAnchor?: { readonly x: number; readonly y: number };
+    };
+    readonly originBounds?: {
+      readonly minX: number;
+      readonly maxX: number;
+      readonly minY: number;
+      readonly maxY: number;
+    };
+    readonly laneEnvelope?: {
+      readonly sourceHint: string;
+      readonly envelopeCells: number;
+      readonly bounds: {
+        readonly minX: number;
+        readonly maxX: number;
+        readonly minY: number;
+        readonly maxY: number;
+      };
+    };
+    readonly exhaustedFamilies: readonly string[];
+    readonly candidateCount: number;
+  };
+  readonly budgets: {
+    readonly maxDecisions: number;
+    readonly decisions: number;
+    readonly maxBacktracks: number;
+    readonly backtracks: number;
+    readonly maxChainExpansionsPerSection: number;
+    readonly chainExpansions: number;
+  };
 }
 
 interface GeometryLayoutPolicyExperimentResponse {
@@ -1333,7 +1383,13 @@ async function applyGeometryPolicyExperiment(): Promise<void> {
       return;
     }
     if (!response.ok || 'error' in result) {
-      throw new Error('detail' in result ? result.detail : `experiment request failed with ${response.status}`);
+      throw new Error(
+        'evidence' in result && result.evidence !== undefined
+          ? formatPureCatalogExhaustion(result.evidence)
+          : 'detail' in result
+            ? result.detail
+            : `experiment request failed with ${response.status}`,
+      );
     }
     if (
       result.kind !== 'asha_procgen.geometry_layout_policy_experiment.v1'
@@ -1369,6 +1425,39 @@ async function applyGeometryPolicyExperiment(): Promise<void> {
       setGeometryPolicyBusy(false);
     }
   }
+}
+
+function formatPureCatalogExhaustion(evidence: PureCatalogExhaustionEvidence): string {
+  const { failure, budgets } = evidence;
+  const endpoints = failure.requiredEndpoints
+    .map((endpoint) => `${endpoint.id}:${endpoint.direction}`)
+    .join(', ');
+  const fixedPort = failure.fixedPort === undefined
+    ? 'no fixed neighbor port'
+    : `fixed ${failure.fixedPort.neighborPieceId}.${failure.fixedPort.neighborExitId}`
+      + ` @ ${failure.fixedPort.cell.x},${failure.fixedPort.cell.y}`
+      + ` facing ${failure.fixedPort.direction} (needs ${failure.fixedPort.requiredOppositeDirection})`
+      + (failure.fixedPort.offsetFromEnvelopeAnchor === undefined
+        ? ''
+        : `, lane offset ${failure.fixedPort.offsetFromEnvelopeAnchor.x},${failure.fixedPort.offsetFromEnvelopeAnchor.y}`);
+  const bounds = failure.originBounds === undefined
+    ? ''
+    : ` Room origin bounds x=${failure.originBounds.minX}..${failure.originBounds.maxX},`
+      + ` y=${failure.originBounds.minY}..${failure.originBounds.maxY}.`;
+  const lane = failure.laneEnvelope === undefined
+    ? ''
+    : ` Lane ${failure.laneEnvelope.sourceHint} ±${failure.laneEnvelope.envelopeCells}`
+      + ` cells (x=${failure.laneEnvelope.bounds.minX}..${failure.laneEnvelope.bounds.maxX},`
+      + ` y=${failure.laneEnvelope.bounds.minY}..${failure.laneEnvelope.bounds.maxY}).`;
+  return `${failure.pieceId} (${failure.requirementKind}) ${failure.reason}: ${failure.detail}`
+    + ` Required endpoints: ${endpoints || 'none'}; ${fixedPort}.`
+    + bounds
+    + lane
+    + ` Exhausted families: ${failure.exhaustedFamilies.join(', ') || 'none'}`
+    + ` across ${failure.candidateCount} candidate(s).`
+    + ` Budgets: decisions ${budgets.decisions}/${budgets.maxDecisions},`
+    + ` backtracks ${budgets.backtracks}/${budgets.maxBacktracks},`
+    + ` chain expansions ${budgets.chainExpansions}/${budgets.maxChainExpansionsPerSection}.`;
 }
 
 function resetGeometryPolicyExperiment(): void {
@@ -1624,7 +1713,13 @@ async function applyCorridorRealizationExperiment(): Promise<void> {
       return;
     }
     if (!response.ok || 'error' in result) {
-      throw new Error('detail' in result ? result.detail : `experiment request failed with ${response.status}`);
+      throw new Error(
+        'evidence' in result && result.evidence !== undefined
+          ? formatPureCatalogExhaustion(result.evidence)
+          : 'detail' in result
+            ? result.detail
+            : `experiment request failed with ${response.status}`,
+      );
     }
     if (
       result.kind !== 'asha_procgen.corridor_realization_experiment.v1'

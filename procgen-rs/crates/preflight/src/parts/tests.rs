@@ -1612,8 +1612,7 @@ mod tests {
             Vec::new(),
             &[],
         );
-        let mut room_shape = room_shape;
-        room_shape.footprint.push(GridCell { x: 0, y: 1 });
+        let room_shape = room_shape;
         let mut corridor_shape = test_catalog_shape(
             "shape.corridor.unit",
             &["corridor"],
@@ -1641,6 +1640,9 @@ mod tests {
         );
         start.role = "start".to_owned();
         start.tags.push("start".to_owned());
+        start
+            .placement_hints
+            .push("geometryRect:0:0:12:6".to_owned());
         let mut corridor = test_piece_requirement(
             "piece.corridor",
             "corridor",
@@ -1654,6 +1656,12 @@ mod tests {
         corridor
             .source_refs
             .push("physicalSection:section.test".to_owned());
+        corridor
+            .placement_hints
+            .push("point:12:0".to_owned());
+        corridor
+            .placement_hints
+            .push("segment:12:0:30:0".to_owned());
         let mut goal = test_piece_requirement(
             "piece.goal",
             "room",
@@ -1663,6 +1671,9 @@ mod tests {
         );
         goal.role = "goal".to_owned();
         goal.tags.push("goal".to_owned());
+        goal
+            .placement_hints
+            .push("geometryRect:30:0:6:6".to_owned());
         let mut plan = test_piece_plan(vec![start, corridor, goal]);
         plan.links = vec![
             test_piece_link(
@@ -1722,6 +1733,32 @@ mod tests {
                 .len(),
             3
         );
+        let search = placement.catalog_search.as_ref().expect("search evidence");
+        let start_decision = search
+            .selected
+            .iter()
+            .find(|decision| decision.piece_id == "piece.start")
+            .expect("start decision");
+        assert_eq!(start_decision.origin, GridCell { x: 1, y: 0 });
+        assert_eq!(
+            start_decision.origin_bounds,
+            Some(CatalogGridBounds {
+                min_x: 0,
+                max_x: 1,
+                min_y: 0,
+                max_y: 0,
+            })
+        );
+        assert!(
+            search.room_origin_attempts > search.selected.len() as u32,
+            "the preferred x=0 origin must fail before the later in-zone x=1 origin succeeds"
+        );
+        assert!(search
+            .selected
+            .iter()
+            .find(|decision| decision.piece_id == "piece.corridor")
+            .and_then(|decision| decision.lane_constraint.as_ref())
+            .is_some());
         assert_eq!(placement.gate_portals.len(), 1);
         assert_eq!(
             placement.gate_portals[0].required_item.as_deref(),
@@ -1752,6 +1789,85 @@ mod tests {
         assert!(glue_report.diagnostics.iter().any(|diagnostic| {
             diagnostic.code == "piece_catalog_direct_glue_invalid"
         }));
+
+        let mut bounds_tamper = placement.clone();
+        let start_decision = bounds_tamper
+            .catalog_search
+            .as_mut()
+            .expect("search")
+            .selected
+            .iter_mut()
+            .find(|decision| decision.piece_id == "piece.start")
+            .expect("start decision");
+        start_decision.origin_bounds.as_mut().expect("bounds").max_x = 0;
+        let bounds_report = validate_piece_placement(&bounds_tamper);
+        assert!(bounds_report.diagnostics.iter().any(|diagnostic| {
+            diagnostic.code == "piece_catalog_origin_bounds_invalid"
+        }));
+
+        let mut outside_lane_plan = plan.clone();
+        outside_lane_plan
+            .requirements
+            .iter_mut()
+            .find(|requirement| requirement.piece_id == "piece.corridor")
+            .expect("corridor requirement")
+            .placement_hints = vec![
+            "point:600:0".to_owned(),
+            "segment:600:0:630:0".to_owned(),
+        ];
+        let outside_lane_match = match_shapes(&catalog, &outside_lane_plan, &match_args);
+        let outside_lane_error = assemble_piece_placement(
+            &catalog,
+            &outside_lane_plan,
+            &outside_lane_match,
+            &assemble_args,
+        )
+        .expect_err("a fixed prefab chain outside the serialized lane must reject");
+        let outside_lane_evidence = pure_catalog_error_evidence(&outside_lane_error);
+        assert_eq!(
+            outside_lane_evidence["failure"]["reason"],
+            "geometry_constraint_rejected"
+        );
+        assert!(outside_lane_evidence["failure"]["laneEnvelope"].is_object());
+
+        for max_decisions in [1_u32, 2] {
+            let mut bounded_catalog = catalog.clone();
+            bounded_catalog.catalog_search_policy.max_decisions = max_decisions;
+            let error = assemble_piece_placement(
+                &bounded_catalog,
+                &plan,
+                &shape_match,
+                &assemble_args,
+            )
+            .expect_err("hard decision budget must stop before the next sibling");
+            let evidence = pure_catalog_error_evidence(&error);
+            assert_eq!(evidence["budgets"]["maxDecisions"], max_decisions);
+            assert_eq!(evidence["budgets"]["decisions"], max_decisions);
+        }
+
+        let mut impossible_origin_plan = plan.clone();
+        impossible_origin_plan
+            .requirements
+            .iter_mut()
+            .find(|requirement| requirement.piece_id == "piece.goal")
+            .expect("goal requirement")
+            .placement_hints = vec!["geometryRect:36:0:6:6".to_owned()];
+        let impossible_origin_match =
+            match_shapes(&catalog, &impossible_origin_plan, &match_args);
+        for max_backtracks in [1_u32, 2] {
+            let mut bounded_catalog = catalog.clone();
+            bounded_catalog.catalog_search_policy.max_backtracks = max_backtracks;
+            let error = assemble_piece_placement(
+                &bounded_catalog,
+                &impossible_origin_plan,
+                &impossible_origin_match,
+                &assemble_args,
+            )
+            .expect_err("hard backtrack budget must stop before another sibling");
+            let evidence = pure_catalog_error_evidence(&error);
+            assert_eq!(evidence["budgets"]["maxBacktracks"], max_backtracks);
+            assert_eq!(evidence["budgets"]["backtracks"], max_backtracks);
+        }
     }
 
     #[test]
@@ -1879,6 +1995,7 @@ mod tests {
         assert!(first_error.contains("pure catalog search exhausted after"));
         assert!(first_error.contains("decision(s)"));
         assert!(first_error.contains("backtrack(s)"));
+
     }
 
     #[test]
@@ -3169,6 +3286,14 @@ mod tests {
             seed,
             out: PathBuf::from("artifacts/test/piece-shape-match.json"),
         }
+    }
+
+    fn pure_catalog_error_evidence(error: &str) -> serde_json::Value {
+        let serialized = error
+            .rsplit_once(PURE_CATALOG_EXHAUSTION_MARKER)
+            .map(|(_, evidence)| evidence)
+            .expect("pure catalog error must include structured exhaustion evidence");
+        serde_json::from_str(serialized).expect("structured exhaustion evidence must be JSON")
     }
 
     fn placement_bounds(placement: &PiecePlacement) -> (i32, i32) {

@@ -1872,6 +1872,92 @@ fn validate_corridor_realization(
                     "Pure catalog placement-search evidence is missing decisions or exceeds a declared deterministic budget.",
                 ));
             }
+            let instances = placement
+                .instances
+                .iter()
+                .map(|instance| (instance.piece_id.as_str(), instance))
+                .collect::<BTreeMap<_, _>>();
+            let mut selected_pieces = BTreeSet::new();
+            for decision in &search.selected {
+                if !selected_pieces.insert(decision.piece_id.as_str()) {
+                    diagnostics.push(fatal(
+                        "piece_catalog_decision_duplicate",
+                        Some(decision.piece_id.as_str()),
+                        None,
+                        "Pure catalog search evidence must contain one decision per placed piece.",
+                    ));
+                }
+                let Some(instance) = instances.get(decision.piece_id.as_str()) else {
+                    diagnostics.push(fatal(
+                        "piece_catalog_decision_instance_missing",
+                        Some(decision.piece_id.as_str()),
+                        None,
+                        "Pure catalog search evidence references a piece with no placed instance.",
+                    ));
+                    continue;
+                };
+                if decision.shape_id != instance.shape_id
+                    || decision.transform != instance.transform
+                    || decision.origin != instance.origin
+                {
+                    diagnostics.push(fatal(
+                        "piece_catalog_decision_readback_mismatch",
+                        Some(decision.piece_id.as_str()),
+                        None,
+                        "Pure catalog decision shape, transform, and origin must match the placed instance.",
+                    ));
+                }
+                if decision.origin_bounds.as_ref().is_some_and(|bounds| {
+                    decision.origin.x < bounds.min_x
+                        || decision.origin.x > bounds.max_x
+                        || decision.origin.y < bounds.min_y
+                        || decision.origin.y > bounds.max_y
+                }) {
+                    diagnostics.push(fatal(
+                        "piece_catalog_origin_bounds_invalid",
+                        Some(decision.piece_id.as_str()),
+                        None,
+                        "Pure catalog room origin falls outside its serialized geometry bounds.",
+                    ));
+                }
+                if let Some(lane) = decision.lane_constraint.as_ref() {
+                    let expected_bounds = CatalogGridBounds {
+                        min_x: lane.from.x.min(lane.to.x) - lane.envelope_cells,
+                        max_x: lane.from.x.max(lane.to.x) + lane.envelope_cells,
+                        min_y: lane.from.y.min(lane.to.y) - lane.envelope_cells,
+                        max_y: lane.from.y.max(lane.to.y) + lane.envelope_cells,
+                    };
+                    if lane.envelope_cells < 0 || lane.bounds != expected_bounds {
+                        diagnostics.push(fatal(
+                            "piece_catalog_lane_evidence_invalid",
+                            Some(decision.piece_id.as_str()),
+                            None,
+                            "Pure catalog lane evidence must preserve a non-negative envelope and its derived bounds.",
+                        ));
+                    }
+                    if instance.occupied_cells.iter().any(|cell| {
+                        grid_distance_to_segment(cell, &lane.from, &lane.to)
+                            > lane.envelope_cells
+                    }) {
+                        diagnostics.push(fatal(
+                            "piece_catalog_lane_envelope_invalid",
+                            Some(decision.piece_id.as_str()),
+                            None,
+                            "Pure catalog prefab cells fall outside the serialized corridor lane envelope.",
+                        ));
+                    }
+                }
+            }
+            for instance in &placement.instances {
+                if !selected_pieces.contains(instance.piece_id.as_str()) {
+                    diagnostics.push(fatal(
+                        "piece_catalog_instance_decision_missing",
+                        Some(instance.piece_id.as_str()),
+                        None,
+                        "Every pure catalog instance must have matching bounded-search decision evidence.",
+                    ));
+                }
+            }
             for glued in &placement.glued_exits {
                 if !pure_catalog_glue_is_direct(glued, &placement.occupied_cells) {
                     diagnostics.push(fatal(

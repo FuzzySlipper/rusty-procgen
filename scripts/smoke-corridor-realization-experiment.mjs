@@ -169,6 +169,9 @@ try {
       && typeof first.result.detail === 'string'
       && first.result.detail.includes('pure catalog')
     ) {
+      if (first.result.error === 'pure_catalog_search_exhausted') {
+        assertPureCatalogExhaustionEvidence(first.result.evidence, acceptedCandidateId);
+      }
       catalogOutcomes.set(acceptedCandidateId, 'stable rejection');
     } else {
       throw new Error(`unexpected pure catalog outcome for ${acceptedCandidateId}: ${JSON.stringify(first)}`);
@@ -195,6 +198,43 @@ try {
 } finally {
   server.kill('SIGTERM');
   await waitForChildExit(server);
+}
+
+function assertPureCatalogExhaustionEvidence(evidence, candidateId) {
+  const failure = evidence?.failure;
+  const budgets = evidence?.budgets;
+  if (
+    evidence?.kind !== 'asha_procgen.pure_catalog_exhaustion.v1'
+    || evidence.schemaVersion !== 1
+    || typeof failure?.reason !== 'string'
+    || typeof failure?.pieceId !== 'string'
+    || !Array.isArray(failure.requiredEndpoints)
+    || failure.requiredEndpoints.length === 0
+    || failure.requiredEndpoints.some((endpoint) =>
+      typeof endpoint?.id !== 'string' || typeof endpoint?.direction !== 'string')
+    || typeof failure.fixedPort?.neighborPieceId !== 'string'
+    || typeof failure.fixedPort?.neighborExitId !== 'string'
+    || !Number.isInteger(failure.fixedPort?.cell?.x)
+    || !Number.isInteger(failure.fixedPort?.cell?.y)
+    || typeof failure.fixedPort?.requiredOppositeDirection !== 'string'
+    || (failure.originBounds === undefined && failure.laneEnvelope === undefined)
+    || !Array.isArray(failure.exhaustedFamilies)
+    || failure.exhaustedFamilies.length === 0
+    || !Number.isInteger(failure.candidateCount)
+    || !Number.isInteger(budgets?.decisions)
+    || !Number.isInteger(budgets?.maxDecisions)
+    || budgets.decisions > budgets.maxDecisions
+    || !Number.isInteger(budgets?.backtracks)
+    || !Number.isInteger(budgets?.maxBacktracks)
+    || budgets.backtracks > budgets.maxBacktracks
+    || !Number.isInteger(budgets?.chainExpansions)
+    || !Number.isInteger(budgets?.maxChainExpansionsPerSection)
+  ) {
+    throw new Error(
+      `pure catalog rejection lacked actionable structured exhaustion evidence for ${candidateId}:`
+      + ` ${JSON.stringify(evidence)}`,
+    );
+  }
 }
 
 async function postExperiment(payload, expectedStatus, expectedError) {
