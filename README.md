@@ -34,6 +34,7 @@ npm run rust:check
 npm run rust:test
 npm run publish:asha-smoke
 npm run viewer:smoke
+npm run catalog:coverage
 ```
 
 ## ASHA Prefab and ProjectBundle Publishing Proof
@@ -177,6 +178,20 @@ build always reports zero routed cells. The configured result is
 used by Build, Voxel, and Voxel 3D, including verified door progression. A
 configured build is persisted downstream evidence, but does not inherit a
 matching native-authority receipt.
+
+Pure-catalog corpus coverage is reproducible with:
+
+```bash
+npm run catalog:coverage
+```
+
+The command realizes every accepted batch candidate in `catalog` mode and
+writes `artifacts/evidence/pure-catalog-coverage.json`. Successful outcomes
+must have zero generated connection cells and pass placement plus built-flow
+validation. Rejections retain their bounded structured evidence and are grouped
+by endpoint, envelope, and exhausted-family signature. This distinguishes a
+reusable catalog vocabulary gap from geometry whose room ports or corridor
+anchors need a catalog-aware generation retry.
 
 A separate geometry-layout panel controls the earlier room distribution pass:
 initial outer/column/row spacing, per-tier growth, spacing-tier count, and room

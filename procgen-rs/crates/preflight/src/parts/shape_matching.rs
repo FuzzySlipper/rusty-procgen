@@ -107,6 +107,7 @@ struct CandidateShapeMatch {
 }
 
 const MAX_PURE_CATALOG_EXIT_MAPS_PER_ORIENTATION: usize = 64;
+const MAX_PURE_CATALOG_SPECIALIZED_ALIGNMENT_ERROR: i32 = 2;
 
 fn pure_catalog_match_candidates(
     catalog: &ShapeCatalog,
@@ -207,6 +208,41 @@ fn pure_catalog_match_candidates(
                 }
             }
         }
+    }
+    let fallback_shape_ids = catalog
+        .shapes
+        .iter()
+        .filter(|shape| {
+            shape
+                .tags
+                .iter()
+                .any(|tag| tag == "pure_catalog_fallback")
+        })
+        .map(|shape| shape.shape_id.as_str())
+        .collect::<BTreeSet<_>>();
+    let has_geometry_aligned_specialized_candidate = candidates.iter().any(|candidate| {
+        if fallback_shape_ids.contains(candidate.matched_piece.shape_id.as_str()) {
+            return false;
+        }
+        let Some(shape) = catalog
+            .shapes
+            .iter()
+            .find(|shape| shape.shape_id == candidate.matched_piece.shape_id)
+        else {
+            return false;
+        };
+        pure_catalog_minimum_room_alignment_error(
+            plan,
+            requirement,
+            shape,
+            candidate.matched_piece.transform.as_str(),
+            &candidate.matched_piece.exit_map,
+        ) <= MAX_PURE_CATALOG_SPECIALIZED_ALIGNMENT_ERROR
+    });
+    if has_geometry_aligned_specialized_candidate {
+        candidates.retain(|candidate| {
+            !fallback_shape_ids.contains(candidate.matched_piece.shape_id.as_str())
+        });
     }
     candidates.sort_by(|left, right| {
         right
@@ -337,7 +373,10 @@ fn pure_catalog_exit_alignment_score(
         .sum::<i32>();
     let absolute_error =
         pure_catalog_minimum_room_alignment_error(plan, requirement, shape, transform, exit_map);
-    -(pairwise_error.saturating_mul(32) + absolute_error.saturating_mul(16))
+    pairwise_error
+        .saturating_mul(32)
+        .saturating_add(absolute_error.saturating_mul(16))
+        .saturating_neg()
 }
 
 fn pure_catalog_minimum_room_alignment_error(

@@ -1,0 +1,1351 @@
+{
+  "kind": "asha_procgen.evidence.pure_catalog_coverage.v1",
+  "schemaVersion": 1,
+  "sourceSelectionRef": "artifacts/samples/batch-v2/selection-report.json",
+  "sourceCatalogRef": "fixtures/shape-catalogs/2d-basic.json",
+  "catalogId": "shape_catalog.2d_basic.v1",
+  "summary": {
+    "candidateCount": 3,
+    "successCount": 1,
+    "rejectionCount": 2,
+    "uniqueTopologyCount": 2,
+    "successfulTopologyCount": 1,
+    "failureGroupCount": 1
+  },
+  "outcomes": [
+    {
+      "candidateId": "candidate.first_slice.5301",
+      "topologyFingerprint": "topology:75da51af2e5b93b4",
+      "status": "rejected",
+      "classification": "catalog_aware_generation_alignment",
+      "failureSignatureId": "failure.79ed1fe397998440",
+      "failureSignature": {
+        "reason": "geometry_constraint_rejected",
+        "requirementKind": "corridor",
+        "requiredDirections": [
+          "east",
+          "west"
+        ],
+        "fixedPortDirection": "east",
+        "requiredOppositeDirection": "west",
+        "offsetFromEnvelopeAnchor": {
+          "x": -2,
+          "y": -12
+        },
+        "originBounds": null,
+        "laneEnvelope": {
+          "envelopeCells": 7,
+          "from": {
+            "x": 40,
+            "y": 29
+          },
+          "to": {
+            "x": 37,
+            "y": 29
+          }
+        },
+        "exhaustedFamilies": [
+          "corridor",
+          "span_short",
+          "straight"
+        ]
+      },
+      "evidence": {
+        "kind": "asha_procgen.pure_catalog_exhaustion.v1",
+        "schemaVersion": 1,
+        "failure": {
+          "reason": "geometry_constraint_rejected",
+          "detail": "The fixed-port origin falls outside the serialized room bounds or corridor lane envelope.",
+          "pieceId": "piece.corridor.corridor_section_region_gate_locked_1_region_start_open.segment_03.tile_02",
+          "requirementKind": "corridor",
+          "shapeId": "shape.corridor.straight.1",
+          "transform": "identity",
+          "requiredEndpoints": [
+            {
+              "id": "exit.segment_03.tile_02.in",
+              "direction": "east",
+              "x": null,
+              "y": null
+            },
+            {
+              "id": "exit.segment_03.tile_02.out",
+              "direction": "west",
+              "x": null,
+              "y": null
+            }
+          ],
+          "candidateEndpoints": [
+            {
+              "id": "exit.segment_03.tile_02.in",
+              "direction": "east",
+              "x": 1,
+              "y": 0
+            },
+            {
+              "id": "exit.segment_03.tile_02.out",
+              "direction": "west",
+              "x": -1,
+              "y": 0
+            }
+          ],
+          "fixedPort": {
+            "neighborPieceId": "piece.room.room_region_start",
+            "neighborExitId": "exit.corridor_section_region_gate_locked_1_region_start_open.east",
+            "cell": {
+              "x": 38,
+              "y": 17
+            },
+            "direction": "east",
+            "requiredOppositeDirection": "west",
+            "offsetFromEnvelopeAnchor": {
+              "x": -2,
+              "y": -12
+            }
+          },
+          "originBounds": null,
+          "laneEnvelope": {
+            "sourceHint": "segment:240:176:224:176",
+            "from": {
+              "x": 40,
+              "y": 29
+            },
+            "to": {
+              "x": 37,
+              "y": 29
+            },
+            "envelopeCells": 7,
+            "bounds": {
+              "minX": 30,
+              "maxX": 47,
+              "minY": 22,
+              "maxY": 36
+            }
+          },
+          "exhaustedFamilies": [
+            "corridor",
+            "span_short",
+            "straight"
+          ],
+          "candidateCount": 1
+        },
+        "budgets": {
+          "maxDecisions": 50000,
+          "decisions": 484,
+          "maxBacktracks": 10000,
+          "backtracks": 233,
+          "maxChainExpansionsPerSection": 4096,
+          "chainExpansions": 220
+        }
+      }
+    },
+    {
+      "candidateId": "candidate.first_slice.6001",
+      "topologyFingerprint": "topology:75da51af2e5b93b4",
+      "status": "rejected",
+      "classification": "catalog_aware_generation_alignment",
+      "failureSignatureId": "failure.79ed1fe397998440",
+      "failureSignature": {
+        "reason": "geometry_constraint_rejected",
+        "requirementKind": "corridor",
+        "requiredDirections": [
+          "east",
+          "west"
+        ],
+        "fixedPortDirection": "east",
+        "requiredOppositeDirection": "west",
+        "offsetFromEnvelopeAnchor": {
+          "x": -2,
+          "y": -12
+        },
+        "originBounds": null,
+        "laneEnvelope": {
+          "envelopeCells": 7,
+          "from": {
+            "x": 40,
+            "y": 29
+          },
+          "to": {
+            "x": 37,
+            "y": 29
+          }
+        },
+        "exhaustedFamilies": [
+          "corridor",
+          "span_short",
+          "straight"
+        ]
+      },
+      "evidence": {
+        "kind": "asha_procgen.pure_catalog_exhaustion.v1",
+        "schemaVersion": 1,
+        "failure": {
+          "reason": "geometry_constraint_rejected",
+          "detail": "The fixed-port origin falls outside the serialized room bounds or corridor lane envelope.",
+          "pieceId": "piece.corridor.corridor_section_region_gate_locked_1_region_start_open.segment_03.tile_02",
+          "requirementKind": "corridor",
+          "shapeId": "shape.corridor.straight.1",
+          "transform": "identity",
+          "requiredEndpoints": [
+            {
+              "id": "exit.segment_03.tile_02.in",
+              "direction": "east",
+              "x": null,
+              "y": null
+            },
+            {
+              "id": "exit.segment_03.tile_02.out",
+              "direction": "west",
+              "x": null,
+              "y": null
+            }
+          ],
+          "candidateEndpoints": [
+            {
+              "id": "exit.segment_03.tile_02.in",
+              "direction": "east",
+              "x": 1,
+              "y": 0
+            },
+            {
+              "id": "exit.segment_03.tile_02.out",
+              "direction": "west",
+              "x": -1,
+              "y": 0
+            }
+          ],
+          "fixedPort": {
+            "neighborPieceId": "piece.room.room_region_start",
+            "neighborExitId": "exit.corridor_section_region_gate_locked_1_region_start_open.east",
+            "cell": {
+              "x": 38,
+              "y": 17
+            },
+            "direction": "east",
+            "requiredOppositeDirection": "west",
+            "offsetFromEnvelopeAnchor": {
+              "x": -2,
+              "y": -12
+            }
+          },
+          "originBounds": null,
+          "laneEnvelope": {
+            "sourceHint": "segment:240:176:224:176",
+            "from": {
+              "x": 40,
+              "y": 29
+            },
+            "to": {
+              "x": 37,
+              "y": 29
+            },
+            "envelopeCells": 7,
+            "bounds": {
+              "minX": 30,
+              "maxX": 47,
+              "minY": 22,
+              "maxY": 36
+            }
+          },
+          "exhaustedFamilies": [
+            "corridor",
+            "span_short",
+            "straight"
+          ],
+          "candidateCount": 1
+        },
+        "budgets": {
+          "maxDecisions": 50000,
+          "decisions": 484,
+          "maxBacktracks": 10000,
+          "backtracks": 233,
+          "maxChainExpansionsPerSection": 4096,
+          "chainExpansions": 220
+        }
+      }
+    },
+    {
+      "candidateId": "candidate.first_slice.5801",
+      "topologyFingerprint": "topology:9cb0a811896f1cf7",
+      "status": "success",
+      "classification": "catalog_exact_assembly",
+      "placementId": "piece_placement.piece_shape_match.piece_plan.geometry.candidate.first_slice.5801.14310.catalog.14341.alternative_0.pure_catalog",
+      "instanceCount": 36,
+      "connectionCellCount": 0,
+      "placementValidationOk": true,
+      "builtFlowValidationOk": true,
+      "usedShapeIds": [
+        "shape.corridor.bend.1x1",
+        "shape.corridor.bend.3x3",
+        "shape.corridor.straight.1",
+        "shape.corridor.straight.3",
+        "shape.corridor.straight.7",
+        "shape.room.flow_junction.36_exit",
+        "shape.room.marker.9x9_two_east",
+        "shape.room.standard.1_exit",
+        "shape.room.threshold.19x14_multi_exit"
+      ],
+      "search": {
+        "schemaVersion": 1,
+        "maxDecisions": 50000,
+        "maxBacktracks": 10000,
+        "maxChainExpansionsPerSection": 4096,
+        "maxRoomOriginAlternatives": 8,
+        "maxRoomRotationAlternatives": 4,
+        "decisions": 73,
+        "backtracks": 25,
+        "chainExpansions": 56,
+        "roomOriginAttempts": 17,
+        "roomRotationAttempts": 16,
+        "selected": [
+          {
+            "pieceId": "piece.room.room_region_start",
+            "shapeId": "shape.room.marker.9x9_two_east",
+            "transform": "identity",
+            "candidateRank": 0,
+            "candidateCount": 2,
+            "origin": {
+              "x": 28,
+              "y": 21
+            },
+            "originBounds": {
+              "minX": 16,
+              "maxX": 29,
+              "minY": 16,
+              "maxY": 26
+            }
+          },
+          {
+            "pieceId": "piece.corridor.corridor_section_region_gate_locked_1_region_start_open.segment_03.tile_02",
+            "shapeId": "shape.corridor.straight.1",
+            "transform": "identity",
+            "candidateRank": 0,
+            "candidateCount": 1,
+            "origin": {
+              "x": 37,
+              "y": 21
+            },
+            "laneConstraint": {
+              "sourceHint": "segment:240:128:224:128",
+              "from": {
+                "x": 40,
+                "y": 21
+              },
+              "to": {
+                "x": 37,
+                "y": 21
+              },
+              "envelopeCells": 7,
+              "bounds": {
+                "minX": 30,
+                "maxX": 47,
+                "minY": 14,
+                "maxY": 28
+              }
+            }
+          },
+          {
+            "pieceId": "piece.corridor.corridor_section_region_gate_locked_1_region_start_open.segment_03.tile_01",
+            "shapeId": "shape.corridor.straight.1",
+            "transform": "identity",
+            "candidateRank": 0,
+            "candidateCount": 1,
+            "origin": {
+              "x": 38,
+              "y": 21
+            },
+            "laneConstraint": {
+              "sourceHint": "segment:240:128:224:128",
+              "from": {
+                "x": 40,
+                "y": 21
+              },
+              "to": {
+                "x": 37,
+                "y": 21
+              },
+              "envelopeCells": 7,
+              "bounds": {
+                "minX": 30,
+                "maxX": 47,
+                "minY": 14,
+                "maxY": 28
+              }
+            }
+          },
+          {
+            "pieceId": "piece.bend.corridor_section_region_gate_locked_1_region_start_open.turn_02",
+            "shapeId": "shape.corridor.bend.1x1",
+            "transform": "identity",
+            "candidateRank": 0,
+            "candidateCount": 1,
+            "origin": {
+              "x": 39,
+              "y": 21
+            },
+            "laneConstraint": {
+              "sourceHint": "point:240:128",
+              "from": {
+                "x": 40,
+                "y": 21
+              },
+              "to": {
+                "x": 40,
+                "y": 21
+              },
+              "envelopeCells": 7,
+              "bounds": {
+                "minX": 33,
+                "maxX": 47,
+                "minY": 14,
+                "maxY": 28
+              }
+            }
+          },
+          {
+            "pieceId": "piece.bend.corridor_section_region_gate_locked_1_region_start_open.turn_01",
+            "shapeId": "shape.corridor.bend.1x1",
+            "transform": "rotate180",
+            "candidateRank": 0,
+            "candidateCount": 1,
+            "origin": {
+              "x": 39,
+              "y": 22
+            },
+            "laneConstraint": {
+              "sourceHint": "point:240:136",
+              "from": {
+                "x": 40,
+                "y": 22
+              },
+              "to": {
+                "x": 40,
+                "y": 22
+              },
+              "envelopeCells": 7,
+              "bounds": {
+                "minX": 33,
+                "maxX": 47,
+                "minY": 15,
+                "maxY": 29
+              }
+            }
+          },
+          {
+            "pieceId": "piece.corridor.corridor_section_region_gate_locked_1_region_start_open.segment_01.tile_03",
+            "shapeId": "shape.corridor.straight.7",
+            "transform": "identity",
+            "candidateRank": 0,
+            "candidateCount": 1,
+            "origin": {
+              "x": 40,
+              "y": 22
+            },
+            "laneConstraint": {
+              "sourceHint": "segment:368:136:240:136",
+              "from": {
+                "x": 61,
+                "y": 22
+              },
+              "to": {
+                "x": 40,
+                "y": 22
+              },
+              "envelopeCells": 7,
+              "bounds": {
+                "minX": 33,
+                "maxX": 68,
+                "minY": 15,
+                "maxY": 29
+              }
+            }
+          },
+          {
+            "pieceId": "piece.corridor.corridor_section_region_gate_locked_1_region_start_open.segment_01.tile_02",
+            "shapeId": "shape.corridor.straight.7",
+            "transform": "identity",
+            "candidateRank": 0,
+            "candidateCount": 1,
+            "origin": {
+              "x": 47,
+              "y": 22
+            },
+            "laneConstraint": {
+              "sourceHint": "segment:368:136:240:136",
+              "from": {
+                "x": 61,
+                "y": 22
+              },
+              "to": {
+                "x": 40,
+                "y": 22
+              },
+              "envelopeCells": 7,
+              "bounds": {
+                "minX": 33,
+                "maxX": 68,
+                "minY": 15,
+                "maxY": 29
+              }
+            }
+          },
+          {
+            "pieceId": "piece.corridor.corridor_section_region_gate_locked_1_region_start_open.segment_01.tile_01",
+            "shapeId": "shape.corridor.straight.7",
+            "transform": "identity",
+            "candidateRank": 0,
+            "candidateCount": 1,
+            "origin": {
+              "x": 54,
+              "y": 22
+            },
+            "laneConstraint": {
+              "sourceHint": "segment:368:136:240:136",
+              "from": {
+                "x": 61,
+                "y": 22
+              },
+              "to": {
+                "x": 40,
+                "y": 22
+              },
+              "envelopeCells": 7,
+              "bounds": {
+                "minX": 33,
+                "maxX": 68,
+                "minY": 15,
+                "maxY": 29
+              }
+            }
+          },
+          {
+            "pieceId": "piece.corridor.corridor_section_region_key_gate_1_region_start_open.segment_03.tile_02",
+            "shapeId": "shape.corridor.straight.1",
+            "transform": "identity",
+            "candidateRank": 0,
+            "candidateCount": 1,
+            "origin": {
+              "x": 37,
+              "y": 29
+            },
+            "laneConstraint": {
+              "sourceHint": "segment:240:176:224:176",
+              "from": {
+                "x": 40,
+                "y": 29
+              },
+              "to": {
+                "x": 37,
+                "y": 29
+              },
+              "envelopeCells": 7,
+              "bounds": {
+                "minX": 30,
+                "maxX": 47,
+                "minY": 22,
+                "maxY": 36
+              }
+            }
+          },
+          {
+            "pieceId": "piece.corridor.corridor_section_region_key_gate_1_region_start_open.segment_03.tile_01",
+            "shapeId": "shape.corridor.straight.1",
+            "transform": "identity",
+            "candidateRank": 0,
+            "candidateCount": 1,
+            "origin": {
+              "x": 38,
+              "y": 29
+            },
+            "laneConstraint": {
+              "sourceHint": "segment:240:176:224:176",
+              "from": {
+                "x": 40,
+                "y": 29
+              },
+              "to": {
+                "x": 37,
+                "y": 29
+              },
+              "envelopeCells": 7,
+              "bounds": {
+                "minX": 30,
+                "maxX": 47,
+                "minY": 22,
+                "maxY": 36
+              }
+            }
+          },
+          {
+            "pieceId": "piece.bend.corridor_section_region_key_gate_1_region_start_open.turn_02",
+            "shapeId": "shape.corridor.bend.1x1",
+            "transform": "identity",
+            "candidateRank": 0,
+            "candidateCount": 1,
+            "origin": {
+              "x": 39,
+              "y": 29
+            },
+            "laneConstraint": {
+              "sourceHint": "point:240:176",
+              "from": {
+                "x": 40,
+                "y": 29
+              },
+              "to": {
+                "x": 40,
+                "y": 29
+              },
+              "envelopeCells": 7,
+              "bounds": {
+                "minX": 33,
+                "maxX": 47,
+                "minY": 22,
+                "maxY": 36
+              }
+            }
+          },
+          {
+            "pieceId": "piece.corridor.corridor_section_region_key_gate_1_region_start_open.segment_02.tile_02",
+            "shapeId": "shape.corridor.straight.7",
+            "transform": "rotate90",
+            "candidateRank": 0,
+            "candidateCount": 1,
+            "origin": {
+              "x": 39,
+              "y": 30
+            },
+            "laneConstraint": {
+              "sourceHint": "segment:240:280:240:176",
+              "from": {
+                "x": 40,
+                "y": 46
+              },
+              "to": {
+                "x": 40,
+                "y": 29
+              },
+              "envelopeCells": 7,
+              "bounds": {
+                "minX": 33,
+                "maxX": 47,
+                "minY": 22,
+                "maxY": 53
+              }
+            }
+          },
+          {
+            "pieceId": "piece.corridor.corridor_section_region_key_gate_1_region_start_open.segment_02.tile_01",
+            "shapeId": "shape.corridor.straight.7",
+            "transform": "rotate90",
+            "candidateRank": 0,
+            "candidateCount": 1,
+            "origin": {
+              "x": 39,
+              "y": 37
+            },
+            "laneConstraint": {
+              "sourceHint": "segment:240:280:240:176",
+              "from": {
+                "x": 40,
+                "y": 46
+              },
+              "to": {
+                "x": 40,
+                "y": 29
+              },
+              "envelopeCells": 7,
+              "bounds": {
+                "minX": 33,
+                "maxX": 47,
+                "minY": 22,
+                "maxY": 53
+              }
+            }
+          },
+          {
+            "pieceId": "piece.bend.corridor_section_region_key_gate_1_region_start_open.turn_01",
+            "shapeId": "shape.corridor.bend.3x3",
+            "transform": "rotate180",
+            "candidateRank": 0,
+            "candidateCount": 2,
+            "origin": {
+              "x": 39,
+              "y": 44
+            },
+            "laneConstraint": {
+              "sourceHint": "point:240:280",
+              "from": {
+                "x": 40,
+                "y": 46
+              },
+              "to": {
+                "x": 40,
+                "y": 46
+              },
+              "envelopeCells": 7,
+              "bounds": {
+                "minX": 33,
+                "maxX": 47,
+                "minY": 39,
+                "maxY": 53
+              }
+            }
+          },
+          {
+            "pieceId": "piece.corridor.corridor_section_region_key_gate_1_region_start_open.segment_01.tile_05",
+            "shapeId": "shape.corridor.straight.1",
+            "transform": "identity",
+            "candidateRank": 0,
+            "candidateCount": 1,
+            "origin": {
+              "x": 42,
+              "y": 46
+            },
+            "laneConstraint": {
+              "sourceHint": "segment:368:280:240:280",
+              "from": {
+                "x": 61,
+                "y": 46
+              },
+              "to": {
+                "x": 40,
+                "y": 46
+              },
+              "envelopeCells": 7,
+              "bounds": {
+                "minX": 33,
+                "maxX": 68,
+                "minY": 39,
+                "maxY": 53
+              }
+            }
+          },
+          {
+            "pieceId": "piece.corridor.corridor_section_region_key_gate_1_region_start_open.segment_01.tile_04",
+            "shapeId": "shape.corridor.straight.1",
+            "transform": "identity",
+            "candidateRank": 0,
+            "candidateCount": 1,
+            "origin": {
+              "x": 43,
+              "y": 46
+            },
+            "laneConstraint": {
+              "sourceHint": "segment:368:280:240:280",
+              "from": {
+                "x": 61,
+                "y": 46
+              },
+              "to": {
+                "x": 40,
+                "y": 46
+              },
+              "envelopeCells": 7,
+              "bounds": {
+                "minX": 33,
+                "maxX": 68,
+                "minY": 39,
+                "maxY": 53
+              }
+            }
+          },
+          {
+            "pieceId": "piece.corridor.corridor_section_region_key_gate_1_region_start_open.segment_01.tile_03",
+            "shapeId": "shape.corridor.straight.3",
+            "transform": "identity",
+            "candidateRank": 0,
+            "candidateCount": 1,
+            "origin": {
+              "x": 44,
+              "y": 46
+            },
+            "laneConstraint": {
+              "sourceHint": "segment:368:280:240:280",
+              "from": {
+                "x": 61,
+                "y": 46
+              },
+              "to": {
+                "x": 40,
+                "y": 46
+              },
+              "envelopeCells": 7,
+              "bounds": {
+                "minX": 33,
+                "maxX": 68,
+                "minY": 39,
+                "maxY": 53
+              }
+            }
+          },
+          {
+            "pieceId": "piece.corridor.corridor_section_region_key_gate_1_region_start_open.segment_01.tile_02",
+            "shapeId": "shape.corridor.straight.7",
+            "transform": "identity",
+            "candidateRank": 0,
+            "candidateCount": 1,
+            "origin": {
+              "x": 47,
+              "y": 46
+            },
+            "laneConstraint": {
+              "sourceHint": "segment:368:280:240:280",
+              "from": {
+                "x": 61,
+                "y": 46
+              },
+              "to": {
+                "x": 40,
+                "y": 46
+              },
+              "envelopeCells": 7,
+              "bounds": {
+                "minX": 33,
+                "maxX": 68,
+                "minY": 39,
+                "maxY": 53
+              }
+            }
+          },
+          {
+            "pieceId": "piece.corridor.corridor_section_region_key_gate_1_region_start_open.segment_01.tile_01",
+            "shapeId": "shape.corridor.straight.7",
+            "transform": "identity",
+            "candidateRank": 0,
+            "candidateCount": 1,
+            "origin": {
+              "x": 54,
+              "y": 46
+            },
+            "laneConstraint": {
+              "sourceHint": "segment:368:280:240:280",
+              "from": {
+                "x": 61,
+                "y": 46
+              },
+              "to": {
+                "x": 40,
+                "y": 46
+              },
+              "envelopeCells": 7,
+              "bounds": {
+                "minX": 33,
+                "maxX": 68,
+                "minY": 39,
+                "maxY": 53
+              }
+            }
+          },
+          {
+            "pieceId": "piece.room.room_region_gate_locked_1",
+            "shapeId": "shape.room.threshold.19x14_multi_exit",
+            "transform": "identity",
+            "candidateRank": 0,
+            "candidateCount": 28,
+            "origin": {
+              "x": 61,
+              "y": 16
+            },
+            "originBounds": {
+              "minX": 61,
+              "maxX": 61,
+              "minY": 16,
+              "maxY": 16
+            }
+          },
+          {
+            "pieceId": "piece.corridor.corridor_section_region_gate_locked_1_region_goal_connector_edge_gate_1_goal.segment_01.tile_01",
+            "shapeId": "shape.corridor.straight.7",
+            "transform": "identity",
+            "candidateRank": 0,
+            "candidateCount": 1,
+            "origin": {
+              "x": 80,
+              "y": 22
+            },
+            "laneConstraint": {
+              "sourceHint": "segment:480:136:600:136",
+              "from": {
+                "x": 80,
+                "y": 22
+              },
+              "to": {
+                "x": 100,
+                "y": 22
+              },
+              "envelopeCells": 7,
+              "bounds": {
+                "minX": 73,
+                "maxX": 107,
+                "minY": 15,
+                "maxY": 29
+              }
+            }
+          },
+          {
+            "pieceId": "piece.corridor.corridor_section_region_gate_locked_1_region_goal_connector_edge_gate_1_goal.segment_01.tile_02",
+            "shapeId": "shape.corridor.straight.7",
+            "transform": "identity",
+            "candidateRank": 0,
+            "candidateCount": 1,
+            "origin": {
+              "x": 87,
+              "y": 22
+            },
+            "laneConstraint": {
+              "sourceHint": "segment:480:136:600:136",
+              "from": {
+                "x": 80,
+                "y": 22
+              },
+              "to": {
+                "x": 100,
+                "y": 22
+              },
+              "envelopeCells": 7,
+              "bounds": {
+                "minX": 73,
+                "maxX": 107,
+                "minY": 15,
+                "maxY": 29
+              }
+            }
+          },
+          {
+            "pieceId": "piece.corridor.corridor_section_region_gate_locked_1_region_goal_connector_edge_gate_1_goal.segment_01.tile_03",
+            "shapeId": "shape.corridor.straight.3",
+            "transform": "identity",
+            "candidateRank": 0,
+            "candidateCount": 1,
+            "origin": {
+              "x": 94,
+              "y": 22
+            },
+            "laneConstraint": {
+              "sourceHint": "segment:480:136:600:136",
+              "from": {
+                "x": 80,
+                "y": 22
+              },
+              "to": {
+                "x": 100,
+                "y": 22
+              },
+              "envelopeCells": 7,
+              "bounds": {
+                "minX": 73,
+                "maxX": 107,
+                "minY": 15,
+                "maxY": 29
+              }
+            }
+          },
+          {
+            "pieceId": "piece.corridor.corridor_section_region_gate_locked_1_region_goal_connector_edge_gate_1_goal.segment_01.tile_04",
+            "shapeId": "shape.corridor.straight.3",
+            "transform": "identity",
+            "candidateRank": 0,
+            "candidateCount": 1,
+            "origin": {
+              "x": 97,
+              "y": 22
+            },
+            "laneConstraint": {
+              "sourceHint": "segment:480:136:600:136",
+              "from": {
+                "x": 80,
+                "y": 22
+              },
+              "to": {
+                "x": 100,
+                "y": 22
+              },
+              "envelopeCells": 7,
+              "bounds": {
+                "minX": 73,
+                "maxX": 107,
+                "minY": 15,
+                "maxY": 29
+              }
+            }
+          },
+          {
+            "pieceId": "piece.bend.corridor_section_region_gate_locked_1_region_goal_connector_edge_gate_1_goal.turn_01",
+            "shapeId": "shape.corridor.bend.1x1",
+            "transform": "identity",
+            "candidateRank": 0,
+            "candidateCount": 1,
+            "origin": {
+              "x": 100,
+              "y": 22
+            },
+            "laneConstraint": {
+              "sourceHint": "point:600:136",
+              "from": {
+                "x": 100,
+                "y": 22
+              },
+              "to": {
+                "x": 100,
+                "y": 22
+              },
+              "envelopeCells": 7,
+              "bounds": {
+                "minX": 93,
+                "maxX": 107,
+                "minY": 15,
+                "maxY": 29
+              }
+            }
+          },
+          {
+            "pieceId": "piece.bend.corridor_section_region_gate_locked_1_region_goal_connector_edge_gate_1_goal.turn_02",
+            "shapeId": "shape.corridor.bend.1x1",
+            "transform": "rotate180",
+            "candidateRank": 0,
+            "candidateCount": 1,
+            "origin": {
+              "x": 100,
+              "y": 23
+            },
+            "laneConstraint": {
+              "sourceHint": "point:600:144",
+              "from": {
+                "x": 100,
+                "y": 24
+              },
+              "to": {
+                "x": 100,
+                "y": 24
+              },
+              "envelopeCells": 7,
+              "bounds": {
+                "minX": 93,
+                "maxX": 107,
+                "minY": 17,
+                "maxY": 31
+              }
+            }
+          },
+          {
+            "pieceId": "piece.corridor.corridor_section_region_gate_locked_1_region_goal_connector_edge_gate_1_goal.segment_03.tile_01",
+            "shapeId": "shape.corridor.straight.3",
+            "transform": "identity",
+            "candidateRank": 0,
+            "candidateCount": 1,
+            "origin": {
+              "x": 101,
+              "y": 23
+            },
+            "laneConstraint": {
+              "sourceHint": "segment:600:144:624:144",
+              "from": {
+                "x": 100,
+                "y": 24
+              },
+              "to": {
+                "x": 104,
+                "y": 24
+              },
+              "envelopeCells": 7,
+              "bounds": {
+                "minX": 93,
+                "maxX": 111,
+                "minY": 17,
+                "maxY": 31
+              }
+            }
+          },
+          {
+            "pieceId": "piece.corridor.corridor_section_region_gate_locked_1_region_goal_connector_edge_gate_1_goal.segment_03.tile_02",
+            "shapeId": "shape.corridor.straight.1",
+            "transform": "identity",
+            "candidateRank": 0,
+            "candidateCount": 1,
+            "origin": {
+              "x": 104,
+              "y": 23
+            },
+            "laneConstraint": {
+              "sourceHint": "segment:600:144:624:144",
+              "from": {
+                "x": 100,
+                "y": 24
+              },
+              "to": {
+                "x": 104,
+                "y": 24
+              },
+              "envelopeCells": 7,
+              "bounds": {
+                "minX": 93,
+                "maxX": 111,
+                "minY": 17,
+                "maxY": 31
+              }
+            }
+          },
+          {
+            "pieceId": "piece.corridor.corridor_section_region_gate_locked_1_region_key_gate_1_open.segment_01.tile_01",
+            "shapeId": "shape.corridor.straight.7",
+            "transform": "rotate90",
+            "candidateRank": 0,
+            "candidateCount": 1,
+            "origin": {
+              "x": 70,
+              "y": 30
+            },
+            "laneConstraint": {
+              "sourceHint": "segment:424:176:424:224",
+              "from": {
+                "x": 70,
+                "y": 29
+              },
+              "to": {
+                "x": 70,
+                "y": 37
+              },
+              "envelopeCells": 7,
+              "bounds": {
+                "minX": 63,
+                "maxX": 77,
+                "minY": 22,
+                "maxY": 44
+              }
+            }
+          },
+          {
+            "pieceId": "piece.corridor.corridor_section_region_gate_locked_1_region_key_gate_1_open.segment_01.tile_02",
+            "shapeId": "shape.corridor.straight.1",
+            "transform": "rotate90",
+            "candidateRank": 0,
+            "candidateCount": 1,
+            "origin": {
+              "x": 70,
+              "y": 37
+            },
+            "laneConstraint": {
+              "sourceHint": "segment:424:176:424:224",
+              "from": {
+                "x": 70,
+                "y": 29
+              },
+              "to": {
+                "x": 70,
+                "y": 37
+              },
+              "envelopeCells": 7,
+              "bounds": {
+                "minX": 63,
+                "maxX": 77,
+                "minY": 22,
+                "maxY": 44
+              }
+            }
+          },
+          {
+            "pieceId": "piece.bend.corridor_section_region_gate_locked_1_region_key_gate_1_open.turn_01",
+            "shapeId": "shape.corridor.bend.1x1",
+            "transform": "rotate90",
+            "candidateRank": 0,
+            "candidateCount": 1,
+            "origin": {
+              "x": 70,
+              "y": 38
+            },
+            "laneConstraint": {
+              "sourceHint": "point:424:224",
+              "from": {
+                "x": 70,
+                "y": 37
+              },
+              "to": {
+                "x": 70,
+                "y": 37
+              },
+              "envelopeCells": 7,
+              "bounds": {
+                "minX": 63,
+                "maxX": 77,
+                "minY": 30,
+                "maxY": 44
+              }
+            }
+          },
+          {
+            "pieceId": "piece.bend.corridor_section_region_gate_locked_1_region_key_gate_1_open.turn_02",
+            "shapeId": "shape.corridor.bend.1x1",
+            "transform": "rotate270",
+            "candidateRank": 0,
+            "candidateCount": 1,
+            "origin": {
+              "x": 69,
+              "y": 38
+            },
+            "laneConstraint": {
+              "sourceHint": "point:416:224",
+              "from": {
+                "x": 69,
+                "y": 37
+              },
+              "to": {
+                "x": 69,
+                "y": 37
+              },
+              "envelopeCells": 7,
+              "bounds": {
+                "minX": 62,
+                "maxX": 76,
+                "minY": 30,
+                "maxY": 44
+              }
+            }
+          },
+          {
+            "pieceId": "piece.corridor.corridor_section_region_gate_locked_1_region_key_gate_1_open.segment_03.tile_01",
+            "shapeId": "shape.corridor.straight.1",
+            "transform": "rotate90",
+            "candidateRank": 0,
+            "candidateCount": 1,
+            "origin": {
+              "x": 69,
+              "y": 39
+            },
+            "laneConstraint": {
+              "sourceHint": "segment:416:224:416:240",
+              "from": {
+                "x": 69,
+                "y": 37
+              },
+              "to": {
+                "x": 69,
+                "y": 40
+              },
+              "envelopeCells": 7,
+              "bounds": {
+                "minX": 62,
+                "maxX": 76,
+                "minY": 30,
+                "maxY": 47
+              }
+            }
+          },
+          {
+            "pieceId": "piece.corridor.corridor_section_region_gate_locked_1_region_key_gate_1_open.segment_03.tile_02",
+            "shapeId": "shape.corridor.straight.1",
+            "transform": "rotate90",
+            "candidateRank": 0,
+            "candidateCount": 1,
+            "origin": {
+              "x": 69,
+              "y": 40
+            },
+            "laneConstraint": {
+              "sourceHint": "segment:416:224:416:240",
+              "from": {
+                "x": 69,
+                "y": 37
+              },
+              "to": {
+                "x": 69,
+                "y": 40
+              },
+              "envelopeCells": 7,
+              "bounds": {
+                "minX": 62,
+                "maxX": 76,
+                "minY": 30,
+                "maxY": 47
+              }
+            }
+          },
+          {
+            "pieceId": "piece.room.room_region_key_gate_1",
+            "shapeId": "shape.room.flow_junction.36_exit",
+            "transform": "identity",
+            "candidateRank": 2,
+            "candidateCount": 257,
+            "origin": {
+              "x": 61,
+              "y": 41
+            },
+            "originBounds": {
+              "minX": 61,
+              "maxX": 69,
+              "minY": 40,
+              "maxY": 45
+            }
+          },
+          {
+            "pieceId": "piece.room.room_region_goal",
+            "shapeId": "shape.room.standard.1_exit",
+            "transform": "rotate180",
+            "candidateRank": 0,
+            "candidateCount": 14,
+            "origin": {
+              "x": 105,
+              "y": 22
+            },
+            "originBounds": {
+              "minX": 104,
+              "maxX": 123,
+              "minY": 16,
+              "maxY": 29
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "failureGroups": [
+    {
+      "failureSignatureId": "failure.79ed1fe397998440",
+      "classification": "catalog_aware_generation_alignment",
+      "candidateIds": [
+        "candidate.first_slice.5301",
+        "candidate.first_slice.6001"
+      ],
+      "topologyFingerprints": [
+        "topology:75da51af2e5b93b4"
+      ],
+      "signature": {
+        "reason": "geometry_constraint_rejected",
+        "requirementKind": "corridor",
+        "requiredDirections": [
+          "east",
+          "west"
+        ],
+        "fixedPortDirection": "east",
+        "requiredOppositeDirection": "west",
+        "offsetFromEnvelopeAnchor": {
+          "x": -2,
+          "y": -12
+        },
+        "originBounds": null,
+        "laneEnvelope": {
+          "envelopeCells": 7,
+          "from": {
+            "x": 40,
+            "y": 29
+          },
+          "to": {
+            "x": 37,
+            "y": 29
+          }
+        },
+        "exhaustedFamilies": [
+          "corridor",
+          "span_short",
+          "straight"
+        ]
+      }
+    }
+  ],
+  "recommendations": [
+    {
+      "failureSignatureId": "failure.79ed1fe397998440",
+      "action": "retry geometry with catalog-aligned room ports and corridor envelopes",
+      "followUpTaskId": 6196
+    }
+  ]
+}

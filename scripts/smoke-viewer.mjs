@@ -13,9 +13,22 @@ const outDir = process.env.VIEWER_SMOKE_OUT ?? join(tmpdir(), 'asha-procgen-view
 
 await mkdir(outDir, { recursive: true });
 const generationConfigPath = join(outDir, 'viewer-generation-config.json');
+const generationConfig = JSON.parse(
+  await readFile('config/viewer-generation.json', 'utf8'),
+);
+for (const settings of [
+  generationConfig.geometryLayoutPolicy,
+  generationConfig.placementPolicy,
+]) {
+  for (const setting of Object.values(settings)) {
+    setting.value = setting.defaultValue;
+  }
+}
+generationConfig.corridorRealization.value =
+  generationConfig.corridorRealization.defaultValue;
 await writeFile(
   generationConfigPath,
-  await readFile('config/viewer-generation.json', 'utf8'),
+  `${JSON.stringify(generationConfig, null, 2)}\n`,
   'utf8',
 );
 
@@ -637,7 +650,10 @@ async function exerciseEngineInspection(chromium, url, primaryCandidateId, alter
       || pureCatalogFailure.frameHash !== pureCatalogBaseline.frameHash
       || !String(pureCatalogFailure.status).includes('Rebuild failed; persisted configuration and current result were unchanged')
       || !String(pureCatalogFailure.status).includes('Required endpoints:')
-      || !String(pureCatalogFailure.status).includes('Lane point:')
+      || !(
+        String(pureCatalogFailure.status).includes('Lane point:')
+        || String(pureCatalogFailure.status).includes('Lane segment:')
+      )
       || !String(pureCatalogFailure.status).includes('Exhausted families:')
       || !String(pureCatalogFailure.status).includes('Budgets:')
     ) {

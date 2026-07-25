@@ -2420,6 +2420,127 @@ mod tests {
     }
 
     #[test]
+    fn pure_catalog_room_matching_prefers_aligned_specialized_shapes_over_fallbacks() {
+        let mut fallback = test_catalog_shape(
+            "shape.room.fallback",
+            &["room"],
+            &["identity"],
+            vec![test_catalog_exit("exit.east", "east")],
+            Vec::new(),
+            &["pure_catalog_fallback"],
+        );
+        fallback.footprint = vec![GridCell { x: 0, y: 0 }];
+        let mut specialized = test_catalog_shape(
+            "shape.room.specialized",
+            &["room"],
+            &["identity"],
+            vec![test_catalog_exit("exit.east", "east")],
+            Vec::new(),
+            &["pure_catalog_only"],
+        );
+        specialized.footprint = vec![GridCell { x: 0, y: 0 }];
+        let mut room = test_piece_requirement(
+            "piece.room",
+            "room",
+            vec![test_piece_exit("exit.room", "east")],
+            Vec::new(),
+            &["room"],
+        );
+        room.placement_hints = vec!["geometryRect:0:0:6:6".to_owned()];
+        let mut corridor = test_piece_requirement(
+            "piece.corridor",
+            "corridor",
+            vec![test_piece_exit("exit.corridor", "west")],
+            Vec::new(),
+            &["corridor"],
+        );
+        corridor.placement_hints = vec!["point:0:0".to_owned()];
+        let mut plan = test_piece_plan(vec![room, corridor]);
+        plan.links = vec![test_piece_link(
+            "link.room",
+            "piece.room",
+            "exit.room",
+            "piece.corridor",
+            "exit.corridor",
+            "section.test",
+        )];
+        let candidates = pure_catalog_match_candidates(
+            &test_shape_catalog(vec![fallback.clone(), specialized.clone()]),
+            &plan.requirements[0],
+            &plan,
+            42,
+        );
+        assert!(!candidates.is_empty());
+        assert!(candidates
+            .iter()
+            .all(|candidate| candidate.shape_id == "shape.room.specialized"));
+
+        specialized.footprint = vec![
+            GridCell { x: 0, y: 0 },
+            GridCell { x: 1, y: 0 },
+            GridCell { x: 2, y: 0 },
+        ];
+        let candidates = pure_catalog_match_candidates(
+            &test_shape_catalog(vec![fallback, specialized]),
+            &plan.requirements[0],
+            &plan,
+            42,
+        );
+        assert!(candidates
+            .iter()
+            .any(|candidate| candidate.shape_id == "shape.room.fallback"));
+    }
+
+    #[test]
+    fn pure_catalog_alignment_score_saturates_for_shape_outside_room_zone() {
+        let mut shape = test_catalog_shape(
+            "shape.room.too_wide",
+            &["room"],
+            &["identity"],
+            vec![test_catalog_exit("exit.east", "east")],
+            Vec::new(),
+            &["pure_catalog_only"],
+        );
+        shape.footprint = (0..32).map(|x| GridCell { x, y: 0 }).collect();
+        let mut room = test_piece_requirement(
+            "piece.room",
+            "room",
+            vec![test_piece_exit("exit.room", "east")],
+            Vec::new(),
+            &["room"],
+        );
+        room.placement_hints = vec!["geometryRect:0:0:6:6".to_owned()];
+        let mut corridor = test_piece_requirement(
+            "piece.corridor",
+            "corridor",
+            vec![test_piece_exit("exit.corridor", "west")],
+            Vec::new(),
+            &["corridor"],
+        );
+        corridor.placement_hints = vec!["point:0:0".to_owned()];
+        let mut plan = test_piece_plan(vec![room.clone(), corridor]);
+        plan.links = vec![test_piece_link(
+            "link.room",
+            "piece.room",
+            "exit.room",
+            "piece.corridor",
+            "exit.corridor",
+            "section.test",
+        )];
+        let exit_map = vec![MatchedExit {
+            requirement_exit_id: "exit.room".to_owned(),
+            catalog_exit_id: "exit.east".to_owned(),
+            x: 1,
+            y: 0,
+            direction: "east".to_owned(),
+            width: 1,
+        }];
+        let score =
+            pure_catalog_exit_alignment_score(&plan, &room, &shape, "identity", &exit_map);
+        assert_eq!(score, -i32::MAX);
+    }
+
+    #[test]
     fn piece_placement_assembles_full_stack_without_overlap() {
         let placement = full_stack_piece_placement_fixture(951);
         let report = validate_piece_placement(&placement);

@@ -110,8 +110,8 @@
       "tags": ["large", "hub", "landmark", "choice"]
     },
     {
-      "shapeId": "shape.room.threshold.19x14_3_exit",
-      "label": "Wide threshold chamber, west/east/south exits",
+      "shapeId": "shape.room.threshold.19x14_multi_exit",
+      "label": "Wide threshold chamber with offset cardinal portals",
       "pieceKinds": ["threshold"],
       "footprint": [
         {"x": 0, "y": 0}, {"x": 1, "y": 0}, {"x": 2, "y": 0}, {"x": 3, "y": 0}, {"x": 4, "y": 0}, {"x": 5, "y": 0}, {"x": 6, "y": 0}, {"x": 7, "y": 0}, {"x": 8, "y": 0}, {"x": 9, "y": 0}, {"x": 10, "y": 0}, {"x": 11, "y": 0}, {"x": 12, "y": 0}, {"x": 13, "y": 0}, {"x": 14, "y": 0}, {"x": 15, "y": 0}, {"x": 16, "y": 0}, {"x": 17, "y": 0}, {"x": 18, "y": 0},
@@ -131,8 +131,13 @@
       ],
       "reservedCells": [],
       "exits": [
-        {"id": "exit.west", "x": -1, "y": 6, "direction": "west", "width": 1, "tags": ["distinct_portal"]},
-        {"id": "exit.east", "x": 19, "y": 6, "direction": "east", "width": 1, "tags": ["distinct_portal"]},
+        {"id": "exit.north.left", "x": 9, "y": -1, "direction": "north", "width": 1, "tags": ["distinct_portal"]},
+        {"id": "exit.north.right", "x": 10, "y": -1, "direction": "north", "width": 1, "tags": ["distinct_portal"]},
+        {"id": "exit.west.upper", "x": -1, "y": 6, "direction": "west", "width": 1, "tags": ["distinct_portal"]},
+        {"id": "exit.west.lower", "x": -1, "y": 9, "direction": "west", "width": 1, "tags": ["distinct_portal"]},
+        {"id": "exit.east.upper", "x": 19, "y": 5, "direction": "east", "width": 1, "tags": ["distinct_portal"]},
+        {"id": "exit.east.middle", "x": 19, "y": 6, "direction": "east", "width": 1, "tags": ["distinct_portal"]},
+        {"id": "exit.east.lower", "x": 19, "y": 13, "direction": "east", "width": 1, "tags": ["distinct_portal"]},
         {"id": "exit.south", "x": 9, "y": 14, "direction": "south", "width": 1, "tags": ["distinct_portal"]}
       ],
       "allowedTransforms": ["identity"],
@@ -140,6 +145,59 @@
         {"id": "socket.gate_line", "kind": "gate_line", "x": 9, "y": 6, "tags": ["threshold"]}
       ],
       "tags": ["medium", "threshold", "gate", "distinct_portals", "pure_catalog_only"]
+    },
+    {
+      "shapeId": "shape.room.pocket.9x9_west_south",
+      "label": "Small pocket chamber with offset west and south portals",
+      "pieceKinds": ["key", "resource"],
+      "footprint": [
+        {"x": 0, "y": 0}, {"x": 1, "y": 0}, {"x": 2, "y": 0}, {"x": 3, "y": 0}, {"x": 4, "y": 0}, {"x": 5, "y": 0}, {"x": 6, "y": 0}, {"x": 7, "y": 0}, {"x": 8, "y": 0},
+        {"x": 0, "y": 1}, {"x": 1, "y": 1}, {"x": 2, "y": 1}, {"x": 3, "y": 1}, {"x": 4, "y": 1}, {"x": 5, "y": 1}, {"x": 6, "y": 1}, {"x": 7, "y": 1}, {"x": 8, "y": 1},
+        {"x": 0, "y": 2}, {"x": 1, "y": 2}, {"x": 2, "y": 2}, {"x": 3, "y": 2}, {"x": 4, "y": 2}, {"x": 5, "y": 2}, {"x": 6, "y": 2}, {"x": 7, "y": 2}, {"x": 8, "y": 2},
+        {"x": 0, "y": 3}, {"x": 1, "y": 3}, {"x": 2, "y": 3}, {"x": 3, "y": 3}, {"x": 4, "y": 3}, {"x": 5, "y": 3}, {"x": 6, "y": 3}, {"x": 7, "y": 3}, {"x": 8, "y": 3},
+        {"x": 0, "y": 4}, {"x": 1, "y": 4}, {"x": 2, "y": 4}, {"x": 3, "y": 4}, {"x": 4, "y": 4}, {"x": 5, "y": 4}, {"x": 6, "y": 4}, {"x": 7, "y": 4}, {"x": 8, "y": 4},
+        {"x": 0, "y": 5}, {"x": 1, "y": 5}, {"x": 2, "y": 5}, {"x": 3, "y": 5}, {"x": 4, "y": 5}, {"x": 5, "y": 5}, {"x": 6, "y": 5}, {"x": 7, "y": 5}, {"x": 8, "y": 5},
+        {"x": 0, "y": 6}, {"x": 1, "y": 6}, {"x": 2, "y": 6}, {"x": 3, "y": 6}, {"x": 4, "y": 6}, {"x": 5, "y": 6}, {"x": 6, "y": 6}, {"x": 7, "y": 6}, {"x": 8, "y": 6},
+        {"x": 0, "y": 7}, {"x": 1, "y": 7}, {"x": 2, "y": 7}, {"x": 3, "y": 7}, {"x": 4, "y": 7}, {"x": 5, "y": 7}, {"x": 6, "y": 7}, {"x": 7, "y": 7}, {"x": 8, "y": 7},
+        {"x": 0, "y": 8}, {"x": 1, "y": 8}, {"x": 2, "y": 8}, {"x": 3, "y": 8}, {"x": 4, "y": 8}, {"x": 5, "y": 8}, {"x": 6, "y": 8}, {"x": 7, "y": 8}, {"x": 8, "y": 8}
+      ],
+      "reservedCells": [],
+      "exits": [
+        {"id": "exit.west", "x": -1, "y": 1, "direction": "west", "width": 1, "tags": ["distinct_portal"]},
+        {"id": "exit.south", "x": 8, "y": 9, "direction": "south", "width": 1, "tags": ["distinct_portal"]}
+      ],
+      "allowedTransforms": ["identity"],
+      "featureSockets": [
+        {"id": "socket.key_pickup", "kind": "key_pickup", "x": 4, "y": 4, "tags": ["pickup_pocket"]},
+        {"id": "socket.resource_clue", "kind": "resource_clue", "x": 5, "y": 4, "tags": ["preparation"]}
+      ],
+      "tags": ["small", "small_pocket", "pickup_pocket", "distinct_portals", "pure_catalog_only"]
+    },
+    {
+      "shapeId": "shape.room.marker.9x9_two_east",
+      "label": "Marker chamber with separated east portals",
+      "pieceKinds": ["room"],
+      "footprint": [
+        {"x": 0, "y": 0}, {"x": 1, "y": 0}, {"x": 2, "y": 0}, {"x": 3, "y": 0}, {"x": 4, "y": 0}, {"x": 5, "y": 0}, {"x": 6, "y": 0}, {"x": 7, "y": 0}, {"x": 8, "y": 0},
+        {"x": 0, "y": 1}, {"x": 1, "y": 1}, {"x": 2, "y": 1}, {"x": 3, "y": 1}, {"x": 4, "y": 1}, {"x": 5, "y": 1}, {"x": 6, "y": 1}, {"x": 7, "y": 1}, {"x": 8, "y": 1},
+        {"x": 0, "y": 2}, {"x": 1, "y": 2}, {"x": 2, "y": 2}, {"x": 3, "y": 2}, {"x": 4, "y": 2}, {"x": 5, "y": 2}, {"x": 6, "y": 2}, {"x": 7, "y": 2}, {"x": 8, "y": 2},
+        {"x": 0, "y": 3}, {"x": 1, "y": 3}, {"x": 2, "y": 3}, {"x": 3, "y": 3}, {"x": 4, "y": 3}, {"x": 5, "y": 3}, {"x": 6, "y": 3}, {"x": 7, "y": 3}, {"x": 8, "y": 3},
+        {"x": 0, "y": 4}, {"x": 1, "y": 4}, {"x": 2, "y": 4}, {"x": 3, "y": 4}, {"x": 4, "y": 4}, {"x": 5, "y": 4}, {"x": 6, "y": 4}, {"x": 7, "y": 4}, {"x": 8, "y": 4},
+        {"x": 0, "y": 5}, {"x": 1, "y": 5}, {"x": 2, "y": 5}, {"x": 3, "y": 5}, {"x": 4, "y": 5}, {"x": 5, "y": 5}, {"x": 6, "y": 5}, {"x": 7, "y": 5}, {"x": 8, "y": 5},
+        {"x": 0, "y": 6}, {"x": 1, "y": 6}, {"x": 2, "y": 6}, {"x": 3, "y": 6}, {"x": 4, "y": 6}, {"x": 5, "y": 6}, {"x": 6, "y": 6}, {"x": 7, "y": 6}, {"x": 8, "y": 6},
+        {"x": 0, "y": 7}, {"x": 1, "y": 7}, {"x": 2, "y": 7}, {"x": 3, "y": 7}, {"x": 4, "y": 7}, {"x": 5, "y": 7}, {"x": 6, "y": 7}, {"x": 7, "y": 7}, {"x": 8, "y": 7},
+        {"x": 0, "y": 8}, {"x": 1, "y": 8}, {"x": 2, "y": 8}, {"x": 3, "y": 8}, {"x": 4, "y": 8}, {"x": 5, "y": 8}, {"x": 6, "y": 8}, {"x": 7, "y": 8}, {"x": 8, "y": 8}
+      ],
+      "reservedCells": [],
+      "exits": [
+        {"id": "exit.east.upper", "x": 9, "y": 0, "direction": "east", "width": 1, "tags": ["distinct_portal"]},
+        {"id": "exit.east.lower", "x": 9, "y": 8, "direction": "east", "width": 1, "tags": ["distinct_portal"]}
+      ],
+      "allowedTransforms": ["identity"],
+      "featureSockets": [
+        {"id": "socket.marker", "kind": "marker", "x": 4, "y": 4, "tags": ["entry_spawn"]}
+      ],
+      "tags": ["medium", "marker_room", "start", "distinct_portals", "pure_catalog_only"]
     },
     {
       "shapeId": "shape.corridor.straight.1",
@@ -221,6 +279,26 @@
       "allowedTransforms": ["identity", "rotate90", "rotate180", "rotate270"],
       "featureSockets": [],
       "tags": ["corridor", "bend", "bend_small"]
+    },
+    {
+      "shapeId": "shape.corridor.bend.3x3",
+      "label": "Bend corridor, compact large three by three",
+      "pieceKinds": ["bend"],
+      "footprint": [
+        {"x": 0, "y": 0},
+        {"x": 1, "y": 0},
+        {"x": 2, "y": 0},
+        {"x": 2, "y": 1},
+        {"x": 2, "y": 2}
+      ],
+      "reservedCells": [],
+      "exits": [
+        {"id": "exit.west", "x": -1, "y": 0, "direction": "west", "width": 1, "tags": ["standard"]},
+        {"id": "exit.south", "x": 2, "y": 3, "direction": "south", "width": 1, "tags": ["standard"]}
+      ],
+      "allowedTransforms": ["identity", "rotate90", "rotate180", "rotate270"],
+      "featureSockets": [],
+      "tags": ["corridor", "bend", "bend_large", "pure_catalog_only"]
     },
     {
       "shapeId": "shape.corridor.bend.4x4",
@@ -508,7 +586,7 @@
         {"id": "socket.shortcut_marker", "kind": "shortcut_marker", "x": 4, "y": 5, "tags": ["flow_junction"]},
         {"id": "socket.resource_clue", "kind": "resource_clue", "x": 2, "y": 5, "tags": ["flow_junction"]}
       ],
-      "tags": ["large", "flow_junction", "distinct_portals"]
+      "tags": ["large", "flow_junction", "distinct_portals", "pure_catalog_fallback"]
     }
   ]
 }
