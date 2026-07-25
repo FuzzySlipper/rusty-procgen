@@ -208,7 +208,8 @@ fn validate_source_edge_chains(
                 || link.source_section != corridor.physical_section
                 || !link.source_edges.contains(&edge.id)
                 || match plan.corridor_realization {
-                    CorridorRealization::Catalog => {
+                    CorridorRealization::Catalog => !link.route_points.is_empty(),
+                    CorridorRealization::Hybrid => {
                         catalog_link_route_mismatch(corridor, &links, index)
                     }
                     CorridorRealization::Procedural => link.route_points != corridor.points,
@@ -377,7 +378,36 @@ fn validate_gate_portals(
 
 fn validate_physical_routes(placement: &PiecePlacement, diagnostics: &mut Vec<Diagnostic>) {
     let section_instances = collect_catalog_section_instances(placement);
+    let occupied_by_cell = placement
+        .occupied_cells
+        .iter()
+        .map(|cell| ((cell.x, cell.y), cell.instance_id.as_str()))
+        .collect::<BTreeMap<_, _>>();
     for glued in &placement.glued_exits {
+        if placement.corridor_realization == CorridorRealization::Catalog {
+            let direct = glued.from_cell.x.abs_diff(glued.to_cell.x)
+                + glued.from_cell.y.abs_diff(glued.to_cell.y)
+                == 1
+                && occupied_by_cell
+                    .get(&(glued.from_cell.x, glued.from_cell.y))
+                    .is_some_and(|owner| *owner == glued.to_instance)
+                && occupied_by_cell
+                    .get(&(glued.to_cell.x, glued.to_cell.y))
+                    .is_some_and(|owner| *owner == glued.from_instance)
+                && opposite_direction(glued.from_direction.as_str()) == glued.to_direction;
+            if !direct {
+                diagnostics.push(fatal(
+                    "built_flow_catalog_direct_glue_invalid",
+                    None,
+                    Some(glued.source_edge.as_str()),
+                    format!(
+                        "Pure catalog join {} is not a direct opposing exit-to-exit glue.",
+                        glued.id
+                    ),
+                ));
+            }
+            continue;
+        }
         let owner = format!("connection.{}", slugify_label(glued.id.as_str()));
         let mut cells = placement
             .connection_cells
@@ -385,7 +415,7 @@ fn validate_physical_routes(placement: &PiecePlacement, diagnostics: &mut Vec<Di
             .filter(|cell| cell.instance_id == owner)
             .map(|cell| (cell.x, cell.y))
             .collect::<BTreeSet<_>>();
-        if placement.corridor_realization == CorridorRealization::Catalog {
+        if placement.corridor_realization == CorridorRealization::Hybrid {
             if let Some(instances) = section_instances.get(glued.source_section.as_str()) {
                 cells.extend(
                     placement

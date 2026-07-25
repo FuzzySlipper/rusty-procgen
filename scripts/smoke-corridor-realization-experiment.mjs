@@ -79,63 +79,102 @@ try {
       experimentId: candidate.experimentId,
     });
   }
-  const catalogMetrics = new Map();
+  const hybridMetrics = new Map();
   for (const acceptedCandidateId of candidateIds) {
-    const catalog = await postExperiment({
+    const hybrid = await postExperiment({
       candidateId: acceptedCandidateId,
-      corridorRealization: 'catalog',
+      corridorRealization: 'hybrid',
     }, 200);
     if (
-      catalog.placement?.corridorRealization !== 'catalog'
-      || catalog.metrics?.corridorPrefabInstances < 1
-      || catalog.metrics?.corridorPrefabCells < catalog.metrics.corridorPrefabInstances
-      || catalog.metrics?.routedCorridorCells < 1
-      || catalog.metrics?.footprintWidth < 1
-      || catalog.metrics?.footprintHeight < 1
-      || catalog.placementValidation?.ok !== true
-      || catalog.builtFlowValidation?.ok !== true
-      || typeof catalog.builtFlowValidation?.validationId !== 'string'
-      || catalog.builtFlowValidation.validationId.length === 0
+      hybrid.placement?.corridorRealization !== 'hybrid'
+      || hybrid.metrics?.corridorPrefabInstances < 1
+      || hybrid.metrics?.corridorPrefabCells < hybrid.metrics.corridorPrefabInstances
+      || hybrid.metrics?.routedCorridorCells < 1
+      || hybrid.metrics?.footprintWidth < 1
+      || hybrid.metrics?.footprintHeight < 1
+      || hybrid.placementValidation?.ok !== true
+      || hybrid.builtFlowValidation?.ok !== true
+      || typeof hybrid.builtFlowValidation?.validationId !== 'string'
+      || hybrid.builtFlowValidation.validationId.length === 0
     ) {
-      throw new Error(`catalog corridor realization failed accepted candidate ${acceptedCandidateId}`);
+      throw new Error(`hybrid corridor realization failed accepted candidate ${acceptedCandidateId}`);
     }
     if (acceptedCandidateId === candidateId) {
-      const repeatedCatalog = await postExperiment({
+      const repeatedHybrid = await postExperiment({
         candidateId: acceptedCandidateId,
-        corridorRealization: 'catalog',
+        corridorRealization: 'hybrid',
       }, 200);
       if (
-        catalog.experimentId !== repeatedCatalog.experimentId
-        || JSON.stringify(catalog.placement) !== JSON.stringify(repeatedCatalog.placement)
-        || JSON.stringify(catalog.builtFlowValidation)
-          !== JSON.stringify(repeatedCatalog.builtFlowValidation)
+        hybrid.experimentId !== repeatedHybrid.experimentId
+        || JSON.stringify(hybrid.placement) !== JSON.stringify(repeatedHybrid.placement)
+        || JSON.stringify(hybrid.builtFlowValidation)
+          !== JSON.stringify(repeatedHybrid.builtFlowValidation)
       ) {
-        throw new Error('catalog corridor realization was not deterministic');
+        throw new Error('hybrid corridor realization was not deterministic');
       }
     }
     if (
-      catalog.metrics.routedCorridorCells
+      hybrid.metrics.routedCorridorCells
       >= proceduralMetrics.get(acceptedCandidateId).routedCorridorCells
     ) {
       throw new Error(
-        `catalog corridor coverage did not reduce routed join cells for ${acceptedCandidateId}`,
+        `hybrid corridor coverage did not reduce routed join cells for ${acceptedCandidateId}`,
       );
     }
     const proceduralIdentity = proceduralIdentities.get(acceptedCandidateId);
     if (
-      catalog.placement.planId === proceduralIdentity.planId
-      || catalog.placement.matchId === proceduralIdentity.matchId
-      || catalog.placement.placementId === proceduralIdentity.placementId
-      || catalog.builtFlowValidation.validationId === proceduralIdentity.validationId
-      || catalog.experimentId === proceduralIdentity.experimentId
+      hybrid.placement.planId === proceduralIdentity.planId
+      || hybrid.placement.matchId === proceduralIdentity.matchId
+      || hybrid.placement.placementId === proceduralIdentity.placementId
+      || hybrid.builtFlowValidation.validationId === proceduralIdentity.validationId
+      || hybrid.experimentId === proceduralIdentity.experimentId
     ) {
       throw new Error(
-        `catalog and procedural identities collided for ${acceptedCandidateId}`,
+        `hybrid and procedural identities collided for ${acceptedCandidateId}`,
       );
     }
-    catalogMetrics.set(acceptedCandidateId, catalog.metrics);
+    hybridMetrics.set(acceptedCandidateId, hybrid.metrics);
   }
-  await postExperiment({ candidateId, corridorRealization: 'hybrid' }, 400, 'invalid_corridor_realization');
+  const catalogOutcomes = new Map();
+  for (const acceptedCandidateId of candidateIds) {
+    const first = await postExperimentOutcome({
+      candidateId: acceptedCandidateId,
+      corridorRealization: 'catalog',
+    });
+    const repeated = await postExperimentOutcome({
+      candidateId: acceptedCandidateId,
+      corridorRealization: 'catalog',
+    });
+    if (first.status !== repeated.status || JSON.stringify(first.result) !== JSON.stringify(repeated.result)) {
+      throw new Error(`pure catalog outcome was not deterministic for ${acceptedCandidateId}`);
+    }
+    if (first.status === 200) {
+      const catalog = first.result;
+      if (
+        catalog.placement?.corridorRealization !== 'catalog'
+        || catalog.placement?.connectionCells?.length !== 0
+        || catalog.metrics?.routedCorridorCells !== 0
+        || catalog.metrics?.corridorPrefabInstances < 1
+        || catalog.placement?.catalogSearch === undefined
+        || catalog.placementValidation?.ok !== true
+        || catalog.builtFlowValidation?.ok !== true
+      ) {
+        throw new Error(`pure catalog success violated prefab-only invariants for ${acceptedCandidateId}`);
+      }
+      catalogOutcomes.set(acceptedCandidateId, 'success');
+    } else if (
+      first.status === 422
+      && ['pure_catalog_coverage_rejected', 'pure_catalog_search_exhausted']
+        .includes(first.result.error)
+      && typeof first.result.detail === 'string'
+      && first.result.detail.includes('pure catalog')
+    ) {
+      catalogOutcomes.set(acceptedCandidateId, 'stable rejection');
+    } else {
+      throw new Error(`unexpected pure catalog outcome for ${acceptedCandidateId}: ${JSON.stringify(first)}`);
+    }
+  }
+  await postExperiment({ candidateId, corridorRealization: 'automatic' }, 400, 'invalid_corridor_realization');
   await postExperiment({ candidateId: 'candidate.unknown', corridorRealization: 'procedural' }, 404, 'candidate_not_found');
   await postExperiment({
     candidateId,
@@ -149,8 +188,8 @@ try {
   console.log(
     `corridor realization smoke passed; ${candidateIds.map((id) => {
       const proceduralResult = proceduralMetrics.get(id);
-      const catalogResult = catalogMetrics.get(id);
-      return `${id}: procedural ${proceduralResult.routedCorridorCells} routed; catalog ${catalogResult.corridorPrefabInstances} prefabs/${catalogResult.corridorPrefabCells} prefab cells/${catalogResult.routedCorridorCells} routed/${catalogResult.footprintWidth}x${catalogResult.footprintHeight}`;
+      const hybridResult = hybridMetrics.get(id);
+      return `${id}: procedural ${proceduralResult.routedCorridorCells} routed; hybrid ${hybridResult.corridorPrefabInstances} prefabs/${hybridResult.routedCorridorCells} routed; pure catalog ${catalogOutcomes.get(id)}`;
     }).join(', ')}`,
   );
 } finally {
@@ -174,6 +213,15 @@ async function postExperiment(payload, expectedStatus, expectedError) {
     throw new Error(`corridor realization expected ${expectedError}, received ${JSON.stringify(result)}`);
   }
   return result;
+}
+
+async function postExperimentOutcome(payload) {
+  const response = await fetch(`${baseUrl}/api/experiments/corridor-realization`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+  return { status: response.status, result: await response.json() };
 }
 
 async function fetchJson(path) {

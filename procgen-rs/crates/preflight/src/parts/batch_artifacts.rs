@@ -336,8 +336,12 @@ fn selection_rejection_code(error: &str) -> &'static str {
         "selection_physical_section_plan_incompatible"
     } else if error.contains("port") && error.contains("exhausted") {
         "selection_geometry_port_allocation_exhausted"
-    } else if error.starts_with("catalog shape/transform search exhausted") {
+    } else if error.starts_with("catalog shape/transform search exhausted")
+        || error.starts_with("pure catalog coverage rejected")
+    {
         "selection_catalog_shape_transform_exhausted"
+    } else if error.starts_with("pure catalog search exhausted") {
+        "selection_catalog_piece_search_exhausted"
     } else if error.starts_with("global shape/piece search budget exhausted") {
         "selection_global_search_budget_exhausted"
     } else if error.starts_with("piece realization search exhausted")
@@ -490,7 +494,7 @@ fn write_selection_preview_artifacts(entry: &mut SelectionEntry, seed: u64) -> R
         candidate: artifact_path.clone(),
         intermediate: intermediate_path,
         geometry: geometry_path.clone(),
-        corridor_realization: CorridorRealization::Catalog,
+        corridor_realization: CorridorRealization::Hybrid,
         out: piece_plan_path.clone(),
     };
     let piece_plan = emit_piece_build_plan(

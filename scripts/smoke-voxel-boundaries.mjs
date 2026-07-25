@@ -34,6 +34,7 @@ const placement = {
     toCell: { x: 4, y: 0 },
     toDirection: 'west',
     toWidth: 1,
+    sourceSection: 'section.room_a_room_b',
   }],
   gatePortals: [],
 };
@@ -102,10 +103,10 @@ const turningProceduralPlacement = {
 };
 const turningProceduralPlan = compilePlacementExtrusion(turningProceduralPlacement);
 assert.equal(turningProceduralPlan.openingCellCount, 8);
-const turningCatalogPlan = compilePlacementExtrusion({
+const turningHybridPlan = compilePlacementExtrusion({
   ...turningProceduralPlacement,
-  placementId: 'piece_placement.turning_catalog_smoke',
-  corridorRealization: 'catalog',
+  placementId: 'piece_placement.turning_hybrid_smoke',
+  corridorRealization: 'hybrid',
   gluedExits: [{
     ...turningProceduralPlacement.gluedExits[0],
     routePoints: [
@@ -116,18 +117,44 @@ const turningCatalogPlan = compilePlacementExtrusion({
     ],
   }],
 });
-assert.equal(turningCatalogPlan.openingCellCount, 8);
+assert.equal(turningHybridPlan.openingCellCount, 8);
 assert.throws(
   () => compilePlacementExtrusion({
     ...turningProceduralPlacement,
-    corridorRealization: 'catalog',
+    corridorRealization: 'hybrid',
   }),
   /incompatible directions/,
+);
+
+const pureCatalogPlan = compilePlacementExtrusion({
+  ...placement,
+  placementId: 'piece_placement.pure_catalog_smoke',
+  corridorRealization: 'catalog',
+  occupiedCells: [
+    { instanceId: 'instance.room_a', x: 0, y: 0 },
+    { instanceId: 'instance.room_b', x: 1, y: 0 },
+  ],
+  connectionCells: [],
+  gluedExits: [{
+    ...placement.gluedExits[0],
+    fromCell: { x: 1, y: 0 },
+    toCell: { x: 0, y: 0 },
+  }],
+});
+assert.equal(pureCatalogPlan.openingCellCount, 0);
+assert.equal(pureCatalogPlan.walkableCellCount, 2);
+assert.throws(
+  () => compilePlacementExtrusion({
+    ...placement,
+    corridorRealization: 'catalog',
+  }),
+  /must not contain generated connection cells/,
 );
 
 assert.throws(
   () => compilePlacementExtrusion({
     ...placement,
+    corridorRealization: 'procedural',
     occupiedCells: [
       ...ownedSquare('instance.room_a', 0, 0),
       ...ownedSquare('instance.room_b', 3, 0),

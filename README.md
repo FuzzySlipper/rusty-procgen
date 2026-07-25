@@ -157,17 +157,23 @@ builds leave both the active result and `config/viewer-generation.json`
 unchanged. Each setting stores both `value` and `defaultValue`, so Reset to
 defaults uses the same complete validated rebuild and persistence path.
 
-The corridor-realization setting has two explicit whole-build modes.
-`catalog` covers planned route segments with bounded short/medium/long
-straight families and sized bend prefabs, with route cells filling only their
-uncovered gaps. `procedural` keeps catalog-backed room and feature pieces but
+The corridor-realization setting has three explicit whole-build modes.
+`catalog` performs pure prefab assembly: every room and corridor cell belongs
+to a selected catalog shape, exits glue directly, and generated connection
+cells are forbidden. Its bounded deterministic search jointly considers shape,
+90-degree rotation, and exit-anchored origin; geometry facing is an ordering
+hint rather than a hard room-orientation constraint. `hybrid` preserves the
+earlier behavior, covering planned route segments with bounded
+short/medium/long straight families and sized bend prefabs while route cells
+fill uncovered gaps. `procedural` keeps catalog-backed room and feature pieces but
 replaces every corridor prefab set with one direct physical-section route constrained
-to the planned geometry polyline's bounded lane envelope. Both modes preserve
+to the planned geometry polyline's bounded lane envelope. All three modes preserve
 section provenance, exclusive routing, portals, placement validation, and
-built-flow validation; they are never mixed automatically. Dedicated
+built-flow validation; modes are never mixed automatically. Dedicated
 `planned_junction` catalog shapes remain ineligible until a physical-section
 plan explicitly requests the `junction` kind. The panel reports
-corridor-prefab, routed-cell, and footprint counts, and the configured result is
+corridor-prefab, routed-cell, and footprint counts; a successful pure catalog
+build always reports zero routed cells. The configured result is
 used by Build, Voxel, and Voxel 3D, including verified door progression. A
 configured build is persisted downstream evidence, but does not inherit a
 matching native-authority receipt.

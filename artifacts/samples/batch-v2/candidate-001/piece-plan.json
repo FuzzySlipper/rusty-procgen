@@ -1,10 +1,10 @@
 {
   "kind": "asha_procgen.piece_build_plan.v1",
   "schemaVersion": 1,
-  "planId": "piece_plan.geometry.candidate.first_slice.5301.14308.catalog",
+  "planId": "piece_plan.geometry.candidate.first_slice.5301.14308.hybrid",
   "candidateId": "candidate.first_slice.5301",
   "geometryId": "geometry.candidate.first_slice.5301.14308",
-  "corridorRealization": "catalog",
+  "corridorRealization": "hybrid",
   "sourceCandidateRef": "artifacts/samples/batch-v2/candidate-001/accepted.json",
   "sourceIntermediateRef": "artifacts/samples/batch-v2/candidate-001/intermediate-breakdown.json",
   "sourceGeometryRef": "artifacts/samples/batch-v2/candidate-001/geometry-2d.json",

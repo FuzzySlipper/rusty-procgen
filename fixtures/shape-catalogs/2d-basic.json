@@ -11,6 +11,14 @@
     "doorwayWidthCells": 1,
     "preservePieceBoundaries": true
   },
+  "catalogSearchPolicy": {
+    "schemaVersion": 1,
+    "maxDecisions": 50000,
+    "maxBacktracks": 10000,
+    "maxChainExpansionsPerSection": 4096,
+    "maxRoomOriginAlternatives": 8,
+    "maxRoomRotationAlternatives": 4
+  },
   "shapes": [
     {
       "shapeId": "shape.room.standard.1_exit",

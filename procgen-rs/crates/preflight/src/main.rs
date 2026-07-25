@@ -30,6 +30,7 @@ include!("parts/geometry_preview.rs"); // 2D geometry, validation, HTML preview
 include!("parts/piece_plan.rs"); // explicit catalog-piece build plans
 include!("parts/catalog_tools.rs"); // shape catalog inspection
 include!("parts/shape_matching.rs"); // catalog shape matching
+include!("parts/pure_catalog_placement.rs"); // exact prefab-only occupancy search
 include!("parts/piece_placement.rs"); // deterministic piece occupancy placement
 include!("parts/built_flow.rs"); // source-to-cell traversal equivalence
 include!("parts/intermediate_validation.rs"); // intermediate validation

@@ -1,7 +1,7 @@
 {
   "kind": "asha_procgen.evidence.native_voxel_extrusion.v1",
   "sourcePlacement": "artifacts/samples/batch-v2/candidate-006/piece-placement.json",
-  "placementId": "piece_placement.piece_shape_match.piece_plan.geometry.candidate.first_slice.5801.14310.catalog.14341.alternative_0",
+  "placementId": "piece_placement.piece_shape_match.piece_plan.geometry.candidate.first_slice.5801.14310.hybrid.14341.alternative_0",
   "backend": "native_rust_runtime_session_voxel_commands",
   "ashaEngineCommit": "6462a6de20d48ea1a3b7456826804bd9507860a5",
   "coordinateMapping": "placement_x_y_to_voxel_x_z",

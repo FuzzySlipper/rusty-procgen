@@ -313,7 +313,17 @@ interface ShapeCatalog {
   readonly catalogId: string;
   readonly cellSize: number;
   readonly placementPolicy: PiecePlacementPolicy;
+  readonly catalogSearchPolicy?: CatalogSearchPolicy;
   readonly shapes: readonly CatalogShape[];
+}
+
+interface CatalogSearchPolicy {
+  readonly schemaVersion: 1;
+  readonly maxDecisions: number;
+  readonly maxBacktracks: number;
+  readonly maxChainExpansionsPerSection: number;
+  readonly maxRoomOriginAlternatives: number;
+  readonly maxRoomRotationAlternatives: number;
 }
 
 interface CatalogShape {
@@ -356,6 +366,13 @@ interface PiecePlacement {
   readonly cellSize: number;
   readonly gridConnectivity: 'four_way' | 'eight_way';
   readonly placementPolicy: PiecePlacementPolicy;
+  readonly catalogSearch?: {
+    readonly schemaVersion: 1;
+    readonly decisions: number;
+    readonly backtracks: number;
+    readonly chainExpansions: number;
+    readonly selected: readonly unknown[];
+  };
   readonly instances: readonly PieceInstance[];
   readonly gluedExits: readonly GluedExit[];
   readonly gatePortals: readonly GatePortal[];
@@ -499,7 +516,7 @@ interface GeometryLayoutPolicyExperimentResponse {
   readonly nativeAuthority: false;
 }
 
-type CorridorRealization = 'catalog' | 'procedural';
+type CorridorRealization = 'catalog' | 'hybrid' | 'procedural';
 
 interface CorridorRealizationExperimentResponse {
   readonly kind: 'asha_procgen.corridor_realization_experiment.v1';
@@ -1104,9 +1121,9 @@ function validateGenerationConfigControls(): boolean {
     : '';
   generationConfigClearance.setCustomValidity(clearanceIssue);
   issue ||= clearanceIssue;
-  const corridorIssue = generationConfigCorridorRealization.value !== 'catalog'
-    && generationConfigCorridorRealization.value !== 'procedural'
-    ? 'Corridor realization must be catalog or procedural.'
+  const corridorIssue = !['catalog', 'hybrid', 'procedural']
+    .includes(generationConfigCorridorRealization.value)
+    ? 'Corridor realization must be catalog, hybrid, or procedural.'
     : '';
   generationConfigCorridorRealization.setCustomValidity(corridorIssue);
   issue ||= corridorIssue;
@@ -1581,8 +1598,8 @@ async function applyCorridorRealizationExperiment(): Promise<void> {
     return;
   }
   const corridorRealization = corridorRealizationSelect.value;
-  if (corridorRealization !== 'catalog' && corridorRealization !== 'procedural') {
-    setCorridorRealizationStatus('error', 'Choose catalog pieces or procedural lanes.');
+  if (!['catalog', 'hybrid', 'procedural'].includes(corridorRealization)) {
+    setCorridorRealizationStatus('error', 'Choose pure catalog, hybrid, or procedural corridors.');
     return;
   }
   const revision = ++corridorExperimentRevision;
@@ -1659,7 +1676,7 @@ function resetCorridorRealizationExperiment(): void {
 }
 
 function corridorRealizationFor(placement: PiecePlacement): CorridorRealization {
-  return placement.corridorRealization ?? 'catalog';
+  return placement.corridorRealization ?? 'hybrid';
 }
 
 function corridorPrefabCount(placement: PiecePlacement): number {
@@ -3483,7 +3500,10 @@ function renderPiecePlacementGrid(
   stats.setAttribute('x', String(margin));
   stats.setAttribute('y', '50');
   const connectivity = placement.gridConnectivity.replace('_', '-');
-  stats.textContent = `${placement.instances.length} pieces / ${placement.occupiedCells.length} occupied / ${placement.connectionCells.length} connection / clearance ${placement.placementPolicy.minimumClearanceCells} / wall ${placement.placementPolicy.wallThicknessCells} / ${connectivity} / ${validation?.ok === false ? `${validation.fatalCount} fatal` : 'valid'}`;
+  const catalogSearch = placement.catalogSearch === undefined
+    ? ''
+    : ` / search ${placement.catalogSearch.decisions} decisions, ${placement.catalogSearch.backtracks} backtracks`;
+  stats.textContent = `${corridorRealizationFor(placement)} / ${placement.instances.length} pieces / ${placement.occupiedCells.length} occupied / ${placement.connectionCells.length} connection${catalogSearch} / clearance ${placement.placementPolicy.minimumClearanceCells} / wall ${placement.placementPolicy.wallThicknessCells} / ${connectivity} / ${validation?.ok === false ? `${validation.fatalCount} fatal` : 'valid'}`;
   target.append(stats);
 
   const grid = createSvg('g');

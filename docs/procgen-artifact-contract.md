@@ -364,7 +364,10 @@ or ASHA runtime integration.
 Validation rejects configured-clearance violations between unrelated piece
 instances. Catalog pieces with the same physical-section provenance may
 approach without overlap, and glued-exit-owned route cells fill the gaps
-between their occupied footprints. Unrelated routes may not cross
+between their occupied footprints in `hybrid` mode. Pure `catalog` placements
+instead require exact adjacent opposing prefab ports, zero generated
+`connectionCells`, and versioned `catalogSearch` budget/decision evidence.
+Unrelated routes may not cross
 occupied/reserved cells, enter a non-exit wall, or omit their exact transformed
 catalog exit endpoints.
 

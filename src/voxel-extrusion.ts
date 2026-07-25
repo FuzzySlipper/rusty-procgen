@@ -57,7 +57,7 @@ export interface PlacementGatePortal {
 export interface PiecePlacementForExtrusion {
   readonly kind: string;
   readonly placementId: string;
-  readonly corridorRealization?: 'catalog' | 'procedural';
+  readonly corridorRealization?: 'catalog' | 'hybrid' | 'procedural';
   readonly gridConnectivity: 'four_way' | 'eight_way';
   readonly placementPolicy: PiecePlacementPolicy;
   readonly instances?: readonly PlacementInstance[];
@@ -255,6 +255,7 @@ function validatePlacement(placement: PiecePlacementForExtrusion): void {
   if (
     placement.corridorRealization !== undefined
     && placement.corridorRealization !== 'catalog'
+    && placement.corridorRealization !== 'hybrid'
     && placement.corridorRealization !== 'procedural'
   ) {
     throw new Error(`unsupported corridor realization: ${String(placement.corridorRealization)}`);
@@ -373,7 +374,7 @@ function validateOwnedClearance(
         }
         const other = occupiedByCell.get(cellKey(cell.x + dx, cell.y + dy));
         if (other !== undefined && other.instanceId !== cell.instanceId) {
-          const sameOwnedSection = placement.corridorRealization === 'catalog'
+          const sameOwnedSection = placement.corridorRealization !== 'procedural'
             && [...contactSections.values()].some((instances) =>
               instances.has(cell.instanceId) && instances.has(other.instanceId));
           if (sameOwnedSection) {
@@ -440,7 +441,7 @@ function declaredOpeningCells(
       throw new Error('piece placement glued exits require valid width-1 transformed endpoints');
     }
     if (
-      (placement.corridorRealization ?? 'catalog') !== 'procedural'
+      (placement.corridorRealization ?? 'hybrid') !== 'procedural'
       && (glued.routePoints?.length ?? 0) < 2
       && oppositeDirection(glued.fromDirection) !== glued.toDirection
     ) {
@@ -456,6 +457,26 @@ function declaredOpeningCells(
   }
 
   const openings = new Map<string, PlacementCell>();
+  if (placement.corridorRealization === 'catalog') {
+    if (placement.connectionCells.length !== 0) {
+      throw new Error('pure catalog placement must not contain generated connection cells');
+    }
+    for (const glued of placement.gluedExits) {
+      const distance = Math.abs(glued.fromCell.x - glued.toCell.x)
+        + Math.abs(glued.fromCell.y - glued.toCell.y);
+      const fromOwner = occupiedByCell.get(cellKey(glued.fromCell.x, glued.fromCell.y));
+      const toOwner = occupiedByCell.get(cellKey(glued.toCell.x, glued.toCell.y));
+      if (
+        distance !== 1
+        || oppositeDirection(glued.fromDirection) !== glued.toDirection
+        || fromOwner?.instanceId !== glued.toInstance
+        || toOwner?.instanceId !== glued.fromInstance
+      ) {
+        throw new Error(`pure catalog glue ${glued.id} is not an exact adjacent prefab-port join`);
+      }
+    }
+    return openings;
+  }
   const routeCellsByOwner = new Map<string, Map<string, PlacementCell>>();
   for (const cell of placement.connectionCells) {
     if (!Number.isInteger(cell.x) || !Number.isInteger(cell.y)) {
@@ -488,7 +509,7 @@ function declaredOpeningCells(
       glued,
       occupiedByCell,
       placement.placementPolicy.wallThicknessCells,
-      placement.corridorRealization === 'catalog'
+      placement.corridorRealization === 'hybrid'
         ? contactSections.get(glued.sourceSection ?? '')
         : undefined,
     );
@@ -504,7 +525,7 @@ function declaredOpeningCells(
     if (!route.has(fromKey) || !route.has(toKey)) {
       throw new Error(`declared glued exit ${owner} route does not include both transformed exit cells`);
     }
-    const sameSectionInstances = placement.corridorRealization === 'catalog'
+    const sameSectionInstances = placement.corridorRealization === 'hybrid'
       ? contactSections.get(glued.sourceSection ?? '')
       : undefined;
     const traversable = new Map(route);

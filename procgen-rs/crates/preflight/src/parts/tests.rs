@@ -1462,7 +1462,7 @@ mod tests {
             candidate: PathBuf::from("artifacts/test/candidate.json"),
             intermediate: PathBuf::from("artifacts/test/intermediate-breakdown.json"),
             geometry: PathBuf::from("artifacts/test/geometry.json"),
-            corridor_realization: CorridorRealization::Catalog,
+            corridor_realization: CorridorRealization::Hybrid,
             out: PathBuf::from("artifacts/test/piece-plan.json"),
         };
         let plan = emit_piece_build_plan(&candidate, &intermediate, &geometry, &args)
@@ -1548,6 +1548,37 @@ mod tests {
                 .iter()
                 .any(|source_ref| source_ref.starts_with("edge:"))
         );
+
+        let pure_args = BuildEmitPiecePlanArgs {
+            corridor_realization: CorridorRealization::Catalog,
+            out: PathBuf::from("artifacts/test/pure-catalog-piece-plan.json"),
+            ..args
+        };
+        let pure_plan = emit_piece_build_plan(
+            &candidate,
+            &intermediate,
+            &geometry,
+            &pure_args,
+        )
+        .expect("pure catalog piece plan should emit");
+        assert_ne!(pure_plan.plan_id, plan.plan_id);
+        assert!(pure_plan.links.len() > geometry.corridors.len());
+        assert!(pure_plan
+            .links
+            .iter()
+            .all(|link| link.route_points.is_empty()));
+        for corridor in &geometry.corridors {
+            let section_links = pure_plan
+                .links
+                .iter()
+                .filter(|link| link.source_section == corridor.physical_section)
+                .collect::<Vec<_>>();
+            assert!(
+                section_links.len() >= 2,
+                "{} must be an explicit room-to-prefab-to-room chain",
+                corridor.physical_section
+            );
+        }
     }
 
     #[test]
@@ -1569,6 +1600,285 @@ mod tests {
             vec![CatalogStraightSpan::Long, CatalogStraightSpan::Short]
         );
         assert!(catalog_straight_spans(10_000).is_err());
+    }
+
+    #[test]
+    fn pure_catalog_realization_glues_prefabs_without_generated_cells() {
+        let room_shape = test_catalog_shape(
+            "shape.room.asymmetric",
+            &["room"],
+            &["identity", "rotate90", "rotate180", "rotate270"],
+            vec![test_catalog_exit("door", "east")],
+            Vec::new(),
+            &[],
+        );
+        let mut room_shape = room_shape;
+        room_shape.footprint.push(GridCell { x: 0, y: 1 });
+        let mut corridor_shape = test_catalog_shape(
+            "shape.corridor.unit",
+            &["corridor"],
+            &["identity", "rotate90", "rotate180", "rotate270"],
+            vec![
+                test_catalog_exit("entry", "west"),
+                test_catalog_exit("exit", "east"),
+            ],
+            Vec::new(),
+            &[],
+        );
+        corridor_shape.footprint = vec![
+            GridCell { x: 0, y: 0 },
+            GridCell { x: 1, y: 0 },
+            GridCell { x: 2, y: 0 },
+        ];
+        corridor_shape.exits[1].x = 3;
+        let catalog = test_shape_catalog(vec![room_shape, corridor_shape]);
+        let mut start = test_piece_requirement(
+            "piece.start",
+            "room",
+            vec![test_piece_exit("door", "east")],
+            Vec::new(),
+            &[],
+        );
+        start.role = "start".to_owned();
+        start.tags.push("start".to_owned());
+        let mut corridor = test_piece_requirement(
+            "piece.corridor",
+            "corridor",
+            vec![
+                test_piece_exit("entry", "west"),
+                test_piece_exit("exit", "east"),
+            ],
+            Vec::new(),
+            &[],
+        );
+        corridor
+            .source_refs
+            .push("physicalSection:section.test".to_owned());
+        let mut goal = test_piece_requirement(
+            "piece.goal",
+            "room",
+            vec![test_piece_exit("door", "west")],
+            Vec::new(),
+            &[],
+        );
+        goal.role = "goal".to_owned();
+        goal.tags.push("goal".to_owned());
+        let mut plan = test_piece_plan(vec![start, corridor, goal]);
+        plan.links = vec![
+            test_piece_link(
+                "link.start_corridor",
+                "piece.start",
+                "door",
+                "piece.corridor",
+                "entry",
+                "section.test",
+            ),
+            test_piece_link(
+                "link.corridor_goal",
+                "piece.corridor",
+                "exit",
+                "piece.goal",
+                "door",
+                "section.test",
+            ),
+        ];
+        plan.links[0].traversal = "locked".to_owned();
+        plan.links[0].required_item = Some("item.test_key".to_owned());
+        plan.links[0].tags.push("locked_threshold".to_owned());
+        let match_args = test_match_args(6196);
+        let shape_match = match_shapes(&catalog, &plan, &match_args);
+        assert!(shape_match.ok);
+        let assemble_args = BuildAssembleArgs {
+            catalog: match_args.catalog.clone(),
+            piece_plan: match_args.piece_plan.clone(),
+            shape_match: match_args.out.clone(),
+            connectivity: GridConnectivity::FourWay,
+            out: PathBuf::from("artifacts/test/pure-catalog-placement.json"),
+        };
+        let placement = assemble_piece_placement(&catalog, &plan, &shape_match, &assemble_args)
+            .expect("exact prefab chain should place");
+        let repeated = assemble_piece_placement(&catalog, &plan, &shape_match, &assemble_args)
+            .expect("exact prefab chain should repeat");
+        assert_eq!(
+            serde_json::to_value(&placement).expect("placement"),
+            serde_json::to_value(&repeated).expect("repeated placement")
+        );
+        assert_eq!(placement.corridor_realization, CorridorRealization::Catalog);
+        assert!(placement.connection_cells.is_empty());
+        assert!(placement
+            .glued_exits
+            .iter()
+            .all(|glued| glued.route_points.is_empty()));
+        assert!(placement
+            .glued_exits
+            .iter()
+            .all(|glued| pure_catalog_glue_is_direct(glued, &placement.occupied_cells)));
+        assert_eq!(
+            placement
+                .catalog_search
+                .as_ref()
+                .expect("search evidence")
+                .selected
+                .len(),
+            3
+        );
+        assert_eq!(placement.gate_portals.len(), 1);
+        assert_eq!(
+            placement.gate_portals[0].required_item.as_deref(),
+            Some("item.test_key")
+        );
+        assert!(placement.gate_portals[0].cells.iter().all(|portal| {
+            placement
+                .occupied_cells
+                .iter()
+                .any(|cell| cell.x == portal.x && cell.y == portal.y)
+        }));
+        assert!(validate_piece_placement(&placement).ok);
+
+        let mut routed_tamper = placement.clone();
+        routed_tamper.connection_cells.push(PlacementCellRef {
+            instance_id: "connection.forbidden".to_owned(),
+            x: 99,
+            y: 99,
+        });
+        let routed_report = validate_piece_placement(&routed_tamper);
+        assert!(routed_report.diagnostics.iter().any(|diagnostic| {
+            diagnostic.code == "piece_catalog_has_procedural_connection_cells"
+        }));
+
+        let mut glue_tamper = placement.clone();
+        glue_tamper.glued_exits[0].to_cell.x += 1;
+        let glue_report = validate_piece_placement(&glue_tamper);
+        assert!(glue_report.diagnostics.iter().any(|diagnostic| {
+            diagnostic.code == "piece_catalog_direct_glue_invalid"
+        }));
+    }
+
+    #[test]
+    fn pure_catalog_search_closes_a_loop_by_rotating_room_ports() {
+        let bend_room = test_catalog_shape(
+            "shape.room.asymmetric_bend",
+            &["room"],
+            &["identity", "rotate90", "rotate180", "rotate270"],
+            vec![
+                test_catalog_exit("east_port", "east"),
+                test_catalog_exit("south_port", "south"),
+            ],
+            Vec::new(),
+            &[],
+        );
+        let catalog = test_shape_catalog(vec![bend_room]);
+        let mut a = test_piece_requirement(
+            "piece.a",
+            "room",
+            vec![
+                test_piece_exit("a_b", "east"),
+                test_piece_exit("a_d", "south"),
+            ],
+            Vec::new(),
+            &[],
+        );
+        a.role = "start".to_owned();
+        a.tags.push("start".to_owned());
+        let b = test_piece_requirement(
+            "piece.b",
+            "room",
+            vec![
+                test_piece_exit("b_c", "east"),
+                test_piece_exit("b_a", "south"),
+            ],
+            Vec::new(),
+            &[],
+        );
+        let c = test_piece_requirement(
+            "piece.c",
+            "room",
+            vec![
+                test_piece_exit("c_d", "east"),
+                test_piece_exit("c_b", "south"),
+            ],
+            Vec::new(),
+            &[],
+        );
+        let mut d = test_piece_requirement(
+            "piece.d",
+            "room",
+            vec![
+                test_piece_exit("d_a", "east"),
+                test_piece_exit("d_c", "south"),
+            ],
+            Vec::new(),
+            &[],
+        );
+        d.role = "goal".to_owned();
+        d.tags.push("goal".to_owned());
+        let mut plan = test_piece_plan(vec![a, b, c, d]);
+        plan.links = vec![
+            test_piece_link("link.a_b", "piece.a", "a_b", "piece.b", "b_a", "section.loop"),
+            test_piece_link("link.b_c", "piece.b", "b_c", "piece.c", "c_b", "section.loop"),
+            test_piece_link("link.c_d", "piece.c", "c_d", "piece.d", "d_c", "section.loop"),
+            test_piece_link("link.d_a", "piece.d", "d_a", "piece.a", "a_d", "section.loop"),
+        ];
+        let match_args = test_match_args(6186);
+        let shape_match = match_shapes(&catalog, &plan, &match_args);
+        assert!(shape_match.ok);
+        let assemble_args = BuildAssembleArgs {
+            catalog: match_args.catalog.clone(),
+            piece_plan: match_args.piece_plan.clone(),
+            shape_match: match_args.out.clone(),
+            connectivity: GridConnectivity::FourWay,
+            out: PathBuf::from("artifacts/test/pure-catalog-loop-placement.json"),
+        };
+        let placement = assemble_piece_placement(&catalog, &plan, &shape_match, &assemble_args)
+            .expect("room rotations should close the exact prefab loop");
+        assert!(placement.connection_cells.is_empty());
+        assert_eq!(placement.glued_exits.len(), 4);
+        assert!(placement
+            .glued_exits
+            .iter()
+            .all(|glued| pure_catalog_glue_is_direct(glued, &placement.occupied_cells)));
+        let directions = placement
+            .instances
+            .iter()
+            .map(|instance| {
+                (
+                    instance.piece_id.as_str(),
+                    instance
+                        .exit_map
+                        .iter()
+                        .map(|exit| exit.direction.as_str())
+                        .collect::<BTreeSet<_>>(),
+                )
+            })
+            .collect::<BTreeMap<_, _>>();
+        assert_eq!(directions["piece.a"], BTreeSet::from(["east", "south"]));
+        assert_eq!(directions["piece.b"], BTreeSet::from(["south", "west"]));
+        assert_eq!(directions["piece.c"], BTreeSet::from(["north", "west"]));
+        assert_eq!(directions["piece.d"], BTreeSet::from(["east", "north"]));
+        assert!(validate_piece_placement(&placement).ok);
+
+        let mut impossible_catalog = catalog.clone();
+        impossible_catalog.shapes[0].allowed_transforms = vec!["identity".to_owned()];
+        let impossible_match = match_shapes(&impossible_catalog, &plan, &match_args);
+        assert!(impossible_match.ok);
+        let first_error = assemble_piece_placement(
+            &impossible_catalog,
+            &plan,
+            &impossible_match,
+            &assemble_args,
+        )
+        .expect_err("fixed room orientation cannot close the loop");
+        let repeated_error = assemble_piece_placement(
+            &impossible_catalog,
+            &plan,
+            &impossible_match,
+            &assemble_args,
+        )
+        .expect_err("the same fixed room orientation must reject repeatably");
+        assert_eq!(first_error, repeated_error);
+        assert!(first_error.contains("pure catalog search exhausted after"));
+        assert!(first_error.contains("decision(s)"));
+        assert!(first_error.contains("backtrack(s)"));
     }
 
     #[test]
@@ -1639,7 +1949,7 @@ mod tests {
         let stale_match_error =
             assemble_piece_placement(&catalog, &catalog_plan, &shape_match, &assemble_args)
                 .expect_err("cross-mode shape match must reject");
-        assert!(stale_match_error.contains("does not match piece plan"));
+        assert!(stale_match_error.contains("does not match"));
         let placement =
             assemble_piece_placement(&catalog, &plan, &shape_match, &assemble_args)
                 .expect("procedural corridors should realize inside geometry lanes");
@@ -1722,7 +2032,7 @@ mod tests {
             "planId": "piece_plan.invalid",
             "candidateId": "candidate.invalid",
             "geometryId": "geometry.invalid",
-            "corridorRealization": "hybrid",
+            "corridorRealization": "automatic_mixed",
             "sourceCandidateRef": "candidate.json",
             "sourceIntermediateRef": "intermediate.json",
             "sourceGeometryRef": "geometry.json",
@@ -2090,7 +2400,7 @@ mod tests {
             candidate: geometry_args.candidate.clone(),
             intermediate: geometry_args.intermediate.clone(),
             geometry: geometry_args.out.clone(),
-            corridor_realization: CorridorRealization::Catalog,
+            corridor_realization: CorridorRealization::Hybrid,
             out: PathBuf::from("artifacts/test/piece-plan.json"),
         };
         let plan =
@@ -2624,7 +2934,7 @@ mod tests {
             candidate: PathBuf::from("artifacts/test/candidate.json"),
             intermediate: PathBuf::from("artifacts/test/intermediate-breakdown.json"),
             geometry: PathBuf::from("artifacts/test/geometry.json"),
-            corridor_realization: CorridorRealization::Catalog,
+            corridor_realization: CorridorRealization::Hybrid,
             out: PathBuf::from("artifacts/test/piece-plan.json"),
         };
         let piece_plan = emit_piece_build_plan(
@@ -2738,6 +3048,7 @@ mod tests {
             catalog_id: "shape_catalog.test.v1".to_owned(),
             cell_size: 1,
             placement_policy: PiecePlacementPolicy::default(),
+            catalog_search_policy: CatalogSearchPolicy::default(),
             shapes,
         }
     }
@@ -2824,6 +3135,33 @@ mod tests {
         }
     }
 
+    fn test_piece_link(
+        id: &str,
+        from_piece: &str,
+        from_exit: &str,
+        to_piece: &str,
+        to_exit: &str,
+        source_section: &str,
+    ) -> PieceLink {
+        PieceLink {
+            id: id.to_owned(),
+            from_piece: from_piece.to_owned(),
+            from_exit: from_exit.to_owned(),
+            to_piece: to_piece.to_owned(),
+            to_exit: to_exit.to_owned(),
+            source_section: source_section.to_owned(),
+            source_corridor: "geometry.corridor.test".to_owned(),
+            source_edge: "edge.test".to_owned(),
+            source_edges: vec!["edge.test".to_owned()],
+            traversal_refs: Vec::new(),
+            source_ref: "test:piece-link".to_owned(),
+            traversal: "open".to_owned(),
+            required_item: None,
+            tags: Vec::new(),
+            route_points: Vec::new(),
+        }
+    }
+
     fn test_match_args(seed: u64) -> BuildMatchShapesArgs {
         BuildMatchShapesArgs {
             catalog: PathBuf::from("fixtures/shape-catalogs/2d-basic.json"),
@@ -2901,6 +3239,14 @@ mod tests {
             (
                 "catalog shape/transform search exhausted with 1 unmatched requirement",
                 "selection_catalog_shape_transform_exhausted",
+            ),
+            (
+                "pure catalog coverage rejected 1 unmatched requirement",
+                "selection_catalog_shape_transform_exhausted",
+            ),
+            (
+                "pure catalog search exhausted after 12 decision(s)",
+                "selection_catalog_piece_search_exhausted",
             ),
             (
                 "piece realization search exhausted after 2 scale tier(s)",
@@ -3047,6 +3393,10 @@ mod tests {
         assert_eq!(report.catalog_id, "shape_catalog.2d_basic.v1");
         assert_eq!(report.shape_count, catalog.shapes.len());
         assert_eq!(report.placement_policy, PiecePlacementPolicy::default());
+        assert_eq!(
+            report.catalog_search_policy,
+            CatalogSearchPolicy::default()
+        );
         assert!(report.diagnostics.is_empty(), "{:?}", report.diagnostics);
         for required in ["room", "corridor", "connector", "threshold", "reward", "key"] {
             assert!(report.piece_kinds.contains(&required.to_owned()));
@@ -3105,6 +3455,13 @@ mod tests {
             .diagnostics
             .iter()
             .any(|diagnostic| diagnostic.code == "catalog_doorway_width_unsupported"));
+
+        catalog.catalog_search_policy.max_decisions = 0;
+        let report = inspect_shape_catalog(&catalog, Path::new("fixtures/test-catalog.json"));
+        assert!(report
+            .diagnostics
+            .iter()
+            .any(|diagnostic| diagnostic.code == "catalog_search_policy_invalid"));
     }
 
     #[test]

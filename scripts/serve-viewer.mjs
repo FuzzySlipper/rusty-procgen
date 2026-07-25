@@ -435,7 +435,11 @@ async function runGenerationConfigRebuild(payload) {
       || (error instanceof Error ? error.message : String(error));
     const code = detail.includes('geometry search exhausted')
       ? 'geometry_search_exhausted'
-      : 'generation_config_rebuild_failed';
+      : detail.includes('pure catalog coverage rejected')
+        ? 'pure_catalog_coverage_rejected'
+        : detail.includes('pure catalog search exhausted')
+          ? 'pure_catalog_search_exhausted'
+          : 'generation_config_rebuild_failed';
     throw new ExperimentError(422, code, detail);
   } finally {
     await rm(buildDir, { recursive: true, force: true });
@@ -678,11 +682,11 @@ async function runCorridorRealizationExperiment(payload) {
   if (typeof payload.candidateId !== 'string' || payload.candidateId.length === 0) {
     throw new ExperimentError(400, 'invalid_candidate', 'candidateId must be a non-empty string.');
   }
-  if (payload.corridorRealization !== 'catalog' && payload.corridorRealization !== 'procedural') {
+  if (!['catalog', 'hybrid', 'procedural'].includes(payload.corridorRealization)) {
     throw new ExperimentError(
       400,
       'invalid_corridor_realization',
-      'corridorRealization must be catalog or procedural.',
+      'corridorRealization must be catalog, hybrid, or procedural.',
     );
   }
   const selection = JSON.parse(await readFile(selectionReportPath, 'utf8'));
@@ -808,7 +812,12 @@ async function runCorridorRealizationExperiment(payload) {
     };
   } catch (error) {
     const detail = error?.stderr?.trim() || error?.stdout?.trim() || (error instanceof Error ? error.message : String(error));
-    throw new ExperimentError(422, 'corridor_realization_failed', detail);
+    const code = detail.includes('pure catalog coverage rejected')
+      ? 'pure_catalog_coverage_rejected'
+      : detail.includes('pure catalog search exhausted')
+        ? 'pure_catalog_search_exhausted'
+        : 'corridor_realization_failed';
+    throw new ExperimentError(422, code, detail);
   } finally {
     await rm(experimentDir, { recursive: true, force: true });
   }
@@ -896,11 +905,11 @@ function validateGenerationConfig(value) {
     validateGeometryLayoutPolicy(materializeGeometryLayoutPolicy(value, field));
     validatePlacementPolicy(materializePlacementPolicy(value, field));
     const corridorRealization = value.corridorRealization[field];
-    if (corridorRealization !== 'catalog' && corridorRealization !== 'procedural') {
+    if (!['catalog', 'hybrid', 'procedural'].includes(corridorRealization)) {
       throw new ExperimentError(
         400,
         `invalid_corridorRealization_${field}`,
-        `corridorRealization.${field} must be catalog or procedural.`,
+        `corridorRealization.${field} must be catalog, hybrid, or procedural.`,
       );
     }
   }

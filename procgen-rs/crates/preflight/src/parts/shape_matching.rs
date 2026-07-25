@@ -37,8 +37,21 @@ fn match_shapes_with_attempt(
     };
     for (requirement_index, requirement) in plan.requirements.iter().enumerate() {
         let candidate_rank = usize::from(alternative_requirement == Some(requirement_index));
-        let result =
-            match_requirement(catalog, requirement, plan, args.seed, candidate_rank);
+        let result = if plan.corridor_realization == CorridorRealization::Catalog {
+            let candidates =
+                pure_catalog_match_candidates(catalog, requirement, plan, args.seed);
+            let exact =
+                match_requirement(catalog, requirement, plan, args.seed, candidate_rank);
+            RequirementMatchResult {
+                selected: candidates
+                    .get(candidate_rank)
+                    .or_else(|| candidates.first())
+                    .cloned(),
+                rejections: exact.rejections,
+            }
+        } else {
+            match_requirement(catalog, requirement, plan, args.seed, candidate_rank)
+        };
         rejections.extend(result.rejections);
         if let Some(piece_match) = result.selected {
             matches.push(piece_match);
@@ -91,6 +104,176 @@ struct RequirementMatchResult {
 struct CandidateShapeMatch {
     matched_piece: MatchedPiece,
     tie_key: u64,
+}
+
+fn pure_catalog_match_candidates(
+    catalog: &ShapeCatalog,
+    requirement: &PieceRequirement,
+    plan: &PieceBuildPlan,
+    seed: u64,
+) -> Vec<MatchedPiece> {
+    let mut candidates = Vec::new();
+    let mut signatures = BTreeSet::new();
+    for shape in &catalog.shapes {
+        if !static_shape_rejection_reasons(shape, requirement).is_empty() {
+            continue;
+        }
+        for transform in &shape.allowed_transforms {
+            if !matches!(
+                transform.as_str(),
+                "identity" | "rotate90" | "rotate180" | "rotate270"
+            ) {
+                continue;
+            }
+            let transformed_exits = transformed_catalog_exits(shape, transform);
+            let direction_offsets: &[u8] = if is_room_requirement(requirement) {
+                &[0, 1, 3, 2]
+            } else {
+                &[0]
+            };
+            for direction_offset in direction_offsets {
+                let Some(exit_map) =
+                    match_exits_with_direction_offset(
+                        requirement,
+                        &transformed_exits,
+                        *direction_offset,
+                    )
+                else {
+                    continue;
+                };
+                let socket_map = match_sockets(requirement, shape);
+                let signature =
+                    pure_catalog_transform_signature(shape, transform, &exit_map);
+                if !signatures.insert(signature) {
+                    continue;
+                }
+                let offset = i32::from(*direction_offset);
+                let semantic_facing_preference = 48 - offset.min(4 - offset) * 12;
+                candidates.push(CandidateShapeMatch {
+                    matched_piece: MatchedPiece {
+                        piece_id: requirement.piece_id.clone(),
+                        requirement_kind: requirement.kind.clone(),
+                        shape_id: shape.shape_id.clone(),
+                        transform: transform.clone(),
+                        score: shape_match_score(
+                            shape,
+                            requirement,
+                            &exit_map,
+                            &socket_map,
+                        ) + semantic_facing_preference,
+                        candidate_rank: 0,
+                        candidate_count: 0,
+                        source_requirement_ref: format!(
+                            "piecePlan:{};requirement:{};semanticFacingOffset:{}",
+                            plan.plan_id, requirement.piece_id, direction_offset
+                        ),
+                        exit_map,
+                        socket_map,
+                    },
+                    tie_key: stable_match_tie_key(seed, requirement, shape, transform)
+                        ^ u64::from(*direction_offset),
+                });
+            }
+        }
+    }
+    candidates.sort_by(|left, right| {
+        right
+            .matched_piece
+            .score
+            .cmp(&left.matched_piece.score)
+            .then_with(|| left.tie_key.cmp(&right.tie_key))
+            .then_with(|| left.matched_piece.shape_id.cmp(&right.matched_piece.shape_id))
+            .then_with(|| left.matched_piece.transform.cmp(&right.matched_piece.transform))
+    });
+    let candidate_count = candidates.len();
+    candidates
+        .into_iter()
+        .enumerate()
+        .map(|(rank, mut candidate)| {
+            candidate.matched_piece.candidate_rank = rank;
+            candidate.matched_piece.candidate_count = candidate_count;
+            candidate.matched_piece
+        })
+        .collect()
+}
+
+fn match_exits_with_direction_offset(
+    requirement: &PieceRequirement,
+    transformed_exits: &[CatalogExit],
+    direction_offset: u8,
+) -> Option<Vec<MatchedExit>> {
+    let mut mapped = Vec::new();
+    let mut used = BTreeSet::new();
+    let mut required_exits = requirement.required_exits.iter().collect::<Vec<_>>();
+    required_exits.sort_by(|left, right| left.id.cmp(&right.id));
+    for required_exit in required_exits {
+        let preferred_direction =
+            rotate_direction_steps(required_exit.direction.as_str(), direction_offset);
+        let candidate = transformed_exits
+            .iter()
+            .enumerate()
+            .filter(|(index, exit)| {
+                !used.contains(index)
+                    && exit.direction == preferred_direction
+                    && exit_width_compatible(required_exit.width, exit.width)
+            })
+            .min_by(|(_, left), (_, right)| left.id.cmp(&right.id));
+        let Some((index, catalog_exit)) = candidate else {
+            return None;
+        };
+        used.insert(index);
+        mapped.push(MatchedExit {
+            requirement_exit_id: required_exit.id.clone(),
+            catalog_exit_id: catalog_exit.id.clone(),
+            x: catalog_exit.x,
+            y: catalog_exit.y,
+            direction: catalog_exit.direction.clone(),
+            width: catalog_exit.width,
+        });
+    }
+    Some(mapped)
+}
+
+fn rotate_direction_steps(direction: &str, steps: u8) -> &'static str {
+    let directions = ["north", "east", "south", "west"];
+    let index = directions
+        .iter()
+        .position(|candidate| *candidate == direction)
+        .unwrap_or(0);
+    directions[(index + usize::from(steps)) % directions.len()]
+}
+
+fn pure_catalog_transform_signature(
+    shape: &CatalogShape,
+    transform: &str,
+    exit_map: &[MatchedExit],
+) -> String {
+    let transformed = shape
+        .footprint
+        .iter()
+        .map(|cell| transform_cell(cell.x, cell.y, transform))
+        .collect::<Vec<_>>();
+    let min_x = transformed.iter().map(|cell| cell.0).min().unwrap_or(0);
+    let min_y = transformed.iter().map(|cell| cell.1).min().unwrap_or(0);
+    let mut footprint = transformed
+        .into_iter()
+        .map(|(x, y)| (x - min_x, y - min_y))
+        .collect::<Vec<_>>();
+    footprint.sort();
+    let mut exits = exit_map
+        .iter()
+        .map(|exit| {
+            (
+                exit.requirement_exit_id.as_str(),
+                exit.x,
+                exit.y,
+                exit.direction.as_str(),
+                exit.width,
+            )
+        })
+        .collect::<Vec<_>>();
+    exits.sort();
+    format!("{}:{footprint:?}:{exits:?}", shape.shape_id)
 }
 
 fn match_requirement(

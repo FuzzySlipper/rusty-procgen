@@ -23,7 +23,7 @@
       "provider": "asha-procgen.prefab-publisher",
       "seed": 14341,
       "version": 1,
-      "params": "{\"candidateRef\":\"artifacts/samples/batch-v2/candidate-006/candidate-001-lock_key_loop.json\",\"catalogId\":\"shape_catalog.2d_basic.v1\",\"matchId\":\"piece_shape_match.piece_plan.geometry.candidate.first_slice.5801.14310.catalog.14341.alternative_0\",\"placementId\":\"piece_placement.piece_shape_match.piece_plan.geometry.candidate.first_slice.5801.14310.catalog.14341.alternative_0\"}"
+      "params": "{\"candidateRef\":\"artifacts/samples/batch-v2/candidate-006/candidate-001-lock_key_loop.json\",\"catalogId\":\"shape_catalog.2d_basic.v1\",\"matchId\":\"piece_shape_match.piece_plan.geometry.candidate.first_slice.5801.14310.hybrid.14341.alternative_0\",\"placementId\":\"piece_placement.piece_shape_match.piece_plan.geometry.candidate.first_slice.5801.14310.hybrid.14341.alternative_0\"}"
     },
     "artifacts": [
       {
@@ -344,11 +344,11 @@
     "candidateRef": "artifacts/samples/batch-v2/candidate-006/candidate-001-lock_key_loop.json",
     "catalogId": "shape_catalog.2d_basic.v1",
     "catalogRef": "fixtures/shape-catalogs/2d-basic.json",
-    "planId": "piece_plan.geometry.candidate.first_slice.5801.14310.catalog",
+    "planId": "piece_plan.geometry.candidate.first_slice.5801.14310.hybrid",
     "planRef": "artifacts/samples/batch-v2/candidate-006/piece-plan.json",
-    "matchId": "piece_shape_match.piece_plan.geometry.candidate.first_slice.5801.14310.catalog.14341.alternative_0",
+    "matchId": "piece_shape_match.piece_plan.geometry.candidate.first_slice.5801.14310.hybrid.14341.alternative_0",
     "matchRef": "artifacts/samples/batch-v2/candidate-006/piece-shape-match.json",
-    "placementId": "piece_placement.piece_shape_match.piece_plan.geometry.candidate.first_slice.5801.14310.catalog.14341.alternative_0",
+    "placementId": "piece_placement.piece_shape_match.piece_plan.geometry.candidate.first_slice.5801.14310.hybrid.14341.alternative_0",
     "instances": [
       {
         "procgenInstanceId": "instance.piece_room_room_region_start",
@@ -357,7 +357,7 @@
         "shapeId": "shape.room.flow_junction.36_exit",
         "prefabId": 1001,
         "matchScore": 895,
-        "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.5801.14310.catalog;requirement:piece.room.room_region_start"
+        "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.5801.14310.hybrid;requirement:piece.room.room_region_start"
       },
       {
         "procgenInstanceId": "instance.piece_room_room_region_goal",
@@ -366,7 +366,7 @@
         "shapeId": "shape.room.standard.1_exit",
         "prefabId": 1002,
         "matchScore": 1049,
-        "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.5801.14310.catalog;requirement:piece.room.room_region_goal"
+        "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.5801.14310.hybrid;requirement:piece.room.room_region_goal"
       }
     ]
   },

@@ -800,6 +800,8 @@ struct PiecePlacement {
     grid_connectivity: GridConnectivity,
     placement_policy: PiecePlacementPolicy,
     realization_search: PieceRealizationSearchEvidence,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    catalog_search: Option<CatalogSearchEvidence>,
     instances: Vec<PieceInstance>,
     glued_exits: Vec<GluedExit>,
     gate_portals: Vec<GatePortal>,
@@ -816,6 +818,34 @@ struct PieceRealizationSearchEvidence {
     realization_attempts: u32,
     route_order_attempt: u32,
     route_attempts: u32,
+}
+
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[serde(rename_all = "camelCase")]
+struct CatalogSearchEvidence {
+    schema_version: u32,
+    max_decisions: u32,
+    max_backtracks: u32,
+    max_chain_expansions_per_section: u32,
+    max_room_origin_alternatives: u32,
+    max_room_rotation_alternatives: u32,
+    decisions: u32,
+    backtracks: u32,
+    chain_expansions: u32,
+    room_origin_attempts: u32,
+    room_rotation_attempts: u32,
+    selected: Vec<CatalogPlacementDecision>,
+}
+
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[serde(rename_all = "camelCase")]
+struct CatalogPlacementDecision {
+    piece_id: String,
+    shape_id: String,
+    transform: String,
+    candidate_rank: u32,
+    candidate_count: u32,
+    origin: GridCell,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -973,7 +1003,33 @@ struct ShapeCatalog {
     cell_size: i32,
     #[serde(default)]
     placement_policy: PiecePlacementPolicy,
+    #[serde(default)]
+    catalog_search_policy: CatalogSearchPolicy,
     shapes: Vec<CatalogShape>,
+}
+
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[serde(rename_all = "camelCase")]
+struct CatalogSearchPolicy {
+    schema_version: u32,
+    max_decisions: u32,
+    max_backtracks: u32,
+    max_chain_expansions_per_section: u32,
+    max_room_origin_alternatives: u32,
+    max_room_rotation_alternatives: u32,
+}
+
+impl Default for CatalogSearchPolicy {
+    fn default() -> Self {
+        Self {
+            schema_version: 1,
+            max_decisions: 50_000,
+            max_backtracks: 10_000,
+            max_chain_expansions_per_section: 4_096,
+            max_room_origin_alternatives: 8,
+            max_room_rotation_alternatives: 4,
+        }
+    }
 }
 
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
@@ -1064,6 +1120,7 @@ struct CatalogInspectionReport {
     catalog_ref: String,
     shape_count: usize,
     placement_policy: PiecePlacementPolicy,
+    catalog_search_policy: CatalogSearchPolicy,
     piece_kinds: Vec<String>,
     feature_sockets: Vec<String>,
     exit_directions: Vec<String>,

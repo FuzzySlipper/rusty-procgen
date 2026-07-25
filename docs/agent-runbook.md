@@ -440,7 +440,10 @@ Build, Voxel, and Voxel 3D show one generation configuration form backed by
 `config/viewer-generation.json`. Every editable field has a `value` and
 `defaultValue`. The form edits compact-first room margin, column/row gaps,
 per-tier growth, bounded search tiers and room orders, placement clearance,
-route wall buffer, and `catalog`/`procedural` corridor realization together.
+route wall buffer, and `catalog`/`hybrid`/`procedural` corridor realization
+together. `catalog` is strict prefab-only assembly and may deterministically
+reject when the catalog cannot close the topology; `hybrid` is the former
+prefab-plus-routed-gap behavior.
 Schema v1 keeps the 8-unit route grid, `contactPolicy=glued_exits_only`,
 `doorwayWidthCells=1`, `preservePieceBoundaries=true`, physical-section
 exclusivity, and built-flow validation fixed.

@@ -661,7 +661,7 @@ async function exerciseEngineInspection(chromium, url, alternateCandidateId) {
       'ready',
       30_000,
     );
-    await waitForCdpValue(cdp, `document.querySelector('#generation-config-corridor-realization')?.value`, 'catalog');
+    await waitForCdpValue(cdp, `document.querySelector('#generation-config-corridor-realization')?.value`, 'hybrid');
     await waitForCdpValue(cdp, `document.querySelector('#generation-config-panel')?.dataset.buildId !== ${JSON.stringify(configuredBuildId)}`, true);
     const resetReadout = await evaluateCdp(cdp, `(() => {
       const panel = document.querySelector('#generation-config-panel');
@@ -679,7 +679,7 @@ async function exerciseEngineInspection(chromium, url, alternateCandidateId) {
       || resetReadout.columnGap !== 144
       || resetReadout.clearance !== 3
       || resetReadout.wallThickness !== 1
-      || resetReadout.corridorRealization !== 'catalog'
+      || resetReadout.corridorRealization !== 'hybrid'
     ) {
       throw new Error(`generation config defaults did not rebuild and persist: ${JSON.stringify(resetReadout)}`);
     }

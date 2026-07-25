@@ -26,6 +26,9 @@ fn assemble_piece_placement(
     shape_match: &PieceShapeMatchReport,
     args: &BuildAssembleArgs,
 ) -> Result<PiecePlacement, String> {
+    if plan.corridor_realization == CorridorRealization::Catalog {
+        return assemble_pure_catalog_placement(catalog, plan, shape_match, args);
+    }
     const REALIZATION_SCALE_MULTIPLIERS: [i32; 2] = [1, 2];
     let mut last_error = "no piece realization was attempted".to_owned();
     for (realization_scale_tier, scale_multiplier) in
@@ -258,6 +261,7 @@ fn assemble_piece_placement_attempt(
             realization_scale_tier: (scale_multiplier - 1) as u32,
             ..PieceRealizationSearchEvidence::default()
         },
+        catalog_search: None,
         instances,
         glued_exits: Vec::new(),
         gate_portals: Vec::new(),
@@ -268,10 +272,14 @@ fn assemble_piece_placement_attempt(
     };
     placement.glued_exits = derive_glued_exits(plan, &placement.instances)?;
     placement.gate_portals = derive_gate_portals(plan, &placement.glued_exits)?;
-    let (connection_cells, route_search) = derive_connection_cells(&placement)?;
-    placement.connection_cells = connection_cells;
-    placement.realization_search.route_order_attempt = route_search.route_order_attempt;
-    placement.realization_search.route_attempts = route_search.route_attempts;
+    if placement.corridor_realization == CorridorRealization::Catalog {
+        placement.realization_search.route_attempts = 1;
+    } else {
+        let (connection_cells, route_search) = derive_connection_cells(&placement)?;
+        placement.connection_cells = connection_cells;
+        placement.realization_search.route_order_attempt = route_search.route_order_attempt;
+        placement.realization_search.route_attempts = route_search.route_attempts;
+    }
     Ok(placement)
 }
 
@@ -280,7 +288,7 @@ fn catalog_section_contact_instances(
     requirement: &PieceRequirement,
     instances: &[PieceInstance],
 ) -> BTreeSet<String> {
-    if plan.corridor_realization != CorridorRealization::Catalog
+    if !plan.corridor_realization.uses_catalog_pieces()
         || !matches!(requirement.kind.as_str(), "corridor" | "bend" | "junction")
     {
         return BTreeSet::new();
@@ -317,7 +325,7 @@ fn catalog_route_piece_origin(
     requirement: &PieceRequirement,
     instances: &[PieceInstance],
 ) -> Option<GridCell> {
-    if plan.corridor_realization != CorridorRealization::Catalog
+    if !plan.corridor_realization.uses_catalog_pieces()
         || !matches!(requirement.kind.as_str(), "corridor" | "bend" | "junction")
     {
         return None;
@@ -1015,7 +1023,7 @@ fn try_derive_connection_cells(
                 },
             ));
         };
-        if placement.corridor_realization == CorridorRealization::Catalog {
+        if placement.corridor_realization == CorridorRealization::Hybrid {
             bridge = stitch_catalog_section_pieces(
                 placement,
                 glued,
@@ -1830,20 +1838,86 @@ fn validate_corridor_realization(
 ) {
     match placement.corridor_realization {
         CorridorRealization::Catalog => {
+            if !placement.connection_cells.is_empty() {
+                diagnostics.push(fatal(
+                    "piece_catalog_has_procedural_connection_cells",
+                    None,
+                    None,
+                    "Pure catalog realization must contain zero generated connection cells.",
+                ));
+            }
+            let Some(search) = placement.catalog_search.as_ref() else {
+                diagnostics.push(fatal(
+                    "piece_catalog_search_evidence_missing",
+                    None,
+                    None,
+                    "Pure catalog realization must record its bounded placement-search evidence.",
+                ));
+                return;
+            };
+            if search.schema_version != 1
+                || search.max_decisions == 0
+                || search.max_backtracks == 0
+                || search.max_chain_expansions_per_section == 0
+                || search.max_room_origin_alternatives == 0
+                || search.max_room_rotation_alternatives == 0
+                || search.decisions > search.max_decisions
+                || search.backtracks > search.max_backtracks
+                || search.selected.len() != placement.instances.len()
+            {
+                diagnostics.push(fatal(
+                    "piece_catalog_search_evidence_invalid",
+                    None,
+                    None,
+                    "Pure catalog placement-search evidence is missing decisions or exceeds a declared deterministic budget.",
+                ));
+            }
+            for glued in &placement.glued_exits {
+                if !pure_catalog_glue_is_direct(glued, &placement.occupied_cells) {
+                    diagnostics.push(fatal(
+                        "piece_catalog_direct_glue_invalid",
+                        None,
+                        Some(glued.source_edge.as_str()),
+                        format!(
+                            "Pure catalog glue {} is not an exact adjacent prefab-port join.",
+                            glued.id
+                        ),
+                    ));
+                }
+            }
+            validate_pure_catalog_contacts(placement, diagnostics);
+        }
+        CorridorRealization::Hybrid => {
+            if placement.catalog_search.is_some() {
+                diagnostics.push(fatal(
+                    "piece_hybrid_catalog_search_evidence_unexpected",
+                    None,
+                    None,
+                    "Hybrid realization must not claim pure-catalog placement-search evidence.",
+                ));
+            }
             if placement
                 .glued_exits
                 .iter()
                 .any(|glued| glued.route_points.len() < 2)
             {
                 diagnostics.push(fatal(
-                    "piece_catalog_corridor_lane_missing",
+                    "piece_hybrid_corridor_lane_missing",
                     None,
                     None,
-                    "Every catalog corridor join must preserve its planned route slice.",
+                    "Every hybrid corridor join must preserve its planned route slice.",
                 ));
             }
         }
         CorridorRealization::Procedural => {
+            if placement.catalog_search.is_some() {
+                diagnostics.push(fatal(
+                    "piece_procedural_catalog_search_evidence_unexpected",
+                    None,
+                    None,
+                    "Procedural realization must not claim pure-catalog placement-search evidence.",
+                ));
+            }
             let corridor_instances = placement.instances.iter().filter(|instance| {
                 matches!(
                     instance.requirement_kind.as_str(),
@@ -1868,6 +1942,56 @@ fn validate_corridor_realization(
                     None,
                     None,
                     "Every procedural physical section must preserve a geometry lane with at least two points.",
+                ));
+            }
+        }
+    }
+}
+
+fn validate_pure_catalog_contacts(
+    placement: &PiecePlacement,
+    diagnostics: &mut Vec<Diagnostic>,
+) {
+    let occupied = placement
+        .occupied_cells
+        .iter()
+        .map(|cell| ((cell.x, cell.y), cell.instance_id.as_str()))
+        .collect::<BTreeMap<_, _>>();
+    let glued_pairs = placement
+        .glued_exits
+        .iter()
+        .flat_map(|glued| {
+            [
+                (
+                    glued.from_instance.as_str(),
+                    glued.to_instance.as_str(),
+                ),
+                (
+                    glued.to_instance.as_str(),
+                    glued.from_instance.as_str(),
+                ),
+            ]
+        })
+        .collect::<BTreeSet<_>>();
+    let mut reported = BTreeSet::new();
+    for (position, owner) in &occupied {
+        for neighbor in [(position.0 + 1, position.1), (position.0, position.1 + 1)] {
+            let Some(other) = occupied.get(&neighbor) else {
+                continue;
+            };
+            if owner == other || glued_pairs.contains(&(*owner, *other)) {
+                continue;
+            }
+            let pair = sorted_pair(owner, other);
+            if reported.insert(pair.clone()) {
+                diagnostics.push(fatal(
+                    "piece_catalog_unplanned_contact",
+                    None,
+                    None,
+                    format!(
+                        "Pure catalog instances {} and {} touch without an explicit glued-exit link.",
+                        pair.0, pair.1
+                    ),
                 ));
             }
         }
@@ -1900,7 +2024,7 @@ fn validate_placement_unplanned_contacts(
                 if *other_instance == cell.instance_id {
                     continue;
                 }
-                if placement.corridor_realization == CorridorRealization::Catalog
+                if placement.corridor_realization.uses_catalog_pieces()
                     && section_instances.values().any(|instances| {
                         instances.contains(&cell.instance_id)
                             && instances.contains(*other_instance)
@@ -2076,7 +2200,7 @@ fn validate_placement_cells(placement: &PiecePlacement, diagnostics: &mut Vec<Di
                             glued.to_direction.as_str(),
                             wall_clearance,
                         )
-                    } else if placement.corridor_realization == CorridorRealization::Catalog
+                    } else if placement.corridor_realization.uses_catalog_pieces()
                         && section_instances
                             .get(glued.source_section.as_str())
                             .is_some_and(|instances| instances.contains(*occupier))
@@ -2180,6 +2304,7 @@ fn validate_placement_cells(placement: &PiecePlacement, diagnostics: &mut Vec<Di
             }
         }
     }
+    if placement.corridor_realization != CorridorRealization::Catalog {
     for owner in declared_connection_owners {
         if !used_connection_owners.contains(owner.as_str()) {
             diagnostics.push(fatal(
@@ -2216,7 +2341,7 @@ fn validate_placement_cells(placement: &PiecePlacement, diagnostics: &mut Vec<Di
             continue;
         }
         let mut traversable = owner_cells.clone();
-        if placement.corridor_realization == CorridorRealization::Catalog {
+        if placement.corridor_realization.uses_catalog_pieces() {
             if let Some(instances) = section_instances.get(glued.source_section.as_str()) {
                 traversable.extend(
                     placement
@@ -2274,6 +2399,7 @@ fn validate_placement_cells(placement: &PiecePlacement, diagnostics: &mut Vec<Di
                 ));
             }
         }
+    }
     }
 }
 
@@ -2457,9 +2583,15 @@ fn validate_placement_links(placement: &PiecePlacement, diagnostics: &mut Vec<Di
         .iter()
         .map(|glued| (glued.link_id.as_str(), glued))
         .collect::<BTreeMap<_, _>>();
-    let connection_cells = placement
+    let traversable_portal_cells = placement
         .connection_cells
         .iter()
+        .chain(
+            placement
+                .occupied_cells
+                .iter()
+                .filter(|_| placement.corridor_realization == CorridorRealization::Catalog),
+        )
         .map(|cell| (cell.x, cell.y))
         .collect::<BTreeSet<_>>();
     let mut portal_ids = BTreeSet::new();
@@ -2500,12 +2632,15 @@ fn validate_placement_links(placement: &PiecePlacement, diagnostics: &mut Vec<Di
             ));
         }
         for cell in &portal.cells {
-            if !connection_cells.contains(&(cell.x, cell.y)) {
+            if !traversable_portal_cells.contains(&(cell.x, cell.y)) {
                 diagnostics.push(fatal(
                     "piece_gate_portal_cell_missing",
                     None,
                     Some(portal.source_edge.as_str()),
-                    format!("Gate portal {} cell {},{} is not routed.", portal.id, cell.x, cell.y),
+                    format!(
+                        "Gate portal {} cell {},{} is not part of its realized traversal.",
+                        portal.id, cell.x, cell.y
+                    ),
                 ));
             }
         }

@@ -1,8 +1,8 @@
 {
   "kind": "asha_procgen.piece_shape_match.v1",
   "schemaVersion": 1,
-  "matchId": "piece_shape_match.piece_plan.geometry.candidate.first_slice.6001.14309.catalog.14340.alternative_0",
-  "planId": "piece_plan.geometry.candidate.first_slice.6001.14309.catalog",
+  "matchId": "piece_shape_match.piece_plan.geometry.candidate.first_slice.6001.14309.hybrid.14340.alternative_0",
+  "planId": "piece_plan.geometry.candidate.first_slice.6001.14309.hybrid",
   "catalogId": "shape_catalog.2d_basic.v1",
   "seed": 14340,
   "alternativeAttempt": 0,
@@ -19,7 +19,7 @@
       "score": 895,
       "candidateRank": 0,
       "candidateCount": 1,
-      "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.6001.14309.catalog;requirement:piece.room.room_region_start",
+      "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.6001.14309.hybrid;requirement:piece.room.room_region_start",
       "exitMap": [
         {
           "requirementExitId": "exit.corridor_section_region_gate_locked_1_region_start_open.east",
@@ -54,7 +54,7 @@
       "score": 895,
       "candidateRank": 0,
       "candidateCount": 1,
-      "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.6001.14309.catalog;requirement:piece.room.room_region_key_gate_1",
+      "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.6001.14309.hybrid;requirement:piece.room.room_region_key_gate_1",
       "exitMap": [
         {
           "requirementExitId": "exit.corridor_section_region_gate_locked_1_region_key_gate_1_open.south",
@@ -89,7 +89,7 @@
       "score": 945,
       "candidateRank": 0,
       "candidateCount": 1,
-      "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.6001.14309.catalog;requirement:piece.room.room_region_gate_locked_1",
+      "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.6001.14309.hybrid;requirement:piece.room.room_region_gate_locked_1",
       "exitMap": [
         {
           "requirementExitId": "exit.corridor_section_region_gate_locked_1_region_gate_locked_2_open.east",
@@ -140,7 +140,7 @@
       "score": 895,
       "candidateRank": 0,
       "candidateCount": 1,
-      "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.6001.14309.catalog;requirement:piece.room.room_region_key_deep_2",
+      "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.6001.14309.hybrid;requirement:piece.room.room_region_key_deep_2",
       "exitMap": [
         {
           "requirementExitId": "exit.corridor_section_region_gate_locked_1_region_key_deep_2_open.west",
@@ -175,7 +175,7 @@
       "score": 945,
       "candidateRank": 0,
       "candidateCount": 1,
-      "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.6001.14309.catalog;requirement:piece.room.room_region_gate_locked_2",
+      "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.6001.14309.hybrid;requirement:piece.room.room_region_gate_locked_2",
       "exitMap": [
         {
           "requirementExitId": "exit.corridor_section_region_gate_boss_1_region_gate_locked_2_open.east",
@@ -226,7 +226,7 @@
       "score": 895,
       "candidateRank": 0,
       "candidateCount": 1,
-      "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.6001.14309.catalog;requirement:piece.room.room_region_resource_boss_prep_1",
+      "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.6001.14309.hybrid;requirement:piece.room.room_region_resource_boss_prep_1",
       "exitMap": [
         {
           "requirementExitId": "exit.corridor_section_region_gate_boss_1_region_resource_boss_prep_1_open.south",
@@ -261,7 +261,7 @@
       "score": 924,
       "candidateRank": 0,
       "candidateCount": 1,
-      "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.6001.14309.catalog;requirement:piece.room.room_region_gate_boss_1",
+      "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.6001.14309.hybrid;requirement:piece.room.room_region_gate_boss_1",
       "exitMap": [
         {
           "requirementExitId": "exit.corridor_section_region_gate_boss_1_region_gate_locked_2_open.west",
@@ -304,7 +304,7 @@
       "score": 1049,
       "candidateRank": 0,
       "candidateCount": 6,
-      "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.6001.14309.catalog;requirement:piece.room.room_region_goal",
+      "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.6001.14309.hybrid;requirement:piece.room.room_region_goal",
       "exitMap": [
         {
           "requirementExitId": "exit.corridor_section_region_gate_boss_1_region_goal_connector_edge_boss_1_goal.west",
@@ -331,7 +331,7 @@
       "score": 1052,
       "candidateRank": 0,
       "candidateCount": 1,
-      "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.6001.14309.catalog;requirement:piece.bend.corridor_section_region_gate_boss_1_region_gate_locked_2_open.turn_01",
+      "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.6001.14309.hybrid;requirement:piece.bend.corridor_section_region_gate_boss_1_region_gate_locked_2_open.turn_01",
       "exitMap": [
         {
           "requirementExitId": "exit.turn_01.in",
@@ -360,7 +360,7 @@
       "score": 1052,
       "candidateRank": 0,
       "candidateCount": 1,
-      "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.6001.14309.catalog;requirement:piece.bend.corridor_section_region_gate_boss_1_region_gate_locked_2_open.turn_02",
+      "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.6001.14309.hybrid;requirement:piece.bend.corridor_section_region_gate_boss_1_region_gate_locked_2_open.turn_02",
       "exitMap": [
         {
           "requirementExitId": "exit.turn_02.in",
@@ -389,7 +389,7 @@
       "score": 1052,
       "candidateRank": 0,
       "candidateCount": 1,
-      "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.6001.14309.catalog;requirement:piece.corridor.corridor_section_region_gate_boss_1_region_gate_locked_2_open.segment_03.tile_01",
+      "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.6001.14309.hybrid;requirement:piece.corridor.corridor_section_region_gate_boss_1_region_gate_locked_2_open.segment_03.tile_01",
       "exitMap": [
         {
           "requirementExitId": "exit.segment_03.tile_01.in",
@@ -418,7 +418,7 @@
       "score": 1052,
       "candidateRank": 0,
       "candidateCount": 1,
-      "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.6001.14309.catalog;requirement:piece.corridor.corridor_section_region_gate_boss_1_region_gate_locked_2_open.segment_03.tile_02",
+      "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.6001.14309.hybrid;requirement:piece.corridor.corridor_section_region_gate_boss_1_region_gate_locked_2_open.segment_03.tile_02",
       "exitMap": [
         {
           "requirementExitId": "exit.segment_03.tile_02.in",
@@ -447,7 +447,7 @@
       "score": 1048,
       "candidateRank": 0,
       "candidateCount": 1,
-      "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.6001.14309.catalog;requirement:piece.corridor.corridor_section_region_gate_boss_1_region_goal_connector_edge_boss_1_goal.segment_01.tile_01",
+      "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.6001.14309.hybrid;requirement:piece.corridor.corridor_section_region_gate_boss_1_region_goal_connector_edge_boss_1_goal.segment_01.tile_01",
       "exitMap": [
         {
           "requirementExitId": "exit.segment_01.tile_01.in",
@@ -476,7 +476,7 @@
       "score": 1048,
       "candidateRank": 0,
       "candidateCount": 1,
-      "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.6001.14309.catalog;requirement:piece.corridor.corridor_section_region_gate_boss_1_region_goal_connector_edge_boss_1_goal.segment_01.tile_02",
+      "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.6001.14309.hybrid;requirement:piece.corridor.corridor_section_region_gate_boss_1_region_goal_connector_edge_boss_1_goal.segment_01.tile_02",
       "exitMap": [
         {
           "requirementExitId": "exit.segment_01.tile_02.in",
@@ -505,7 +505,7 @@
       "score": 1048,
       "candidateRank": 0,
       "candidateCount": 1,
-      "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.6001.14309.catalog;requirement:piece.bend.corridor_section_region_gate_boss_1_region_goal_connector_edge_boss_1_goal.turn_01",
+      "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.6001.14309.hybrid;requirement:piece.bend.corridor_section_region_gate_boss_1_region_goal_connector_edge_boss_1_goal.turn_01",
       "exitMap": [
         {
           "requirementExitId": "exit.turn_01.in",
@@ -534,7 +534,7 @@
       "score": 1048,
       "candidateRank": 0,
       "candidateCount": 1,
-      "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.6001.14309.catalog;requirement:piece.corridor.corridor_section_region_gate_boss_1_region_goal_connector_edge_boss_1_goal.segment_02.tile_01",
+      "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.6001.14309.hybrid;requirement:piece.corridor.corridor_section_region_gate_boss_1_region_goal_connector_edge_boss_1_goal.segment_02.tile_01",
       "exitMap": [
         {
           "requirementExitId": "exit.segment_02.tile_01.in",
@@ -563,7 +563,7 @@
       "score": 1048,
       "candidateRank": 0,
       "candidateCount": 1,
-      "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.6001.14309.catalog;requirement:piece.corridor.corridor_section_region_gate_boss_1_region_goal_connector_edge_boss_1_goal.segment_02.tile_02",
+      "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.6001.14309.hybrid;requirement:piece.corridor.corridor_section_region_gate_boss_1_region_goal_connector_edge_boss_1_goal.segment_02.tile_02",
       "exitMap": [
         {
           "requirementExitId": "exit.segment_02.tile_02.in",
@@ -592,7 +592,7 @@
       "score": 1048,
       "candidateRank": 0,
       "candidateCount": 1,
-      "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.6001.14309.catalog;requirement:piece.bend.corridor_section_region_gate_boss_1_region_goal_connector_edge_boss_1_goal.turn_02",
+      "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.6001.14309.hybrid;requirement:piece.bend.corridor_section_region_gate_boss_1_region_goal_connector_edge_boss_1_goal.turn_02",
       "exitMap": [
         {
           "requirementExitId": "exit.turn_02.in",
@@ -621,7 +621,7 @@
       "score": 1048,
       "candidateRank": 0,
       "candidateCount": 1,
-      "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.6001.14309.catalog;requirement:piece.bend.corridor_section_region_gate_boss_1_region_resource_boss_prep_1_open.turn_01",
+      "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.6001.14309.hybrid;requirement:piece.bend.corridor_section_region_gate_boss_1_region_resource_boss_prep_1_open.turn_01",
       "exitMap": [
         {
           "requirementExitId": "exit.turn_01.in",
@@ -650,7 +650,7 @@
       "score": 1048,
       "candidateRank": 0,
       "candidateCount": 1,
-      "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.6001.14309.catalog;requirement:piece.bend.corridor_section_region_gate_boss_1_region_resource_boss_prep_1_open.turn_02",
+      "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.6001.14309.hybrid;requirement:piece.bend.corridor_section_region_gate_boss_1_region_resource_boss_prep_1_open.turn_02",
       "exitMap": [
         {
           "requirementExitId": "exit.turn_02.in",
@@ -679,7 +679,7 @@
       "score": 1048,
       "candidateRank": 0,
       "candidateCount": 1,
-      "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.6001.14309.catalog;requirement:piece.corridor.corridor_section_region_gate_boss_1_region_resource_boss_prep_1_open.segment_03.tile_01",
+      "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.6001.14309.hybrid;requirement:piece.corridor.corridor_section_region_gate_boss_1_region_resource_boss_prep_1_open.segment_03.tile_01",
       "exitMap": [
         {
           "requirementExitId": "exit.segment_03.tile_01.in",
@@ -708,7 +708,7 @@
       "score": 1052,
       "candidateRank": 0,
       "candidateCount": 1,
-      "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.6001.14309.catalog;requirement:piece.corridor.corridor_section_region_gate_locked_1_region_gate_locked_2_open.segment_01.tile_01",
+      "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.6001.14309.hybrid;requirement:piece.corridor.corridor_section_region_gate_locked_1_region_gate_locked_2_open.segment_01.tile_01",
       "exitMap": [
         {
           "requirementExitId": "exit.segment_01.tile_01.in",
@@ -737,7 +737,7 @@
       "score": 1052,
       "candidateRank": 0,
       "candidateCount": 1,
-      "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.6001.14309.catalog;requirement:piece.corridor.corridor_section_region_gate_locked_1_region_gate_locked_2_open.segment_01.tile_02",
+      "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.6001.14309.hybrid;requirement:piece.corridor.corridor_section_region_gate_locked_1_region_gate_locked_2_open.segment_01.tile_02",
       "exitMap": [
         {
           "requirementExitId": "exit.segment_01.tile_02.in",
@@ -766,7 +766,7 @@
       "score": 1052,
       "candidateRank": 0,
       "candidateCount": 1,
-      "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.6001.14309.catalog;requirement:piece.bend.corridor_section_region_gate_locked_1_region_gate_locked_2_open.turn_01",
+      "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.6001.14309.hybrid;requirement:piece.bend.corridor_section_region_gate_locked_1_region_gate_locked_2_open.turn_01",
       "exitMap": [
         {
           "requirementExitId": "exit.turn_01.in",
@@ -795,7 +795,7 @@
       "score": 1052,
       "candidateRank": 0,
       "candidateCount": 1,
-      "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.6001.14309.catalog;requirement:piece.bend.corridor_section_region_gate_locked_1_region_gate_locked_2_open.turn_02",
+      "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.6001.14309.hybrid;requirement:piece.bend.corridor_section_region_gate_locked_1_region_gate_locked_2_open.turn_02",
       "exitMap": [
         {
           "requirementExitId": "exit.turn_02.in",
@@ -824,7 +824,7 @@
       "score": 1052,
       "candidateRank": 0,
       "candidateCount": 1,
-      "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.6001.14309.catalog;requirement:piece.corridor.corridor_section_region_gate_locked_1_region_key_deep_2_open.segment_01.tile_01",
+      "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.6001.14309.hybrid;requirement:piece.corridor.corridor_section_region_gate_locked_1_region_key_deep_2_open.segment_01.tile_01",
       "exitMap": [
         {
           "requirementExitId": "exit.segment_01.tile_01.in",
@@ -853,7 +853,7 @@
       "score": 1052,
       "candidateRank": 0,
       "candidateCount": 1,
-      "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.6001.14309.catalog;requirement:piece.corridor.corridor_section_region_gate_locked_1_region_key_deep_2_open.segment_01.tile_02",
+      "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.6001.14309.hybrid;requirement:piece.corridor.corridor_section_region_gate_locked_1_region_key_deep_2_open.segment_01.tile_02",
       "exitMap": [
         {
           "requirementExitId": "exit.segment_01.tile_02.in",
@@ -882,7 +882,7 @@
       "score": 1052,
       "candidateRank": 0,
       "candidateCount": 1,
-      "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.6001.14309.catalog;requirement:piece.bend.corridor_section_region_gate_locked_1_region_key_deep_2_open.turn_01",
+      "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.6001.14309.hybrid;requirement:piece.bend.corridor_section_region_gate_locked_1_region_key_deep_2_open.turn_01",
       "exitMap": [
         {
           "requirementExitId": "exit.turn_01.in",
@@ -911,7 +911,7 @@
       "score": 1052,
       "candidateRank": 0,
       "candidateCount": 1,
-      "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.6001.14309.catalog;requirement:piece.bend.corridor_section_region_gate_locked_1_region_key_deep_2_open.turn_02",
+      "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.6001.14309.hybrid;requirement:piece.bend.corridor_section_region_gate_locked_1_region_key_deep_2_open.turn_02",
       "exitMap": [
         {
           "requirementExitId": "exit.turn_02.in",
@@ -940,7 +940,7 @@
       "score": 1052,
       "candidateRank": 0,
       "candidateCount": 1,
-      "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.6001.14309.catalog;requirement:piece.bend.corridor_section_region_gate_locked_1_region_key_deep_2_open.turn_03",
+      "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.6001.14309.hybrid;requirement:piece.bend.corridor_section_region_gate_locked_1_region_key_deep_2_open.turn_03",
       "exitMap": [
         {
           "requirementExitId": "exit.turn_03.in",
@@ -969,7 +969,7 @@
       "score": 1052,
       "candidateRank": 0,
       "candidateCount": 1,
-      "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.6001.14309.catalog;requirement:piece.corridor.corridor_section_region_gate_locked_1_region_key_deep_2_open.segment_04.tile_01",
+      "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.6001.14309.hybrid;requirement:piece.corridor.corridor_section_region_gate_locked_1_region_key_deep_2_open.segment_04.tile_01",
       "exitMap": [
         {
           "requirementExitId": "exit.segment_04.tile_01.in",
@@ -998,7 +998,7 @@
       "score": 1052,
       "candidateRank": 0,
       "candidateCount": 1,
-      "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.6001.14309.catalog;requirement:piece.corridor.corridor_section_region_gate_locked_1_region_key_deep_2_open.segment_04.tile_02",
+      "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.6001.14309.hybrid;requirement:piece.corridor.corridor_section_region_gate_locked_1_region_key_deep_2_open.segment_04.tile_02",
       "exitMap": [
         {
           "requirementExitId": "exit.segment_04.tile_02.in",
@@ -1027,7 +1027,7 @@
       "score": 1052,
       "candidateRank": 0,
       "candidateCount": 1,
-      "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.6001.14309.catalog;requirement:piece.bend.corridor_section_region_gate_locked_1_region_key_deep_2_open.turn_04",
+      "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.6001.14309.hybrid;requirement:piece.bend.corridor_section_region_gate_locked_1_region_key_deep_2_open.turn_04",
       "exitMap": [
         {
           "requirementExitId": "exit.turn_04.in",
@@ -1056,7 +1056,7 @@
       "score": 1048,
       "candidateRank": 0,
       "candidateCount": 1,
-      "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.6001.14309.catalog;requirement:piece.bend.corridor_section_region_gate_locked_1_region_key_gate_1_open.turn_01",
+      "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.6001.14309.hybrid;requirement:piece.bend.corridor_section_region_gate_locked_1_region_key_gate_1_open.turn_01",
       "exitMap": [
         {
           "requirementExitId": "exit.turn_01.in",
@@ -1085,7 +1085,7 @@
       "score": 1048,
       "candidateRank": 0,
       "candidateCount": 1,
-      "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.6001.14309.catalog;requirement:piece.bend.corridor_section_region_gate_locked_1_region_key_gate_1_open.turn_02",
+      "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.6001.14309.hybrid;requirement:piece.bend.corridor_section_region_gate_locked_1_region_key_gate_1_open.turn_02",
       "exitMap": [
         {
           "requirementExitId": "exit.turn_02.in",
@@ -1114,7 +1114,7 @@
       "score": 1048,
       "candidateRank": 0,
       "candidateCount": 1,
-      "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.6001.14309.catalog;requirement:piece.corridor.corridor_section_region_gate_locked_1_region_key_gate_1_open.segment_03.tile_01",
+      "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.6001.14309.hybrid;requirement:piece.corridor.corridor_section_region_gate_locked_1_region_key_gate_1_open.segment_03.tile_01",
       "exitMap": [
         {
           "requirementExitId": "exit.segment_03.tile_01.in",
@@ -1143,7 +1143,7 @@
       "score": 1052,
       "candidateRank": 0,
       "candidateCount": 1,
-      "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.6001.14309.catalog;requirement:piece.corridor.corridor_section_region_gate_locked_1_region_start_open.segment_01.tile_01",
+      "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.6001.14309.hybrid;requirement:piece.corridor.corridor_section_region_gate_locked_1_region_start_open.segment_01.tile_01",
       "exitMap": [
         {
           "requirementExitId": "exit.segment_01.tile_01.in",
@@ -1172,7 +1172,7 @@
       "score": 1052,
       "candidateRank": 0,
       "candidateCount": 1,
-      "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.6001.14309.catalog;requirement:piece.corridor.corridor_section_region_gate_locked_1_region_start_open.segment_01.tile_02",
+      "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.6001.14309.hybrid;requirement:piece.corridor.corridor_section_region_gate_locked_1_region_start_open.segment_01.tile_02",
       "exitMap": [
         {
           "requirementExitId": "exit.segment_01.tile_02.in",
@@ -1201,7 +1201,7 @@
       "score": 1052,
       "candidateRank": 0,
       "candidateCount": 1,
-      "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.6001.14309.catalog;requirement:piece.bend.corridor_section_region_gate_locked_1_region_start_open.turn_01",
+      "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.6001.14309.hybrid;requirement:piece.bend.corridor_section_region_gate_locked_1_region_start_open.turn_01",
       "exitMap": [
         {
           "requirementExitId": "exit.turn_01.in",
@@ -1230,7 +1230,7 @@
       "score": 1052,
       "candidateRank": 0,
       "candidateCount": 1,
-      "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.6001.14309.catalog;requirement:piece.corridor.corridor_section_region_gate_locked_1_region_start_open.segment_02.tile_01",
+      "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.6001.14309.hybrid;requirement:piece.corridor.corridor_section_region_gate_locked_1_region_start_open.segment_02.tile_01",
       "exitMap": [
         {
           "requirementExitId": "exit.segment_02.tile_01.in",
@@ -1259,7 +1259,7 @@
       "score": 1052,
       "candidateRank": 0,
       "candidateCount": 1,
-      "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.6001.14309.catalog;requirement:piece.bend.corridor_section_region_gate_locked_1_region_start_open.turn_02",
+      "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.6001.14309.hybrid;requirement:piece.bend.corridor_section_region_gate_locked_1_region_start_open.turn_02",
       "exitMap": [
         {
           "requirementExitId": "exit.turn_02.in",
@@ -1288,7 +1288,7 @@
       "score": 1048,
       "candidateRank": 0,
       "candidateCount": 1,
-      "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.6001.14309.catalog;requirement:piece.bend.corridor_section_region_gate_locked_2_region_key_deep_2_open.turn_01",
+      "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.6001.14309.hybrid;requirement:piece.bend.corridor_section_region_gate_locked_2_region_key_deep_2_open.turn_01",
       "exitMap": [
         {
           "requirementExitId": "exit.turn_01.in",
@@ -1317,7 +1317,7 @@
       "score": 1048,
       "candidateRank": 0,
       "candidateCount": 1,
-      "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.6001.14309.catalog;requirement:piece.bend.corridor_section_region_gate_locked_2_region_key_deep_2_open.turn_02",
+      "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.6001.14309.hybrid;requirement:piece.bend.corridor_section_region_gate_locked_2_region_key_deep_2_open.turn_02",
       "exitMap": [
         {
           "requirementExitId": "exit.turn_02.in",
@@ -1346,7 +1346,7 @@
       "score": 1048,
       "candidateRank": 0,
       "candidateCount": 1,
-      "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.6001.14309.catalog;requirement:piece.corridor.corridor_section_region_gate_locked_2_region_key_deep_2_open.segment_03.tile_01",
+      "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.6001.14309.hybrid;requirement:piece.corridor.corridor_section_region_gate_locked_2_region_key_deep_2_open.segment_03.tile_01",
       "exitMap": [
         {
           "requirementExitId": "exit.segment_03.tile_01.in",
@@ -1375,7 +1375,7 @@
       "score": 1052,
       "candidateRank": 0,
       "candidateCount": 1,
-      "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.6001.14309.catalog;requirement:piece.corridor.corridor_section_region_gate_locked_2_region_resource_boss_prep_1_open.segment_01.tile_01",
+      "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.6001.14309.hybrid;requirement:piece.corridor.corridor_section_region_gate_locked_2_region_resource_boss_prep_1_open.segment_01.tile_01",
       "exitMap": [
         {
           "requirementExitId": "exit.segment_01.tile_01.in",
@@ -1404,7 +1404,7 @@
       "score": 1052,
       "candidateRank": 0,
       "candidateCount": 1,
-      "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.6001.14309.catalog;requirement:piece.corridor.corridor_section_region_gate_locked_2_region_resource_boss_prep_1_open.segment_01.tile_02",
+      "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.6001.14309.hybrid;requirement:piece.corridor.corridor_section_region_gate_locked_2_region_resource_boss_prep_1_open.segment_01.tile_02",
       "exitMap": [
         {
           "requirementExitId": "exit.segment_01.tile_02.in",
@@ -1433,7 +1433,7 @@
       "score": 1052,
       "candidateRank": 0,
       "candidateCount": 1,
-      "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.6001.14309.catalog;requirement:piece.bend.corridor_section_region_gate_locked_2_region_resource_boss_prep_1_open.turn_01",
+      "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.6001.14309.hybrid;requirement:piece.bend.corridor_section_region_gate_locked_2_region_resource_boss_prep_1_open.turn_01",
       "exitMap": [
         {
           "requirementExitId": "exit.turn_01.in",
@@ -1462,7 +1462,7 @@
       "score": 1052,
       "candidateRank": 0,
       "candidateCount": 1,
-      "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.6001.14309.catalog;requirement:piece.bend.corridor_section_region_gate_locked_2_region_resource_boss_prep_1_open.turn_02",
+      "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.6001.14309.hybrid;requirement:piece.bend.corridor_section_region_gate_locked_2_region_resource_boss_prep_1_open.turn_02",
       "exitMap": [
         {
           "requirementExitId": "exit.turn_02.in",
@@ -1491,7 +1491,7 @@
       "score": 1052,
       "candidateRank": 0,
       "candidateCount": 1,
-      "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.6001.14309.catalog;requirement:piece.bend.corridor_section_region_gate_locked_2_region_resource_boss_prep_1_open.turn_03",
+      "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.6001.14309.hybrid;requirement:piece.bend.corridor_section_region_gate_locked_2_region_resource_boss_prep_1_open.turn_03",
       "exitMap": [
         {
           "requirementExitId": "exit.turn_03.in",
@@ -1520,7 +1520,7 @@
       "score": 1052,
       "candidateRank": 0,
       "candidateCount": 1,
-      "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.6001.14309.catalog;requirement:piece.corridor.corridor_section_region_gate_locked_2_region_resource_boss_prep_1_open.segment_04.tile_01",
+      "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.6001.14309.hybrid;requirement:piece.corridor.corridor_section_region_gate_locked_2_region_resource_boss_prep_1_open.segment_04.tile_01",
       "exitMap": [
         {
           "requirementExitId": "exit.segment_04.tile_01.in",
@@ -1549,7 +1549,7 @@
       "score": 1052,
       "candidateRank": 0,
       "candidateCount": 1,
-      "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.6001.14309.catalog;requirement:piece.corridor.corridor_section_region_gate_locked_2_region_resource_boss_prep_1_open.segment_04.tile_02",
+      "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.6001.14309.hybrid;requirement:piece.corridor.corridor_section_region_gate_locked_2_region_resource_boss_prep_1_open.segment_04.tile_02",
       "exitMap": [
         {
           "requirementExitId": "exit.segment_04.tile_02.in",
@@ -1578,7 +1578,7 @@
       "score": 1052,
       "candidateRank": 0,
       "candidateCount": 1,
-      "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.6001.14309.catalog;requirement:piece.bend.corridor_section_region_gate_locked_2_region_resource_boss_prep_1_open.turn_04",
+      "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.6001.14309.hybrid;requirement:piece.bend.corridor_section_region_gate_locked_2_region_resource_boss_prep_1_open.turn_04",
       "exitMap": [
         {
           "requirementExitId": "exit.turn_04.in",
@@ -1607,7 +1607,7 @@
       "score": 1052,
       "candidateRank": 0,
       "candidateCount": 1,
-      "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.6001.14309.catalog;requirement:piece.corridor.corridor_section_region_key_gate_1_region_start_open.segment_01.tile_01",
+      "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.6001.14309.hybrid;requirement:piece.corridor.corridor_section_region_key_gate_1_region_start_open.segment_01.tile_01",
       "exitMap": [
         {
           "requirementExitId": "exit.segment_01.tile_01.in",
@@ -1636,7 +1636,7 @@
       "score": 1052,
       "candidateRank": 0,
       "candidateCount": 1,
-      "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.6001.14309.catalog;requirement:piece.corridor.corridor_section_region_key_gate_1_region_start_open.segment_01.tile_02",
+      "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.6001.14309.hybrid;requirement:piece.corridor.corridor_section_region_key_gate_1_region_start_open.segment_01.tile_02",
       "exitMap": [
         {
           "requirementExitId": "exit.segment_01.tile_02.in",
@@ -1665,7 +1665,7 @@
       "score": 1052,
       "candidateRank": 0,
       "candidateCount": 1,
-      "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.6001.14309.catalog;requirement:piece.bend.corridor_section_region_key_gate_1_region_start_open.turn_01",
+      "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.6001.14309.hybrid;requirement:piece.bend.corridor_section_region_key_gate_1_region_start_open.turn_01",
       "exitMap": [
         {
           "requirementExitId": "exit.turn_01.in",
@@ -1694,7 +1694,7 @@
       "score": 1052,
       "candidateRank": 0,
       "candidateCount": 1,
-      "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.6001.14309.catalog;requirement:piece.bend.corridor_section_region_key_gate_1_region_start_open.turn_02",
+      "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.6001.14309.hybrid;requirement:piece.bend.corridor_section_region_key_gate_1_region_start_open.turn_02",
       "exitMap": [
         {
           "requirementExitId": "exit.turn_02.in",

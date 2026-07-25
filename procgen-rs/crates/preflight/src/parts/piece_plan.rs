@@ -105,16 +105,29 @@ fn emit_piece_build_plan(
         let edge = edges_by_id.get(corridor.source_edge.as_str()).copied();
         match args.corridor_realization {
             CorridorRealization::Catalog => {
-                let corridor_piece_count =
+                let corridor_pieces =
                     emit_corridor_piece_requirements(corridor, connector, edge, &mut requirements)?;
-                link_catalog_corridor(
+                link_pure_catalog_corridor(
+                    corridor,
+                    edge,
+                    &from_piece,
+                    &to_piece,
+                    &corridor_pieces,
+                    &mut links,
+                );
+                debug_assert!(!corridor_pieces.is_empty());
+            }
+            CorridorRealization::Hybrid => {
+                let corridor_pieces =
+                    emit_corridor_piece_requirements(corridor, connector, edge, &mut requirements)?;
+                link_hybrid_corridor(
                     corridor,
                     edge,
                     &from_piece,
                     &to_piece,
                     &mut links,
                 );
-                debug_assert!(corridor_piece_count > 0);
+                debug_assert!(!corridor_pieces.is_empty());
             }
             CorridorRealization::Procedural => {
                 link_procedural_corridor(corridor, edge, &from_piece, &to_piece, &mut links);
@@ -287,6 +300,13 @@ struct CatalogRouteSegment {
     target_cells: i32,
 }
 
+#[derive(Clone, Debug)]
+struct CatalogRoutePiece {
+    piece_id: String,
+    inbound_exit: String,
+    outbound_exit: String,
+}
+
 const MAX_CATALOG_ROUTE_PIECES_PER_SECTION: usize = 64;
 const CATALOG_ROUTE_PIXELS_PER_PLACEMENT_CELL: i32 = 6;
 const CATALOG_SMALL_BEND_ALLOWANCE_CELLS: i32 = 4;
@@ -297,11 +317,11 @@ fn emit_corridor_piece_requirements(
     connector: Option<&IntermediateConnector>,
     edge: Option<&Edge>,
     requirements: &mut Vec<PieceRequirement>,
-) -> Result<usize, String> {
+) -> Result<Vec<CatalogRoutePiece>, String> {
     let segments = catalog_route_segments(corridor)?;
     let source_refs = corridor_source_refs(corridor, connector, edge);
     let base_tags = corridor_tags(corridor, connector, edge);
-    let mut piece_count = 0_usize;
+    let mut pieces = Vec::new();
 
     for (segment_index, segment) in segments.iter().enumerate() {
         let starts_at_bend = segment_index > 0;
@@ -332,7 +352,7 @@ fn emit_corridor_piece_requirements(
                 tile_index + 1,
                 straight_spans.len() + 1,
             );
-            push_catalog_route_piece(
+            pieces.push(push_catalog_route_piece(
                 corridor,
                 "corridor",
                 format!("segment_{:02}.tile_{:02}", segment_index + 1, tile_index + 1),
@@ -344,8 +364,7 @@ fn emit_corridor_piece_requirements(
                 &source_refs,
                 &base_tags,
                 requirements,
-                &mut piece_count,
-            );
+            ));
         }
 
         if let Some(next_segment) = segments.get(segment_index + 1) {
@@ -356,7 +375,7 @@ fn emit_corridor_piece_requirements(
             } else {
                 "bend_small"
             };
-            push_catalog_route_piece(
+            pieces.push(push_catalog_route_piece(
                 corridor,
                 "bend",
                 format!("turn_{:02}", segment_index + 1),
@@ -368,20 +387,19 @@ fn emit_corridor_piece_requirements(
                 &source_refs,
                 &base_tags,
                 requirements,
-                &mut piece_count,
-            );
+            ));
         }
     }
 
-    if piece_count > MAX_CATALOG_ROUTE_PIECES_PER_SECTION {
+    if pieces.len() > MAX_CATALOG_ROUTE_PIECES_PER_SECTION {
         return Err(format!(
             "catalog corridor {} requires {} pieces, exceeding bounded section limit {}",
             corridor.id,
-            piece_count,
+            pieces.len(),
             MAX_CATALOG_ROUTE_PIECES_PER_SECTION
         ));
     }
-    Ok(piece_count)
+    Ok(pieces)
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -499,8 +517,7 @@ fn push_catalog_route_piece(
     source_refs: &[String],
     base_tags: &[String],
     requirements: &mut Vec<PieceRequirement>,
-    piece_count: &mut usize,
-) {
+) -> CatalogRoutePiece {
     let piece_id = format!(
         "piece.{}.{}.{}",
         kind,
@@ -553,25 +570,92 @@ fn push_catalog_route_piece(
         tags: dedupe_strings(tags),
         placement_hints,
     });
-    *piece_count += 1;
+    CatalogRoutePiece {
+        piece_id,
+        inbound_exit,
+        outbound_exit,
+    }
 }
 
-fn link_catalog_corridor(
+fn link_pure_catalog_corridor(
+    corridor: &GeometryCorridor,
+    edge: Option<&Edge>,
+    from_room: &str,
+    to_room: &str,
+    pieces: &[CatalogRoutePiece],
+    links: &mut Vec<PieceLink>,
+) {
+    let mut from_piece = from_room.to_owned();
+    let mut from_exit = room_corridor_exit_id(corridor, true);
+    for (index, piece) in pieces.iter().enumerate() {
+        links.push(catalog_piece_link(
+            corridor,
+            edge,
+            format!("piece_link.{}.catalog.{:02}", slugify_label(corridor.id.as_str()), index + 1),
+            from_piece,
+            from_exit,
+            piece.piece_id.clone(),
+            piece.inbound_exit.clone(),
+            Vec::new(),
+        ));
+        from_piece = piece.piece_id.clone();
+        from_exit = piece.outbound_exit.clone();
+    }
+    links.push(catalog_piece_link(
+        corridor,
+        edge,
+        format!(
+            "piece_link.{}.catalog.{:02}",
+            slugify_label(corridor.id.as_str()),
+            pieces.len() + 1
+        ),
+        from_piece,
+        from_exit,
+        to_room.to_owned(),
+        room_corridor_exit_id(corridor, false),
+        Vec::new(),
+    ));
+}
+
+fn link_hybrid_corridor(
     corridor: &GeometryCorridor,
     edge: Option<&Edge>,
     from_piece: &str,
     to_piece: &str,
     links: &mut Vec<PieceLink>,
 ) {
-    links.push(PieceLink {
-        id: format!(
+    links.push(catalog_piece_link(
+        corridor,
+        edge,
+        format!(
             "piece_link.{}.catalog",
             slugify_label(corridor.id.as_str())
         ),
-        from_piece: from_piece.to_owned(),
-        from_exit: room_corridor_exit_id(corridor, true),
-        to_piece: to_piece.to_owned(),
-        to_exit: room_corridor_exit_id(corridor, false),
+        from_piece.to_owned(),
+        room_corridor_exit_id(corridor, true),
+        to_piece.to_owned(),
+        room_corridor_exit_id(corridor, false),
+        corridor.points.clone(),
+    ));
+}
+
+#[allow(clippy::too_many_arguments)]
+fn catalog_piece_link(
+    corridor: &GeometryCorridor,
+    edge: Option<&Edge>,
+    id: String,
+    from_piece: String,
+    from_exit: String,
+    to_piece: String,
+    to_exit: String,
+    route_points: Vec<GeometryPoint>,
+) -> PieceLink {
+    PieceLink {
+        id,
+        from_piece,
+        from_exit,
+        to_piece,
+        to_exit,
         source_section: corridor.physical_section.clone(),
         source_corridor: corridor.id.clone(),
         source_edge: corridor.source_edge.clone(),
@@ -589,8 +673,8 @@ fn link_catalog_corridor(
             .unwrap_or_else(|| corridor.traversal_hint.clone()),
         required_item: edge.and_then(|source_edge| source_edge.required_item.clone()),
         tags: dedupe_strings(corridor.semantic_tags.clone()),
-        route_points: corridor.points.clone(),
-    });
+        route_points,
+    }
 }
 
 fn corridor_distance_at_point(

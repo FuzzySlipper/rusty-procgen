@@ -58,7 +58,8 @@
               <label>
                 <span>Corridor realization</span>
                 <select id="generation-config-corridor-realization">
-                  <option value="catalog">Catalog pieces</option>
+                  <option value="catalog">Pure catalog pieces</option>
+                  <option value="hybrid">Hybrid pieces + routed gaps</option>
                   <option value="procedural">Procedural lanes</option>
                 </select>
               </label>
@@ -148,7 +149,7 @@
           <div class="placement-policy-heading">
             <div>
               <h2>Corridor realization experiment</h2>
-              <p>Compare catalog corridor prefabs plus routed joins with direct procedural routing constrained to the planned geometry lanes. Room and feature prefabs remain catalog-backed in both modes.</p>
+              <p>Compare exact prefab-only catalog assembly, hybrid corridor prefabs plus routed joins, and direct procedural routing constrained to planned geometry lanes. Room and feature prefabs remain catalog-backed in every mode.</p>
             </div>
             <p class="placement-policy-mode" id="corridor-realization-mode">Committed mode</p>
           </div>
@@ -156,7 +157,8 @@
             <label>
               <span>Corridor realization</span>
               <select id="corridor-realization-select">
-                <option value="catalog">Catalog pieces</option>
+                <option value="catalog">Pure catalog pieces</option>
+                <option value="hybrid">Hybrid pieces + routed gaps</option>
                 <option value="procedural">Procedural lanes</option>
               </select>
               <small>Applies one mode to every physical section; modes are never mixed automatically.</small>

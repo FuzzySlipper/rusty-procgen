@@ -106,7 +106,7 @@ try {
     resetResult.buildId === first.buildId
     || resetResult.config.geometryLayoutPolicy.initialColumnGap.value !== 144
     || resetResult.config.placementPolicy.minimumClearanceCells.value !== 3
-    || resetResult.placement.corridorRealization !== 'catalog'
+    || resetResult.placement.corridorRealization !== 'hybrid'
     || resetResult.geometryValidation?.ok !== true
     || resetResult.placementValidation?.ok !== true
     || resetResult.builtFlowValidation?.ok !== true

@@ -113,6 +113,16 @@ if (!validation.ok) {
 if (placement.gridConnectivity !== 'four_way') {
   throw new Error(`unexpected placement connectivity: ${placement.gridConnectivity}`);
 }
+if (placement.corridorRealization !== 'hybrid') {
+  throw new Error(`default piece build must preserve hybrid realization, got ${placement.corridorRealization}`);
+}
+if (
+  catalog.catalogSearchPolicy?.schemaVersion !== 1
+  || catalog.catalogSearchPolicy?.maxDecisions < 1
+  || catalog.catalogSearchPolicy?.maxRoomRotationAlternatives !== 4
+) {
+  throw new Error(`catalog inspection omitted bounded pure-search defaults: ${JSON.stringify(catalog.catalogSearchPolicy)}`);
+}
 if (
   placement.placementPolicy?.contactPolicy !== 'glued_exits_only'
   || placement.placementPolicy?.preservePieceBoundaries !== true

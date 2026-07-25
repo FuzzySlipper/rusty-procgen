@@ -344,7 +344,7 @@ struct BuildEmitPiecePlanArgs {
     intermediate: PathBuf,
     #[arg(long)]
     geometry: PathBuf,
-    #[arg(long, value_enum, default_value_t = CorridorRealization::Catalog)]
+    #[arg(long, value_enum, default_value_t = CorridorRealization::Hybrid)]
     corridor_realization: CorridorRealization,
     #[arg(long)]
     out: PathBuf,
@@ -354,8 +354,9 @@ struct BuildEmitPiecePlanArgs {
 #[value(rename_all = "snake_case")]
 #[serde(rename_all = "snake_case")]
 enum CorridorRealization {
-    #[default]
     Catalog,
+    #[default]
+    Hybrid,
     Procedural,
 }
 
@@ -363,8 +364,13 @@ impl CorridorRealization {
     fn as_str(self) -> &'static str {
         match self {
             Self::Catalog => "catalog",
+            Self::Hybrid => "hybrid",
             Self::Procedural => "procedural",
         }
+    }
+
+    fn uses_catalog_pieces(self) -> bool {
+        matches!(self, Self::Catalog | Self::Hybrid)
     }
 }
 

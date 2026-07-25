@@ -30,6 +30,7 @@ fn inspect_shape_catalog(catalog: &ShapeCatalog, catalog_path: &Path) -> Catalog
         ));
     }
     validate_piece_placement_policy(&catalog.placement_policy, &mut diagnostics);
+    validate_catalog_search_policy(&catalog.catalog_search_policy, &mut diagnostics);
 
     for shape in &catalog.shapes {
         if !seen_shapes.insert(shape.shape_id.as_str()) {
@@ -120,12 +121,34 @@ fn inspect_shape_catalog(catalog: &ShapeCatalog, catalog_path: &Path) -> Catalog
         catalog_ref: display_path(catalog_path),
         shape_count: catalog.shapes.len(),
         placement_policy: catalog.placement_policy.clone(),
+        catalog_search_policy: catalog.catalog_search_policy.clone(),
         piece_kinds: piece_kinds.into_iter().collect(),
         feature_sockets: feature_sockets.into_iter().collect(),
         exit_directions: exit_directions.into_iter().collect(),
         transforms: transforms.into_iter().collect(),
         shapes,
         diagnostics,
+    }
+}
+
+fn validate_catalog_search_policy(
+    policy: &CatalogSearchPolicy,
+    diagnostics: &mut Vec<Diagnostic>,
+) {
+    if policy.schema_version != 1
+        || policy.max_decisions == 0
+        || policy.max_backtracks == 0
+        || policy.max_chain_expansions_per_section == 0
+        || policy.max_room_origin_alternatives == 0
+        || policy.max_room_rotation_alternatives == 0
+        || policy.max_room_rotation_alternatives > 4
+    {
+        diagnostics.push(fatal(
+            "catalog_search_policy_invalid",
+            None,
+            None,
+            "Catalog search policy must use schemaVersion 1 with positive bounded budgets and at most four 90-degree room rotations.",
+        ));
     }
 }
 

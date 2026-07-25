@@ -41,6 +41,9 @@ Important top-level fields:
 - `cellSize`: authoring grid size in abstract cells.
 - `placementPolicy`: versioned room-boundary, clearance, wall, and doorway
   policy copied into each placement artifact.
+- `catalogSearchPolicy`: versioned deterministic decision, backtrack,
+  per-section expansion, room-origin, and 90-degree rotation limits for pure
+  catalog assembly.
 - `shapes`: reusable shape records.
 
 Placement policy schema v1 has one supported contact mode,
@@ -87,12 +90,14 @@ Two catalog-piece exits can glue when the build plan links their pieces, their
 mapped directions are opposite, their widths are compatible, and required tags
 are satisfied. A procedural room-to-room link instead preserves each room
 exit's authored outward direction and the geometry lane joining them; the two
-room exits need not face opposite directions when the lane bends. Placement
-owns the physical route between separated footprints in either mode, and exit
-compatibility does not grant arbitrary cell contact.
+room exits need not face opposite directions when the lane bends. Hybrid and
+procedural placement own physical routes between separated footprints. Pure
+catalog placement instead requires every linked port pair to glue directly and
+forbids generated route cells; exit compatibility never grants arbitrary
+unlinked cell contact.
 
-Placement is a bounded deterministic search rather than a one-pass atlas
-layout. Room-shaped requirements are placed first, room-facing connector
+Hybrid/procedural placement is a bounded deterministic search rather than a
+one-pass atlas layout. Room-shaped requirements are placed first, room-facing connector
 pieces are anchored from their matched exit coordinates, and interior
 corridor/bend pieces retain the source geometry lane hints. Connection routes
 then try four documented orderings without relaxing occupancy, wall,
@@ -117,10 +122,10 @@ geometry artifact into explicit pieces and connectors for catalog matching.
 Important fields:
 
 - `planId`: stable generated id that includes the whole-build corridor mode, so
-  catalog and procedural artifacts cannot collide.
+  catalog, hybrid, and procedural artifacts cannot collide.
 - `candidateId`: source candidate id.
 - `geometryId`: source geometry id.
-- `corridorRealization`: exactly `catalog` or `procedural`.
+- `corridorRealization`: exactly `catalog`, `hybrid`, or `procedural`.
 - `sourceCandidateRef`: source candidate ref.
 - `sourceGeometryRef`: source `geometry_2d` ref.
 - `sourceIntermediateRef`: source intermediate breakdown ref.
@@ -145,7 +150,7 @@ Important requirement fields:
 - `placementHints`: optional non-authoritative hints, such as preferred
   approximate cell span or corridor length band.
 
-In `catalog` mode, corridors are first-class shape requirements. Each
+In `catalog` and `hybrid` modes, corridors are first-class shape requirements. Each
 orthogonal geometry segment is deterministically covered with a bounded greedy
 selection of short, medium, and long straight pieces, while each planned turn
 gets a small or large bend:
@@ -154,10 +159,21 @@ gets a small or large bend:
 room -> straight pieces -> bend piece -> straight pieces -> room
 ```
 
-The physical section still owns one room-to-room link carrying the complete
-planned polyline. Its connection cells fill only the gaps that are not covered
-by the placed catalog footprints, and bounded same-section stitches make every
-selected prefab part of the walkable section. Same-section pieces may approach
+In `catalog`, those requirements form an explicit room-to-piece-to-room link
+chain with no route points. A bounded deterministic occupancy search jointly
+selects shapes, 90-degree transforms, and exact exit-anchored origins. It starts
+from the entrance frontier, prioritizes constrained requirements, backtracks
+across corridor chains and room rotations, and records `catalogSearch`
+decisions and budgets. Geometry-derived room facing and semantic facing hints
+order alternatives but never exclude an otherwise valid rotation. Every glue
+must join adjacent opposing prefab ports, and `connectionCells` must be empty.
+Catalog coverage or search exhaustion rejects without falling back to hybrid or
+procedural cells.
+
+In `hybrid`, each physical section retains one room-to-room link carrying the
+complete planned polyline. Connection cells fill gaps not covered by placed
+catalog footprints, and bounded same-section stitches make every selected
+prefab walkable. Same-section pieces may approach
 their own endpoint rooms and sibling corridor pieces; unrelated pieces and
 physical sections retain the full overlap, wall, and clearance exclusions.
 Catalog junction shapes use the dedicated `junction` kind and
@@ -174,7 +190,7 @@ portal provenance, and built-flow equivalence. It may adjust within the
 envelope to reach transformed room exits; it may not invent an unrelated
 shortest path. Unknown modes reject during typed deserialization.
 
-The mode applies to the whole build. Automatic per-corridor mixing is not part
+The mode applies to the whole build. Automatic per-corridor fallback or mixing is not part
 of this contract.
 
 ## Piece Shape Match Artifact
