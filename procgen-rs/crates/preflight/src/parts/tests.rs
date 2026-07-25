@@ -127,8 +127,8 @@ mod tests {
     #[test]
     fn geometry_layout_policy_compacts_escalates_and_repeats_deterministically() {
         let repo_root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../..");
-        let candidate_path =
-            repo_root.join("artifacts/samples/batch-v2/candidate-006/candidate-001-lock_key_loop.json");
+        let candidate_path = repo_root
+            .join("artifacts/samples/batch-v2/candidate-006/candidate-001-lock_key_loop.json");
         let intermediate_path =
             repo_root.join("artifacts/samples/batch-v2/candidate-006/intermediate-breakdown.json");
         let candidate: Candidate = read_json(&candidate_path).expect("sample lock-key candidate");
@@ -150,12 +150,10 @@ mod tests {
             max_search_attempts: 12,
         };
 
-        let first =
-            place_and_route_physical_geometry(&specs, &connection_plan, 14_307, &policy)
-                .expect("compact-first search should escalate to a routable tier");
-        let repeated =
-            place_and_route_physical_geometry(&specs, &connection_plan, 14_307, &policy)
-                .expect("repeated search should succeed");
+        let first = place_and_route_physical_geometry(&specs, &connection_plan, 14_307, &policy)
+            .expect("compact-first search should escalate to a routable tier");
+        let repeated = place_and_route_physical_geometry(&specs, &connection_plan, 14_307, &policy)
+            .expect("repeated search should succeed");
 
         assert_eq!(first.search.spacing_tier, 1);
         assert_eq!(
@@ -194,8 +192,9 @@ mod tests {
             .contains("exceeds 2048"));
 
         let repo_root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../..");
-        let candidate_path = repo_root
-            .join("artifacts/samples/batch-v2/candidate-000/candidate-003-branch_merge_shortcut.json");
+        let candidate_path = repo_root.join(
+            "artifacts/samples/batch-v2/candidate-000/candidate-003-branch_merge_shortcut.json",
+        );
         let intermediate_path =
             repo_root.join("artifacts/samples/batch-v2/candidate-000/intermediate-breakdown.json");
         let candidate: Candidate = read_json(&candidate_path).expect("sample hub-merge candidate");
@@ -216,9 +215,8 @@ mod tests {
             room_order_attempts_per_tier: 1,
             max_search_attempts: 4,
         };
-        let error =
-            place_and_route_physical_geometry(&specs, &connection_plan, 14_301, &bounded)
-                .expect_err("hub-merge should exhaust this deliberately tiny budget");
+        let error = place_and_route_physical_geometry(&specs, &connection_plan, 14_301, &bounded)
+            .expect_err("hub-merge should exhaust this deliberately tiny budget");
         assert!(error.starts_with("geometry search exhausted after 4 route attempt(s)"));
         assert!(error.contains("across 1 spacing tier(s)"));
         assert!(error.contains("last route failure: single-floor route unavailable"));
@@ -251,11 +249,8 @@ mod tests {
                 port_order_attempt: 0,
                 route_order_attempt: 0,
                 search_attempts: 1,
-                effective_spacing: geometry_spacing_for_tier(
-                    &default_geometry_layout_policy(),
-                    0,
-                )
-                .expect("default spacing"),
+                effective_spacing: geometry_spacing_for_tier(&default_geometry_layout_policy(), 0)
+                    .expect("default spacing"),
             },
             bounds: GeometryBounds {
                 width: 480,
@@ -1147,10 +1142,7 @@ mod tests {
     fn geometry_emit_2d_places_variable_non_overlapping_rooms() {
         let intent = test_intent("geometry-emit");
         let mut candidate = create_initial_candidate(&intent, 141);
-        for (index, rule) in [GraphRule::LockKeyLoop]
-        .into_iter()
-        .enumerate()
-        {
+        for (index, rule) in [GraphRule::LockKeyLoop].into_iter().enumerate() {
             assert!(apply_graph_rule(&mut candidate, rule, 142 + index as u64).is_empty());
         }
         let annotations = spatial_intent_report(&candidate, None).expect("spatial intent report");
@@ -1210,10 +1202,7 @@ mod tests {
     fn geometry_emit_2d_routes_semantic_corridors() {
         let intent = test_intent("geometry-corridors");
         let mut candidate = create_initial_candidate(&intent, 251);
-        for (index, rule) in [GraphRule::LockKeyLoop]
-        .into_iter()
-        .enumerate()
-        {
+        for (index, rule) in [GraphRule::LockKeyLoop].into_iter().enumerate() {
             assert!(apply_graph_rule(&mut candidate, rule, 252 + index as u64).is_empty());
         }
         let annotations = spatial_intent_report(&candidate, None).expect("spatial intent report");
@@ -1286,10 +1275,7 @@ mod tests {
     fn geometry_emit_2d_annotates_room_contents() {
         let intent = test_intent("geometry-contents");
         let mut candidate = create_initial_candidate(&intent, 351);
-        for (index, rule) in [GraphRule::LockKeyLoop]
-        .into_iter()
-        .enumerate()
-        {
+        for (index, rule) in [GraphRule::LockKeyLoop].into_iter().enumerate() {
             assert!(apply_graph_rule(&mut candidate, rule, 352 + index as u64).is_empty());
         }
         let annotations = spatial_intent_report(&candidate, None).expect("spatial intent report");
@@ -1372,12 +1358,15 @@ mod tests {
         }));
 
         let mut bad_search_evidence = geometry.clone();
-        bad_search_evidence.layout_search.effective_spacing.column_gap +=
-            GEOMETRY_ROUTE_GRID;
+        bad_search_evidence
+            .layout_search
+            .effective_spacing
+            .column_gap += GEOMETRY_ROUTE_GRID;
         let report = validate_geometry_2d(&bad_search_evidence);
-        assert!(report.diagnostics.iter().any(|diagnostic| {
-            diagnostic.code == "geometry_layout_search_spacing_mismatch"
-        }));
+        assert!(report
+            .diagnostics
+            .iter()
+            .any(|diagnostic| { diagnostic.code == "geometry_layout_search_spacing_mismatch" }));
 
         let mut bad_content_anchor = geometry.clone();
         bad_content_anchor
@@ -1473,10 +1462,7 @@ mod tests {
         assert_eq!(plan.geometry_id, geometry.geometry_id);
         assert!(plan.requirements.len() > geometry.rooms.len() + geometry.corridors.len() * 2);
         assert_eq!(plan.links.len(), geometry.corridors.len());
-        assert!(plan
-            .links
-            .iter()
-            .all(|link| link.route_points.len() >= 2));
+        assert!(plan.links.iter().all(|link| link.route_points.len() >= 2));
 
         let requirement_kinds = plan
             .requirements
@@ -1484,7 +1470,10 @@ mod tests {
             .map(|requirement| requirement.kind.as_str())
             .collect::<BTreeSet<_>>();
         for required in ["room", "threshold", "key", "corridor", "bend"] {
-            assert!(requirement_kinds.contains(required), "{required} requirement missing");
+            assert!(
+                requirement_kinds.contains(required),
+                "{required} requirement missing"
+            );
         }
 
         for corridor in &geometry.corridors {
@@ -1495,16 +1484,16 @@ mod tests {
                 .filter(|requirement| requirement.source_refs.contains(&corridor_ref))
                 .collect::<Vec<_>>();
             assert!(
-                corridor_requirements
-                    .iter()
-                    .any(|requirement| {
-                        requirement.kind == "corridor" || requirement.kind == "bend"
-                    }),
+                corridor_requirements.iter().any(|requirement| {
+                    requirement.kind == "corridor" || requirement.kind == "bend"
+                }),
                 "{} missing route-covering catalog piece requirements",
                 corridor.id
             );
             assert!(corridor_requirements.iter().all(|requirement| {
-                requirement.required_shape_tags.contains(&"corridor".to_owned())
+                requirement
+                    .required_shape_tags
+                    .contains(&"corridor".to_owned())
                     && requirement
                         .required_shape_tags
                         .iter()
@@ -1519,7 +1508,10 @@ mod tests {
             .map(|requirement| requirement.required_socket.as_str())
             .collect::<BTreeSet<_>>();
         for required in ["gate_line", "key_pickup"] {
-            assert!(sockets.contains(required), "{required} content socket missing");
+            assert!(
+                sockets.contains(required),
+                "{required} content socket missing"
+            );
         }
 
         let link_tags = plan
@@ -1531,9 +1523,7 @@ mod tests {
             assert!(link_tags.contains(required), "{required} link tag missing");
         }
         assert!(
-            plan.links
-                .iter()
-                .any(|link| link.traversal == "open"),
+            plan.links.iter().any(|link| link.traversal == "open"),
             "normal open corridor link missing"
         );
 
@@ -1542,25 +1532,18 @@ mod tests {
             .iter()
             .find(|requirement| requirement.tags.contains(&"locked_threshold".to_owned()))
             .expect("locked corridor requirement should exist");
-        assert!(
-            locked_requirement
-                .source_refs
-                .iter()
-                .any(|source_ref| source_ref.starts_with("edge:"))
-        );
+        assert!(locked_requirement
+            .source_refs
+            .iter()
+            .any(|source_ref| source_ref.starts_with("edge:")));
 
         let pure_args = BuildEmitPiecePlanArgs {
             corridor_realization: CorridorRealization::Catalog,
             out: PathBuf::from("artifacts/test/pure-catalog-piece-plan.json"),
             ..args
         };
-        let pure_plan = emit_piece_build_plan(
-            &candidate,
-            &intermediate,
-            &geometry,
-            &pure_args,
-        )
-        .expect("pure catalog piece plan should emit");
+        let pure_plan = emit_piece_build_plan(&candidate, &intermediate, &geometry, &pure_args)
+            .expect("pure catalog piece plan should emit");
         assert_ne!(pure_plan.plan_id, plan.plan_id);
         assert!(pure_plan.links.len() > geometry.corridors.len());
         assert!(pure_plan
@@ -1665,9 +1648,7 @@ mod tests {
         corridor
             .source_refs
             .push("physicalSection:section.test".to_owned());
-        corridor
-            .placement_hints
-            .push("point:12:0".to_owned());
+        corridor.placement_hints.push("point:12:0".to_owned());
         corridor
             .placement_hints
             .push("segment:12:0:30:0".to_owned());
@@ -1680,8 +1661,7 @@ mod tests {
         );
         goal.role = "goal".to_owned();
         goal.tags.push("goal".to_owned());
-        goal
-            .placement_hints
+        goal.placement_hints
             .push("geometryRect:30:0:6:6".to_owned());
         let mut plan = test_piece_plan(vec![start, corridor, goal]);
         plan.links = vec![
@@ -1795,9 +1775,10 @@ mod tests {
         let mut glue_tamper = placement.clone();
         glue_tamper.glued_exits[0].to_cell.x += 1;
         let glue_report = validate_piece_placement(&glue_tamper);
-        assert!(glue_report.diagnostics.iter().any(|diagnostic| {
-            diagnostic.code == "piece_catalog_direct_glue_invalid"
-        }));
+        assert!(glue_report
+            .diagnostics
+            .iter()
+            .any(|diagnostic| { diagnostic.code == "piece_catalog_direct_glue_invalid" }));
 
         let mut bounds_tamper = placement.clone();
         let start_decision = bounds_tamper
@@ -1810,9 +1791,10 @@ mod tests {
             .expect("start decision");
         start_decision.origin_bounds.as_mut().expect("bounds").max_x = 0;
         let bounds_report = validate_piece_placement(&bounds_tamper);
-        assert!(bounds_report.diagnostics.iter().any(|diagnostic| {
-            diagnostic.code == "piece_catalog_origin_bounds_invalid"
-        }));
+        assert!(bounds_report
+            .diagnostics
+            .iter()
+            .any(|diagnostic| { diagnostic.code == "piece_catalog_origin_bounds_invalid" }));
 
         let mut outside_lane_plan = plan.clone();
         outside_lane_plan
@@ -1820,10 +1802,7 @@ mod tests {
             .iter_mut()
             .find(|requirement| requirement.piece_id == "piece.corridor")
             .expect("corridor requirement")
-            .placement_hints = vec![
-            "point:600:0".to_owned(),
-            "segment:600:0:630:0".to_owned(),
-        ];
+            .placement_hints = vec!["point:600:0".to_owned(), "segment:600:0:630:0".to_owned()];
         let outside_lane_match = match_shapes(&catalog, &outside_lane_plan, &match_args);
         let outside_lane_error = assemble_piece_placement(
             &catalog,
@@ -1842,13 +1821,9 @@ mod tests {
         for max_decisions in [1_u32, 2] {
             let mut bounded_catalog = catalog.clone();
             bounded_catalog.catalog_search_policy.max_decisions = max_decisions;
-            let error = assemble_piece_placement(
-                &bounded_catalog,
-                &plan,
-                &shape_match,
-                &assemble_args,
-            )
-            .expect_err("hard decision budget must stop before the next sibling");
+            let error =
+                assemble_piece_placement(&bounded_catalog, &plan, &shape_match, &assemble_args)
+                    .expect_err("hard decision budget must stop before the next sibling");
             let evidence = pure_catalog_error_evidence(&error);
             assert_eq!(evidence["budgets"]["maxDecisions"], max_decisions);
             assert_eq!(evidence["budgets"]["decisions"], max_decisions);
@@ -1861,8 +1836,7 @@ mod tests {
             .find(|requirement| requirement.piece_id == "piece.goal")
             .expect("goal requirement")
             .placement_hints = vec!["geometryRect:36:0:6:6".to_owned()];
-        let impossible_origin_match =
-            match_shapes(&catalog, &impossible_origin_plan, &match_args);
+        let impossible_origin_match = match_shapes(&catalog, &impossible_origin_plan, &match_args);
         for max_backtracks in [1_u32, 2] {
             let mut bounded_catalog = catalog.clone();
             bounded_catalog.catalog_search_policy.max_backtracks = max_backtracks;
@@ -1939,10 +1913,38 @@ mod tests {
         d.tags.push("goal".to_owned());
         let mut plan = test_piece_plan(vec![a, b, c, d]);
         plan.links = vec![
-            test_piece_link("link.a_b", "piece.a", "a_b", "piece.b", "b_a", "section.loop"),
-            test_piece_link("link.b_c", "piece.b", "b_c", "piece.c", "c_b", "section.loop"),
-            test_piece_link("link.c_d", "piece.c", "c_d", "piece.d", "d_c", "section.loop"),
-            test_piece_link("link.d_a", "piece.d", "d_a", "piece.a", "a_d", "section.loop"),
+            test_piece_link(
+                "link.a_b",
+                "piece.a",
+                "a_b",
+                "piece.b",
+                "b_a",
+                "section.loop",
+            ),
+            test_piece_link(
+                "link.b_c",
+                "piece.b",
+                "b_c",
+                "piece.c",
+                "c_b",
+                "section.loop",
+            ),
+            test_piece_link(
+                "link.c_d",
+                "piece.c",
+                "c_d",
+                "piece.d",
+                "d_c",
+                "section.loop",
+            ),
+            test_piece_link(
+                "link.d_a",
+                "piece.d",
+                "d_a",
+                "piece.a",
+                "a_d",
+                "section.loop",
+            ),
         ];
         let match_args = test_match_args(6186);
         let shape_match = match_shapes(&catalog, &plan, &match_args);
@@ -2004,7 +2006,6 @@ mod tests {
         assert!(first_error.contains("pure catalog search exhausted after"));
         assert!(first_error.contains("decision(s)"));
         assert!(first_error.contains("backtrack(s)"));
-
     }
 
     #[test]
@@ -2019,9 +2020,8 @@ mod tests {
         };
         let plan = emit_piece_build_plan(&candidate, &intermediate, &geometry, &plan_args)
             .expect("procedural piece plan should emit");
-        let repeated_plan =
-            emit_piece_build_plan(&candidate, &intermediate, &geometry, &plan_args)
-                .expect("same-mode piece plan should repeat");
+        let repeated_plan = emit_piece_build_plan(&candidate, &intermediate, &geometry, &plan_args)
+            .expect("same-mode piece plan should repeat");
         assert_eq!(plan.plan_id, repeated_plan.plan_id);
         let catalog_plan_args = BuildEmitPiecePlanArgs {
             candidate: plan_args.candidate.clone(),
@@ -2034,10 +2034,7 @@ mod tests {
             emit_piece_build_plan(&candidate, &intermediate, &geometry, &catalog_plan_args)
                 .expect("catalog piece plan should emit");
         assert_ne!(plan.plan_id, catalog_plan.plan_id);
-        assert_eq!(
-            plan.corridor_realization,
-            CorridorRealization::Procedural
-        );
+        assert_eq!(plan.corridor_realization, CorridorRealization::Procedural);
         assert!(plan.requirements.iter().all(|requirement| {
             !matches!(
                 requirement.kind.as_str(),
@@ -2045,10 +2042,7 @@ mod tests {
             )
         }));
         assert_eq!(plan.links.len(), geometry.corridors.len());
-        assert!(plan
-            .links
-            .iter()
-            .all(|link| link.route_points.len() >= 2));
+        assert!(plan.links.iter().all(|link| link.route_points.len() >= 2));
 
         let catalog_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
             .join("../../..")
@@ -2062,8 +2056,7 @@ mod tests {
         };
         let shape_match = match_shapes(&catalog, &plan, &match_args);
         assert!(shape_match.ok);
-        let catalog_shape_match =
-            match_shapes(&catalog, &catalog_plan, &test_match_args(884));
+        let catalog_shape_match = match_shapes(&catalog, &catalog_plan, &test_match_args(884));
         assert_ne!(shape_match.match_id, catalog_shape_match.match_id);
         let assemble_args = BuildAssembleArgs {
             catalog: PathBuf::from(DEFAULT_SHAPE_CATALOG),
@@ -2076,12 +2069,10 @@ mod tests {
             assemble_piece_placement(&catalog, &catalog_plan, &shape_match, &assemble_args)
                 .expect_err("cross-mode shape match must reject");
         assert!(stale_match_error.contains("does not match"));
-        let placement =
-            assemble_piece_placement(&catalog, &plan, &shape_match, &assemble_args)
-                .expect("procedural corridors should realize inside geometry lanes");
-        let repeated =
-            assemble_piece_placement(&catalog, &plan, &shape_match, &assemble_args)
-                .expect("procedural realization should repeat");
+        let placement = assemble_piece_placement(&catalog, &plan, &shape_match, &assemble_args)
+            .expect("procedural corridors should realize inside geometry lanes");
+        let repeated = assemble_piece_placement(&catalog, &plan, &shape_match, &assemble_args)
+            .expect("procedural realization should repeat");
         assert_eq!(
             serde_json::to_value(&placement).expect("placement value"),
             serde_json::to_value(&repeated).expect("repeated placement value")
@@ -2116,20 +2107,24 @@ mod tests {
 
         let mut diverted_plan = plan.clone();
         diverted_plan.links[0].route_points[1].x += 8;
-        let diverted_flow =
-            validate_built_flow(&candidate, &geometry, &diverted_plan, &placement, &flow_args);
-        assert!(diverted_flow.diagnostics.iter().any(|diagnostic| {
-            diagnostic.code == "built_flow_link_provenance_mismatch"
-        }));
+        let diverted_flow = validate_built_flow(
+            &candidate,
+            &geometry,
+            &diverted_plan,
+            &placement,
+            &flow_args,
+        );
+        assert!(diverted_flow
+            .diagnostics
+            .iter()
+            .any(|diagnostic| { diagnostic.code == "built_flow_link_provenance_mismatch" }));
 
         let mut outside_lane = placement;
         let first_owner = outside_lane.connection_cells[0].instance_id.clone();
         let first_glued = outside_lane
             .glued_exits
             .iter()
-            .find(|glued| {
-                format!("connection.{}", slugify_label(glued.id.as_str())) == first_owner
-            })
+            .find(|glued| format!("connection.{}", slugify_label(glued.id.as_str())) == first_owner)
             .expect("glued exit for connection owner")
             .clone();
         let moved = outside_lane
@@ -2137,10 +2132,8 @@ mod tests {
             .iter_mut()
             .find(|cell| {
                 cell.instance_id == first_owner
-                    && (cell.x != first_glued.from_cell.x
-                        || cell.y != first_glued.from_cell.y)
-                    && (cell.x != first_glued.to_cell.x
-                        || cell.y != first_glued.to_cell.y)
+                    && (cell.x != first_glued.from_cell.x || cell.y != first_glued.from_cell.y)
+                    && (cell.x != first_glued.to_cell.x || cell.y != first_glued.to_cell.y)
             })
             .expect("non-endpoint connection cell");
         moved.x += 10_000;
@@ -2274,7 +2267,10 @@ mod tests {
                 "shape.threshold.no_gate_line",
                 &["threshold"],
                 &["identity"],
-                vec![test_catalog_exit("exit.west", "west"), test_catalog_exit("exit.east", "east")],
+                vec![
+                    test_catalog_exit("exit.west", "west"),
+                    test_catalog_exit("exit.east", "east"),
+                ],
                 Vec::new(),
                 &["threshold"],
             ),
@@ -2386,7 +2382,10 @@ mod tests {
         assert_eq!(alternative.alternative_attempt, 1);
         assert_eq!(alternative.matches[0].candidate_rank, 1);
         assert_eq!(alternative.matches[0].candidate_count, 2);
-        assert_ne!(alternative.matches[0].shape_id, report_a.matches[0].shape_id);
+        assert_ne!(
+            alternative.matches[0].shape_id,
+            report_a.matches[0].shape_id
+        );
         assert_eq!(
             alternative.matches[0].shape_id,
             repeated_alternative.matches[0].shape_id
@@ -2395,24 +2394,16 @@ mod tests {
         let catalog = test_shape_catalog(vec![left, right]);
         let match_args = test_match_args(42);
         let mut attempted_alternatives = Vec::new();
-        let (recovered_match, recovered_shape) = search_shape_realizations(
-            &catalog,
-            &plan,
-            &match_args,
-            2,
-            |shape_match| {
+        let (recovered_match, recovered_shape) =
+            search_shape_realizations(&catalog, &plan, &match_args, 2, |shape_match| {
                 attempted_alternatives.push(shape_match.alternative_attempt);
                 if shape_match.alternative_attempt == 0 {
-                    Err(
-                        "piece realization search exhausted after 2 scale tier(s)"
-                            .to_owned(),
-                    )
+                    Err("piece realization search exhausted after 2 scale tier(s)".to_owned())
                 } else {
                     Ok(shape_match.matches[0].shape_id.clone())
                 }
-            },
-        )
-        .expect("downstream realization failure should backtrack shape choice");
+            })
+            .expect("downstream realization failure should backtrack shape choice");
         assert_eq!(attempted_alternatives, vec![0, 1]);
         assert_eq!(recovered_match.alternative_attempt, 1);
         assert_eq!(recovered_match.matches[0].candidate_rank, 1);
@@ -2535,8 +2526,7 @@ mod tests {
             direction: "east".to_owned(),
             width: 1,
         }];
-        let score =
-            pure_catalog_exit_alignment_score(&plan, &room, &shape, "identity", &exit_map);
+        let score = pure_catalog_exit_alignment_score(&plan, &room, &shape, "identity", &exit_map);
         assert_eq!(score, -i32::MAX);
     }
 
@@ -2556,8 +2546,14 @@ mod tests {
             .iter()
             .all(|instance| !instance.occupied_cells.is_empty()));
         let (width, height) = placement_bounds(&placement);
-        assert!(width < 200, "placement should not collapse into a long atlas: {width}x{height}");
-        assert!(height > 10, "placement should preserve source geometry depth: {width}x{height}");
+        assert!(
+            width < 200,
+            "placement should not collapse into a long atlas: {width}x{height}"
+        );
+        assert!(
+            height > 10,
+            "placement should preserve source geometry depth: {width}x{height}"
+        );
         assert!(placement.instances.iter().all(|instance| {
             !instance.shape_id.is_empty()
                 && !instance.source_requirement_ref.is_empty()
@@ -2650,9 +2646,8 @@ mod tests {
             corridor_realization: CorridorRealization::Hybrid,
             out: PathBuf::from("artifacts/test/piece-plan.json"),
         };
-        let plan =
-            emit_piece_build_plan(&candidate, &intermediate, &geometry, &plan_args)
-                .expect("nested-boss piece plan");
+        let plan = emit_piece_build_plan(&candidate, &intermediate, &geometry, &plan_args)
+            .expect("nested-boss piece plan");
         let catalog: ShapeCatalog =
             read_json(&repo_root.join(DEFAULT_SHAPE_CATALOG)).expect("shape catalog");
         let shape_match = match_shapes(&catalog, &plan, &test_match_args(14_339));
@@ -2666,9 +2661,8 @@ mod tests {
         };
         let first = assemble_piece_placement(&catalog, &plan, &shape_match, &assemble_args)
             .expect("route backtracking should recover nested-boss realization");
-        let repeated =
-            assemble_piece_placement(&catalog, &plan, &shape_match, &assemble_args)
-                .expect("repeated realization should recover");
+        let repeated = assemble_piece_placement(&catalog, &plan, &shape_match, &assemble_args)
+            .expect("repeated realization should recover");
         assert!(first.realization_search.route_attempts >= 1);
         assert_eq!(first.realization_search, repeated.realization_search);
         assert_eq!(
@@ -2694,9 +2688,10 @@ mod tests {
         diverted_plan.links[0].route_points[1].x += 10_000;
         let diverted_flow =
             validate_built_flow(&candidate, &geometry, &diverted_plan, &first, &flow_args);
-        assert!(diverted_flow.diagnostics.iter().any(|diagnostic| {
-            diagnostic.code == "built_flow_link_provenance_mismatch"
-        }));
+        assert!(diverted_flow
+            .diagnostics
+            .iter()
+            .any(|diagnostic| { diagnostic.code == "built_flow_link_provenance_mismatch" }));
 
         let mut impossible = first;
         impossible.glued_exits[0].from_cell = GridCell {
@@ -2709,9 +2704,8 @@ mod tests {
         };
         let error = derive_connection_cells(&impossible)
             .expect_err("out-of-bounds glued exits must exhaust bounded route search");
-        assert!(error.starts_with(
-            "piece route search exhausted after 4 deterministic order attempt(s)"
-        ));
+        assert!(error
+            .starts_with("piece route search exhausted after 4 deterministic order attempt(s)"));
     }
 
     #[test]
@@ -2806,7 +2800,8 @@ mod tests {
                 ]
             })
             .find(|position| {
-                !occupied_positions.contains(position) && !reserved_positions.contains(position)
+                !occupied_positions.contains(position)
+                    && !reserved_positions.contains(position)
                     && *position != (glued.from_cell.x, glued.from_cell.y)
                     && *position != (glued.to_cell.x, glued.to_cell.y)
             })
@@ -2817,9 +2812,10 @@ mod tests {
             y: unsafe_route_cell.1,
         });
         let report = validate_piece_placement(&unsafe_connection);
-        assert!(report.diagnostics.iter().any(|diagnostic| {
-            diagnostic.code == "piece_connection_wall_clearance_violated"
-        }));
+        assert!(report
+            .diagnostics
+            .iter()
+            .any(|diagnostic| { diagnostic.code == "piece_connection_wall_clearance_violated" }));
 
         let mut unreachable = placement;
         unreachable.glued_exits.clear();
@@ -2854,9 +2850,7 @@ mod tests {
         for (left_section, left_rooms) in &section_room_endpoints {
             for (right_section, right_rooms) in &section_room_endpoints {
                 if left_section >= right_section
-                    || !left_rooms
-                        .keys()
-                        .any(|room| right_rooms.contains_key(room))
+                    || !left_rooms.keys().any(|room| right_rooms.contains_key(room))
                 {
                     continue;
                 }
@@ -2864,17 +2858,13 @@ mod tests {
                     .glued_exits
                     .iter()
                     .find(|glued| glued.source_section == *left_section)
-                    .map(|glued| {
-                        format!("connection.{}", slugify_label(glued.id.as_str()))
-                    })
+                    .map(|glued| format!("connection.{}", slugify_label(glued.id.as_str())))
                     .expect("section should have a routed glued exit");
                 let right_owners = placement
                     .glued_exits
                     .iter()
                     .filter(|glued| glued.source_section == *right_section)
-                    .map(|glued| {
-                        format!("connection.{}", slugify_label(glued.id.as_str()))
-                    })
+                    .map(|glued| format!("connection.{}", slugify_label(glued.id.as_str())))
                     .collect::<BTreeSet<_>>();
                 let left_cells = placement
                     .connection_cells
@@ -3136,10 +3126,7 @@ mod tests {
     ) -> (Candidate, IntermediateBreakdown, Geometry2dArtifact) {
         let intent = test_intent("geometry-validation");
         let mut candidate = create_initial_candidate(&intent, seed);
-        for (index, rule) in [GraphRule::LockKeyLoop]
-        .into_iter()
-        .enumerate()
-        {
+        for (index, rule) in [GraphRule::LockKeyLoop].into_iter().enumerate() {
             assert!(apply_graph_rule(&mut candidate, rule, seed + 1 + index as u64).is_empty());
         }
         let annotations = spatial_intent_report(&candidate, None).expect("spatial intent report");
@@ -3175,7 +3162,12 @@ mod tests {
 
     fn full_stack_built_flow_fixture(
         seed: u64,
-    ) -> (Candidate, Geometry2dArtifact, PieceBuildPlan, PiecePlacement) {
+    ) -> (
+        Candidate,
+        Geometry2dArtifact,
+        PieceBuildPlan,
+        PiecePlacement,
+    ) {
         let (candidate, intermediate, geometry) = full_stack_geometry_inputs(seed);
         let piece_plan_args = BuildEmitPiecePlanArgs {
             candidate: PathBuf::from("artifacts/test/candidate.json"),
@@ -3184,13 +3176,9 @@ mod tests {
             corridor_realization: CorridorRealization::Hybrid,
             out: PathBuf::from("artifacts/test/piece-plan.json"),
         };
-        let piece_plan = emit_piece_build_plan(
-            &candidate,
-            &intermediate,
-            &geometry,
-            &piece_plan_args,
-        )
-        .expect("piece plan should emit");
+        let piece_plan =
+            emit_piece_build_plan(&candidate, &intermediate, &geometry, &piece_plan_args)
+                .expect("piece plan should emit");
         let catalog_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
             .join("../../..")
             .join(DEFAULT_SHAPE_CATALOG);
@@ -3200,8 +3188,7 @@ mod tests {
         assert!(
             shape_match.ok,
             "diagnostics={:?} rejections={:?}",
-            shape_match.diagnostics,
-            shape_match.rejections
+            shape_match.diagnostics, shape_match.rejections
         );
         let assemble_args = BuildAssembleArgs {
             catalog: PathBuf::from("fixtures/shape-catalogs/2d-basic.json"),
@@ -3210,8 +3197,9 @@ mod tests {
             connectivity: GridConnectivity::FourWay,
             out: PathBuf::from("artifacts/test/piece-placement.json"),
         };
-        let placement = assemble_piece_placement(&catalog, &piece_plan, &shape_match, &assemble_args)
-            .expect("piece placement should assemble");
+        let placement =
+            assemble_piece_placement(&catalog, &piece_plan, &shape_match, &assemble_args)
+                .expect("piece placement should assemble");
         (candidate, geometry, piece_plan, placement)
     }
 
@@ -3549,8 +3537,16 @@ mod tests {
                 "duplicate shape id {}",
                 shape.shape_id
             );
-            assert!(!shape.piece_kinds.is_empty(), "{} has no piece kinds", shape.shape_id);
-            assert!(!shape.footprint.is_empty(), "{} has no footprint", shape.shape_id);
+            assert!(
+                !shape.piece_kinds.is_empty(),
+                "{} has no piece kinds",
+                shape.shape_id
+            );
+            assert!(
+                !shape.footprint.is_empty(),
+                "{} has no footprint",
+                shape.shape_id
+            );
             assert!(!shape.exits.is_empty(), "{} has no exits", shape.shape_id);
             assert!(
                 shape
@@ -3567,10 +3563,19 @@ mod tests {
                     shape.shape_id,
                     exit.direction
                 );
-                assert!(exit.width > 0, "{} has non-positive exit width", shape.shape_id);
+                assert!(
+                    exit.width > 0,
+                    "{} has non-positive exit width",
+                    shape.shape_id
+                );
             }
             piece_kinds.extend(shape.piece_kinds.iter().map(String::as_str));
-            feature_kinds.extend(shape.feature_sockets.iter().map(|socket| socket.kind.as_str()));
+            feature_kinds.extend(
+                shape
+                    .feature_sockets
+                    .iter()
+                    .map(|socket| socket.kind.as_str()),
+            );
         }
 
         for required in [
@@ -3586,7 +3591,10 @@ mod tests {
             "shortcut",
             "resource",
         ] {
-            assert!(piece_kinds.contains(required), "{required} piece kind missing");
+            assert!(
+                piece_kinds.contains(required),
+                "{required} piece kind missing"
+            );
         }
         for (shape_id, family_tag) in [
             ("shape.corridor.straight.1", "span_short"),
@@ -3621,16 +3629,19 @@ mod tests {
             "shortcut_marker",
             "resource_clue",
         ] {
-            assert!(feature_kinds.contains(required), "{required} socket missing");
+            assert!(
+                feature_kinds.contains(required),
+                "{required} socket missing"
+            );
         }
 
         for exit_count in 1..=4 {
             assert!(
-                catalog
-                    .shapes
+                catalog.shapes.iter().any(|shape| shape
+                    .piece_kinds
                     .iter()
-                    .any(|shape| shape.piece_kinds.iter().any(|kind| kind == "room")
-                        && shape.exits.len() == exit_count),
+                    .any(|kind| kind == "room")
+                    && shape.exits.len() == exit_count),
                 "{exit_count}-exit room shape missing"
             );
         }
@@ -3648,12 +3659,16 @@ mod tests {
         assert_eq!(report.catalog_id, "shape_catalog.2d_basic.v1");
         assert_eq!(report.shape_count, catalog.shapes.len());
         assert_eq!(report.placement_policy, PiecePlacementPolicy::default());
-        assert_eq!(
-            report.catalog_search_policy,
-            CatalogSearchPolicy::default()
-        );
+        assert_eq!(report.catalog_search_policy, CatalogSearchPolicy::default());
         assert!(report.diagnostics.is_empty(), "{:?}", report.diagnostics);
-        for required in ["room", "corridor", "connector", "threshold", "reward", "key"] {
+        for required in [
+            "room",
+            "corridor",
+            "connector",
+            "threshold",
+            "reward",
+            "key",
+        ] {
             assert!(report.piece_kinds.contains(&required.to_owned()));
         }
         for required in ["north", "east", "south", "west"] {
@@ -3678,9 +3693,10 @@ mod tests {
         );
         let catalog = test_shape_catalog(vec![junction]);
         let report = inspect_shape_catalog(&catalog, Path::new("fixtures/test-catalog.json"));
-        assert!(report.diagnostics.iter().any(|diagnostic| {
-            diagnostic.code == "catalog_junction_ownership_tag_missing"
-        }));
+        assert!(report
+            .diagnostics
+            .iter()
+            .any(|diagnostic| { diagnostic.code == "catalog_junction_ownership_tag_missing" }));
     }
 
     #[test]
@@ -3717,6 +3733,84 @@ mod tests {
             .diagnostics
             .iter()
             .any(|diagnostic| diagnostic.code == "catalog_search_policy_invalid"));
+    }
+
+    #[test]
+    fn catalog_aware_policy_and_routing_are_deterministic_and_budgeted() {
+        let policy_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join("../../..")
+            .join("fixtures/policies/catalog-aware-generation-default.json");
+        let policy: CatalogAwareGenerationPolicy =
+            read_json(&policy_path).expect("catalog-aware policy should load");
+        validate_catalog_aware_policy(&policy).expect("default policy should validate");
+
+        let start = GridCell { x: 0, y: 0 };
+        let goal = GridCell { x: 12, y: 6 };
+        let guide = vec![
+            GridCell { x: 0, y: 0 },
+            GridCell { x: 12, y: 0 },
+            GridCell { x: 12, y: 6 },
+        ];
+        let bounds = CatalogGridBounds {
+            min_x: -8,
+            min_y: -8,
+            max_x: 20,
+            max_y: 20,
+        };
+        let route = || {
+            route_catalog_section(
+                &start,
+                &goal,
+                &guide,
+                &BTreeMap::new(),
+                &BTreeSet::new(),
+                &[],
+                3,
+                &bounds,
+                &policy,
+            )
+        };
+        let CatalogRouteSearch::Found {
+            cells: first,
+            states_visited,
+        } = route()
+        else {
+            panic!("default catalog-aware routing should find a route");
+        };
+        let CatalogRouteSearch::Found {
+            cells: repeated, ..
+        } = route()
+        else {
+            panic!("repeated catalog-aware routing should find a route");
+        };
+        assert_eq!(first, repeated);
+        assert!(states_visited > 0);
+
+        let constrained = CatalogAwareGenerationPolicy {
+            max_routing_states_per_section: 100,
+            ..policy
+        };
+        let far_goal = GridCell { x: 200, y: 200 };
+        let large_bounds = CatalogGridBounds {
+            min_x: -8,
+            min_y: -8,
+            max_x: 220,
+            max_y: 220,
+        };
+        assert!(matches!(
+            route_catalog_section(
+                &start,
+                &far_goal,
+                &[],
+                &BTreeMap::new(),
+                &BTreeSet::new(),
+                &[],
+                3,
+                &large_bounds,
+                &constrained,
+            ),
+            CatalogRouteSearch::BudgetExhausted { .. }
+        ));
     }
 
     #[test]

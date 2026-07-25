@@ -38,10 +38,8 @@ fn match_shapes_with_attempt(
     for (requirement_index, requirement) in plan.requirements.iter().enumerate() {
         let candidate_rank = usize::from(alternative_requirement == Some(requirement_index));
         let result = if plan.corridor_realization == CorridorRealization::Catalog {
-            let candidates =
-                pure_catalog_match_candidates(catalog, requirement, plan, args.seed);
-            let exact =
-                match_requirement(catalog, requirement, plan, args.seed, candidate_rank);
+            let candidates = pure_catalog_match_candidates(catalog, requirement, plan, args.seed);
+            let exact = match_requirement(catalog, requirement, plan, args.seed, candidate_rank);
             RequirementMatchResult {
                 selected: candidates
                     .get(candidate_rank)
@@ -65,7 +63,9 @@ fn match_shapes_with_attempt(
                     "No catalog shape matched piece requirement {} ({})",
                     requirement.piece_id, requirement.kind
                 ),
-                repair_hint: Some("Add a compatible catalog shape or relax the piece requirement.".to_owned()),
+                repair_hint: Some(
+                    "Add a compatible catalog shape or relax the piece requirement.".to_owned(),
+                ),
             });
         }
     }
@@ -107,6 +107,7 @@ struct CandidateShapeMatch {
 }
 
 const MAX_PURE_CATALOG_EXIT_MAPS_PER_ORIENTATION: usize = 64;
+const MAX_PURE_CATALOG_ENUMERATED_EXIT_MAPS_PER_ORIENTATION: usize = 512;
 const MAX_PURE_CATALOG_SPECIALIZED_ALIGNMENT_ERROR: i32 = 2;
 
 fn pure_catalog_match_candidates(
@@ -139,6 +140,11 @@ fn pure_catalog_match_candidates(
                     requirement,
                     &transformed_exits,
                     *direction_offset,
+                    if is_room_requirement(requirement) {
+                        MAX_PURE_CATALOG_ENUMERATED_EXIT_MAPS_PER_ORIENTATION
+                    } else {
+                        usize::MAX
+                    },
                 );
                 if is_room_requirement(requirement) {
                     exit_variants.sort_by(|left, right| {
@@ -157,41 +163,34 @@ fn pure_catalog_match_candidates(
                             left,
                         ))
                         .then_with(|| {
-                            pure_catalog_exit_map_key(left)
-                                .cmp(&pure_catalog_exit_map_key(right))
+                            pure_catalog_exit_map_key(left).cmp(&pure_catalog_exit_map_key(right))
                         })
                     });
                     exit_variants.truncate(MAX_PURE_CATALOG_EXIT_MAPS_PER_ORIENTATION);
                 }
                 for exit_map in exit_variants {
                     let socket_map = match_sockets(requirement, shape);
-                    let signature =
-                        pure_catalog_transform_signature(shape, transform, &exit_map);
+                    let signature = pure_catalog_transform_signature(shape, transform, &exit_map);
                     if !signatures.insert(signature) {
                         continue;
                     }
                     let offset = i32::from(*direction_offset);
                     let semantic_facing_preference = 48 - offset.min(4 - offset) * 12;
-                    let geometry_alignment_preference =
-                        pure_catalog_exit_alignment_score(
-                            plan,
-                            requirement,
-                            shape,
-                            transform,
-                            &exit_map,
-                        );
+                    let geometry_alignment_preference = pure_catalog_exit_alignment_score(
+                        plan,
+                        requirement,
+                        shape,
+                        transform,
+                        &exit_map,
+                    );
                     candidates.push(CandidateShapeMatch {
                         matched_piece: MatchedPiece {
                             piece_id: requirement.piece_id.clone(),
                             requirement_kind: requirement.kind.clone(),
                             shape_id: shape.shape_id.clone(),
                             transform: transform.clone(),
-                            score: shape_match_score(
-                                shape,
-                                requirement,
-                                &exit_map,
-                                &socket_map,
-                            ) + semantic_facing_preference
+                            score: shape_match_score(shape, requirement, &exit_map, &socket_map)
+                                + semantic_facing_preference
                                 + geometry_alignment_preference,
                             candidate_rank: 0,
                             candidate_count: 0,
@@ -212,12 +211,7 @@ fn pure_catalog_match_candidates(
     let fallback_shape_ids = catalog
         .shapes
         .iter()
-        .filter(|shape| {
-            shape
-                .tags
-                .iter()
-                .any(|tag| tag == "pure_catalog_fallback")
-        })
+        .filter(|shape| shape.tags.iter().any(|tag| tag == "pure_catalog_fallback"))
         .map(|shape| shape.shape_id.as_str())
         .collect::<BTreeSet<_>>();
     let has_geometry_aligned_specialized_candidate = candidates.iter().any(|candidate| {
@@ -250,8 +244,16 @@ fn pure_catalog_match_candidates(
             .score
             .cmp(&left.matched_piece.score)
             .then_with(|| left.tie_key.cmp(&right.tie_key))
-            .then_with(|| left.matched_piece.shape_id.cmp(&right.matched_piece.shape_id))
-            .then_with(|| left.matched_piece.transform.cmp(&right.matched_piece.transform))
+            .then_with(|| {
+                left.matched_piece
+                    .shape_id
+                    .cmp(&right.matched_piece.shape_id)
+            })
+            .then_with(|| {
+                left.matched_piece
+                    .transform
+                    .cmp(&right.matched_piece.transform)
+            })
             .then_with(|| {
                 pure_catalog_exit_map_key(&left.matched_piece.exit_map)
                     .cmp(&pure_catalog_exit_map_key(&right.matched_piece.exit_map))
@@ -273,6 +275,7 @@ fn match_exit_variants_with_direction_offset(
     requirement: &PieceRequirement,
     transformed_exits: &[CatalogExit],
     direction_offset: u8,
+    max_variants: usize,
 ) -> Vec<Vec<MatchedExit>> {
     let mut required_exits = requirement.required_exits.iter().collect::<Vec<_>>();
     required_exits.sort_by(|left, right| left.id.cmp(&right.id));
@@ -285,6 +288,7 @@ fn match_exit_variants_with_direction_offset(
         &mut BTreeSet::new(),
         &mut Vec::new(),
         &mut variants,
+        max_variants,
     );
     variants
 }
@@ -298,7 +302,11 @@ fn append_exit_map_variants(
     used: &mut BTreeSet<usize>,
     mapped: &mut Vec<MatchedExit>,
     variants: &mut Vec<Vec<MatchedExit>>,
+    max_variants: usize,
 ) {
+    if variants.len() >= max_variants {
+        return;
+    }
     let Some(required_exit) = required_exits.get(required_index) else {
         variants.push(mapped.clone());
         return;
@@ -333,6 +341,7 @@ fn append_exit_map_variants(
             used,
             mapped,
             variants,
+            max_variants,
         );
         mapped.pop();
         used.remove(&index);
@@ -408,19 +417,14 @@ fn pure_catalog_minimum_room_alignment_error(
     if targets.is_empty() {
         return 0;
     }
-    let transformed = transform_cells(
-        &shape.footprint,
-        transform,
-        &GridCell { x: 0, y: 0 },
-    );
+    let transformed = transform_cells(&shape.footprint, transform, &GridCell { x: 0, y: 0 });
     let footprint_width = transformed.iter().map(|cell| cell.x).max().unwrap_or(0) + 1;
     let footprint_height = transformed.iter().map(|cell| cell.y).max().unwrap_or(0) + 1;
     let min_x = x.div_euclid(CATALOG_ROUTE_PIXELS_PER_PLACEMENT_CELL);
     let min_y = y.div_euclid(CATALOG_ROUTE_PIXELS_PER_PLACEMENT_CELL);
-    let max_x = div_ceil_i32(x + width, CATALOG_ROUTE_PIXELS_PER_PLACEMENT_CELL)
-        - footprint_width;
-    let max_y = div_ceil_i32(y + height, CATALOG_ROUTE_PIXELS_PER_PLACEMENT_CELL)
-        - footprint_height;
+    let max_x = div_ceil_i32(x + width, CATALOG_ROUTE_PIXELS_PER_PLACEMENT_CELL) - footprint_width;
+    let max_y =
+        div_ceil_i32(y + height, CATALOG_ROUTE_PIXELS_PER_PLACEMENT_CELL) - footprint_height;
     (min_y..=max_y)
         .flat_map(|origin_y| {
             let targets = &targets;
@@ -428,8 +432,7 @@ fn pure_catalog_minimum_room_alignment_error(
                 targets
                     .iter()
                     .map(|(exit, target)| {
-                        (origin_x + exit.x - target.x).abs()
-                            + (origin_y + exit.y - target.y).abs()
+                        (origin_x + exit.x - target.x).abs() + (origin_y + exit.y - target.y).abs()
                     })
                     .sum::<i32>()
             })
@@ -575,7 +578,11 @@ fn match_requirement(
                     piece_id: requirement.piece_id.clone(),
                     shape_id: shape.shape_id.clone(),
                     transform: Some(transform.clone()),
-                    reasons: vec![exit_rejection_reason(shape, requirement, &transformed_exits)],
+                    reasons: vec![exit_rejection_reason(
+                        shape,
+                        requirement,
+                        &transformed_exits,
+                    )],
                 });
                 continue;
             };
@@ -623,11 +630,14 @@ fn match_requirement(
     let candidate_count = candidates.len();
     let selected_rank = candidate_rank.min(candidate_count.saturating_sub(1));
     RequirementMatchResult {
-        selected: candidates.into_iter().nth(selected_rank).map(|mut candidate| {
-            candidate.matched_piece.candidate_rank = selected_rank;
-            candidate.matched_piece.candidate_count = candidate_count;
-            candidate.matched_piece
-        }),
+        selected: candidates
+            .into_iter()
+            .nth(selected_rank)
+            .map(|mut candidate| {
+                candidate.matched_piece.candidate_rank = selected_rank;
+                candidate.matched_piece.candidate_count = candidate_count;
+                candidate.matched_piece
+            }),
         rejections,
     }
 }
@@ -836,9 +846,7 @@ fn shape_match_score(
     score += 1000;
     score += (exit_map.len() as i32) * 20;
     score += (socket_map.len() as i32) * 25;
-    score -= ((shape.exits.len() as i32) - (requirement.required_exits.len() as i32))
-        .abs()
-        * 5;
+    score -= ((shape.exits.len() as i32) - (requirement.required_exits.len() as i32)).abs() * 5;
     score += shape
         .tags
         .iter()

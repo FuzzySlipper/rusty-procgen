@@ -150,8 +150,8 @@ budget and include source-edge, portal, and required-item identity in their
 pick label.
 
 The Build, Voxel, and Voxel 3D tabs expose one generation configuration form
-for geometry distribution, placement clearance, route wall buffer, and corridor
-realization. Apply and rebuild submits every value together, runs geometry
+for geometry distribution, placement clearance, route wall buffer, catalog-aware
+retry/routing policy, and corridor realization. Apply and rebuild submits every value together, runs geometry
 through built-flow validation in a bounded Rust workspace, and atomically
 persists the configuration only after every stage succeeds. Failed or invalid
 builds leave both the active result and `config/viewer-generation.json`
@@ -159,11 +159,14 @@ unchanged. Each setting stores both `value` and `defaultValue`, so Reset to
 defaults uses the same complete validated rebuild and persistence path.
 
 The corridor-realization setting has three explicit whole-build modes.
-`catalog` performs pure prefab assembly: every room and corridor cell belongs
-to a selected catalog shape, exits glue directly, and generated connection
-cells are forbidden. Its bounded deterministic search jointly considers shape,
-90-degree rotation, and exit-anchored origin; geometry facing is an ordering
-hint rather than a hard room-orientation constraint. `hybrid` preserves the
+`catalog` performs pure prefab assembly: it selects catalog rooms, aligns them
+to the generated room zones, and then searches one-cell straight/bend chains
+between their exact exits. Every room and corridor cell belongs to a selected
+catalog shape, exits glue directly, and generated connection cells are
+forbidden. The versioned policy controls bounded room alternatives, slack
+escalation, route margin, guide/turn costs, and per-section state budgets.
+Failures distinguish generation infeasibility, missing catalog vocabulary, and
+search-budget exhaustion. `hybrid` preserves the
 earlier behavior, covering planned route segments with bounded
 short/medium/long straight families and sized bend prefabs while route cells
 fill uncovered gaps. `procedural` keeps catalog-backed room and feature pieces but
@@ -183,6 +186,7 @@ Pure-catalog corpus coverage is reproducible with:
 
 ```bash
 npm run catalog:coverage
+npm run catalog-aware:coverage
 ```
 
 The command realizes every accepted batch candidate in `catalog` mode and
@@ -192,6 +196,14 @@ validation. Rejections retain their bounded structured evidence and are grouped
 by endpoint, envelope, and exhausted-family signature. This distinguishes a
 reusable catalog vocabulary gap from geometry whose room ports or corridor
 anchors need a catalog-aware generation retry.
+
+The catalog-aware command rebuilds every accepted candidate twice through the
+unified viewer configuration path and writes
+`artifacts/evidence/catalog-aware-generation-coverage.json`. The current sample
+is 3/3 candidates and 2/2 topology fingerprints, improved from the earlier
+exact-assembly result of 1/3. Every recorded success has a stable repeated
+build ID, zero generated connection cells, and successful geometry, placement,
+and built-flow validation.
 
 A separate geometry-layout panel controls the earlier room distribution pass:
 initial outer/column/row spacing, per-tier growth, spacing-tier count, and room

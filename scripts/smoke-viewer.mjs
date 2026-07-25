@@ -637,27 +637,29 @@ async function exerciseEngineInspection(chromium, url, primaryCandidateId, alter
     await waitForCdpValue(
       cdp,
       `document.querySelector('#generation-config-status')?.dataset.state`,
-      'error',
+      'ready',
       120_000,
     );
-    const pureCatalogFailure = await evaluateCdp(cdp, `(() => ({
+    await waitForCdpValue(
+      cdp,
+      `document.querySelector('#generation-config-panel')?.dataset.configState`,
+      'persisted',
+    );
+    const pureCatalogBuild = await evaluateCdp(cdp, `(() => ({
       configState: document.querySelector('#generation-config-panel')?.dataset.configState,
       status: document.querySelector('#generation-config-status')?.textContent,
       frameHash: document.querySelector('#voxel-3d-panel')?.dataset.frameHash,
+      corridorRealization: document.querySelector('#generation-config-corridor-realization')?.value,
+      impact: document.querySelector('#generation-config-impact')?.textContent,
     }))()`);
     if (
-      pureCatalogFailure.configState !== 'unsaved'
-      || pureCatalogFailure.frameHash !== pureCatalogBaseline.frameHash
-      || !String(pureCatalogFailure.status).includes('Rebuild failed; persisted configuration and current result were unchanged')
-      || !String(pureCatalogFailure.status).includes('Required endpoints:')
-      || !(
-        String(pureCatalogFailure.status).includes('Lane point:')
-        || String(pureCatalogFailure.status).includes('Lane segment:')
-      )
-      || !String(pureCatalogFailure.status).includes('Exhausted families:')
-      || !String(pureCatalogFailure.status).includes('Budgets:')
+      pureCatalogBuild.configState !== 'persisted'
+      || pureCatalogBuild.frameHash === pureCatalogBaseline.frameHash
+      || pureCatalogBuild.corridorRealization !== 'catalog'
+      || !String(pureCatalogBuild.status).includes('Persisted configuration build')
+      || !String(pureCatalogBuild.impact).includes('0 routed cells')
     ) {
-      throw new Error(`pure catalog rejection was not retained and explained: ${JSON.stringify(pureCatalogFailure)}`);
+      throw new Error(`catalog-aware build was not retained and explained: ${JSON.stringify(pureCatalogBuild)}`);
     }
     const switchedBackToPrimaryCandidate = await evaluateCdp(cdp, `(() => {
       const button = [...document.querySelectorAll('.candidate-button')]

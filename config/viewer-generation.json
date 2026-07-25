@@ -49,6 +49,40 @@
       "defaultValue": 1
     }
   },
+  "catalogAwareGenerationPolicy": {
+    "maxGenerationAttempts": {
+      "value": 4,
+      "defaultValue": 4
+    },
+    "initialRoomSlackCells": {
+      "value": 0,
+      "defaultValue": 0
+    },
+    "roomSlackGrowthCells": {
+      "value": 4,
+      "defaultValue": 4
+    },
+    "maxRoomCandidates": {
+      "value": 16,
+      "defaultValue": 16
+    },
+    "maxRoutingStatesPerSection": {
+      "value": 200000,
+      "defaultValue": 200000
+    },
+    "routeMarginCells": {
+      "value": 48,
+      "defaultValue": 48
+    },
+    "guideDistanceWeight": {
+      "value": 4,
+      "defaultValue": 4
+    },
+    "turnPenalty": {
+      "value": 3,
+      "defaultValue": 3
+    }
+  },
   "corridorRealization": {
     "value": "hybrid",
     "defaultValue": "hybrid"

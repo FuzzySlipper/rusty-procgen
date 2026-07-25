@@ -70,6 +70,18 @@
                 <code>verified portals and built flow</code>
               </div>
             </fieldset>
+            <fieldset class="generation-config-group">
+              <legend>Pure catalog search</legend>
+              <label><span>Generation attempts</span><input id="generation-config-catalog-attempts" type="number" min="1" max="16" step="1" required></label>
+              <label><span>Initial room slack</span><input id="generation-config-catalog-initial-slack" type="number" min="0" max="128" step="1" required></label>
+              <label><span>Room slack growth</span><input id="generation-config-catalog-slack-growth" type="number" min="0" max="128" step="1" required></label>
+              <label><span>Room candidates</span><input id="generation-config-catalog-room-candidates" type="number" min="1" max="64" step="1" required></label>
+              <label><span>Route state budget</span><input id="generation-config-catalog-route-states" type="number" min="100" max="1000000" step="100" required></label>
+              <label><span>Route margin</span><input id="generation-config-catalog-route-margin" type="number" min="8" max="256" step="1" required></label>
+              <label><span>Guide weight</span><input id="generation-config-catalog-guide-weight" type="number" min="0" max="1000" step="1" required></label>
+              <label><span>Turn penalty</span><input id="generation-config-catalog-turn-penalty" type="number" min="0" max="1000" step="1" required></label>
+              <small>Used only by Pure catalog pieces; failures distinguish layout infeasibility, catalog gaps, and exhausted search budgets.</small>
+            </fieldset>
             <div class="placement-policy-actions">
               <button id="generation-config-apply" type="submit">Apply and rebuild</button>
               <button id="generation-config-reset" type="button">Reset to defaults</button>

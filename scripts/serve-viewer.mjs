@@ -306,6 +306,7 @@ async function runGenerationConfigRebuild(payload) {
   const config = validateGenerationConfig(payload.config);
   const geometryLayoutPolicy = materializeGeometryLayoutPolicy(config, 'value');
   const placementPolicy = materializePlacementPolicy(config, 'value');
+  const catalogAwareGenerationPolicy = materializeCatalogAwareGenerationPolicy(config, 'value');
   const corridorRealization = config.corridorRealization.value;
   const selection = JSON.parse(await readFile(selectionReportPath, 'utf8'));
   const entry = selection.accepted?.find((candidate) => candidate.candidateId === payload.candidateId);
@@ -345,6 +346,8 @@ async function runGenerationConfigRebuild(payload) {
   const buildDir = await mkdtemp(join(tmpdir(), 'asha-procgen-generation-config-'));
   const candidatePath = join(buildDir, 'candidate.json');
   const geometryPolicyPath = join(buildDir, 'geometry-layout-policy.json');
+  const catalogAwarePolicyPath = join(buildDir, 'catalog-aware-generation-policy.json');
+  const catalogAwareResultPath = join(buildDir, 'catalog-aware-generation.json');
   const catalogPath = join(buildDir, 'shape-catalog.json');
   const geometryPath = join(buildDir, 'geometry-2d.json');
   const geometryValidationPath = join(buildDir, 'geometry-2d.validation.json');
@@ -354,10 +357,12 @@ async function runGenerationConfigRebuild(payload) {
   const placementValidationPath = join(buildDir, 'piece-placement.validation.json');
   const builtFlowValidationPath = join(buildDir, 'built-flow.validation.json');
   try {
+    let catalogAwareGeneration = null;
     committedCatalog.placementPolicy = placementPolicy;
     await Promise.all([
       writeFile(candidatePath, `${JSON.stringify(accepted.candidate, null, 2)}\n`, 'utf8'),
       writeFile(geometryPolicyPath, `${JSON.stringify(geometryLayoutPolicy, null, 2)}\n`, 'utf8'),
+      writeFile(catalogAwarePolicyPath, `${JSON.stringify(catalogAwareGenerationPolicy, null, 2)}\n`, 'utf8'),
       writeFile(catalogPath, `${JSON.stringify(committedCatalog, null, 2)}\n`, 'utf8'),
     ]);
     await runProcgen([
@@ -370,11 +375,6 @@ async function runGenerationConfigRebuild(payload) {
       '--out', geometryPath,
     ]);
     await runProcgen([
-      'geometry', 'validate-2d',
-      '--state', geometryPath,
-      '--out', geometryValidationPath,
-    ]);
-    await runProcgen([
       'build', 'emit-piece-plan',
       '--candidate', candidatePath,
       '--intermediate', intermediatePath,
@@ -382,20 +382,67 @@ async function runGenerationConfigRebuild(payload) {
       '--corridor-realization', corridorRealization,
       '--out', piecePlanPath,
     ]);
+    if (corridorRealization === 'catalog') {
+      await runProcgen([
+        'build', 'realize-catalog-aware',
+        '--candidate', candidatePath,
+        '--geometry', geometryPath,
+        '--piece-plan', piecePlanPath,
+        '--catalog', catalogPath,
+        '--policy', catalogAwarePolicyPath,
+        '--seed', String(committedMatch.seed),
+        '--out', catalogAwareResultPath,
+      ]);
+      const catalogAwareResult = JSON.parse(await readFile(catalogAwareResultPath, 'utf8'));
+      if (catalogAwareResult.ok !== true) {
+        const finalAttempt = catalogAwareResult.attempts?.at(-1);
+        const classification = catalogAwareResult.exhaustedClassification
+          ?? finalAttempt?.classification
+          ?? 'generation_infeasibility';
+        throw new ExperimentError(
+          422,
+          `catalog_aware_${classification}`,
+          finalAttempt?.detail ?? 'Catalog-aware generation exhausted without a successful attempt.',
+          {
+            kind: 'asha_procgen.catalog_aware_generation_exhaustion.v1',
+            schemaVersion: 1,
+            classification,
+            attempts: catalogAwareResult.attempts ?? [],
+          },
+        );
+      }
+      catalogAwareGeneration = {
+        policy: catalogAwareResult.policy,
+        attempts: catalogAwareResult.attempts,
+        selectedAttempt: catalogAwareResult.selectedAttempt,
+      };
+      await Promise.all([
+        writeFile(geometryPath, `${JSON.stringify(catalogAwareResult.geometry, null, 2)}\n`, 'utf8'),
+        writeFile(piecePlanPath, `${JSON.stringify(catalogAwareResult.piecePlan, null, 2)}\n`, 'utf8'),
+        writeFile(shapeMatchPath, `${JSON.stringify(catalogAwareResult.shapeMatch, null, 2)}\n`, 'utf8'),
+        writeFile(placementPath, `${JSON.stringify(catalogAwareResult.placement, null, 2)}\n`, 'utf8'),
+      ]);
+    } else {
+      await runProcgen([
+        'build', 'match-shapes',
+        '--catalog', catalogPath,
+        '--piece-plan', piecePlanPath,
+        '--seed', String(committedMatch.seed),
+        '--out', shapeMatchPath,
+      ]);
+      await runProcgen([
+        'build', 'assemble',
+        '--catalog', catalogPath,
+        '--piece-plan', piecePlanPath,
+        '--shape-match', shapeMatchPath,
+        '--connectivity', 'four-way',
+        '--out', placementPath,
+      ]);
+    }
     await runProcgen([
-      'build', 'match-shapes',
-      '--catalog', catalogPath,
-      '--piece-plan', piecePlanPath,
-      '--seed', String(committedMatch.seed),
-      '--out', shapeMatchPath,
-    ]);
-    await runProcgen([
-      'build', 'assemble',
-      '--catalog', catalogPath,
-      '--piece-plan', piecePlanPath,
-      '--shape-match', shapeMatchPath,
-      '--connectivity', 'four-way',
-      '--out', placementPath,
+      'geometry', 'validate-2d',
+      '--state', geometryPath,
+      '--out', geometryValidationPath,
     ]);
     const configRef = 'config/viewer-generation.json';
     const placement = JSON.parse(await readFile(placementPath, 'utf8'));
@@ -463,6 +510,7 @@ async function runGenerationConfigRebuild(payload) {
       placement,
       placementValidation,
       builtFlowValidation,
+      catalogAwareGeneration,
       metrics: placementMetrics(placement),
       persisted: true,
       nativeAuthority: false,
@@ -905,7 +953,14 @@ function validatePlacementPolicy(value) {
 function validateGenerationConfig(value) {
   assertExactKeys(
     value,
-    ['kind', 'schemaVersion', 'geometryLayoutPolicy', 'placementPolicy', 'corridorRealization'],
+    [
+      'kind',
+      'schemaVersion',
+      'geometryLayoutPolicy',
+      'placementPolicy',
+      'catalogAwareGenerationPolicy',
+      'corridorRealization',
+    ],
     'generationConfig',
   );
   if (value.kind !== 'asha_procgen.viewer_generation_config.v1' || value.schemaVersion !== 1) {
@@ -935,9 +990,24 @@ function validateGenerationConfig(value) {
     ['minimumClearanceCells', 'wallThicknessCells'],
     'generationConfig.placementPolicy',
   );
+  assertExactKeys(
+    value.catalogAwareGenerationPolicy,
+    [
+      'maxGenerationAttempts',
+      'initialRoomSlackCells',
+      'roomSlackGrowthCells',
+      'maxRoomCandidates',
+      'maxRoutingStatesPerSection',
+      'routeMarginCells',
+      'guideDistanceWeight',
+      'turnPenalty',
+    ],
+    'generationConfig.catalogAwareGenerationPolicy',
+  );
   for (const [label, setting] of Object.entries({
     ...value.geometryLayoutPolicy,
     ...value.placementPolicy,
+    ...value.catalogAwareGenerationPolicy,
     corridorRealization: value.corridorRealization,
   })) {
     assertExactKeys(setting, ['value', 'defaultValue'], `generationConfig.${label}`);
@@ -945,6 +1015,7 @@ function validateGenerationConfig(value) {
   for (const field of ['value', 'defaultValue']) {
     validateGeometryLayoutPolicy(materializeGeometryLayoutPolicy(value, field));
     validatePlacementPolicy(materializePlacementPolicy(value, field));
+    validateCatalogAwareGenerationPolicy(materializeCatalogAwareGenerationPolicy(value, field));
     const corridorRealization = value.corridorRealization[field];
     if (!['catalog', 'hybrid', 'procedural'].includes(corridorRealization)) {
       throw new ExperimentError(
@@ -982,6 +1053,47 @@ function materializePlacementPolicy(config, field) {
     doorwayWidthCells: 1,
     preservePieceBoundaries: true,
   };
+}
+
+function materializeCatalogAwareGenerationPolicy(config, field) {
+  return {
+    kind: 'asha_procgen.catalog_aware_generation_policy.v1',
+    schemaVersion: 1,
+    maxGenerationAttempts: config.catalogAwareGenerationPolicy.maxGenerationAttempts[field],
+    initialRoomSlackCells: config.catalogAwareGenerationPolicy.initialRoomSlackCells[field],
+    roomSlackGrowthCells: config.catalogAwareGenerationPolicy.roomSlackGrowthCells[field],
+    maxRoomCandidates: config.catalogAwareGenerationPolicy.maxRoomCandidates[field],
+    maxRoutingStatesPerSection:
+      config.catalogAwareGenerationPolicy.maxRoutingStatesPerSection[field],
+    routeMarginCells: config.catalogAwareGenerationPolicy.routeMarginCells[field],
+    guideDistanceWeight: config.catalogAwareGenerationPolicy.guideDistanceWeight[field],
+    turnPenalty: config.catalogAwareGenerationPolicy.turnPenalty[field],
+  };
+}
+
+function validateCatalogAwareGenerationPolicy(policy) {
+  assertBoundedInteger(policy.maxGenerationAttempts, 1, 16, 'maxGenerationAttempts');
+  assertBoundedInteger(policy.initialRoomSlackCells, 0, 128, 'initialRoomSlackCells');
+  assertBoundedInteger(policy.roomSlackGrowthCells, 0, 128, 'roomSlackGrowthCells');
+  const maximumSlack = policy.initialRoomSlackCells
+    + policy.roomSlackGrowthCells * (policy.maxGenerationAttempts - 1);
+  if (maximumSlack > 128) {
+    throw new ExperimentError(
+      400,
+      'catalog_aware_slack_too_large',
+      'Catalog-aware room slack must remain at most 128 cells across all attempts.',
+    );
+  }
+  assertBoundedInteger(policy.maxRoomCandidates, 1, 64, 'maxRoomCandidates');
+  assertBoundedInteger(
+    policy.maxRoutingStatesPerSection,
+    100,
+    1_000_000,
+    'maxRoutingStatesPerSection',
+  );
+  assertBoundedInteger(policy.routeMarginCells, 8, 256, 'routeMarginCells');
+  assertBoundedInteger(policy.guideDistanceWeight, 0, 1_000, 'guideDistanceWeight');
+  assertBoundedInteger(policy.turnPenalty, 0, 1_000, 'turnPenalty');
 }
 
 function placementMetrics(placement) {

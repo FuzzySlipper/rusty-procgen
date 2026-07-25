@@ -17,6 +17,7 @@
     "preview:smoke": "npm run viewer:smoke",
     "piece:smoke": "node scripts/smoke-piece-build.mjs",
     "catalog:coverage": "npm run build:viewer && node scripts/report-pure-catalog-coverage.mjs",
+    "catalog-aware:coverage": "npm run build:viewer && node scripts/report-catalog-aware-coverage.mjs",
     "publish:asha-smoke": "npm run build:viewer && node scripts/smoke-prefab-publish.mjs",
     "voxel:asha-smoke": "npm run build:viewer && node scripts/smoke-asha-voxel-build.mjs",
     "typecheck": "tsc --noEmit -p tsconfig.json",

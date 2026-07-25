@@ -440,10 +440,13 @@ Build, Voxel, and Voxel 3D show one generation configuration form backed by
 `config/viewer-generation.json`. Every editable field has a `value` and
 `defaultValue`. The form edits compact-first room margin, column/row gaps,
 per-tier growth, bounded search tiers and room orders, placement clearance,
-route wall buffer, and `catalog`/`hybrid`/`procedural` corridor realization
-together. `catalog` is strict prefab-only assembly and may deterministically
-reject when the catalog cannot close the topology; `hybrid` is the former
-prefab-plus-routed-gap behavior.
+route wall buffer, catalog-aware retry/routing policy, and
+`catalog`/`hybrid`/`procedural` corridor realization together. `catalog` is
+strict prefab-only assembly: catalog rooms are aligned first, then
+deterministic one-cell straight/bend chains are searched between exact room
+exits. It may reject with an explicit generation-infeasibility,
+catalog-coverage-gap, or search-budget-exhaustion classification; `hybrid` is
+the former prefab-plus-routed-gap behavior.
 Schema v1 keeps the 8-unit route grid, `contactPolicy=glued_exits_only`,
 `doorwayWidthCells=1`, `preservePieceBoundaries=true`, physical-section
 exclusivity, and built-flow validation fixed.
@@ -465,14 +468,24 @@ automation, set `ASHA_PROCGEN_GENERATION_CONFIG_PATH` to a temporary config
 copy. The endpoint and browser smokes do this so checks never rewrite the
 tracked configuration.
 
-Catalog corridor mode greedily tiles each planned segment with bounded
-short/medium/long straight families and sized bends, then uses owned route
-cells only for gaps between those footprints. Procedural mode keeps
-room/feature prefabs, omits connector/corridor/bend instances, and constrains
-each direct physical-section route to its planned geometry-lane envelope.
-Both modes produce matching placement and built-flow proof, so Voxel 3D door
-progression remains available. Configured builds remain downstream,
-non-native-authority evidence.
+Catalog corridor mode uses the versioned `catalogAwareGenerationPolicy` from
+the same configuration file. Its bounded attempts can vary room candidates and
+room-zone slack; its guide-biased route search composes only catalog pieces and
+never emits procedural connection cells. Procedural mode keeps room/feature
+prefabs, omits connector/corridor/bend instances, and constrains each direct
+physical-section route to its planned geometry-lane envelope. All modes produce
+matching placement and built-flow proof, so Voxel 3D door progression remains
+available. Configured builds remain downstream, non-native-authority evidence.
+
+Reproduce the catalog-aware accepted-corpus result with:
+
+```bash
+npm run catalog-aware:coverage
+```
+
+This uses an isolated configuration copy, repeats successful builds to prove a
+stable build ID, and writes
+`artifacts/evidence/catalog-aware-generation-coverage.json`.
 
 ## Verification
 

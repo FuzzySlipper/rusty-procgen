@@ -611,6 +611,16 @@ interface ViewerGenerationConfig {
     readonly minimumClearanceCells: GenerationConfigSetting<number>;
     readonly wallThicknessCells: GenerationConfigSetting<number>;
   };
+  readonly catalogAwareGenerationPolicy: {
+    readonly maxGenerationAttempts: GenerationConfigSetting<number>;
+    readonly initialRoomSlackCells: GenerationConfigSetting<number>;
+    readonly roomSlackGrowthCells: GenerationConfigSetting<number>;
+    readonly maxRoomCandidates: GenerationConfigSetting<number>;
+    readonly maxRoutingStatesPerSection: GenerationConfigSetting<number>;
+    readonly routeMarginCells: GenerationConfigSetting<number>;
+    readonly guideDistanceWeight: GenerationConfigSetting<number>;
+    readonly turnPenalty: GenerationConfigSetting<number>;
+  };
   readonly corridorRealization: GenerationConfigSetting<CorridorRealization>;
 }
 
@@ -624,6 +634,11 @@ interface GenerationConfigRebuildResponse {
   readonly placement: PiecePlacement;
   readonly placementValidation: ValidationReport;
   readonly builtFlowValidation: BuiltFlowValidationReport;
+  readonly catalogAwareGeneration: {
+    readonly policy: Record<string, unknown>;
+    readonly attempts: readonly Record<string, unknown>[];
+    readonly selectedAttempt: number;
+  } | null;
   readonly metrics: CorridorRealizationExperimentResponse['metrics'];
   readonly persisted: true;
   readonly nativeAuthority: false;
@@ -659,6 +674,14 @@ const generationConfigMaxAttemptsElement = document.querySelector<HTMLInputEleme
 const generationConfigClearanceElement = document.querySelector<HTMLInputElement>('#generation-config-clearance');
 const generationConfigWallThicknessElement = document.querySelector<HTMLInputElement>('#generation-config-wall-thickness');
 const generationConfigCorridorRealizationElement = document.querySelector<HTMLSelectElement>('#generation-config-corridor-realization');
+const generationConfigCatalogAttemptsElement = document.querySelector<HTMLInputElement>('#generation-config-catalog-attempts');
+const generationConfigCatalogInitialSlackElement = document.querySelector<HTMLInputElement>('#generation-config-catalog-initial-slack');
+const generationConfigCatalogSlackGrowthElement = document.querySelector<HTMLInputElement>('#generation-config-catalog-slack-growth');
+const generationConfigCatalogRoomCandidatesElement = document.querySelector<HTMLInputElement>('#generation-config-catalog-room-candidates');
+const generationConfigCatalogRouteStatesElement = document.querySelector<HTMLInputElement>('#generation-config-catalog-route-states');
+const generationConfigCatalogRouteMarginElement = document.querySelector<HTMLInputElement>('#generation-config-catalog-route-margin');
+const generationConfigCatalogGuideWeightElement = document.querySelector<HTMLInputElement>('#generation-config-catalog-guide-weight');
+const generationConfigCatalogTurnPenaltyElement = document.querySelector<HTMLInputElement>('#generation-config-catalog-turn-penalty');
 const geometryPolicyPanelElement = document.querySelector<HTMLElement>('#geometry-policy-panel');
 const geometryPolicyFormElement = document.querySelector<HTMLFormElement>('#geometry-policy-form');
 const geometryPolicyInitialMarginElement = document.querySelector<HTMLInputElement>('#geometry-policy-initial-margin');
@@ -728,6 +751,14 @@ if (
   || generationConfigClearanceElement === null
   || generationConfigWallThicknessElement === null
   || generationConfigCorridorRealizationElement === null
+  || generationConfigCatalogAttemptsElement === null
+  || generationConfigCatalogInitialSlackElement === null
+  || generationConfigCatalogSlackGrowthElement === null
+  || generationConfigCatalogRoomCandidatesElement === null
+  || generationConfigCatalogRouteStatesElement === null
+  || generationConfigCatalogRouteMarginElement === null
+  || generationConfigCatalogGuideWeightElement === null
+  || generationConfigCatalogTurnPenaltyElement === null
   || geometryPolicyPanelElement === null
   || geometryPolicyFormElement === null
   || geometryPolicyInitialMarginElement === null
@@ -799,6 +830,14 @@ const generationConfigMaxAttempts = generationConfigMaxAttemptsElement;
 const generationConfigClearance = generationConfigClearanceElement;
 const generationConfigWallThickness = generationConfigWallThicknessElement;
 const generationConfigCorridorRealization = generationConfigCorridorRealizationElement;
+const generationConfigCatalogAttempts = generationConfigCatalogAttemptsElement;
+const generationConfigCatalogInitialSlack = generationConfigCatalogInitialSlackElement;
+const generationConfigCatalogSlackGrowth = generationConfigCatalogSlackGrowthElement;
+const generationConfigCatalogRoomCandidates = generationConfigCatalogRoomCandidatesElement;
+const generationConfigCatalogRouteStates = generationConfigCatalogRouteStatesElement;
+const generationConfigCatalogRouteMargin = generationConfigCatalogRouteMarginElement;
+const generationConfigCatalogGuideWeight = generationConfigCatalogGuideWeightElement;
+const generationConfigCatalogTurnPenalty = generationConfigCatalogTurnPenaltyElement;
 const geometryPolicyPanel = geometryPolicyPanelElement;
 const geometryPolicyForm = geometryPolicyFormElement;
 const geometryPolicyInitialMargin = geometryPolicyInitialMarginElement;
@@ -1070,6 +1109,14 @@ function generationConfigInputs(): readonly (HTMLInputElement | HTMLSelectElemen
     generationConfigMaxAttempts,
     generationConfigClearance,
     generationConfigWallThickness,
+    generationConfigCatalogAttempts,
+    generationConfigCatalogInitialSlack,
+    generationConfigCatalogSlackGrowth,
+    generationConfigCatalogRoomCandidates,
+    generationConfigCatalogRouteStates,
+    generationConfigCatalogRouteMargin,
+    generationConfigCatalogGuideWeight,
+    generationConfigCatalogTurnPenalty,
     generationConfigCorridorRealization,
   ];
 }
@@ -1086,6 +1133,30 @@ function populateGenerationConfigControls(config: ViewerGenerationConfig): void 
   generationConfigMaxAttempts.value = String(config.geometryLayoutPolicy.maxSearchAttempts.value);
   generationConfigClearance.value = String(config.placementPolicy.minimumClearanceCells.value);
   generationConfigWallThickness.value = String(config.placementPolicy.wallThicknessCells.value);
+  generationConfigCatalogAttempts.value = String(
+    config.catalogAwareGenerationPolicy.maxGenerationAttempts.value,
+  );
+  generationConfigCatalogInitialSlack.value = String(
+    config.catalogAwareGenerationPolicy.initialRoomSlackCells.value,
+  );
+  generationConfigCatalogSlackGrowth.value = String(
+    config.catalogAwareGenerationPolicy.roomSlackGrowthCells.value,
+  );
+  generationConfigCatalogRoomCandidates.value = String(
+    config.catalogAwareGenerationPolicy.maxRoomCandidates.value,
+  );
+  generationConfigCatalogRouteStates.value = String(
+    config.catalogAwareGenerationPolicy.maxRoutingStatesPerSection.value,
+  );
+  generationConfigCatalogRouteMargin.value = String(
+    config.catalogAwareGenerationPolicy.routeMarginCells.value,
+  );
+  generationConfigCatalogGuideWeight.value = String(
+    config.catalogAwareGenerationPolicy.guideDistanceWeight.value,
+  );
+  generationConfigCatalogTurnPenalty.value = String(
+    config.catalogAwareGenerationPolicy.turnPenalty.value,
+  );
   generationConfigCorridorRealization.value = config.corridorRealization.value;
   validateGenerationConfigControls();
 }
@@ -1096,6 +1167,9 @@ function generationConfigWithDefaults(config: ViewerGenerationConfig): ViewerGen
     setting.value = setting.defaultValue;
   }
   for (const setting of Object.values(reset.placementPolicy)) {
+    setting.value = setting.defaultValue;
+  }
+  for (const setting of Object.values(reset.catalogAwareGenerationPolicy)) {
     setting.value = setting.defaultValue;
   }
   reset.corridorRealization.value = reset.corridorRealization.defaultValue;
@@ -1118,6 +1192,22 @@ function generationConfigFromControls(): ViewerGenerationConfig | null {
   config.geometryLayoutPolicy.maxSearchAttempts.value = Number(generationConfigMaxAttempts.value);
   config.placementPolicy.minimumClearanceCells.value = Number(generationConfigClearance.value);
   config.placementPolicy.wallThicknessCells.value = Number(generationConfigWallThickness.value);
+  config.catalogAwareGenerationPolicy.maxGenerationAttempts.value =
+    Number(generationConfigCatalogAttempts.value);
+  config.catalogAwareGenerationPolicy.initialRoomSlackCells.value =
+    Number(generationConfigCatalogInitialSlack.value);
+  config.catalogAwareGenerationPolicy.roomSlackGrowthCells.value =
+    Number(generationConfigCatalogSlackGrowth.value);
+  config.catalogAwareGenerationPolicy.maxRoomCandidates.value =
+    Number(generationConfigCatalogRoomCandidates.value);
+  config.catalogAwareGenerationPolicy.maxRoutingStatesPerSection.value =
+    Number(generationConfigCatalogRouteStates.value);
+  config.catalogAwareGenerationPolicy.routeMarginCells.value =
+    Number(generationConfigCatalogRouteMargin.value);
+  config.catalogAwareGenerationPolicy.guideDistanceWeight.value =
+    Number(generationConfigCatalogGuideWeight.value);
+  config.catalogAwareGenerationPolicy.turnPenalty.value =
+    Number(generationConfigCatalogTurnPenalty.value);
   config.corridorRealization.value = generationConfigCorridorRealization.value as CorridorRealization;
   return config;
 }
@@ -1147,6 +1237,14 @@ function validateGenerationConfigControls(): boolean {
     [generationConfigRoomAttempts, 1, 32, 'Room orders per tier'],
     [generationConfigClearance, 3, 64, 'Room clearance'],
     [generationConfigWallThickness, 1, 8, 'Route wall buffer'],
+    [generationConfigCatalogAttempts, 1, 16, 'Catalog generation attempts'],
+    [generationConfigCatalogInitialSlack, 0, 128, 'Catalog initial room slack'],
+    [generationConfigCatalogSlackGrowth, 0, 128, 'Catalog room slack growth'],
+    [generationConfigCatalogRoomCandidates, 1, 64, 'Catalog room candidates'],
+    [generationConfigCatalogRouteStates, 100, 1_000_000, 'Catalog route state budget'],
+    [generationConfigCatalogRouteMargin, 8, 256, 'Catalog route margin'],
+    [generationConfigCatalogGuideWeight, 0, 1_000, 'Catalog guide weight'],
+    [generationConfigCatalogTurnPenalty, 0, 1_000, 'Catalog turn penalty'],
   ] as const) {
     const value = Number(input.value);
     const inputIssue = !Number.isInteger(value) || value < minimum || value > maximum
@@ -1171,6 +1269,14 @@ function validateGenerationConfigControls(): boolean {
     : '';
   generationConfigClearance.setCustomValidity(clearanceIssue);
   issue ||= clearanceIssue;
+  const maximumCatalogSlack = Number(generationConfigCatalogInitialSlack.value)
+    + Number(generationConfigCatalogSlackGrowth.value)
+      * (Number(generationConfigCatalogAttempts.value) - 1);
+  const catalogSlackIssue = maximumCatalogSlack > 128
+    ? 'Catalog room slack must remain at most 128 cells across all attempts.'
+    : '';
+  generationConfigCatalogSlackGrowth.setCustomValidity(catalogSlackIssue);
+  issue ||= catalogSlackIssue;
   const corridorIssue = !['catalog', 'hybrid', 'procedural']
     .includes(generationConfigCorridorRealization.value)
     ? 'Corridor realization must be catalog, hybrid, or procedural.'
@@ -1217,6 +1323,14 @@ function generationConfigFromControlsWithoutValidation(): ViewerGenerationConfig
   config.geometryLayoutPolicy.maxSearchAttempts.value = numbers[8];
   config.placementPolicy.minimumClearanceCells.value = numbers[9];
   config.placementPolicy.wallThicknessCells.value = numbers[10];
+  config.catalogAwareGenerationPolicy.maxGenerationAttempts.value = numbers[11];
+  config.catalogAwareGenerationPolicy.initialRoomSlackCells.value = numbers[12];
+  config.catalogAwareGenerationPolicy.roomSlackGrowthCells.value = numbers[13];
+  config.catalogAwareGenerationPolicy.maxRoomCandidates.value = numbers[14];
+  config.catalogAwareGenerationPolicy.maxRoutingStatesPerSection.value = numbers[15];
+  config.catalogAwareGenerationPolicy.routeMarginCells.value = numbers[16];
+  config.catalogAwareGenerationPolicy.guideDistanceWeight.value = numbers[17];
+  config.catalogAwareGenerationPolicy.turnPenalty.value = numbers[18];
   config.corridorRealization.value = generationConfigCorridorRealization.value as CorridorRealization;
   return config;
 }
@@ -1228,6 +1342,10 @@ function generationConfigValueSignature(config: ViewerGenerationConfig): string 
     ),
     placement: Object.fromEntries(
       Object.entries(config.placementPolicy).map(([key, setting]) => [key, setting.value]),
+    ),
+    catalogAware: Object.fromEntries(
+      Object.entries(config.catalogAwareGenerationPolicy)
+        .map(([key, setting]) => [key, setting.value]),
     ),
     corridorRealization: config.corridorRealization.value,
   });

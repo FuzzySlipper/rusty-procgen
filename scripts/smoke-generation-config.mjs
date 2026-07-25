@@ -74,14 +74,31 @@ try {
 
   const pureCatalog = structuredClone(defaults);
   pureCatalog.corridorRealization.value = 'catalog';
+  const pureCatalogResult = await postRebuild({ candidateId, config: pureCatalog }, 200);
+  if (
+    pureCatalogResult.placement?.corridorRealization !== 'catalog'
+    || pureCatalogResult.placement?.connectionCells?.length !== 0
+    || pureCatalogResult.geometryValidation?.ok !== true
+    || pureCatalogResult.placementValidation?.ok !== true
+    || pureCatalogResult.builtFlowValidation?.ok !== true
+  ) {
+    throw new Error('catalog-aware generation did not produce an exact validated catalog build');
+  }
+  if (JSON.stringify(await readConfigFile()) !== JSON.stringify(pureCatalog)) {
+    throw new Error('successful pure catalog rebuild did not persist the unified configuration');
+  }
+
+  const constrainedCatalog = structuredClone(pureCatalog);
+  constrainedCatalog.catalogAwareGenerationPolicy.maxGenerationAttempts.value = 1;
+  constrainedCatalog.catalogAwareGenerationPolicy.maxRoutingStatesPerSection.value = 100;
   const pureCatalogFailure = await postRebuild(
-    { candidateId, config: pureCatalog },
+    { candidateId, config: constrainedCatalog },
     422,
-    'pure_catalog_search_exhausted',
+    'catalog_aware_search_budget_exhaustion',
   );
-  assertPureCatalogExhaustionEvidence(pureCatalogFailure.evidence);
-  if (JSON.stringify(await readConfigFile()) !== JSON.stringify(configured)) {
-    throw new Error('failed pure catalog rebuild changed the persisted configuration');
+  assertCatalogAwareExhaustionEvidence(pureCatalogFailure.evidence);
+  if (JSON.stringify(await readConfigFile()) !== JSON.stringify(pureCatalog)) {
+    throw new Error('failed catalog-aware rebuild changed the persisted configuration');
   }
 
   const constrained = structuredClone(configured);
@@ -99,7 +116,7 @@ try {
     422,
     'geometry_search_exhausted',
   );
-  if (JSON.stringify(await readConfigFile()) !== JSON.stringify(configured)) {
+  if (JSON.stringify(await readConfigFile()) !== JSON.stringify(pureCatalog)) {
     throw new Error('failed pipeline rebuild changed the persisted configuration');
   }
 
@@ -108,7 +125,7 @@ try {
     400,
     'invalid_generationConfig_fields',
   );
-  if (JSON.stringify(await readConfigFile()) !== JSON.stringify(configured)) {
+  if (JSON.stringify(await readConfigFile()) !== JSON.stringify(pureCatalog)) {
     throw new Error('invalid configuration request changed the persisted configuration');
   }
 
@@ -157,24 +174,17 @@ function assertConfigEnvelope(config) {
   }
 }
 
-function assertPureCatalogExhaustionEvidence(evidence) {
-  const failure = evidence?.failure;
-  const budgets = evidence?.budgets;
+function assertCatalogAwareExhaustionEvidence(evidence) {
   if (
-    evidence?.kind !== 'asha_procgen.pure_catalog_exhaustion.v1'
+    evidence?.kind !== 'asha_procgen.catalog_aware_generation_exhaustion.v1'
     || evidence.schemaVersion !== 1
-    || !Array.isArray(failure?.requiredEndpoints)
-    || failure.requiredEndpoints.length === 0
-    || typeof failure.fixedPort?.neighborPieceId !== 'string'
-    || (failure.originBounds == null && failure.laneEnvelope == null)
-    || !Array.isArray(failure.exhaustedFamilies)
-    || failure.exhaustedFamilies.length === 0
-    || !Number.isInteger(budgets?.decisions)
-    || budgets.decisions > budgets.maxDecisions
-    || !Number.isInteger(budgets?.backtracks)
-    || budgets.backtracks > budgets.maxBacktracks
+    || evidence.classification !== 'search_budget_exhaustion'
+    || !Array.isArray(evidence.attempts)
+    || evidence.attempts.length !== 1
+    || evidence.attempts[0]?.classification !== 'search_budget_exhaustion'
+    || !Number.isInteger(evidence.attempts[0]?.routingStates)
   ) {
-    throw new Error(`combined pure catalog rejection evidence was incomplete: ${JSON.stringify(evidence)}`);
+    throw new Error(`catalog-aware exhaustion evidence was incomplete: ${JSON.stringify(evidence)}`);
   }
 }
 
@@ -184,6 +194,9 @@ function withDefaultValues(config) {
     setting.value = setting.defaultValue;
   }
   for (const setting of Object.values(reset.placementPolicy)) {
+    setting.value = setting.defaultValue;
+  }
+  for (const setting of Object.values(reset.catalogAwareGenerationPolicy)) {
     setting.value = setting.defaultValue;
   }
   reset.corridorRealization.value = reset.corridorRealization.defaultValue;

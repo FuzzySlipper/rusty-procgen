@@ -28,6 +28,7 @@ fn run(cli: Cli) -> Result<(), String> {
             BuildSubcommand::Catalog(command) => match command.command {
                 BuildCatalogSubcommand::Inspect(args) => build_catalog_inspect_command(args),
             },
+            BuildSubcommand::RealizeCatalogAware(args) => build_realize_catalog_aware_command(args),
             BuildSubcommand::EmitPiecePlan(args) => build_emit_piece_plan_command(args),
             BuildSubcommand::MatchShapes(args) => build_match_shapes_command(args),
             BuildSubcommand::Assemble(args) => build_assemble_command(args),

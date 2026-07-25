@@ -33,6 +33,7 @@ include!("parts/shape_matching.rs"); // catalog shape matching
 include!("parts/pure_catalog_placement.rs"); // exact prefab-only occupancy search
 include!("parts/piece_placement.rs"); // deterministic piece occupancy placement
 include!("parts/built_flow.rs"); // source-to-cell traversal equivalence
+include!("parts/catalog_aware_generation.rs"); // catalog-first room and corridor composition
 include!("parts/intermediate_validation.rs"); // intermediate validation
 include!("parts/common_helpers.rs"); // shared graph/id helpers
 include!("parts/repair_validation.rs"); // graph validation and repair advice

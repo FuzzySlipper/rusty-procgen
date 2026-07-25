@@ -1,0 +1,12 @@
+{
+  "kind": "asha_procgen.catalog_aware_generation_policy.v1",
+  "schemaVersion": 1,
+  "maxGenerationAttempts": 4,
+  "initialRoomSlackCells": 0,
+  "roomSlackGrowthCells": 4,
+  "maxRoomCandidates": 16,
+  "maxRoutingStatesPerSection": 200000,
+  "routeMarginCells": 48,
+  "guideDistanceWeight": 4,
+  "turnPenalty": 3
+}

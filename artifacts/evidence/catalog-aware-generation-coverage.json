@@ -1,0 +1,130 @@
+{
+  "kind": "asha_procgen.evidence.catalog_aware_generation_coverage.v1",
+  "schemaVersion": 1,
+  "sourceSelectionRef": "artifacts/samples/batch-v2/selection-report.json",
+  "sourceCatalogRef": "fixtures/shape-catalogs/2d-basic.json",
+  "sourcePolicyRef": "config/viewer-generation.json:catalogAwareGenerationPolicy",
+  "summary": {
+    "candidateCount": 3,
+    "successCount": 3,
+    "rejectionCount": 0,
+    "successfulTopologyCount": 2,
+    "uniqueTopologyCount": 2
+  },
+  "outcomes": [
+    {
+      "candidateId": "candidate.first_slice.5301",
+      "topologyFingerprint": "topology:75da51af2e5b93b4",
+      "status": "success",
+      "classification": "catalog_aware_exact_assembly",
+      "buildId": "a841fc9a8baae4229bae618df2187564d626a035314c1d94d2cb2e726d3500b0",
+      "instanceCount": 397,
+      "connectionCellCount": 0,
+      "placementValidationOk": true,
+      "builtFlowValidationOk": true,
+      "catalogAwareGeneration": {
+        "policy": {
+          "kind": "asha_procgen.catalog_aware_generation_policy.v1",
+          "schemaVersion": 1,
+          "maxGenerationAttempts": 4,
+          "initialRoomSlackCells": 0,
+          "roomSlackGrowthCells": 4,
+          "maxRoomCandidates": 16,
+          "maxRoutingStatesPerSection": 200000,
+          "routeMarginCells": 48,
+          "guideDistanceWeight": 4,
+          "turnPenalty": 3
+        },
+        "attempts": [
+          {
+            "attempt": 0,
+            "roomSlackCells": 0,
+            "classification": "success",
+            "stage": "complete",
+            "detail": "Catalog rooms and direct-glue corridor chains passed all validators.",
+            "roomsPlaced": 8,
+            "sectionsRouted": 10,
+            "routingStates": 11452
+          }
+        ],
+        "selectedAttempt": 0
+      }
+    },
+    {
+      "candidateId": "candidate.first_slice.6001",
+      "topologyFingerprint": "topology:75da51af2e5b93b4",
+      "status": "success",
+      "classification": "catalog_aware_exact_assembly",
+      "buildId": "bd1fbbf380b37bbed914f683ab8549645b81e07629bdcfc40f674a07546e8275",
+      "instanceCount": 397,
+      "connectionCellCount": 0,
+      "placementValidationOk": true,
+      "builtFlowValidationOk": true,
+      "catalogAwareGeneration": {
+        "policy": {
+          "kind": "asha_procgen.catalog_aware_generation_policy.v1",
+          "schemaVersion": 1,
+          "maxGenerationAttempts": 4,
+          "initialRoomSlackCells": 0,
+          "roomSlackGrowthCells": 4,
+          "maxRoomCandidates": 16,
+          "maxRoutingStatesPerSection": 200000,
+          "routeMarginCells": 48,
+          "guideDistanceWeight": 4,
+          "turnPenalty": 3
+        },
+        "attempts": [
+          {
+            "attempt": 0,
+            "roomSlackCells": 0,
+            "classification": "success",
+            "stage": "complete",
+            "detail": "Catalog rooms and direct-glue corridor chains passed all validators.",
+            "roomsPlaced": 8,
+            "sectionsRouted": 10,
+            "routingStates": 11452
+          }
+        ],
+        "selectedAttempt": 0
+      }
+    },
+    {
+      "candidateId": "candidate.first_slice.5801",
+      "topologyFingerprint": "topology:9cb0a811896f1cf7",
+      "status": "success",
+      "classification": "catalog_aware_exact_assembly",
+      "buildId": "09e18696e096396a76d11ad47e7bac4b052c0098ad0163188dd4120c2b6a303e",
+      "instanceCount": 137,
+      "connectionCellCount": 0,
+      "placementValidationOk": true,
+      "builtFlowValidationOk": true,
+      "catalogAwareGeneration": {
+        "policy": {
+          "kind": "asha_procgen.catalog_aware_generation_policy.v1",
+          "schemaVersion": 1,
+          "maxGenerationAttempts": 4,
+          "initialRoomSlackCells": 0,
+          "roomSlackGrowthCells": 4,
+          "maxRoomCandidates": 16,
+          "maxRoutingStatesPerSection": 200000,
+          "routeMarginCells": 48,
+          "guideDistanceWeight": 4,
+          "turnPenalty": 3
+        },
+        "attempts": [
+          {
+            "attempt": 0,
+            "roomSlackCells": 0,
+            "classification": "success",
+            "stage": "complete",
+            "detail": "Catalog rooms and direct-glue corridor chains passed all validators.",
+            "roomsPlaced": 4,
+            "sectionsRouted": 4,
+            "routingStates": 4546
+          }
+        ],
+        "selectedAttempt": 0
+      }
+    }
+  ]
+}

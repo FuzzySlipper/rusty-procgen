@@ -1,4 +1,3 @@
-
 #[derive(Parser)]
 #[command(name = "asha-procgen")]
 #[command(about = "Deterministic dungeon procgen CLI workbench")]
@@ -306,6 +305,8 @@ struct BuildCommand {
 #[derive(Subcommand)]
 enum BuildSubcommand {
     Catalog(BuildCatalogCommand),
+    #[command(name = "realize-catalog-aware")]
+    RealizeCatalogAware(BuildRealizeCatalogAwareArgs),
     #[command(name = "emit-piece-plan")]
     EmitPiecePlan(BuildEmitPiecePlanArgs),
     #[command(name = "match-shapes")]
@@ -315,6 +316,24 @@ enum BuildSubcommand {
     ValidatePlacement(ReportOutArgs),
     #[command(name = "validate-flow")]
     ValidateFlow(BuildValidateFlowArgs),
+}
+
+#[derive(Args)]
+struct BuildRealizeCatalogAwareArgs {
+    #[arg(long)]
+    candidate: PathBuf,
+    #[arg(long)]
+    geometry: PathBuf,
+    #[arg(long = "piece-plan")]
+    piece_plan: PathBuf,
+    #[arg(long)]
+    catalog: PathBuf,
+    #[arg(long)]
+    policy: PathBuf,
+    #[arg(long)]
+    seed: u64,
+    #[arg(long)]
+    out: PathBuf,
 }
 
 #[derive(Args)]
