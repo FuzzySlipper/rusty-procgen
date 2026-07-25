@@ -521,14 +521,14 @@ interface PureCatalogExhaustionEvidence {
       readonly cell: { readonly x: number; readonly y: number };
       readonly direction: string;
       readonly requiredOppositeDirection: string;
-      readonly offsetFromEnvelopeAnchor?: { readonly x: number; readonly y: number };
-    };
+      readonly offsetFromEnvelopeAnchor?: { readonly x: number; readonly y: number } | null;
+    } | null;
     readonly originBounds?: {
       readonly minX: number;
       readonly maxX: number;
       readonly minY: number;
       readonly maxY: number;
-    };
+    } | null;
     readonly laneEnvelope?: {
       readonly sourceHint: string;
       readonly envelopeCells: number;
@@ -538,7 +538,7 @@ interface PureCatalogExhaustionEvidence {
         readonly minY: number;
         readonly maxY: number;
       };
-    };
+    } | null;
     readonly exhaustedFamilies: readonly string[];
     readonly candidateCount: number;
   };
@@ -1233,21 +1233,23 @@ function generationConfigValueSignature(config: ViewerGenerationConfig): string 
   });
 }
 
-function syncGenerationConfigControls(): void {
+function syncGenerationConfigControls(preserveStatus = false): void {
   const enabled = currentSelection !== null && !generationConfigBusy;
   for (const input of generationConfigInputs()) {
     input.disabled = !enabled;
   }
   generationConfigPanel.dataset.buildId = configuredBuildId ?? '';
-  if (currentSelection === null) {
-    setGenerationConfigStatus('idle', 'Select a generated candidate to rebuild.');
-  } else if (configuredBuildId !== null) {
-    setGenerationConfigStatus('ready', 'Persisted configuration build is active in Build, Voxel, and Voxel 3D.');
-  } else {
-    setGenerationConfigStatus(
-      'idle',
-      'Persisted configuration loaded; edit any settings or rebuild this candidate as-is.',
-    );
+  if (!preserveStatus) {
+    if (currentSelection === null) {
+      setGenerationConfigStatus('idle', 'Select a generated candidate to rebuild.');
+    } else if (configuredBuildId !== null) {
+      setGenerationConfigStatus('ready', 'Persisted configuration build is active in Build, Voxel, and Voxel 3D.');
+    } else {
+      setGenerationConfigStatus(
+        'idle',
+        'Persisted configuration loaded; edit any settings or rebuild this candidate as-is.',
+      );
+    }
   }
   validateGenerationConfigControls();
 }
@@ -1279,7 +1281,13 @@ async function applyGenerationConfig(): Promise<void> {
       return;
     }
     if (!response.ok || 'error' in result) {
-      throw new Error('detail' in result ? result.detail : `rebuild request failed with ${response.status}`);
+      throw new Error(
+        'evidence' in result && result.evidence !== undefined
+          ? formatPureCatalogExhaustion(result.evidence)
+          : 'detail' in result
+            ? result.detail
+            : `rebuild request failed with ${response.status}`,
+      );
     }
     if (
       result.kind !== 'asha_procgen.viewer_generation_rebuild.v1'
@@ -1320,7 +1328,7 @@ async function applyGenerationConfig(): Promise<void> {
   } finally {
     if (revision === generationConfigRevision) {
       generationConfigBusy = false;
-      syncGenerationConfigControls();
+      syncGenerationConfigControls(generationConfigStatus.dataset.state === 'error');
     }
   }
 }
@@ -1432,19 +1440,19 @@ function formatPureCatalogExhaustion(evidence: PureCatalogExhaustionEvidence): s
   const endpoints = failure.requiredEndpoints
     .map((endpoint) => `${endpoint.id}:${endpoint.direction}`)
     .join(', ');
-  const fixedPort = failure.fixedPort === undefined
+  const fixedPort = failure.fixedPort == null
     ? 'no fixed neighbor port'
     : `fixed ${failure.fixedPort.neighborPieceId}.${failure.fixedPort.neighborExitId}`
       + ` @ ${failure.fixedPort.cell.x},${failure.fixedPort.cell.y}`
       + ` facing ${failure.fixedPort.direction} (needs ${failure.fixedPort.requiredOppositeDirection})`
-      + (failure.fixedPort.offsetFromEnvelopeAnchor === undefined
+      + (failure.fixedPort.offsetFromEnvelopeAnchor == null
         ? ''
         : `, lane offset ${failure.fixedPort.offsetFromEnvelopeAnchor.x},${failure.fixedPort.offsetFromEnvelopeAnchor.y}`);
-  const bounds = failure.originBounds === undefined
+  const bounds = failure.originBounds == null
     ? ''
     : ` Room origin bounds x=${failure.originBounds.minX}..${failure.originBounds.maxX},`
       + ` y=${failure.originBounds.minY}..${failure.originBounds.maxY}.`;
-  const lane = failure.laneEnvelope === undefined
+  const lane = failure.laneEnvelope == null
     ? ''
     : ` Lane ${failure.laneEnvelope.sourceHint} ±${failure.laneEnvelope.envelopeCells}`
       + ` cells (x=${failure.laneEnvelope.bounds.minX}..${failure.laneEnvelope.bounds.maxX},`

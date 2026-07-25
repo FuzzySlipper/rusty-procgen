@@ -577,6 +577,52 @@ async function exerciseEngineInspection(chromium, url, alternateCandidateId) {
       throw new Error(`invalid generation config was not explained inline: ${JSON.stringify(invalidGenerationConfigReadout)}`);
     }
 
+    const submittedPureCatalogConfig = await evaluateCdp(cdp, `(() => {
+      const form = document.querySelector('#generation-config-form');
+      const gap = document.querySelector('#generation-config-initial-column-gap');
+      const corridor = document.querySelector('#generation-config-corridor-realization');
+      if (
+        !(form instanceof HTMLFormElement)
+        || !(gap instanceof HTMLInputElement)
+        || !(corridor instanceof HTMLSelectElement)
+      ) {
+        return false;
+      }
+      gap.value = '144';
+      corridor.value = 'catalog';
+      for (const input of [gap, corridor]) {
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+        input.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+      form.requestSubmit();
+      return true;
+    })()`);
+    if (!submittedPureCatalogConfig) {
+      throw new Error('pure catalog generation config controls were not available in Voxel 3D');
+    }
+    await waitForCdpValue(
+      cdp,
+      `document.querySelector('#generation-config-status')?.dataset.state`,
+      'error',
+      30_000,
+    );
+    const pureCatalogFailure = await evaluateCdp(cdp, `(() => ({
+      configState: document.querySelector('#generation-config-panel')?.dataset.configState,
+      status: document.querySelector('#generation-config-status')?.textContent,
+      frameHash: document.querySelector('#voxel-3d-panel')?.dataset.frameHash,
+    }))()`);
+    if (
+      pureCatalogFailure.configState !== 'unsaved'
+      || pureCatalogFailure.frameHash !== initial.frameHash
+      || !String(pureCatalogFailure.status).includes('Rebuild failed; persisted configuration and current result were unchanged')
+      || !String(pureCatalogFailure.status).includes('Required endpoints:')
+      || !String(pureCatalogFailure.status).includes('Lane point:')
+      || !String(pureCatalogFailure.status).includes('Exhausted families:')
+      || !String(pureCatalogFailure.status).includes('Budgets:')
+    ) {
+      throw new Error(`pure catalog rejection was not retained and explained: ${JSON.stringify(pureCatalogFailure)}`);
+    }
+
     const submittedGenerationConfig = await evaluateCdp(cdp, `(() => {
       const form = document.querySelector('#generation-config-form');
       const gap = document.querySelector('#generation-config-initial-column-gap');

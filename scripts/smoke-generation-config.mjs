@@ -72,6 +72,18 @@ try {
     throw new Error('successful rebuild did not atomically persist the submitted configuration');
   }
 
+  const pureCatalog = structuredClone(defaults);
+  pureCatalog.corridorRealization.value = 'catalog';
+  const pureCatalogFailure = await postRebuild(
+    { candidateId, config: pureCatalog },
+    422,
+    'pure_catalog_search_exhausted',
+  );
+  assertPureCatalogExhaustionEvidence(pureCatalogFailure.evidence);
+  if (JSON.stringify(await readConfigFile()) !== JSON.stringify(configured)) {
+    throw new Error('failed pure catalog rebuild changed the persisted configuration');
+  }
+
   const constrained = structuredClone(configured);
   for (const key of ['initialRoomMargin', 'initialColumnGap', 'initialRowGap']) {
     constrained.geometryLayoutPolicy[key].value = 32;
@@ -142,6 +154,27 @@ function assertConfigEnvelope(config) {
     || config.schemaVersion !== 1
   ) {
     throw new Error(`unexpected generation config envelope: ${JSON.stringify(config)}`);
+  }
+}
+
+function assertPureCatalogExhaustionEvidence(evidence) {
+  const failure = evidence?.failure;
+  const budgets = evidence?.budgets;
+  if (
+    evidence?.kind !== 'asha_procgen.pure_catalog_exhaustion.v1'
+    || evidence.schemaVersion !== 1
+    || !Array.isArray(failure?.requiredEndpoints)
+    || failure.requiredEndpoints.length === 0
+    || typeof failure.fixedPort?.neighborPieceId !== 'string'
+    || (failure.originBounds == null && failure.laneEnvelope == null)
+    || !Array.isArray(failure.exhaustedFamilies)
+    || failure.exhaustedFamilies.length === 0
+    || !Number.isInteger(budgets?.decisions)
+    || budgets.decisions > budgets.maxDecisions
+    || !Number.isInteger(budgets?.backtracks)
+    || budgets.backtracks > budgets.maxBacktracks
+  ) {
+    throw new Error(`combined pure catalog rejection evidence was incomplete: ${JSON.stringify(evidence)}`);
   }
 }
 
