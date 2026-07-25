@@ -23,7 +23,62 @@
           <button class="view-tab" type="button" data-view="voxel3d" data-selected="false">Voxel 3D</button>
           <button class="view-tab" type="button" data-view="catalog" data-selected="false">Catalog</button>
         </div>
-        <section id="geometry-policy-panel" class="placement-policy-panel geometry-policy-panel" aria-label="Geometry layout policy experiment" hidden>
+        <section id="generation-config-panel" class="placement-policy-panel geometry-policy-panel" aria-label="Generation configuration" hidden>
+          <div class="placement-policy-heading">
+            <div>
+              <h2>Generation configuration</h2>
+              <p>Change geometry, placement, and corridor settings together, then rebuild the selected candidate through the complete validated Rust pipeline.</p>
+            </div>
+            <p class="placement-policy-mode" id="generation-config-mode">Loading configuration</p>
+          </div>
+          <form id="generation-config-form" class="placement-policy-form generation-config-form">
+            <fieldset class="generation-config-group">
+              <legend>Geometry distribution</legend>
+              <label><span>Initial outer margin</span><input id="generation-config-initial-margin" type="number" min="32" max="1024" step="8" required></label>
+              <label><span>Initial column gap</span><input id="generation-config-initial-column-gap" type="number" min="32" max="1024" step="8" required></label>
+              <label><span>Initial row gap</span><input id="generation-config-initial-row-gap" type="number" min="32" max="1024" step="8" required></label>
+              <label><span>Margin growth/tier</span><input id="generation-config-margin-growth" type="number" min="0" max="512" step="8" required></label>
+              <label><span>Column growth/tier</span><input id="generation-config-column-growth" type="number" min="0" max="512" step="8" required></label>
+              <label><span>Row growth/tier</span><input id="generation-config-row-growth" type="number" min="0" max="512" step="8" required></label>
+              <label><span>Maximum tiers</span><input id="generation-config-max-tiers" type="number" min="1" max="8" step="1" required></label>
+              <label><span>Room orders/tier</span><input id="generation-config-room-attempts" type="number" min="1" max="32" step="1" required></label>
+              <label><span>Maximum route attempts</span><input id="generation-config-max-attempts" type="number" min="1" max="1024" step="1" required></label>
+            </fieldset>
+            <fieldset class="generation-config-group">
+              <legend>Placement and corridors</legend>
+              <label>
+                <span>Room clearance</span>
+                <input id="generation-config-clearance" type="number" min="3" max="64" step="1" required>
+                <small>Must be at least 2 × route wall buffer + 1.</small>
+              </label>
+              <label>
+                <span>Route wall buffer</span>
+                <input id="generation-config-wall-thickness" type="number" min="1" max="8" step="1" required>
+              </label>
+              <label>
+                <span>Corridor realization</span>
+                <select id="generation-config-corridor-realization">
+                  <option value="catalog">Catalog pieces</option>
+                  <option value="procedural">Procedural lanes</option>
+                </select>
+              </label>
+              <div class="placement-policy-locked" aria-label="Generation safety invariants">
+                <span>Validated invariants</span>
+                <code>8-unit route grid</code>
+                <code>exclusive physical sections</code>
+                <code>verified portals and built flow</code>
+              </div>
+            </fieldset>
+            <div class="placement-policy-actions">
+              <button id="generation-config-apply" type="submit">Apply and rebuild</button>
+              <button id="generation-config-reset" type="button">Reset to defaults</button>
+            </div>
+          </form>
+          <p id="generation-config-validation" class="placement-policy-validation" role="alert" data-state="valid">Configuration values are valid.</p>
+          <p id="generation-config-impact" class="placement-policy-impact">Waiting for a generated candidate.</p>
+          <p id="generation-config-status" class="placement-policy-status" role="status">Loading persisted configuration.</p>
+        </section>
+        <section id="geometry-policy-panel" class="placement-policy-panel geometry-policy-panel legacy-experiment-panel" aria-label="Legacy geometry layout policy experiment" aria-hidden="true" hidden>
           <div class="placement-policy-heading">
             <div>
               <h2>Geometry layout experiment</h2>
@@ -89,7 +144,7 @@
           <p id="geometry-policy-impact" class="placement-policy-impact">Waiting for committed geometry.</p>
           <p id="geometry-policy-status" class="placement-policy-status" role="status">Select a generated candidate to experiment.</p>
         </section>
-        <section id="corridor-realization-panel" class="placement-policy-panel corridor-realization-panel" aria-label="Corridor realization experiment" hidden>
+        <section id="corridor-realization-panel" class="placement-policy-panel corridor-realization-panel legacy-experiment-panel" aria-label="Legacy corridor realization experiment" aria-hidden="true" hidden>
           <div class="placement-policy-heading">
             <div>
               <h2>Corridor realization experiment</h2>
@@ -120,7 +175,7 @@
           <p id="corridor-realization-impact" class="placement-policy-impact">Waiting for a committed placement.</p>
           <p id="corridor-realization-status" class="placement-policy-status" role="status">Select a generated candidate to experiment.</p>
         </section>
-        <section id="placement-policy-panel" class="placement-policy-panel" aria-label="Placement policy experiment" hidden>
+        <section id="placement-policy-panel" class="placement-policy-panel legacy-experiment-panel" aria-label="Legacy placement policy experiment" aria-hidden="true" hidden>
           <div class="placement-policy-heading">
             <div>
               <h2>Placement policy experiment</h2>

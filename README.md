@@ -146,22 +146,18 @@ doors are translucent red and unlocked doors are translucent blue. The Door
 state selector can show the initial state, each verified item-collection step,
 or an all-unlocked presentation. Door nodes participate in the same frame-op
 budget and include source-edge, portal, and required-item identity in their
-pick label. Temporary placement-policy experiments intentionally hide doors
-until a matching built-flow report exists; Reset restores the committed proof.
+pick label.
 
-The Build, Voxel, and Voxel 3D tabs also expose a temporary placement-policy
-experiment panel. `minimumClearanceCells` and `wallThicknessCells` are editable;
-applying them reruns the selected candidate's Rust assembly and placement
-validation stages in a bounded temporary workspace before refreshing all three
-views. Schema-v1-only values remain visibly locked. Experiments never rewrite
-fixtures or sample artifacts and never inherit a matching native-authority
-claim; Reset restores the committed placement. Clearance changes room-footprint
-separation, while wall thickness is a corridor-routing safety buffer rather
-than rendered wall width. The viewer auto-fits each result, so the panel reports
-before/after grid bounds and routed-cell counts and provides presets with
-meaningfully different scales.
+The Build, Voxel, and Voxel 3D tabs expose one generation configuration form
+for geometry distribution, placement clearance, route wall buffer, and corridor
+realization. Apply and rebuild submits every value together, runs geometry
+through built-flow validation in a bounded Rust workspace, and atomically
+persists the configuration only after every stage succeeds. Failed or invalid
+builds leave both the active result and `config/viewer-generation.json`
+unchanged. Each setting stores both `value` and `defaultValue`, so Reset to
+defaults uses the same complete validated rebuild and persistence path.
 
-A separate corridor-realization panel compares two explicit whole-build modes.
+The corridor-realization setting has two explicit whole-build modes.
 `catalog` covers planned route segments with bounded short/medium/long
 straight families and sized bend prefabs, with route cells filling only their
 uncovered gaps. `procedural` keeps catalog-backed room and feature pieces but
@@ -171,8 +167,10 @@ section provenance, exclusive routing, portals, placement validation, and
 built-flow validation; they are never mixed automatically. Dedicated
 `planned_junction` catalog shapes remain ineligible until a physical-section
 plan explicitly requests the `junction` kind. The panel reports
-corridor-prefab, routed-cell, and footprint counts, and the temporary procedural result is
-used by Build, Voxel, and Voxel 3D, including verified door progression.
+corridor-prefab, routed-cell, and footprint counts, and the configured result is
+used by Build, Voxel, and Voxel 3D, including verified door progression. A
+configured build is persisted downstream evidence, but does not inherit a
+matching native-authority receipt.
 
 A separate geometry-layout panel controls the earlier room distribution pass:
 initial outer/column/row spacing, per-tier growth, spacing-tier count, and room

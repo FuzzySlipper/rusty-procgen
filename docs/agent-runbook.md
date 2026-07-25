@@ -436,40 +436,40 @@ every accepted sample before checking the public renderer frame-op limit. This
 tab is projection-only inspection and does not claim runtime, collision,
 navigation, native-render, or performance authority.
 
-Build, Voxel, and Voxel 3D show the placement-policy experiment panel. The
-editable values are `minimumClearanceCells` and `wallThicknessCells`; schema v1
-keeps `contactPolicy=glued_exits_only`, `doorwayWidthCells=1`, and
-`preservePieceBoundaries=true` locked. Apply posts only the selected candidate
-ID and typed policy to the local viewer server. The server derives piece-plan,
-shape-match, and catalog refs from the committed batch report, reruns Rust
-assembly plus placement validation without a shell, returns an explicitly
-temporary/non-native result, and removes its temporary files. Reset or candidate
-switching restores the committed placement. The endpoint accepts no browser
-filesystem paths and does not mutate fixtures, samples, RuntimeSession, or
-native voxel evidence.
+Build, Voxel, and Voxel 3D show one generation configuration form backed by
+`config/viewer-generation.json`. Every editable field has a `value` and
+`defaultValue`. The form edits compact-first room margin, column/row gaps,
+per-tier growth, bounded search tiers and room orders, placement clearance,
+route wall buffer, and `catalog`/`procedural` corridor realization together.
+Schema v1 keeps the 8-unit route grid, `contactPolicy=glued_exits_only`,
+`doorwayWidthCells=1`, `preservePieceBoundaries=true`, physical-section
+exclusivity, and built-flow validation fixed.
 
-The same tabs show a corridor-realization experiment panel with exactly
-`catalog` and `procedural` modes. Catalog mode greedily tiles each planned
-segment with bounded short/medium/long straight families and sized bends, then
-uses owned route cells only for the gaps between those footprints. Procedural
-mode reruns piece planning, shape matching, assembly,
-placement validation, and built-flow validation while keeping room/feature
-prefabs and omitting connector/corridor/bend instances. Its direct
-physical-section routes remain inside the planned geometry-lane envelope.
-Reset or candidate switching restores the committed catalog placement. The
-comparison readout reports corridor-prefab, prefab-cell, routed-cell, and
-footprint metrics, and a
-successful procedural experiment supplies a matching built-flow report so the
-Voxel 3D door progression controls remain available.
+Apply and rebuild posts the selected candidate ID and exact versioned config to
+the local viewer server. The server derives all artifact refs and deterministic
+seeds from the committed batch report, then runs geometry emission and
+validation, piece planning, shape matching, assembly, placement validation, and
+built-flow validation in one temporary workspace. It atomically replaces the
+config file only after every stage passes. Any validation, geometry search,
+assembly, or flow failure returns JSON and preserves the prior config and active
+result. The endpoint accepts no browser filesystem paths and does not mutate
+fixtures, samples, RuntimeSession, or native voxel evidence.
 
-Those tabs also show a separate geometry-layout experiment panel. It edits the
-versioned compact-first room margin, column/row gaps, per-tier growth, tier
-count, and room-order attempts. The route-attempt budget is shown explicitly
-and remains bounded at four route orders per room order. Apply reruns geometry,
-geometry validation, piece planning/matching/assembly, placement validation,
-and built-flow validation as one temporary result. Route grid and exclusive
-corridor separation are not editable. Reset or candidate switching restores
-the committed geometry and placement together.
+Reset to defaults copies every `defaultValue` into `value` and submits the same
+complete rebuild. Candidate switching reloads the persisted configuration; it
+does not silently discard or substitute per-panel temporary state. For isolated
+automation, set `ASHA_PROCGEN_GENERATION_CONFIG_PATH` to a temporary config
+copy. The endpoint and browser smokes do this so checks never rewrite the
+tracked configuration.
+
+Catalog corridor mode greedily tiles each planned segment with bounded
+short/medium/long straight families and sized bends, then uses owned route
+cells only for gaps between those footprints. Procedural mode keeps
+room/feature prefabs, omits connector/corridor/bend instances, and constrains
+each direct physical-section route to its planned geometry-lane envelope.
+Both modes produce matching placement and built-flow proof, so Voxel 3D door
+progression remains available. Configured builds remain downstream,
+non-native-authority evidence.
 
 ## Verification
 
@@ -492,8 +492,8 @@ verified committed artifacts so managed health checks are not blocked by the
 bounded-but-expensive batch search. Use `npm run viewer:serve:regenerate` only
 when intentionally rebuilding baseline and batch evidence before serving.
 
-The focused placement- and geometry-policy endpoint contracts can be checked
-separately:
+The transactional generation-config contract and the legacy focused endpoint
+contracts can be checked separately:
 
 ```bash
 npm run policy:smoke

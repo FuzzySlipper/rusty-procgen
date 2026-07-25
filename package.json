@@ -13,7 +13,7 @@
     "viewer:serve": "npm run build:viewer && node scripts/serve-viewer.mjs",
     "viewer:serve:regenerate": "npm run baseline && npm run batch:sample && npm run build:viewer && node scripts/serve-viewer.mjs",
     "viewer:smoke": "npm run build:viewer && node scripts/smoke-voxel-boundaries.mjs && node scripts/smoke-voxel-inspection-frame.mjs && node scripts/smoke-viewer.mjs",
-    "policy:smoke": "npm run build:viewer && node scripts/smoke-placement-policy-experiment.mjs && node scripts/smoke-geometry-policy-experiment.mjs && node scripts/smoke-corridor-realization-experiment.mjs",
+    "policy:smoke": "npm run build:viewer && node scripts/smoke-generation-config.mjs && node scripts/smoke-placement-policy-experiment.mjs && node scripts/smoke-geometry-policy-experiment.mjs && node scripts/smoke-corridor-realization-experiment.mjs",
     "preview:smoke": "npm run viewer:smoke",
     "piece:smoke": "node scripts/smoke-piece-build.mjs",
     "publish:asha-smoke": "npm run build:viewer && node scripts/smoke-prefab-publish.mjs",
@@ -22,7 +22,7 @@
     "rust:check": "cargo check --manifest-path procgen-rs/Cargo.toml",
     "rust:test": "cargo test --manifest-path procgen-rs/Cargo.toml",
     "test": "npm run check:asha-boundary && npm run typecheck && npm run rust:test",
-    "verify": "npm run check:asha-boundary && npm run typecheck && npm run publish:asha-smoke && node scripts/smoke-voxel-boundaries.mjs && npm run rust:check && npm run rust:test"
+    "verify": "npm run check:asha-boundary && npm run typecheck && npm run publish:asha-smoke && node scripts/smoke-voxel-boundaries.mjs && node scripts/smoke-generation-config.mjs && npm run rust:check && npm run rust:test"
   },
   "dependencies": {
     "@asha/contracts": "file:../asha-engine/ts/packages/contracts",

@@ -521,6 +521,47 @@ interface CorridorRealizationExperimentResponse {
   readonly nativeAuthority: false;
 }
 
+interface GenerationConfigSetting<T> {
+  value: T;
+  readonly defaultValue: T;
+}
+
+interface ViewerGenerationConfig {
+  readonly kind: 'asha_procgen.viewer_generation_config.v1';
+  readonly schemaVersion: 1;
+  readonly geometryLayoutPolicy: {
+    readonly initialRoomMargin: GenerationConfigSetting<number>;
+    readonly initialColumnGap: GenerationConfigSetting<number>;
+    readonly initialRowGap: GenerationConfigSetting<number>;
+    readonly roomMarginGrowth: GenerationConfigSetting<number>;
+    readonly columnGapGrowth: GenerationConfigSetting<number>;
+    readonly rowGapGrowth: GenerationConfigSetting<number>;
+    readonly maxSpacingTiers: GenerationConfigSetting<number>;
+    readonly roomOrderAttemptsPerTier: GenerationConfigSetting<number>;
+    readonly maxSearchAttempts: GenerationConfigSetting<number>;
+  };
+  readonly placementPolicy: {
+    readonly minimumClearanceCells: GenerationConfigSetting<number>;
+    readonly wallThicknessCells: GenerationConfigSetting<number>;
+  };
+  readonly corridorRealization: GenerationConfigSetting<CorridorRealization>;
+}
+
+interface GenerationConfigRebuildResponse {
+  readonly kind: 'asha_procgen.viewer_generation_rebuild.v1';
+  readonly buildId: string;
+  readonly candidateId: string;
+  readonly config: ViewerGenerationConfig;
+  readonly geometry: Geometry2dArtifact;
+  readonly geometryValidation: ValidationReport;
+  readonly placement: PiecePlacement;
+  readonly placementValidation: ValidationReport;
+  readonly builtFlowValidation: BuiltFlowValidationReport;
+  readonly metrics: CorridorRealizationExperimentResponse['metrics'];
+  readonly persisted: true;
+  readonly nativeAuthority: false;
+}
+
 const svg = document.querySelector<SVGSVGElement>('#layout');
 const summary = document.querySelector<HTMLElement>('#summary');
 const batchList = document.querySelector<HTMLElement>('#batch-list');
@@ -531,6 +572,26 @@ const voxel3dCanvas = document.querySelector<HTMLCanvasElement>('#voxel-3d-canva
 const voxel3dDiagnostic = document.querySelector<HTMLElement>('#voxel-3d-diagnostic');
 const voxel3dDoorState = document.querySelector<HTMLSelectElement>('#voxel-3d-door-state');
 const voxel3dDoorLegend = document.querySelector<HTMLElement>('#voxel-3d-door-legend');
+const generationConfigPanelElement = document.querySelector<HTMLElement>('#generation-config-panel');
+const generationConfigFormElement = document.querySelector<HTMLFormElement>('#generation-config-form');
+const generationConfigModeElement = document.querySelector<HTMLElement>('#generation-config-mode');
+const generationConfigApplyElement = document.querySelector<HTMLButtonElement>('#generation-config-apply');
+const generationConfigResetElement = document.querySelector<HTMLButtonElement>('#generation-config-reset');
+const generationConfigValidationElement = document.querySelector<HTMLElement>('#generation-config-validation');
+const generationConfigImpactElement = document.querySelector<HTMLElement>('#generation-config-impact');
+const generationConfigStatusElement = document.querySelector<HTMLElement>('#generation-config-status');
+const generationConfigInitialMarginElement = document.querySelector<HTMLInputElement>('#generation-config-initial-margin');
+const generationConfigInitialColumnGapElement = document.querySelector<HTMLInputElement>('#generation-config-initial-column-gap');
+const generationConfigInitialRowGapElement = document.querySelector<HTMLInputElement>('#generation-config-initial-row-gap');
+const generationConfigMarginGrowthElement = document.querySelector<HTMLInputElement>('#generation-config-margin-growth');
+const generationConfigColumnGrowthElement = document.querySelector<HTMLInputElement>('#generation-config-column-growth');
+const generationConfigRowGrowthElement = document.querySelector<HTMLInputElement>('#generation-config-row-growth');
+const generationConfigMaxTiersElement = document.querySelector<HTMLInputElement>('#generation-config-max-tiers');
+const generationConfigRoomAttemptsElement = document.querySelector<HTMLInputElement>('#generation-config-room-attempts');
+const generationConfigMaxAttemptsElement = document.querySelector<HTMLInputElement>('#generation-config-max-attempts');
+const generationConfigClearanceElement = document.querySelector<HTMLInputElement>('#generation-config-clearance');
+const generationConfigWallThicknessElement = document.querySelector<HTMLInputElement>('#generation-config-wall-thickness');
+const generationConfigCorridorRealizationElement = document.querySelector<HTMLSelectElement>('#generation-config-corridor-realization');
 const geometryPolicyPanelElement = document.querySelector<HTMLElement>('#geometry-policy-panel');
 const geometryPolicyFormElement = document.querySelector<HTMLFormElement>('#geometry-policy-form');
 const geometryPolicyInitialMarginElement = document.querySelector<HTMLInputElement>('#geometry-policy-initial-margin');
@@ -580,6 +641,26 @@ if (
   || voxel3dDiagnostic === null
   || voxel3dDoorState === null
   || voxel3dDoorLegend === null
+  || generationConfigPanelElement === null
+  || generationConfigFormElement === null
+  || generationConfigModeElement === null
+  || generationConfigApplyElement === null
+  || generationConfigResetElement === null
+  || generationConfigValidationElement === null
+  || generationConfigImpactElement === null
+  || generationConfigStatusElement === null
+  || generationConfigInitialMarginElement === null
+  || generationConfigInitialColumnGapElement === null
+  || generationConfigInitialRowGapElement === null
+  || generationConfigMarginGrowthElement === null
+  || generationConfigColumnGrowthElement === null
+  || generationConfigRowGrowthElement === null
+  || generationConfigMaxTiersElement === null
+  || generationConfigRoomAttemptsElement === null
+  || generationConfigMaxAttemptsElement === null
+  || generationConfigClearanceElement === null
+  || generationConfigWallThicknessElement === null
+  || generationConfigCorridorRealizationElement === null
   || geometryPolicyPanelElement === null
   || geometryPolicyFormElement === null
   || geometryPolicyInitialMarginElement === null
@@ -631,6 +712,26 @@ const voxelInspectionCanvas = voxel3dCanvas;
 const voxelInspectionDiagnostic = voxel3dDiagnostic;
 const voxelDoorStateControl = voxel3dDoorState;
 const voxelDoorLegend = voxel3dDoorLegend;
+const generationConfigPanel = generationConfigPanelElement;
+const generationConfigForm = generationConfigFormElement;
+const generationConfigMode = generationConfigModeElement;
+const generationConfigApply = generationConfigApplyElement;
+const generationConfigReset = generationConfigResetElement;
+const generationConfigValidation = generationConfigValidationElement;
+const generationConfigImpact = generationConfigImpactElement;
+const generationConfigStatus = generationConfigStatusElement;
+const generationConfigInitialMargin = generationConfigInitialMarginElement;
+const generationConfigInitialColumnGap = generationConfigInitialColumnGapElement;
+const generationConfigInitialRowGap = generationConfigInitialRowGapElement;
+const generationConfigMarginGrowth = generationConfigMarginGrowthElement;
+const generationConfigColumnGrowth = generationConfigColumnGrowthElement;
+const generationConfigRowGrowth = generationConfigRowGrowthElement;
+const generationConfigMaxTiers = generationConfigMaxTiersElement;
+const generationConfigRoomAttempts = generationConfigRoomAttemptsElement;
+const generationConfigMaxAttempts = generationConfigMaxAttemptsElement;
+const generationConfigClearance = generationConfigClearanceElement;
+const generationConfigWallThickness = generationConfigWallThicknessElement;
+const generationConfigCorridorRealization = generationConfigCorridorRealizationElement;
 const geometryPolicyPanel = geometryPolicyPanelElement;
 const geometryPolicyForm = geometryPolicyFormElement;
 const geometryPolicyInitialMargin = geometryPolicyInitialMarginElement;
@@ -671,6 +772,7 @@ const placementPolicyStatus = policyStatus;
 const placementPolicyPresets = policyPresets;
 const batch = await fetchBatch();
 const voxelEvidence = await fetchVoxelEvidence();
+let persistedGenerationConfig = await fetchGenerationConfig();
 const viewerSearch = new URLSearchParams(location.search);
 const requestedCandidate = viewerSearch.get('candidate');
 const renderInspectionOnce = viewerSearch.get('inspection') === 'once';
@@ -701,6 +803,9 @@ let geometryExperimentBusy = false;
 let currentCorridorExperimentId: string | null = null;
 let corridorExperimentRevision = 0;
 let corridorExperimentBusy = false;
+let generationConfigRevision = 0;
+let generationConfigBusy = false;
+let configuredBuildId: string | null = null;
 let voxelInspectionSurface: AshaRendererInspectionSurface | null = null;
 let voxelInspectionMount: Promise<AshaRendererInspectionSurface> | null = null;
 let voxelInspectionRevision = 0;
@@ -712,6 +817,18 @@ voxelDoorStateControl.addEventListener('change', () => {
     void renderVoxelInspection();
   }
 });
+generationConfigForm.addEventListener('submit', (event) => {
+  event.preventDefault();
+  void applyGenerationConfig();
+});
+generationConfigReset.addEventListener('click', () => {
+  populateGenerationConfigControls(generationConfigWithDefaults(persistedGenerationConfig));
+  void applyGenerationConfig();
+});
+for (const input of generationConfigInputs()) {
+  input.addEventListener('input', validateGenerationConfigControls);
+  input.addEventListener('change', validateGenerationConfigControls);
+}
 placementPolicyForm.addEventListener('submit', (event) => {
   event.preventDefault();
   void applyPlacementPolicyExperiment();
@@ -745,6 +862,7 @@ for (const preset of placementPolicyPresets) {
   });
 }
 window.addEventListener('pagehide', () => {
+  generationConfigRevision += 1;
   policyExperimentRevision += 1;
   geometryExperimentRevision += 1;
   corridorExperimentRevision += 1;
@@ -786,6 +904,9 @@ if (initialSelection === null) {
   currentPolicyExperimentId = null;
   currentGeometryExperimentId = null;
   currentCorridorExperimentId = null;
+  configuredBuildId = null;
+  populateGenerationConfigControls(persistedGenerationConfig);
+  syncGenerationConfigControls();
   syncGeometryPolicyControls();
   syncCorridorRealizationControls();
   syncPlacementPolicyControls();
@@ -807,6 +928,14 @@ if (initialSelection === null) {
 }
 
 async function selectEntry(entry: SelectionEntry): Promise<void> {
+  if (generationConfigBusy) {
+    setGenerationConfigStatus(
+      'loading',
+      'Finish the current configured rebuild before switching candidates.',
+    );
+    return;
+  }
+  generationConfigRevision += 1;
   const selectionRevision = ++policyExperimentRevision;
   geometryExperimentRevision += 1;
   corridorExperimentRevision += 1;
@@ -816,11 +945,12 @@ async function selectEntry(entry: SelectionEntry): Promise<void> {
   const artifact = await fetchArtifact(artifactUrl(entry.artifactRef));
   const validation = await fetchValidation(artifactUrl(entry.validationRef));
   const intermediate = await fetchIntermediateContext(entry);
-  const [geometry, placement, placementValidation, builtFlowValidation] = await Promise.all([
+  const [geometry, placement, placementValidation, builtFlowValidation, generationConfig] = await Promise.all([
     fetchOptionalArtifact<Geometry2dArtifact>(entry.geometryRef),
     fetchOptionalArtifact<PiecePlacement>(entry.piecePlacementRef),
     fetchOptionalArtifact<ValidationReport>(entry.piecePlacementValidationRef),
     fetchOptionalArtifact<BuiltFlowValidationReport>(entry.builtFlowValidationRef),
+    fetchGenerationConfig(),
   ]);
   if (selectionRevision !== policyExperimentRevision) {
     return;
@@ -846,6 +976,10 @@ async function selectEntry(entry: SelectionEntry): Promise<void> {
   currentPolicyExperimentId = null;
   currentGeometryExperimentId = null;
   currentCorridorExperimentId = null;
+  configuredBuildId = null;
+  persistedGenerationConfig = generationConfig;
+  populateGenerationConfigControls(persistedGenerationConfig);
+  syncGenerationConfigControls();
   syncVoxelDoorStateControls();
   syncGeometryPolicyControls();
   syncCorridorRealizationControls();
@@ -854,6 +988,279 @@ async function selectEntry(entry: SelectionEntry): Promise<void> {
   renderSummary(summaryPanel, artifact, entry, batch);
   renderContext(diagnosticsPanel, artifact, entry, batch, validation, intermediate, placementValidation);
   renderActiveView();
+}
+
+function generationConfigInputs(): readonly (HTMLInputElement | HTMLSelectElement)[] {
+  return [
+    generationConfigInitialMargin,
+    generationConfigInitialColumnGap,
+    generationConfigInitialRowGap,
+    generationConfigMarginGrowth,
+    generationConfigColumnGrowth,
+    generationConfigRowGrowth,
+    generationConfigMaxTiers,
+    generationConfigRoomAttempts,
+    generationConfigMaxAttempts,
+    generationConfigClearance,
+    generationConfigWallThickness,
+    generationConfigCorridorRealization,
+  ];
+}
+
+function populateGenerationConfigControls(config: ViewerGenerationConfig): void {
+  generationConfigInitialMargin.value = String(config.geometryLayoutPolicy.initialRoomMargin.value);
+  generationConfigInitialColumnGap.value = String(config.geometryLayoutPolicy.initialColumnGap.value);
+  generationConfigInitialRowGap.value = String(config.geometryLayoutPolicy.initialRowGap.value);
+  generationConfigMarginGrowth.value = String(config.geometryLayoutPolicy.roomMarginGrowth.value);
+  generationConfigColumnGrowth.value = String(config.geometryLayoutPolicy.columnGapGrowth.value);
+  generationConfigRowGrowth.value = String(config.geometryLayoutPolicy.rowGapGrowth.value);
+  generationConfigMaxTiers.value = String(config.geometryLayoutPolicy.maxSpacingTiers.value);
+  generationConfigRoomAttempts.value = String(config.geometryLayoutPolicy.roomOrderAttemptsPerTier.value);
+  generationConfigMaxAttempts.value = String(config.geometryLayoutPolicy.maxSearchAttempts.value);
+  generationConfigClearance.value = String(config.placementPolicy.minimumClearanceCells.value);
+  generationConfigWallThickness.value = String(config.placementPolicy.wallThicknessCells.value);
+  generationConfigCorridorRealization.value = config.corridorRealization.value;
+  validateGenerationConfigControls();
+}
+
+function generationConfigWithDefaults(config: ViewerGenerationConfig): ViewerGenerationConfig {
+  const reset = structuredClone(config);
+  for (const setting of Object.values(reset.geometryLayoutPolicy)) {
+    setting.value = setting.defaultValue;
+  }
+  for (const setting of Object.values(reset.placementPolicy)) {
+    setting.value = setting.defaultValue;
+  }
+  reset.corridorRealization.value = reset.corridorRealization.defaultValue;
+  return reset;
+}
+
+function generationConfigFromControls(): ViewerGenerationConfig | null {
+  if (!validateGenerationConfigControls()) {
+    return null;
+  }
+  const config = structuredClone(persistedGenerationConfig);
+  config.geometryLayoutPolicy.initialRoomMargin.value = Number(generationConfigInitialMargin.value);
+  config.geometryLayoutPolicy.initialColumnGap.value = Number(generationConfigInitialColumnGap.value);
+  config.geometryLayoutPolicy.initialRowGap.value = Number(generationConfigInitialRowGap.value);
+  config.geometryLayoutPolicy.roomMarginGrowth.value = Number(generationConfigMarginGrowth.value);
+  config.geometryLayoutPolicy.columnGapGrowth.value = Number(generationConfigColumnGrowth.value);
+  config.geometryLayoutPolicy.rowGapGrowth.value = Number(generationConfigRowGrowth.value);
+  config.geometryLayoutPolicy.maxSpacingTiers.value = Number(generationConfigMaxTiers.value);
+  config.geometryLayoutPolicy.roomOrderAttemptsPerTier.value = Number(generationConfigRoomAttempts.value);
+  config.geometryLayoutPolicy.maxSearchAttempts.value = Number(generationConfigMaxAttempts.value);
+  config.placementPolicy.minimumClearanceCells.value = Number(generationConfigClearance.value);
+  config.placementPolicy.wallThicknessCells.value = Number(generationConfigWallThickness.value);
+  config.corridorRealization.value = generationConfigCorridorRealization.value as CorridorRealization;
+  return config;
+}
+
+function validateGenerationConfigControls(): boolean {
+  const gridValues = [
+    [generationConfigInitialMargin, 32, 1_024, 'Initial outer margin'],
+    [generationConfigInitialColumnGap, 32, 1_024, 'Initial column gap'],
+    [generationConfigInitialRowGap, 32, 1_024, 'Initial row gap'],
+    [generationConfigMarginGrowth, 0, 512, 'Margin growth'],
+    [generationConfigColumnGrowth, 0, 512, 'Column growth'],
+    [generationConfigRowGrowth, 0, 512, 'Row growth'],
+  ] as const;
+  let issue = '';
+  for (const [input, minimum, maximum, label] of gridValues) {
+    const value = Number(input.value);
+    const inputIssue = !Number.isInteger(value) || value < minimum || value > maximum
+      ? `${label} must be an integer from ${minimum} through ${maximum}.`
+      : value % 8 !== 0
+        ? `${label} must align to the 8-unit route grid.`
+        : '';
+    input.setCustomValidity(inputIssue);
+    issue ||= inputIssue;
+  }
+  for (const [input, minimum, maximum, label] of [
+    [generationConfigMaxTiers, 1, 8, 'Maximum tiers'],
+    [generationConfigRoomAttempts, 1, 32, 'Room orders per tier'],
+    [generationConfigClearance, 3, 64, 'Room clearance'],
+    [generationConfigWallThickness, 1, 8, 'Route wall buffer'],
+  ] as const) {
+    const value = Number(input.value);
+    const inputIssue = !Number.isInteger(value) || value < minimum || value > maximum
+      ? `${label} must be an integer from ${minimum} through ${maximum}.`
+      : '';
+    input.setCustomValidity(inputIssue);
+    issue ||= inputIssue;
+  }
+  const maxAttempts = Number(generationConfigMaxAttempts.value);
+  const availableAttempts = Number(generationConfigMaxTiers.value)
+    * Number(generationConfigRoomAttempts.value) * 4;
+  const attemptsIssue = !Number.isInteger(maxAttempts)
+    || maxAttempts < 1
+    || maxAttempts > availableAttempts
+    ? `Maximum route attempts must be from 1 through ${availableAttempts}.`
+    : '';
+  generationConfigMaxAttempts.setCustomValidity(attemptsIssue);
+  issue ||= attemptsIssue;
+  const requiredClearance = Number(generationConfigWallThickness.value) * 2 + 1;
+  const clearanceIssue = Number(generationConfigClearance.value) < requiredClearance
+    ? `Room clearance must be at least ${requiredClearance} for this route wall buffer.`
+    : '';
+  generationConfigClearance.setCustomValidity(clearanceIssue);
+  issue ||= clearanceIssue;
+  const corridorIssue = generationConfigCorridorRealization.value !== 'catalog'
+    && generationConfigCorridorRealization.value !== 'procedural'
+    ? 'Corridor realization must be catalog or procedural.'
+    : '';
+  generationConfigCorridorRealization.setCustomValidity(corridorIssue);
+  issue ||= corridorIssue;
+
+  const valid = issue.length === 0;
+  generationConfigValidation.dataset.state = valid ? 'valid' : 'invalid';
+  generationConfigValidation.textContent = valid
+    ? 'Configuration values are valid; Apply rebuilds the complete pipeline before persisting.'
+    : issue;
+  const draft = valid ? generationConfigFromControlsWithoutValidation() : null;
+  const dirty = draft !== null
+    && generationConfigValueSignature(draft) !== generationConfigValueSignature(persistedGenerationConfig);
+  generationConfigPanel.dataset.configState = dirty ? 'unsaved' : 'persisted';
+  generationConfigMode.dataset.mode = dirty ? 'experiment' : 'persisted';
+  generationConfigMode.textContent = dirty ? 'Unsaved changes' : 'Persisted configuration';
+  const selectedCandidateNeedsBuild = currentSelection !== null && configuredBuildId === null;
+  generationConfigApply.disabled = !valid
+    || (!dirty && !selectedCandidateNeedsBuild)
+    || currentSelection === null
+    || generationConfigBusy;
+  generationConfigReset.disabled = currentSelection === null || generationConfigBusy;
+  return valid;
+}
+
+function generationConfigFromControlsWithoutValidation(): ViewerGenerationConfig | null {
+  const numbers = generationConfigInputs()
+    .filter((input): input is HTMLInputElement => input instanceof HTMLInputElement)
+    .map((input) => Number(input.value));
+  if (numbers.some((value) => !Number.isFinite(value))) {
+    return null;
+  }
+  const config = structuredClone(persistedGenerationConfig);
+  config.geometryLayoutPolicy.initialRoomMargin.value = numbers[0];
+  config.geometryLayoutPolicy.initialColumnGap.value = numbers[1];
+  config.geometryLayoutPolicy.initialRowGap.value = numbers[2];
+  config.geometryLayoutPolicy.roomMarginGrowth.value = numbers[3];
+  config.geometryLayoutPolicy.columnGapGrowth.value = numbers[4];
+  config.geometryLayoutPolicy.rowGapGrowth.value = numbers[5];
+  config.geometryLayoutPolicy.maxSpacingTiers.value = numbers[6];
+  config.geometryLayoutPolicy.roomOrderAttemptsPerTier.value = numbers[7];
+  config.geometryLayoutPolicy.maxSearchAttempts.value = numbers[8];
+  config.placementPolicy.minimumClearanceCells.value = numbers[9];
+  config.placementPolicy.wallThicknessCells.value = numbers[10];
+  config.corridorRealization.value = generationConfigCorridorRealization.value as CorridorRealization;
+  return config;
+}
+
+function generationConfigValueSignature(config: ViewerGenerationConfig): string {
+  return JSON.stringify({
+    geometry: Object.fromEntries(
+      Object.entries(config.geometryLayoutPolicy).map(([key, setting]) => [key, setting.value]),
+    ),
+    placement: Object.fromEntries(
+      Object.entries(config.placementPolicy).map(([key, setting]) => [key, setting.value]),
+    ),
+    corridorRealization: config.corridorRealization.value,
+  });
+}
+
+function syncGenerationConfigControls(): void {
+  const enabled = currentSelection !== null && !generationConfigBusy;
+  for (const input of generationConfigInputs()) {
+    input.disabled = !enabled;
+  }
+  generationConfigPanel.dataset.buildId = configuredBuildId ?? '';
+  if (currentSelection === null) {
+    setGenerationConfigStatus('idle', 'Select a generated candidate to rebuild.');
+  } else if (configuredBuildId !== null) {
+    setGenerationConfigStatus('ready', 'Persisted configuration build is active in Build, Voxel, and Voxel 3D.');
+  } else {
+    setGenerationConfigStatus(
+      'idle',
+      'Persisted configuration loaded; edit any settings or rebuild this candidate as-is.',
+    );
+  }
+  validateGenerationConfigControls();
+}
+
+async function applyGenerationConfig(): Promise<void> {
+  const selection = currentSelection;
+  const config = generationConfigFromControls();
+  if (selection === null || config === null) {
+    setGenerationConfigStatus('error', 'Select a candidate and correct the configuration values first.');
+    return;
+  }
+  const revision = ++generationConfigRevision;
+  generationConfigBusy = true;
+  syncGenerationConfigControls();
+  setGenerationConfigStatus(
+    'loading',
+    `Rebuilding ${selection.candidateId} with combined geometry, placement, and corridor settings…`,
+  );
+  try {
+    const response = await fetch('/api/generation-config/rebuild', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ candidateId: selection.candidateId, config }),
+    });
+    const result = await readJsonResponse<
+      GenerationConfigRebuildResponse | PlacementPolicyExperimentError
+    >(response);
+    if (revision !== generationConfigRevision) {
+      return;
+    }
+    if (!response.ok || 'error' in result) {
+      throw new Error('detail' in result ? result.detail : `rebuild request failed with ${response.status}`);
+    }
+    if (
+      result.kind !== 'asha_procgen.viewer_generation_rebuild.v1'
+      || result.candidateId !== selection.candidateId
+      || result.persisted !== true
+      || result.nativeAuthority !== false
+      || result.geometryValidation.ok !== true
+      || result.placementValidation.ok !== true
+      || result.builtFlowValidation.ok !== true
+    ) {
+      throw new Error('generation config rebuild returned an invalid response envelope');
+    }
+    persistedGenerationConfig = result.config;
+    configuredBuildId = result.buildId;
+    currentGeometry = result.geometry;
+    currentPlacement = result.placement;
+    currentPlacementValidation = result.placementValidation;
+    currentBuiltFlowValidation = result.builtFlowValidation;
+    currentGeometryExperimentId = null;
+    currentPolicyExperimentId = null;
+    currentCorridorExperimentId = null;
+    populateGenerationConfigControls(result.config);
+    generationConfigImpact.textContent = `Configured build: ${result.metrics.footprintWidth} × ${result.metrics.footprintHeight} footprint; ${result.metrics.corridorPrefabInstances} corridor prefabs; ${result.metrics.routedCorridorCells.toLocaleString()} routed cells.`;
+    syncVoxelDoorStateControls();
+    syncGenerationConfigControls();
+    setGenerationConfigStatus(
+      'ready',
+      `Configuration persisted and ${selection.candidateId} rebuilt with verified placement and built flow.`,
+    );
+    renderActiveView();
+  } catch (error) {
+    if (revision === generationConfigRevision) {
+      setGenerationConfigStatus(
+        'error',
+        `Rebuild failed; persisted configuration and current result were unchanged: ${describeError(error)}`,
+      );
+    }
+  } finally {
+    if (revision === generationConfigRevision) {
+      generationConfigBusy = false;
+      syncGenerationConfigControls();
+    }
+  }
+}
+
+function setGenerationConfigStatus(state: 'idle' | 'loading' | 'ready' | 'error', message: string): void {
+  generationConfigStatus.dataset.state = state;
+  generationConfigStatus.textContent = message;
 }
 
 function geometryPolicyInputs(): readonly HTMLInputElement[] {
@@ -1627,6 +2034,37 @@ async function fetchBatch(): Promise<SelectionReport> {
   return (await response.json()) as SelectionReport;
 }
 
+async function fetchGenerationConfig(): Promise<ViewerGenerationConfig> {
+  const response = await fetch('/api/generation-config');
+  const result = await readJsonResponse<
+    ViewerGenerationConfig | PlacementPolicyExperimentError
+  >(response);
+  if (!response.ok || 'error' in result) {
+    throw new Error(
+      'detail' in result
+        ? result.detail
+        : `failed to load generation configuration: ${response.status}`,
+    );
+  }
+  if (
+    result.kind !== 'asha_procgen.viewer_generation_config.v1'
+    || result.schemaVersion !== 1
+  ) {
+    throw new Error('generation configuration returned an invalid response envelope');
+  }
+  return result;
+}
+
+async function readJsonResponse<T>(response: Response): Promise<T> {
+  const body = await response.text();
+  try {
+    return JSON.parse(body) as T;
+  } catch {
+    const summary = body.trim().slice(0, 160) || '(empty response)';
+    throw new Error(`request returned ${response.status} with non-JSON content: ${summary}`);
+  }
+}
+
 async function fetchVoxelEvidence(): Promise<NativeVoxelEvidence | null> {
   const response = await fetch('/api/evidence/native-voxel-extrusion');
   if (!response.ok) {
@@ -2066,9 +2504,11 @@ function renderActiveView(): void {
   }
   layoutSvg.style.height = '';
   layoutSvg.style.minWidth = '';
-  geometryPolicyPanel.hidden = activeView !== 'build' && activeView !== 'voxel' && activeView !== 'voxel3d';
-  corridorRealizationPanel.hidden = activeView !== 'build' && activeView !== 'voxel' && activeView !== 'voxel3d';
-  placementPolicyPanel.hidden = activeView !== 'build' && activeView !== 'voxel' && activeView !== 'voxel3d';
+  const generationConfigVisible = activeView === 'build' || activeView === 'voxel' || activeView === 'voxel3d';
+  generationConfigPanel.hidden = !generationConfigVisible;
+  geometryPolicyPanel.hidden = true;
+  corridorRealizationPanel.hidden = true;
+  placementPolicyPanel.hidden = true;
   const inspectionActive = activeView === 'voxel3d';
   layoutSvg.style.display = inspectionActive ? 'none' : '';
   voxelInspectionPanel.hidden = !inspectionActive;
@@ -2086,13 +2526,18 @@ function renderActiveView(): void {
     return;
   }
   if (activeView === 'voxel') {
+    const projectionMode = configuredBuildId !== null
+      ? 'configured'
+      : currentPolicyExperimentId !== null
+          || currentGeometryExperimentId !== null
+          || currentCorridorExperimentId !== null
+        ? 'temporary'
+        : 'committed';
     renderVoxelBuild(
       layoutSvg,
       currentPlacement,
       voxelEvidence,
-      currentPolicyExperimentId !== null
-        || currentGeometryExperimentId !== null
-        || currentCorridorExperimentId !== null,
+      projectionMode,
     );
     return;
   }
@@ -2148,7 +2593,11 @@ async function renderVoxelInspection(): Promise<void> {
   const activeExperimentId = currentGeometryExperimentId
     ?? currentPolicyExperimentId
     ?? currentCorridorExperimentId;
-  voxelInspectionPanel.dataset.policyMode = activeExperimentId === null ? 'committed' : 'experiment';
+  voxelInspectionPanel.dataset.policyMode = configuredBuildId !== null
+    ? 'configured'
+    : activeExperimentId === null
+      ? 'committed'
+      : 'experiment';
   voxelInspectionPanel.dataset.policyExperimentId = activeExperimentId ?? '';
   setVoxelInspectionDiagnostic('loading', `Mounting engine projection for ${projection.placementId}…`);
 
@@ -2289,7 +2738,7 @@ function renderVoxelBuild(
   target: SVGSVGElement,
   placement: PiecePlacement | null,
   evidence: NativeVoxelEvidence | null,
-  experimental: boolean,
+  mode: 'committed' | 'temporary' | 'configured',
 ): void {
   target.replaceChildren();
   if (placement === null) {
@@ -2326,15 +2775,17 @@ function renderVoxelBuild(
   title.textContent = 'Native Voxel Extrusion Cutaway';
   target.append(title);
 
-  const verified = !experimental && evidence?.placementId === placement.placementId;
+  const verified = mode === 'committed' && evidence?.placementId === placement.placementId;
   const detail = createSvg('text');
   detail.setAttribute('class', `voxel-detail ${verified ? 'verified' : 'unverified'}`);
   detail.setAttribute('x', String(margin));
   detail.setAttribute('y', '53');
   detail.textContent = verified && evidence !== null
     ? `${plan.solidVoxelCount} voxels / ${evidence.authority.acceptedCommands} native commands / ${evidence.authority.voxelStateHash}`
-    : experimental
+    : mode === 'temporary'
       ? `${plan.solidVoxelCount} voxel experiment / temporary Rust placement / no native authority receipt`
+      : mode === 'configured'
+        ? `${plan.solidVoxelCount} voxel configured build / persisted Rust placement / no native authority receipt`
       : `${plan.solidVoxelCount} voxel proposal / selected placement has no matching native authority receipt`;
   target.append(detail);
 
@@ -2344,7 +2795,7 @@ function renderVoxelBuild(
   source.setAttribute('y', '75');
   source.textContent = verified && evidence !== null
     ? `ASHA ${evidence.ashaEngineCommit.slice(0, 12)} / deterministic ${evidence.authority.deterministic ? 'yes' : 'no'} / XZ floor plan with ghosted ceiling`
-    : `${experimental ? 'temporary policy experiment / ' : ''}${placement.placementId} / XZ floor plan with ghosted ceiling`;
+    : `${mode === 'temporary' ? 'temporary policy experiment / ' : mode === 'configured' ? 'persisted generation config / ' : ''}${placement.placementId} / XZ floor plan with ghosted ceiling`;
   target.append(source);
 
   appendVoxelLegend(target, margin, 91);

@@ -12,9 +12,19 @@ const baseUrl = `http://${host}:${port}`;
 const outDir = process.env.VIEWER_SMOKE_OUT ?? join(tmpdir(), 'asha-procgen-viewer-smoke');
 
 await mkdir(outDir, { recursive: true });
+const generationConfigPath = join(outDir, 'viewer-generation-config.json');
+await writeFile(
+  generationConfigPath,
+  await readFile('config/viewer-generation.json', 'utf8'),
+  'utf8',
+);
 
 const server = spawn(process.execPath, ['scripts/serve-viewer.mjs', '--host', host, '--port', String(port)], {
   cwd: process.cwd(),
+  env: {
+    ...process.env,
+    ASHA_PROCGEN_GENERATION_CONFIG_PATH: generationConfigPath,
+  },
   stdio: ['ignore', 'pipe', 'pipe'],
 });
 
@@ -542,10 +552,10 @@ async function exerciseEngineInspection(chromium, url, alternateCandidateId) {
     await waitForCdpValue(cdp, `document.querySelector('#voxel-3d-panel')?.dataset.lastCameraChange`, 'wheel_zoom');
     const wheelZoom = await inspectionDataset(cdp);
 
-    const invalidGeometryPolicyReadout = await evaluateCdp(cdp, `(() => {
-      const gap = document.querySelector('#geometry-policy-initial-column-gap');
-      const validation = document.querySelector('#geometry-policy-validation');
-      const apply = document.querySelector('#geometry-policy-apply');
+    const invalidGenerationConfigReadout = await evaluateCdp(cdp, `(() => {
+      const gap = document.querySelector('#generation-config-initial-column-gap');
+      const validation = document.querySelector('#generation-config-validation');
+      const apply = document.querySelector('#generation-config-apply');
       if (!(gap instanceof HTMLInputElement) || !(apply instanceof HTMLButtonElement)) {
         return null;
       }
@@ -559,203 +569,126 @@ async function exerciseEngineInspection(chromium, url, alternateCandidateId) {
       };
     })()`);
     if (
-      invalidGeometryPolicyReadout?.valid !== false
-      || invalidGeometryPolicyReadout?.state !== 'invalid'
-      || !String(invalidGeometryPolicyReadout?.message).includes('8-unit route grid')
-      || invalidGeometryPolicyReadout?.applyDisabled !== true
+      invalidGenerationConfigReadout?.valid !== false
+      || invalidGenerationConfigReadout?.state !== 'invalid'
+      || !String(invalidGenerationConfigReadout?.message).includes('8-unit route grid')
+      || invalidGenerationConfigReadout?.applyDisabled !== true
     ) {
-      throw new Error(`invalid geometry policy was not explained inline: ${JSON.stringify(invalidGeometryPolicyReadout)}`);
+      throw new Error(`invalid generation config was not explained inline: ${JSON.stringify(invalidGenerationConfigReadout)}`);
     }
 
-    const submittedGeometryPolicy = await evaluateCdp(cdp, `(() => {
-      const form = document.querySelector('#geometry-policy-form');
-      const preset = document.querySelector('[data-geometry-policy-preset="balanced"]');
-      if (!(form instanceof HTMLFormElement) || !(preset instanceof HTMLButtonElement)) {
+    const submittedGenerationConfig = await evaluateCdp(cdp, `(() => {
+      const form = document.querySelector('#generation-config-form');
+      const gap = document.querySelector('#generation-config-initial-column-gap');
+      const clearance = document.querySelector('#generation-config-clearance');
+      const walls = document.querySelector('#generation-config-wall-thickness');
+      const corridor = document.querySelector('#generation-config-corridor-realization');
+      if (
+        !(form instanceof HTMLFormElement)
+        || !(gap instanceof HTMLInputElement)
+        || !(clearance instanceof HTMLInputElement)
+        || !(walls instanceof HTMLInputElement)
+        || !(corridor instanceof HTMLSelectElement)
+      ) {
         return false;
       }
-      preset.click();
+      gap.value = '160';
+      clearance.value = '5';
+      walls.value = '1';
+      corridor.value = 'procedural';
+      for (const input of [gap, clearance, walls, corridor]) {
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+        input.dispatchEvent(new Event('change', { bubbles: true }));
+      }
       form.requestSubmit();
       return true;
     })()`);
-    if (!submittedGeometryPolicy) {
-      throw new Error('geometry policy controls were not available in Voxel 3D');
-    }
-    await waitForCdpValue(cdp, `document.querySelector('#geometry-policy-status')?.dataset.state`, 'ready');
-    await waitForCdpValue(cdp, `document.querySelector('#geometry-policy-panel')?.dataset.mode`, 'experiment');
-    await waitForCdpValue(cdp, `document.querySelector('#voxel-3d-panel')?.dataset.policyMode`, 'experiment');
-    const geometryExperimentReadout = await evaluateCdp(cdp, `(() => {
-      const panel = document.querySelector('#geometry-policy-panel');
-      const status = document.querySelector('#geometry-policy-status');
-      const impact = document.querySelector('#geometry-policy-impact');
-      return {
-        mode: panel?.dataset.mode,
-        spacingTier: Number(panel?.dataset.spacingTier),
-        searchAttempts: Number(panel?.dataset.searchAttempts),
-        experimentId: panel?.dataset.experimentId,
-        status: status?.textContent,
-        impact: impact?.textContent,
-      };
-    })()`);
-    if (
-      !Number.isInteger(geometryExperimentReadout.spacingTier)
-      || geometryExperimentReadout.searchAttempts < 1
-      || typeof geometryExperimentReadout.experimentId !== 'string'
-      || geometryExperimentReadout.experimentId.length === 0
-      || !String(geometryExperimentReadout.status).includes('no native authority claim')
-      || !String(geometryExperimentReadout.impact).includes('Geometry impact: frame')
-    ) {
-      throw new Error(`geometry policy experiment readout was incomplete: ${JSON.stringify(geometryExperimentReadout)}`);
-    }
-    await evaluateCdp(cdp, `document.querySelector('#geometry-policy-reset')?.click()`);
-    await waitForCdpValue(cdp, `document.querySelector('#geometry-policy-panel')?.dataset.mode`, 'committed');
-    await waitForCdpValue(cdp, `document.querySelector('#voxel-3d-panel')?.dataset.policyMode`, 'committed');
-
-    const submittedCorridorRealization = await evaluateCdp(cdp, `(() => {
-      const form = document.querySelector('#corridor-realization-form');
-      const select = document.querySelector('#corridor-realization-select');
-      if (!(form instanceof HTMLFormElement) || !(select instanceof HTMLSelectElement)) {
-        return false;
-      }
-      select.value = 'procedural';
-      form.requestSubmit();
-      return true;
-    })()`);
-    if (!submittedCorridorRealization) {
-      throw new Error('corridor realization controls were not available in Voxel 3D');
+    if (!submittedGenerationConfig) {
+      throw new Error('combined generation config controls were not available in Voxel 3D');
     }
     await waitForCdpValue(
       cdp,
-      `document.querySelector('#corridor-realization-status')?.dataset.state`,
+      `document.querySelector('#generation-config-status')?.dataset.state`,
       'ready',
       30_000,
     );
-    await waitForCdpValue(cdp, `document.querySelector('#corridor-realization-panel')?.dataset.mode`, 'experiment');
-    await waitForCdpValue(cdp, `document.querySelector('#corridor-realization-panel')?.dataset.corridorRealization`, 'procedural');
-    await waitForCdpValue(cdp, `document.querySelector('#voxel-3d-panel')?.dataset.policyMode`, 'experiment');
+    await waitForCdpValue(cdp, `document.querySelector('#generation-config-panel')?.dataset.configState`, 'persisted');
     await waitForCdpValue(cdp, `document.querySelector('#voxel-3d-panel')?.dataset.frameHash !== ${JSON.stringify(initial.frameHash)}`, true);
-    const corridorExperimentReadout = await evaluateCdp(cdp, `(() => {
-      const panel = document.querySelector('#corridor-realization-panel');
-      const status = document.querySelector('#corridor-realization-status');
-      const impact = document.querySelector('#corridor-realization-impact');
-      const doorState = document.querySelector('#voxel-3d-door-state');
+    const generationConfigReadout = await evaluateCdp(cdp, `(() => {
+      const panel = document.querySelector('#generation-config-panel');
+      const status = document.querySelector('#generation-config-status');
+      const impact = document.querySelector('#generation-config-impact');
       return {
-        mode: panel?.dataset.mode,
-        realization: panel?.dataset.corridorRealization,
-        experimentId: panel?.dataset.experimentId,
+        configState: panel?.dataset.configState,
+        buildId: panel?.dataset.buildId,
+        columnGap: Number(document.querySelector('#generation-config-initial-column-gap')?.value),
+        clearance: Number(document.querySelector('#generation-config-clearance')?.value),
+        wallThickness: Number(document.querySelector('#generation-config-wall-thickness')?.value),
+        corridorRealization: document.querySelector('#generation-config-corridor-realization')?.value,
         status: status?.textContent,
         impact: impact?.textContent,
-        doorStateDisabled: doorState instanceof HTMLSelectElement ? doorState.disabled : null,
+        legacyPanelsHidden: [
+          '#geometry-policy-panel',
+          '#placement-policy-panel',
+          '#corridor-realization-panel',
+        ].every((selector) => document.querySelector(selector)?.hidden === true),
       };
     })()`);
     if (
-      corridorExperimentReadout.realization !== 'procedural'
-      || typeof corridorExperimentReadout.experimentId !== 'string'
-      || corridorExperimentReadout.experimentId.length === 0
-      || !String(corridorExperimentReadout.status).includes('Placement and built flow verified')
-      || !String(corridorExperimentReadout.impact).includes('→ procedural 0 prefabs')
-      || corridorExperimentReadout.doorStateDisabled !== false
+      generationConfigReadout.configState !== 'persisted'
+      || typeof generationConfigReadout.buildId !== 'string'
+      || generationConfigReadout.buildId.length === 0
+      || generationConfigReadout.columnGap !== 160
+      || generationConfigReadout.clearance !== 5
+      || generationConfigReadout.wallThickness !== 1
+      || generationConfigReadout.corridorRealization !== 'procedural'
+      || !String(generationConfigReadout.status).includes('Persisted configuration build')
+      || !String(generationConfigReadout.impact).includes('Configured build:')
+      || generationConfigReadout.legacyPanelsHidden !== true
     ) {
-      throw new Error(`corridor realization readout was incomplete: ${JSON.stringify(corridorExperimentReadout)}`);
+      throw new Error(`combined generation config readout was incomplete: ${JSON.stringify(generationConfigReadout)}`);
     }
     await evaluateCdp(cdp, `document.querySelector('[data-view="voxel"]')?.click()`);
     await waitForCdpValue(cdp, `document.querySelector('#layout')?.textContent.includes('no native authority receipt')`, true);
     await evaluateCdp(cdp, `document.querySelector('[data-view="voxel3d"]')?.click()`);
     await waitForCdpValue(cdp, `document.querySelector('#voxel-3d-diagnostic')?.dataset.state`, 'ready');
-    await evaluateCdp(cdp, `document.querySelector('#corridor-realization-reset')?.click()`);
-    await waitForCdpValue(cdp, `document.querySelector('#corridor-realization-panel')?.dataset.mode`, 'committed');
-    await waitForCdpValue(cdp, `document.querySelector('#voxel-3d-panel')?.dataset.policyMode`, 'committed');
-    await waitForCdpValue(cdp, `document.querySelector('#voxel-3d-panel')?.dataset.frameHash`, initial.frameHash);
-
-    const invalidPolicyReadout = await evaluateCdp(cdp, `(() => {
-      const clearance = document.querySelector('#placement-policy-clearance');
-      const validation = document.querySelector('#placement-policy-validation');
-      const apply = document.querySelector('#placement-policy-apply');
-      if (!(clearance instanceof HTMLInputElement) || !(apply instanceof HTMLButtonElement)) {
-        return null;
-      }
-      clearance.value = '1';
-      clearance.dispatchEvent(new Event('input', { bubbles: true }));
-      return {
-        valid: clearance.validity.valid,
-        state: validation?.dataset.state,
-        message: validation?.textContent,
-        applyDisabled: apply.disabled,
-      };
-    })()`);
-    if (
-      invalidPolicyReadout?.valid !== false
-      || invalidPolicyReadout?.state !== 'invalid'
-      || !String(invalidPolicyReadout?.message).includes('requires at least 3')
-      || invalidPolicyReadout?.applyDisabled !== false
-    ) {
-      throw new Error(`invalid placement policy was not explained inline: ${JSON.stringify(invalidPolicyReadout)}`);
-    }
-
-    const submittedPolicy = await evaluateCdp(cdp, `(() => {
-      const wall = document.querySelector('#placement-policy-wall-thickness');
-      const form = document.querySelector('#placement-policy-form');
-      const preset = document.querySelector('[data-policy-preset][data-clearance="5"][data-wall-thickness="2"]');
-      if (!(wall instanceof HTMLInputElement) || !(form instanceof HTMLFormElement) || !(preset instanceof HTMLButtonElement)) {
-        return false;
-      }
-      preset.click();
-      form.requestSubmit();
-      return true;
-    })()`);
-    if (!submittedPolicy) {
-      throw new Error('placement policy controls were not available in Voxel 3D');
-    }
+    const configured = await inspectionDataset(cdp);
+    const configuredBuildId = generationConfigReadout.buildId;
+    await evaluateCdp(cdp, `document.querySelector('#generation-config-reset')?.click()`);
     await waitForCdpValue(
       cdp,
-      `document.querySelector('#placement-policy-status')?.dataset.state`,
+      `document.querySelector('#generation-config-status')?.dataset.state`,
       'ready',
       30_000,
     );
-    await waitForCdpValue(cdp, `document.querySelector('#placement-policy-panel')?.dataset.mode`, 'experiment');
-    await waitForCdpValue(cdp, `document.querySelector('#voxel-3d-panel')?.dataset.policyMode`, 'experiment');
-    await waitForCdpValue(cdp, `document.querySelector('#voxel-3d-panel')?.dataset.frameHash !== ${JSON.stringify(initial.frameHash)}`, true);
-    const policyExperiment = await inspectionDataset(cdp);
-    const experimentReadout = await evaluateCdp(cdp, `(() => {
-      const panel = document.querySelector('#placement-policy-panel');
-      const status = document.querySelector('#placement-policy-status');
-      const impact = document.querySelector('#placement-policy-impact');
+    await waitForCdpValue(cdp, `document.querySelector('#generation-config-corridor-realization')?.value`, 'catalog');
+    await waitForCdpValue(cdp, `document.querySelector('#generation-config-panel')?.dataset.buildId !== ${JSON.stringify(configuredBuildId)}`, true);
+    const resetReadout = await evaluateCdp(cdp, `(() => {
+      const panel = document.querySelector('#generation-config-panel');
       return {
-        mode: panel?.dataset.mode,
-        clearance: Number(panel?.dataset.minimumClearanceCells),
-        wallThickness: Number(panel?.dataset.wallThicknessCells),
-        experimentId: panel?.dataset.experimentId,
-        status: status?.textContent,
-        impact: impact?.textContent,
+        configState: panel?.dataset.configState,
+        buildId: panel?.dataset.buildId,
+        columnGap: Number(document.querySelector('#generation-config-initial-column-gap')?.value),
+        clearance: Number(document.querySelector('#generation-config-clearance')?.value),
+        wallThickness: Number(document.querySelector('#generation-config-wall-thickness')?.value),
+        corridorRealization: document.querySelector('#generation-config-corridor-realization')?.value,
       };
     })()`);
     if (
-      experimentReadout.clearance !== 5
-      || experimentReadout.wallThickness !== 2
-      || typeof experimentReadout.experimentId !== 'string'
-      || experimentReadout.experimentId.length === 0
-      || typeof experimentReadout.status !== 'string'
-      || !experimentReadout.status.includes('no native authority claim')
-      || typeof experimentReadout.impact !== 'string'
-      || !experimentReadout.impact.includes('Generation impact: footprint')
-      || !experimentReadout.impact.includes('Camera auto-fit')
+      resetReadout.configState !== 'persisted'
+      || resetReadout.columnGap !== 144
+      || resetReadout.clearance !== 3
+      || resetReadout.wallThickness !== 1
+      || resetReadout.corridorRealization !== 'catalog'
     ) {
-      throw new Error(`placement policy experiment readout was incomplete: ${JSON.stringify(experimentReadout)}`);
+      throw new Error(`generation config defaults did not rebuild and persist: ${JSON.stringify(resetReadout)}`);
     }
-    await evaluateCdp(cdp, `document.querySelector('[data-view="voxel"]')?.click()`);
-    await waitForCdpValue(cdp, `document.querySelector('#layout')?.textContent.includes('no native authority receipt')`, true);
-    await evaluateCdp(cdp, `document.querySelector('[data-view="voxel3d"]')?.click()`);
-    await waitForCdpValue(cdp, `document.querySelector('#voxel-3d-diagnostic')?.dataset.state`, 'ready');
-
-    await evaluateCdp(cdp, `document.querySelector('#placement-policy-reset')?.click()`);
-    await waitForCdpValue(cdp, `document.querySelector('#placement-policy-panel')?.dataset.mode`, 'committed');
-    await waitForCdpValue(cdp, `document.querySelector('#voxel-3d-panel')?.dataset.policyMode`, 'committed');
-    await waitForCdpValue(cdp, `document.querySelector('#voxel-3d-panel')?.dataset.frameHash`, initial.frameHash);
-    const policyReset = await inspectionDataset(cdp);
+    const resetBuild = await inspectionDataset(cdp);
 
     const screenshot = await cdp.send('Page.captureScreenshot', { format: 'png', fromSurface: true });
     await writeFile(join(outDir, 'voxel-3d-desktop.png'), screenshot.data, 'base64');
 
-    let replacement = policyReset;
+    let replacement = resetBuild;
     if (alternateCandidateId !== undefined) {
       const switched = await evaluateCdp(cdp, `(() => {
         const button = [...document.querySelectorAll('.candidate-button')]
@@ -791,14 +724,15 @@ async function exerciseEngineInspection(chromium, url, alternateCandidateId) {
       initialDistance: initial.cameraDistance,
       finalDistance: wheelZoom.cameraDistance,
       controlPaths: ['keyboard_orbit', 'keyboard_movement', 'keyboard_zoom', 'pointer_orbit', 'wheel_zoom'],
-      policyExperiment: {
-        experimentId: experimentReadout.experimentId,
-        clearance: experimentReadout.clearance,
-        wallThickness: experimentReadout.wallThickness,
-        frameHash: policyExperiment.frameHash,
-        resetFrameHash: policyReset.frameHash,
-        temporary: true,
-        nativeAuthority: false,
+      generationConfig: {
+        buildId: configuredBuildId,
+        clearance: generationConfigReadout.clearance,
+        wallThickness: generationConfigReadout.wallThickness,
+        corridorRealization: generationConfigReadout.corridorRealization,
+        configuredFrameHash: configured.frameHash,
+        resetBuildId: resetReadout.buildId,
+        resetFrameHash: resetBuild.frameHash,
+        persisted: true,
       },
       gridLines: replacement.gridLineCount,
       initialGridRevision: initial.gridRevision,

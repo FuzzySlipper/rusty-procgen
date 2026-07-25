@@ -1,7 +1,7 @@
 import { createReadStream } from 'node:fs';
 import { execFile } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { mkdtemp, readFile, rm, stat, writeFile } from 'node:fs/promises';
+import { mkdtemp, readFile, rename, rm, stat, writeFile } from 'node:fs/promises';
 import { createServer } from 'node:http';
 import { dirname, extname, join, resolve, sep } from 'node:path';
 import { tmpdir } from 'node:os';
@@ -11,6 +11,9 @@ import { fileURLToPath } from 'node:url';
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const execFileAsync = promisify(execFile);
 const selectionReportPath = join(repoRoot, 'artifacts/samples/batch-v2/selection-report.json');
+const generationConfigPath = process.env.ASHA_PROCGEN_GENERATION_CONFIG_PATH === undefined
+  ? join(repoRoot, 'config/viewer-generation.json')
+  : resolve(process.env.ASHA_PROCGEN_GENERATION_CONFIG_PATH);
 const args = parseArgs(process.argv.slice(2));
 const host = args.host ?? process.env.HOST ?? process.env.npm_config_host ?? '0.0.0.0';
 const port = Number(args.port ?? process.env.PORT ?? process.env.npm_config_port ?? 5183);
@@ -31,6 +34,43 @@ const server = createServer(async (request, response) => {
   const url = new URL(request.url ?? '/', `http://${request.headers.host ?? 'localhost'}`);
   if (url.pathname === '/health') {
     sendJson(response, 200, { ok: true, project: 'asha-procgen' });
+    return;
+  }
+
+  if (url.pathname === '/api/generation-config') {
+    if (request.method !== 'GET') {
+      response.setHeader('Allow', 'GET');
+      sendJson(response, 405, { error: 'method_not_allowed', detail: 'Use GET.' });
+      return;
+    }
+    try {
+      sendJson(response, 200, await readGenerationConfig());
+    } catch (error) {
+      const statusCode = error instanceof ExperimentError ? error.statusCode : 500;
+      sendJson(response, statusCode, {
+        error: error instanceof ExperimentError ? error.code : 'config_read_failed',
+        detail: error instanceof Error ? error.message : String(error),
+      });
+    }
+    return;
+  }
+
+  if (url.pathname === '/api/generation-config/rebuild') {
+    if (request.method !== 'POST') {
+      response.setHeader('Allow', 'POST');
+      sendJson(response, 405, { error: 'method_not_allowed', detail: 'Use POST.' });
+      return;
+    }
+    try {
+      const payload = await readJsonRequest(request, 32_768);
+      sendJson(response, 200, await runGenerationConfigRebuild(payload));
+    } catch (error) {
+      const statusCode = error instanceof ExperimentError ? error.statusCode : 500;
+      sendJson(response, statusCode, {
+        error: error instanceof ExperimentError ? error.code : 'generation_config_rebuild_failed',
+        detail: error instanceof Error ? error.message : String(error),
+      });
+    }
     return;
   }
 
@@ -189,6 +229,216 @@ async function readJsonRequest(request, maxBytes) {
     return JSON.parse(Buffer.concat(chunks).toString('utf8'));
   } catch {
     throw new ExperimentError(400, 'invalid_json', 'Request body must be valid JSON.');
+  }
+}
+
+async function readGenerationConfig() {
+  try {
+    return validateGenerationConfig(JSON.parse(await readFile(generationConfigPath, 'utf8')));
+  } catch (error) {
+    if (error instanceof ExperimentError) {
+      throw error;
+    }
+    throw new ExperimentError(
+      500,
+      'config_read_failed',
+      `Failed to read generation config: ${error instanceof Error ? error.message : String(error)}`,
+    );
+  }
+}
+
+async function persistGenerationConfig(config) {
+  const temporaryPath = `${generationConfigPath}.${process.pid}.tmp`;
+  try {
+    await writeFile(temporaryPath, `${JSON.stringify(config, null, 2)}\n`, 'utf8');
+    await rename(temporaryPath, generationConfigPath);
+  } catch (error) {
+    await rm(temporaryPath, { force: true });
+    throw new ExperimentError(
+      500,
+      'config_persist_failed',
+      `Failed to persist generation config: ${error instanceof Error ? error.message : String(error)}`,
+    );
+  }
+}
+
+async function runGenerationConfigRebuild(payload) {
+  assertExactKeys(payload, ['candidateId', 'config'], 'request');
+  if (typeof payload.candidateId !== 'string' || payload.candidateId.length === 0) {
+    throw new ExperimentError(400, 'invalid_candidate', 'candidateId must be a non-empty string.');
+  }
+  const config = validateGenerationConfig(payload.config);
+  const geometryLayoutPolicy = materializeGeometryLayoutPolicy(config, 'value');
+  const placementPolicy = materializePlacementPolicy(config, 'value');
+  const corridorRealization = config.corridorRealization.value;
+  const selection = JSON.parse(await readFile(selectionReportPath, 'utf8'));
+  const entry = selection.accepted?.find((candidate) => candidate.candidateId === payload.candidateId);
+  if (entry === undefined) {
+    throw new ExperimentError(404, 'candidate_not_found', `Unknown accepted candidate ${payload.candidateId}.`);
+  }
+  for (const ref of [
+    'artifactRef',
+    'intermediateBreakdownRef',
+    'physicalConnectionPlanRef',
+    'geometryRef',
+    'shapeCatalogRef',
+    'shapeMatchRef',
+  ]) {
+    if (typeof entry[ref] !== 'string') {
+      throw new ExperimentError(422, 'candidate_missing_build_refs', `Selected candidate has no ${ref}.`);
+    }
+  }
+
+  const acceptedPath = safeExperimentSourcePath(entry.artifactRef, 'artifacts/samples');
+  const intermediatePath = safeExperimentSourcePath(entry.intermediateBreakdownRef, 'artifacts/samples');
+  const connectionPlanPath = safeExperimentSourcePath(entry.physicalConnectionPlanRef, 'artifacts/samples');
+  const committedGeometryPath = safeExperimentSourcePath(entry.geometryRef, 'artifacts/samples');
+  const committedCatalogPath = safeExperimentSourcePath(entry.shapeCatalogRef, 'fixtures');
+  const committedMatchPath = safeExperimentSourcePath(entry.shapeMatchRef, 'artifacts/samples');
+  const accepted = JSON.parse(await readFile(acceptedPath, 'utf8'));
+  const committedGeometry = JSON.parse(await readFile(committedGeometryPath, 'utf8'));
+  const committedCatalog = JSON.parse(await readFile(committedCatalogPath, 'utf8'));
+  const committedMatch = JSON.parse(await readFile(committedMatchPath, 'utf8'));
+  if (accepted?.candidate?.candidateId !== payload.candidateId) {
+    throw new ExperimentError(422, 'candidate_artifact_mismatch', 'Accepted artifact does not contain the selected candidate.');
+  }
+  if (!Number.isInteger(committedGeometry.seed) || !Number.isInteger(committedMatch.seed)) {
+    throw new ExperimentError(422, 'candidate_missing_seeds', 'Committed geometry or shape match has no deterministic seed.');
+  }
+
+  const buildDir = await mkdtemp(join(tmpdir(), 'asha-procgen-generation-config-'));
+  const candidatePath = join(buildDir, 'candidate.json');
+  const geometryPolicyPath = join(buildDir, 'geometry-layout-policy.json');
+  const catalogPath = join(buildDir, 'shape-catalog.json');
+  const geometryPath = join(buildDir, 'geometry-2d.json');
+  const geometryValidationPath = join(buildDir, 'geometry-2d.validation.json');
+  const piecePlanPath = join(buildDir, 'piece-plan.json');
+  const shapeMatchPath = join(buildDir, 'piece-shape-match.json');
+  const placementPath = join(buildDir, 'piece-placement.json');
+  const placementValidationPath = join(buildDir, 'piece-placement.validation.json');
+  const builtFlowValidationPath = join(buildDir, 'built-flow.validation.json');
+  try {
+    committedCatalog.placementPolicy = placementPolicy;
+    await Promise.all([
+      writeFile(candidatePath, `${JSON.stringify(accepted.candidate, null, 2)}\n`, 'utf8'),
+      writeFile(geometryPolicyPath, `${JSON.stringify(geometryLayoutPolicy, null, 2)}\n`, 'utf8'),
+      writeFile(catalogPath, `${JSON.stringify(committedCatalog, null, 2)}\n`, 'utf8'),
+    ]);
+    await runProcgen([
+      'geometry', 'emit-2d',
+      '--candidate', candidatePath,
+      '--intermediate', intermediatePath,
+      '--connection-plan', connectionPlanPath,
+      '--layout-policy', geometryPolicyPath,
+      '--seed', String(committedGeometry.seed),
+      '--out', geometryPath,
+    ]);
+    await runProcgen([
+      'geometry', 'validate-2d',
+      '--state', geometryPath,
+      '--out', geometryValidationPath,
+    ]);
+    await runProcgen([
+      'build', 'emit-piece-plan',
+      '--candidate', candidatePath,
+      '--intermediate', intermediatePath,
+      '--geometry', geometryPath,
+      '--corridor-realization', corridorRealization,
+      '--out', piecePlanPath,
+    ]);
+    await runProcgen([
+      'build', 'match-shapes',
+      '--catalog', catalogPath,
+      '--piece-plan', piecePlanPath,
+      '--seed', String(committedMatch.seed),
+      '--out', shapeMatchPath,
+    ]);
+    await runProcgen([
+      'build', 'assemble',
+      '--catalog', catalogPath,
+      '--piece-plan', piecePlanPath,
+      '--shape-match', shapeMatchPath,
+      '--connectivity', 'four-way',
+      '--out', placementPath,
+    ]);
+    await runProcgen([
+      'build', 'validate-placement',
+      '--state', placementPath,
+      '--out', placementValidationPath,
+    ]);
+    await runProcgen([
+      'build', 'validate-flow',
+      '--candidate', candidatePath,
+      '--geometry', geometryPath,
+      '--piece-plan', piecePlanPath,
+      '--piece-placement', placementPath,
+      '--out', builtFlowValidationPath,
+    ]);
+
+    const geometry = JSON.parse(await readFile(geometryPath, 'utf8'));
+    const geometryValidation = JSON.parse(await readFile(geometryValidationPath, 'utf8'));
+    const placement = JSON.parse(await readFile(placementPath, 'utf8'));
+    const placementValidation = JSON.parse(await readFile(placementValidationPath, 'utf8'));
+    const builtFlowValidation = JSON.parse(await readFile(builtFlowValidationPath, 'utf8'));
+    if (
+      geometryValidation.ok !== true
+      || placementValidation.ok !== true
+      || builtFlowValidation.ok !== true
+    ) {
+      throw new ExperimentError(
+        422,
+        'generation_validation_failed',
+        'Generation config rebuild did not pass geometry, placement, and built-flow validation.',
+      );
+    }
+
+    const configRef = 'config/viewer-generation.json';
+    geometry.sourceCandidateRef = entry.artifactRef;
+    geometry.sourceIntermediateRef = entry.intermediateBreakdownRef;
+    geometry.sourceConnectionPlanRef = entry.physicalConnectionPlanRef;
+    placement.sourcePlanRef = `${configRef}:${payload.candidateId}:${corridorRealization}:piece-plan`;
+    placement.sourceCatalogRef = `${configRef}:placement-policy`;
+    placement.sourceMatchRef = `${configRef}:${payload.candidateId}:${corridorRealization}:shape-match`;
+    builtFlowValidation.candidateRef = entry.artifactRef;
+    builtFlowValidation.geometryRef = `${configRef}:${payload.candidateId}:geometry`;
+    builtFlowValidation.piecePlanRef = placement.sourcePlanRef;
+    builtFlowValidation.piecePlacementRef = `${configRef}:${payload.candidateId}:placement`;
+    const buildId = createHash('sha256')
+      .update(JSON.stringify({
+        candidateId: payload.candidateId,
+        config,
+        geometry,
+        placement,
+        builtFlowValidation,
+      }))
+      .digest('hex');
+    await persistGenerationConfig(config);
+    return {
+      kind: 'asha_procgen.viewer_generation_rebuild.v1',
+      buildId,
+      candidateId: payload.candidateId,
+      config,
+      geometry,
+      geometryValidation,
+      placement,
+      placementValidation,
+      builtFlowValidation,
+      metrics: placementMetrics(placement),
+      persisted: true,
+      nativeAuthority: false,
+    };
+  } catch (error) {
+    if (error instanceof ExperimentError) {
+      throw error;
+    }
+    const detail = error?.stderr?.trim() || error?.stdout?.trim()
+      || (error instanceof Error ? error.message : String(error));
+    const code = detail.includes('geometry search exhausted')
+      ? 'geometry_search_exhausted'
+      : 'generation_config_rebuild_failed';
+    throw new ExperimentError(422, code, detail);
+  } finally {
+    await rm(buildDir, { recursive: true, force: true });
   }
 }
 
@@ -599,6 +849,107 @@ function validatePlacementPolicy(value) {
     wallThicknessCells: value.wallThicknessCells,
     doorwayWidthCells: 1,
     preservePieceBoundaries: true,
+  };
+}
+
+function validateGenerationConfig(value) {
+  assertExactKeys(
+    value,
+    ['kind', 'schemaVersion', 'geometryLayoutPolicy', 'placementPolicy', 'corridorRealization'],
+    'generationConfig',
+  );
+  if (value.kind !== 'asha_procgen.viewer_generation_config.v1' || value.schemaVersion !== 1) {
+    throw new ExperimentError(
+      400,
+      'unsupported_generation_config_schema',
+      'Only viewer-generation-config schemaVersion 1 is supported.',
+    );
+  }
+  assertExactKeys(
+    value.geometryLayoutPolicy,
+    [
+      'initialRoomMargin',
+      'initialColumnGap',
+      'initialRowGap',
+      'roomMarginGrowth',
+      'columnGapGrowth',
+      'rowGapGrowth',
+      'maxSpacingTiers',
+      'roomOrderAttemptsPerTier',
+      'maxSearchAttempts',
+    ],
+    'generationConfig.geometryLayoutPolicy',
+  );
+  assertExactKeys(
+    value.placementPolicy,
+    ['minimumClearanceCells', 'wallThicknessCells'],
+    'generationConfig.placementPolicy',
+  );
+  for (const [label, setting] of Object.entries({
+    ...value.geometryLayoutPolicy,
+    ...value.placementPolicy,
+    corridorRealization: value.corridorRealization,
+  })) {
+    assertExactKeys(setting, ['value', 'defaultValue'], `generationConfig.${label}`);
+  }
+  for (const field of ['value', 'defaultValue']) {
+    validateGeometryLayoutPolicy(materializeGeometryLayoutPolicy(value, field));
+    validatePlacementPolicy(materializePlacementPolicy(value, field));
+    const corridorRealization = value.corridorRealization[field];
+    if (corridorRealization !== 'catalog' && corridorRealization !== 'procedural') {
+      throw new ExperimentError(
+        400,
+        `invalid_corridorRealization_${field}`,
+        `corridorRealization.${field} must be catalog or procedural.`,
+      );
+    }
+  }
+  return JSON.parse(JSON.stringify(value));
+}
+
+function materializeGeometryLayoutPolicy(config, field) {
+  return {
+    kind: 'asha_procgen.geometry_layout_policy.v1',
+    schemaVersion: 1,
+    initialRoomMargin: config.geometryLayoutPolicy.initialRoomMargin[field],
+    initialColumnGap: config.geometryLayoutPolicy.initialColumnGap[field],
+    initialRowGap: config.geometryLayoutPolicy.initialRowGap[field],
+    roomMarginGrowth: config.geometryLayoutPolicy.roomMarginGrowth[field],
+    columnGapGrowth: config.geometryLayoutPolicy.columnGapGrowth[field],
+    rowGapGrowth: config.geometryLayoutPolicy.rowGapGrowth[field],
+    maxSpacingTiers: config.geometryLayoutPolicy.maxSpacingTiers[field],
+    roomOrderAttemptsPerTier: config.geometryLayoutPolicy.roomOrderAttemptsPerTier[field],
+    maxSearchAttempts: config.geometryLayoutPolicy.maxSearchAttempts[field],
+  };
+}
+
+function materializePlacementPolicy(config, field) {
+  return {
+    schemaVersion: 1,
+    minimumClearanceCells: config.placementPolicy.minimumClearanceCells[field],
+    contactPolicy: 'glued_exits_only',
+    wallThicknessCells: config.placementPolicy.wallThicknessCells[field],
+    doorwayWidthCells: 1,
+    preservePieceBoundaries: true,
+  };
+}
+
+function placementMetrics(placement) {
+  const corridorInstances = placement.instances.filter((instance) =>
+    ['connector', 'corridor', 'bend', 'junction'].includes(instance.requirementKind));
+  const footprintCells = [...placement.occupiedCells, ...placement.connectionCells];
+  const xs = footprintCells.map((cell) => cell.x);
+  const ys = footprintCells.map((cell) => cell.y);
+  return {
+    prefabInstances: placement.instances.length,
+    corridorPrefabInstances: corridorInstances.length,
+    corridorPrefabCells: corridorInstances.reduce(
+      (total, instance) => total + instance.occupiedCells.length,
+      0,
+    ),
+    routedCorridorCells: placement.connectionCells.length,
+    footprintWidth: xs.length === 0 ? 0 : Math.max(...xs) - Math.min(...xs) + 1,
+    footprintHeight: ys.length === 0 ? 0 : Math.max(...ys) - Math.min(...ys) + 1,
   };
 }
 
