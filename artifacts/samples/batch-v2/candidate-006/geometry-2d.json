@@ -31,7 +31,12 @@
       "roomMargin": 96,
       "columnGap": 144,
       "rowGap": 64
-    }
+    },
+    "embeddingKind": "depth_columns",
+    "embeddingId": "depth-columns.v1",
+    "embeddingFaces": 0,
+    "embeddingTargetFaces": 0,
+    "embeddingSearchSteps": 0
   },
   "bounds": {
     "width": 848,

@@ -712,6 +712,30 @@
     },
     {
       "pieceId": "piece.room.room_region_start",
+      "shapeId": "shape.room.threshold.19x14_multi_exit",
+      "transform": null,
+      "reasons": [
+        "mode_mismatch: pure_catalog_only"
+      ]
+    },
+    {
+      "pieceId": "piece.room.room_region_start",
+      "shapeId": "shape.room.pocket.9x9_west_south",
+      "transform": null,
+      "reasons": [
+        "mode_mismatch: pure_catalog_only"
+      ]
+    },
+    {
+      "pieceId": "piece.room.room_region_start",
+      "shapeId": "shape.room.marker.9x9_two_east",
+      "transform": null,
+      "reasons": [
+        "mode_mismatch: pure_catalog_only"
+      ]
+    },
+    {
+      "pieceId": "piece.room.room_region_start",
       "shapeId": "shape.corridor.straight.1",
       "transform": null,
       "reasons": [
@@ -739,11 +763,27 @@
     },
     {
       "pieceId": "piece.room.room_region_start",
+      "shapeId": "shape.corridor.bend.1x1",
+      "transform": null,
+      "reasons": [
+        "mode_mismatch: pure_catalog_only"
+      ]
+    },
+    {
+      "pieceId": "piece.room.room_region_start",
       "shapeId": "shape.corridor.bend.2x2",
       "transform": null,
       "reasons": [
         "kind_mismatch: need room",
         "missing_sockets: marker"
+      ]
+    },
+    {
+      "pieceId": "piece.room.room_region_start",
+      "shapeId": "shape.corridor.bend.3x3",
+      "transform": null,
+      "reasons": [
+        "mode_mismatch: pure_catalog_only"
       ]
     },
     {
@@ -878,6 +918,30 @@
     },
     {
       "pieceId": "piece.room.room_region_gate_locked_1",
+      "shapeId": "shape.room.threshold.19x14_multi_exit",
+      "transform": null,
+      "reasons": [
+        "mode_mismatch: pure_catalog_only"
+      ]
+    },
+    {
+      "pieceId": "piece.room.room_region_gate_locked_1",
+      "shapeId": "shape.room.pocket.9x9_west_south",
+      "transform": null,
+      "reasons": [
+        "mode_mismatch: pure_catalog_only"
+      ]
+    },
+    {
+      "pieceId": "piece.room.room_region_gate_locked_1",
+      "shapeId": "shape.room.marker.9x9_two_east",
+      "transform": null,
+      "reasons": [
+        "mode_mismatch: pure_catalog_only"
+      ]
+    },
+    {
+      "pieceId": "piece.room.room_region_gate_locked_1",
       "shapeId": "shape.corridor.straight.1",
       "transform": null,
       "reasons": [
@@ -908,12 +972,28 @@
     },
     {
       "pieceId": "piece.room.room_region_gate_locked_1",
+      "shapeId": "shape.corridor.bend.1x1",
+      "transform": null,
+      "reasons": [
+        "mode_mismatch: pure_catalog_only"
+      ]
+    },
+    {
+      "pieceId": "piece.room.room_region_gate_locked_1",
       "shapeId": "shape.corridor.bend.2x2",
       "transform": null,
       "reasons": [
         "kind_mismatch: need threshold",
         "missing_sockets: gate_line",
         "exit_count_mismatch: need at least 3 got 2"
+      ]
+    },
+    {
+      "pieceId": "piece.room.room_region_gate_locked_1",
+      "shapeId": "shape.corridor.bend.3x3",
+      "transform": null,
+      "reasons": [
+        "mode_mismatch: pure_catalog_only"
       ]
     },
     {
@@ -1061,6 +1141,30 @@
     },
     {
       "pieceId": "piece.room.room_region_key_gate_1",
+      "shapeId": "shape.room.threshold.19x14_multi_exit",
+      "transform": null,
+      "reasons": [
+        "mode_mismatch: pure_catalog_only"
+      ]
+    },
+    {
+      "pieceId": "piece.room.room_region_key_gate_1",
+      "shapeId": "shape.room.pocket.9x9_west_south",
+      "transform": null,
+      "reasons": [
+        "mode_mismatch: pure_catalog_only"
+      ]
+    },
+    {
+      "pieceId": "piece.room.room_region_key_gate_1",
+      "shapeId": "shape.room.marker.9x9_two_east",
+      "transform": null,
+      "reasons": [
+        "mode_mismatch: pure_catalog_only"
+      ]
+    },
+    {
+      "pieceId": "piece.room.room_region_key_gate_1",
       "shapeId": "shape.corridor.straight.1",
       "transform": null,
       "reasons": [
@@ -1088,11 +1192,27 @@
     },
     {
       "pieceId": "piece.room.room_region_key_gate_1",
+      "shapeId": "shape.corridor.bend.1x1",
+      "transform": null,
+      "reasons": [
+        "mode_mismatch: pure_catalog_only"
+      ]
+    },
+    {
+      "pieceId": "piece.room.room_region_key_gate_1",
       "shapeId": "shape.corridor.bend.2x2",
       "transform": null,
       "reasons": [
         "kind_mismatch: need key",
         "missing_sockets: key_pickup"
+      ]
+    },
+    {
+      "pieceId": "piece.room.room_region_key_gate_1",
+      "shapeId": "shape.corridor.bend.3x3",
+      "transform": null,
+      "reasons": [
+        "mode_mismatch: pure_catalog_only"
       ]
     },
     {
@@ -1267,6 +1387,30 @@
     },
     {
       "pieceId": "piece.room.room_region_goal",
+      "shapeId": "shape.room.threshold.19x14_multi_exit",
+      "transform": null,
+      "reasons": [
+        "mode_mismatch: pure_catalog_only"
+      ]
+    },
+    {
+      "pieceId": "piece.room.room_region_goal",
+      "shapeId": "shape.room.pocket.9x9_west_south",
+      "transform": null,
+      "reasons": [
+        "mode_mismatch: pure_catalog_only"
+      ]
+    },
+    {
+      "pieceId": "piece.room.room_region_goal",
+      "shapeId": "shape.room.marker.9x9_two_east",
+      "transform": null,
+      "reasons": [
+        "mode_mismatch: pure_catalog_only"
+      ]
+    },
+    {
+      "pieceId": "piece.room.room_region_goal",
       "shapeId": "shape.corridor.straight.1",
       "transform": null,
       "reasons": [
@@ -1294,11 +1438,27 @@
     },
     {
       "pieceId": "piece.room.room_region_goal",
+      "shapeId": "shape.corridor.bend.1x1",
+      "transform": null,
+      "reasons": [
+        "mode_mismatch: pure_catalog_only"
+      ]
+    },
+    {
+      "pieceId": "piece.room.room_region_goal",
       "shapeId": "shape.corridor.bend.2x2",
       "transform": null,
       "reasons": [
         "kind_mismatch: need room",
         "missing_sockets: marker"
+      ]
+    },
+    {
+      "pieceId": "piece.room.room_region_goal",
+      "shapeId": "shape.corridor.bend.3x3",
+      "transform": null,
+      "reasons": [
+        "mode_mismatch: pure_catalog_only"
       ]
     },
     {
@@ -1428,6 +1588,30 @@
       "reasons": [
         "kind_mismatch: need corridor",
         "missing_shape_tags: corridor,straight,span_long"
+      ]
+    },
+    {
+      "pieceId": "piece.corridor.corridor_section_region_gate_locked_1_region_goal_connector_edge_gate_1_goal.segment_01.tile_01",
+      "shapeId": "shape.room.threshold.19x14_multi_exit",
+      "transform": null,
+      "reasons": [
+        "mode_mismatch: pure_catalog_only"
+      ]
+    },
+    {
+      "pieceId": "piece.corridor.corridor_section_region_gate_locked_1_region_goal_connector_edge_gate_1_goal.segment_01.tile_01",
+      "shapeId": "shape.room.pocket.9x9_west_south",
+      "transform": null,
+      "reasons": [
+        "mode_mismatch: pure_catalog_only"
+      ]
+    },
+    {
+      "pieceId": "piece.corridor.corridor_section_region_gate_locked_1_region_goal_connector_edge_gate_1_goal.segment_01.tile_01",
+      "shapeId": "shape.room.marker.9x9_two_east",
+      "transform": null,
+      "reasons": [
+        "mode_mismatch: pure_catalog_only"
       ]
     },
     {
@@ -1456,11 +1640,27 @@
     },
     {
       "pieceId": "piece.corridor.corridor_section_region_gate_locked_1_region_goal_connector_edge_gate_1_goal.segment_01.tile_01",
+      "shapeId": "shape.corridor.bend.1x1",
+      "transform": null,
+      "reasons": [
+        "mode_mismatch: pure_catalog_only"
+      ]
+    },
+    {
+      "pieceId": "piece.corridor.corridor_section_region_gate_locked_1_region_goal_connector_edge_gate_1_goal.segment_01.tile_01",
       "shapeId": "shape.corridor.bend.2x2",
       "transform": null,
       "reasons": [
         "kind_mismatch: need corridor",
         "missing_shape_tags: straight,span_long"
+      ]
+    },
+    {
+      "pieceId": "piece.corridor.corridor_section_region_gate_locked_1_region_goal_connector_edge_gate_1_goal.segment_01.tile_01",
+      "shapeId": "shape.corridor.bend.3x3",
+      "transform": null,
+      "reasons": [
+        "mode_mismatch: pure_catalog_only"
       ]
     },
     {
@@ -1605,6 +1805,30 @@
       "reasons": [
         "kind_mismatch: need corridor",
         "missing_shape_tags: corridor,straight,span_short"
+      ]
+    },
+    {
+      "pieceId": "piece.corridor.corridor_section_region_gate_locked_1_region_goal_connector_edge_gate_1_goal.segment_01.tile_02",
+      "shapeId": "shape.room.threshold.19x14_multi_exit",
+      "transform": null,
+      "reasons": [
+        "mode_mismatch: pure_catalog_only"
+      ]
+    },
+    {
+      "pieceId": "piece.corridor.corridor_section_region_gate_locked_1_region_goal_connector_edge_gate_1_goal.segment_01.tile_02",
+      "shapeId": "shape.room.pocket.9x9_west_south",
+      "transform": null,
+      "reasons": [
+        "mode_mismatch: pure_catalog_only"
+      ]
+    },
+    {
+      "pieceId": "piece.corridor.corridor_section_region_gate_locked_1_region_goal_connector_edge_gate_1_goal.segment_01.tile_02",
+      "shapeId": "shape.room.marker.9x9_two_east",
+      "transform": null,
+      "reasons": [
+        "mode_mismatch: pure_catalog_only"
       ]
     },
     {
@@ -1633,11 +1857,27 @@
     },
     {
       "pieceId": "piece.corridor.corridor_section_region_gate_locked_1_region_goal_connector_edge_gate_1_goal.segment_01.tile_02",
+      "shapeId": "shape.corridor.bend.1x1",
+      "transform": null,
+      "reasons": [
+        "mode_mismatch: pure_catalog_only"
+      ]
+    },
+    {
+      "pieceId": "piece.corridor.corridor_section_region_gate_locked_1_region_goal_connector_edge_gate_1_goal.segment_01.tile_02",
       "shapeId": "shape.corridor.bend.2x2",
       "transform": null,
       "reasons": [
         "kind_mismatch: need corridor",
         "missing_shape_tags: straight,span_short"
+      ]
+    },
+    {
+      "pieceId": "piece.corridor.corridor_section_region_gate_locked_1_region_goal_connector_edge_gate_1_goal.segment_01.tile_02",
+      "shapeId": "shape.corridor.bend.3x3",
+      "transform": null,
+      "reasons": [
+        "mode_mismatch: pure_catalog_only"
       ]
     },
     {
@@ -1786,6 +2026,30 @@
     },
     {
       "pieceId": "piece.bend.corridor_section_region_gate_locked_1_region_goal_connector_edge_gate_1_goal.turn_01",
+      "shapeId": "shape.room.threshold.19x14_multi_exit",
+      "transform": null,
+      "reasons": [
+        "mode_mismatch: pure_catalog_only"
+      ]
+    },
+    {
+      "pieceId": "piece.bend.corridor_section_region_gate_locked_1_region_goal_connector_edge_gate_1_goal.turn_01",
+      "shapeId": "shape.room.pocket.9x9_west_south",
+      "transform": null,
+      "reasons": [
+        "mode_mismatch: pure_catalog_only"
+      ]
+    },
+    {
+      "pieceId": "piece.bend.corridor_section_region_gate_locked_1_region_goal_connector_edge_gate_1_goal.turn_01",
+      "shapeId": "shape.room.marker.9x9_two_east",
+      "transform": null,
+      "reasons": [
+        "mode_mismatch: pure_catalog_only"
+      ]
+    },
+    {
+      "pieceId": "piece.bend.corridor_section_region_gate_locked_1_region_goal_connector_edge_gate_1_goal.turn_01",
       "shapeId": "shape.corridor.straight.1",
       "transform": null,
       "reasons": [
@@ -1809,6 +2073,14 @@
       "reasons": [
         "kind_mismatch: need bend",
         "missing_shape_tags: bend,bend_small"
+      ]
+    },
+    {
+      "pieceId": "piece.bend.corridor_section_region_gate_locked_1_region_goal_connector_edge_gate_1_goal.turn_01",
+      "shapeId": "shape.corridor.bend.1x1",
+      "transform": null,
+      "reasons": [
+        "mode_mismatch: pure_catalog_only"
       ]
     },
     {
@@ -1837,6 +2109,14 @@
     },
     {
       "pieceId": "piece.bend.corridor_section_region_gate_locked_1_region_goal_connector_edge_gate_1_goal.turn_01",
+      "shapeId": "shape.corridor.bend.3x3",
+      "transform": null,
+      "reasons": [
+        "mode_mismatch: pure_catalog_only"
+      ]
+    },
+    {
+      "pieceId": "piece.bend.corridor_section_region_gate_locked_1_region_goal_connector_edge_gate_1_goal.turn_01",
       "shapeId": "shape.corridor.bend.4x4",
       "transform": null,
       "reasons": [
@@ -1981,6 +2261,30 @@
     },
     {
       "pieceId": "piece.bend.corridor_section_region_gate_locked_1_region_goal_connector_edge_gate_1_goal.turn_02",
+      "shapeId": "shape.room.threshold.19x14_multi_exit",
+      "transform": null,
+      "reasons": [
+        "mode_mismatch: pure_catalog_only"
+      ]
+    },
+    {
+      "pieceId": "piece.bend.corridor_section_region_gate_locked_1_region_goal_connector_edge_gate_1_goal.turn_02",
+      "shapeId": "shape.room.pocket.9x9_west_south",
+      "transform": null,
+      "reasons": [
+        "mode_mismatch: pure_catalog_only"
+      ]
+    },
+    {
+      "pieceId": "piece.bend.corridor_section_region_gate_locked_1_region_goal_connector_edge_gate_1_goal.turn_02",
+      "shapeId": "shape.room.marker.9x9_two_east",
+      "transform": null,
+      "reasons": [
+        "mode_mismatch: pure_catalog_only"
+      ]
+    },
+    {
+      "pieceId": "piece.bend.corridor_section_region_gate_locked_1_region_goal_connector_edge_gate_1_goal.turn_02",
       "shapeId": "shape.corridor.straight.1",
       "transform": null,
       "reasons": [
@@ -2004,6 +2308,14 @@
       "reasons": [
         "kind_mismatch: need bend",
         "missing_shape_tags: bend,bend_small"
+      ]
+    },
+    {
+      "pieceId": "piece.bend.corridor_section_region_gate_locked_1_region_goal_connector_edge_gate_1_goal.turn_02",
+      "shapeId": "shape.corridor.bend.1x1",
+      "transform": null,
+      "reasons": [
+        "mode_mismatch: pure_catalog_only"
       ]
     },
     {
@@ -2032,6 +2344,14 @@
     },
     {
       "pieceId": "piece.bend.corridor_section_region_gate_locked_1_region_goal_connector_edge_gate_1_goal.turn_02",
+      "shapeId": "shape.corridor.bend.3x3",
+      "transform": null,
+      "reasons": [
+        "mode_mismatch: pure_catalog_only"
+      ]
+    },
+    {
+      "pieceId": "piece.bend.corridor_section_region_gate_locked_1_region_goal_connector_edge_gate_1_goal.turn_02",
       "shapeId": "shape.corridor.bend.4x4",
       "transform": null,
       "reasons": [
@@ -2172,6 +2492,30 @@
       "reasons": [
         "kind_mismatch: need corridor",
         "missing_shape_tags: corridor,straight,span_short"
+      ]
+    },
+    {
+      "pieceId": "piece.corridor.corridor_section_region_gate_locked_1_region_key_gate_1_open.segment_01.tile_01",
+      "shapeId": "shape.room.threshold.19x14_multi_exit",
+      "transform": null,
+      "reasons": [
+        "mode_mismatch: pure_catalog_only"
+      ]
+    },
+    {
+      "pieceId": "piece.corridor.corridor_section_region_gate_locked_1_region_key_gate_1_open.segment_01.tile_01",
+      "shapeId": "shape.room.pocket.9x9_west_south",
+      "transform": null,
+      "reasons": [
+        "mode_mismatch: pure_catalog_only"
+      ]
+    },
+    {
+      "pieceId": "piece.corridor.corridor_section_region_gate_locked_1_region_key_gate_1_open.segment_01.tile_01",
+      "shapeId": "shape.room.marker.9x9_two_east",
+      "transform": null,
+      "reasons": [
+        "mode_mismatch: pure_catalog_only"
       ]
     },
     {
@@ -2200,11 +2544,27 @@
     },
     {
       "pieceId": "piece.corridor.corridor_section_region_gate_locked_1_region_key_gate_1_open.segment_01.tile_01",
+      "shapeId": "shape.corridor.bend.1x1",
+      "transform": null,
+      "reasons": [
+        "mode_mismatch: pure_catalog_only"
+      ]
+    },
+    {
+      "pieceId": "piece.corridor.corridor_section_region_gate_locked_1_region_key_gate_1_open.segment_01.tile_01",
       "shapeId": "shape.corridor.bend.2x2",
       "transform": null,
       "reasons": [
         "kind_mismatch: need corridor",
         "missing_shape_tags: straight,span_short"
+      ]
+    },
+    {
+      "pieceId": "piece.corridor.corridor_section_region_gate_locked_1_region_key_gate_1_open.segment_01.tile_01",
+      "shapeId": "shape.corridor.bend.3x3",
+      "transform": null,
+      "reasons": [
+        "mode_mismatch: pure_catalog_only"
       ]
     },
     {
@@ -2353,6 +2713,30 @@
     },
     {
       "pieceId": "piece.bend.corridor_section_region_gate_locked_1_region_key_gate_1_open.turn_01",
+      "shapeId": "shape.room.threshold.19x14_multi_exit",
+      "transform": null,
+      "reasons": [
+        "mode_mismatch: pure_catalog_only"
+      ]
+    },
+    {
+      "pieceId": "piece.bend.corridor_section_region_gate_locked_1_region_key_gate_1_open.turn_01",
+      "shapeId": "shape.room.pocket.9x9_west_south",
+      "transform": null,
+      "reasons": [
+        "mode_mismatch: pure_catalog_only"
+      ]
+    },
+    {
+      "pieceId": "piece.bend.corridor_section_region_gate_locked_1_region_key_gate_1_open.turn_01",
+      "shapeId": "shape.room.marker.9x9_two_east",
+      "transform": null,
+      "reasons": [
+        "mode_mismatch: pure_catalog_only"
+      ]
+    },
+    {
+      "pieceId": "piece.bend.corridor_section_region_gate_locked_1_region_key_gate_1_open.turn_01",
       "shapeId": "shape.corridor.straight.1",
       "transform": null,
       "reasons": [
@@ -2376,6 +2760,14 @@
       "reasons": [
         "kind_mismatch: need bend",
         "missing_shape_tags: bend,bend_small"
+      ]
+    },
+    {
+      "pieceId": "piece.bend.corridor_section_region_gate_locked_1_region_key_gate_1_open.turn_01",
+      "shapeId": "shape.corridor.bend.1x1",
+      "transform": null,
+      "reasons": [
+        "mode_mismatch: pure_catalog_only"
       ]
     },
     {
@@ -2404,6 +2796,14 @@
     },
     {
       "pieceId": "piece.bend.corridor_section_region_gate_locked_1_region_key_gate_1_open.turn_01",
+      "shapeId": "shape.corridor.bend.3x3",
+      "transform": null,
+      "reasons": [
+        "mode_mismatch: pure_catalog_only"
+      ]
+    },
+    {
+      "pieceId": "piece.bend.corridor_section_region_gate_locked_1_region_key_gate_1_open.turn_01",
       "shapeId": "shape.corridor.bend.4x4",
       "transform": null,
       "reasons": [
@@ -2548,6 +2948,30 @@
     },
     {
       "pieceId": "piece.bend.corridor_section_region_gate_locked_1_region_key_gate_1_open.turn_02",
+      "shapeId": "shape.room.threshold.19x14_multi_exit",
+      "transform": null,
+      "reasons": [
+        "mode_mismatch: pure_catalog_only"
+      ]
+    },
+    {
+      "pieceId": "piece.bend.corridor_section_region_gate_locked_1_region_key_gate_1_open.turn_02",
+      "shapeId": "shape.room.pocket.9x9_west_south",
+      "transform": null,
+      "reasons": [
+        "mode_mismatch: pure_catalog_only"
+      ]
+    },
+    {
+      "pieceId": "piece.bend.corridor_section_region_gate_locked_1_region_key_gate_1_open.turn_02",
+      "shapeId": "shape.room.marker.9x9_two_east",
+      "transform": null,
+      "reasons": [
+        "mode_mismatch: pure_catalog_only"
+      ]
+    },
+    {
+      "pieceId": "piece.bend.corridor_section_region_gate_locked_1_region_key_gate_1_open.turn_02",
       "shapeId": "shape.corridor.straight.1",
       "transform": null,
       "reasons": [
@@ -2571,6 +2995,14 @@
       "reasons": [
         "kind_mismatch: need bend",
         "missing_shape_tags: bend,bend_small"
+      ]
+    },
+    {
+      "pieceId": "piece.bend.corridor_section_region_gate_locked_1_region_key_gate_1_open.turn_02",
+      "shapeId": "shape.corridor.bend.1x1",
+      "transform": null,
+      "reasons": [
+        "mode_mismatch: pure_catalog_only"
       ]
     },
     {
@@ -2599,6 +3031,14 @@
     },
     {
       "pieceId": "piece.bend.corridor_section_region_gate_locked_1_region_key_gate_1_open.turn_02",
+      "shapeId": "shape.corridor.bend.3x3",
+      "transform": null,
+      "reasons": [
+        "mode_mismatch: pure_catalog_only"
+      ]
+    },
+    {
+      "pieceId": "piece.bend.corridor_section_region_gate_locked_1_region_key_gate_1_open.turn_02",
       "shapeId": "shape.corridor.bend.4x4",
       "transform": null,
       "reasons": [
@@ -2743,6 +3183,30 @@
     },
     {
       "pieceId": "piece.corridor.corridor_section_region_gate_locked_1_region_start_open.segment_01.tile_01",
+      "shapeId": "shape.room.threshold.19x14_multi_exit",
+      "transform": null,
+      "reasons": [
+        "mode_mismatch: pure_catalog_only"
+      ]
+    },
+    {
+      "pieceId": "piece.corridor.corridor_section_region_gate_locked_1_region_start_open.segment_01.tile_01",
+      "shapeId": "shape.room.pocket.9x9_west_south",
+      "transform": null,
+      "reasons": [
+        "mode_mismatch: pure_catalog_only"
+      ]
+    },
+    {
+      "pieceId": "piece.corridor.corridor_section_region_gate_locked_1_region_start_open.segment_01.tile_01",
+      "shapeId": "shape.room.marker.9x9_two_east",
+      "transform": null,
+      "reasons": [
+        "mode_mismatch: pure_catalog_only"
+      ]
+    },
+    {
+      "pieceId": "piece.corridor.corridor_section_region_gate_locked_1_region_start_open.segment_01.tile_01",
       "shapeId": "shape.corridor.straight.1",
       "transform": null,
       "reasons": [
@@ -2767,11 +3231,27 @@
     },
     {
       "pieceId": "piece.corridor.corridor_section_region_gate_locked_1_region_start_open.segment_01.tile_01",
+      "shapeId": "shape.corridor.bend.1x1",
+      "transform": null,
+      "reasons": [
+        "mode_mismatch: pure_catalog_only"
+      ]
+    },
+    {
+      "pieceId": "piece.corridor.corridor_section_region_gate_locked_1_region_start_open.segment_01.tile_01",
       "shapeId": "shape.corridor.bend.2x2",
       "transform": null,
       "reasons": [
         "kind_mismatch: need corridor",
         "missing_shape_tags: straight,span_long"
+      ]
+    },
+    {
+      "pieceId": "piece.corridor.corridor_section_region_gate_locked_1_region_start_open.segment_01.tile_01",
+      "shapeId": "shape.corridor.bend.3x3",
+      "transform": null,
+      "reasons": [
+        "mode_mismatch: pure_catalog_only"
       ]
     },
     {
@@ -2920,6 +3400,30 @@
     },
     {
       "pieceId": "piece.corridor.corridor_section_region_gate_locked_1_region_start_open.segment_01.tile_02",
+      "shapeId": "shape.room.threshold.19x14_multi_exit",
+      "transform": null,
+      "reasons": [
+        "mode_mismatch: pure_catalog_only"
+      ]
+    },
+    {
+      "pieceId": "piece.corridor.corridor_section_region_gate_locked_1_region_start_open.segment_01.tile_02",
+      "shapeId": "shape.room.pocket.9x9_west_south",
+      "transform": null,
+      "reasons": [
+        "mode_mismatch: pure_catalog_only"
+      ]
+    },
+    {
+      "pieceId": "piece.corridor.corridor_section_region_gate_locked_1_region_start_open.segment_01.tile_02",
+      "shapeId": "shape.room.marker.9x9_two_east",
+      "transform": null,
+      "reasons": [
+        "mode_mismatch: pure_catalog_only"
+      ]
+    },
+    {
+      "pieceId": "piece.corridor.corridor_section_region_gate_locked_1_region_start_open.segment_01.tile_02",
       "shapeId": "shape.corridor.straight.1",
       "transform": "rotate90",
       "reasons": [
@@ -2944,11 +3448,27 @@
     },
     {
       "pieceId": "piece.corridor.corridor_section_region_gate_locked_1_region_start_open.segment_01.tile_02",
+      "shapeId": "shape.corridor.bend.1x1",
+      "transform": null,
+      "reasons": [
+        "mode_mismatch: pure_catalog_only"
+      ]
+    },
+    {
+      "pieceId": "piece.corridor.corridor_section_region_gate_locked_1_region_start_open.segment_01.tile_02",
       "shapeId": "shape.corridor.bend.2x2",
       "transform": null,
       "reasons": [
         "kind_mismatch: need corridor",
         "missing_shape_tags: straight,span_short"
+      ]
+    },
+    {
+      "pieceId": "piece.corridor.corridor_section_region_gate_locked_1_region_start_open.segment_01.tile_02",
+      "shapeId": "shape.corridor.bend.3x3",
+      "transform": null,
+      "reasons": [
+        "mode_mismatch: pure_catalog_only"
       ]
     },
     {
@@ -3097,6 +3617,30 @@
     },
     {
       "pieceId": "piece.bend.corridor_section_region_gate_locked_1_region_start_open.turn_01",
+      "shapeId": "shape.room.threshold.19x14_multi_exit",
+      "transform": null,
+      "reasons": [
+        "mode_mismatch: pure_catalog_only"
+      ]
+    },
+    {
+      "pieceId": "piece.bend.corridor_section_region_gate_locked_1_region_start_open.turn_01",
+      "shapeId": "shape.room.pocket.9x9_west_south",
+      "transform": null,
+      "reasons": [
+        "mode_mismatch: pure_catalog_only"
+      ]
+    },
+    {
+      "pieceId": "piece.bend.corridor_section_region_gate_locked_1_region_start_open.turn_01",
+      "shapeId": "shape.room.marker.9x9_two_east",
+      "transform": null,
+      "reasons": [
+        "mode_mismatch: pure_catalog_only"
+      ]
+    },
+    {
+      "pieceId": "piece.bend.corridor_section_region_gate_locked_1_region_start_open.turn_01",
       "shapeId": "shape.corridor.straight.1",
       "transform": null,
       "reasons": [
@@ -3120,6 +3664,14 @@
       "reasons": [
         "kind_mismatch: need bend",
         "missing_shape_tags: bend,bend_small"
+      ]
+    },
+    {
+      "pieceId": "piece.bend.corridor_section_region_gate_locked_1_region_start_open.turn_01",
+      "shapeId": "shape.corridor.bend.1x1",
+      "transform": null,
+      "reasons": [
+        "mode_mismatch: pure_catalog_only"
       ]
     },
     {
@@ -3148,6 +3700,14 @@
     },
     {
       "pieceId": "piece.bend.corridor_section_region_gate_locked_1_region_start_open.turn_01",
+      "shapeId": "shape.corridor.bend.3x3",
+      "transform": null,
+      "reasons": [
+        "mode_mismatch: pure_catalog_only"
+      ]
+    },
+    {
+      "pieceId": "piece.bend.corridor_section_region_gate_locked_1_region_start_open.turn_01",
       "shapeId": "shape.corridor.bend.4x4",
       "transform": null,
       "reasons": [
@@ -3292,6 +3852,30 @@
     },
     {
       "pieceId": "piece.bend.corridor_section_region_gate_locked_1_region_start_open.turn_02",
+      "shapeId": "shape.room.threshold.19x14_multi_exit",
+      "transform": null,
+      "reasons": [
+        "mode_mismatch: pure_catalog_only"
+      ]
+    },
+    {
+      "pieceId": "piece.bend.corridor_section_region_gate_locked_1_region_start_open.turn_02",
+      "shapeId": "shape.room.pocket.9x9_west_south",
+      "transform": null,
+      "reasons": [
+        "mode_mismatch: pure_catalog_only"
+      ]
+    },
+    {
+      "pieceId": "piece.bend.corridor_section_region_gate_locked_1_region_start_open.turn_02",
+      "shapeId": "shape.room.marker.9x9_two_east",
+      "transform": null,
+      "reasons": [
+        "mode_mismatch: pure_catalog_only"
+      ]
+    },
+    {
+      "pieceId": "piece.bend.corridor_section_region_gate_locked_1_region_start_open.turn_02",
       "shapeId": "shape.corridor.straight.1",
       "transform": null,
       "reasons": [
@@ -3319,6 +3903,14 @@
     },
     {
       "pieceId": "piece.bend.corridor_section_region_gate_locked_1_region_start_open.turn_02",
+      "shapeId": "shape.corridor.bend.1x1",
+      "transform": null,
+      "reasons": [
+        "mode_mismatch: pure_catalog_only"
+      ]
+    },
+    {
+      "pieceId": "piece.bend.corridor_section_region_gate_locked_1_region_start_open.turn_02",
       "shapeId": "shape.corridor.bend.2x2",
       "transform": "rotate90",
       "reasons": [
@@ -3339,6 +3931,14 @@
       "transform": "rotate270",
       "reasons": [
         "exit_compatibility_mismatch: shape shape.corridor.bend.2x2 required [exit.turn_02.in:south,exit.turn_02.out:west] available [exit.west:south,exit.south:east]"
+      ]
+    },
+    {
+      "pieceId": "piece.bend.corridor_section_region_gate_locked_1_region_start_open.turn_02",
+      "shapeId": "shape.corridor.bend.3x3",
+      "transform": null,
+      "reasons": [
+        "mode_mismatch: pure_catalog_only"
       ]
     },
     {
@@ -3487,6 +4087,30 @@
     },
     {
       "pieceId": "piece.corridor.corridor_section_region_key_gate_1_region_start_open.segment_01.tile_01",
+      "shapeId": "shape.room.threshold.19x14_multi_exit",
+      "transform": null,
+      "reasons": [
+        "mode_mismatch: pure_catalog_only"
+      ]
+    },
+    {
+      "pieceId": "piece.corridor.corridor_section_region_key_gate_1_region_start_open.segment_01.tile_01",
+      "shapeId": "shape.room.pocket.9x9_west_south",
+      "transform": null,
+      "reasons": [
+        "mode_mismatch: pure_catalog_only"
+      ]
+    },
+    {
+      "pieceId": "piece.corridor.corridor_section_region_key_gate_1_region_start_open.segment_01.tile_01",
+      "shapeId": "shape.room.marker.9x9_two_east",
+      "transform": null,
+      "reasons": [
+        "mode_mismatch: pure_catalog_only"
+      ]
+    },
+    {
+      "pieceId": "piece.corridor.corridor_section_region_key_gate_1_region_start_open.segment_01.tile_01",
       "shapeId": "shape.corridor.straight.1",
       "transform": null,
       "reasons": [
@@ -3511,11 +4135,27 @@
     },
     {
       "pieceId": "piece.corridor.corridor_section_region_key_gate_1_region_start_open.segment_01.tile_01",
+      "shapeId": "shape.corridor.bend.1x1",
+      "transform": null,
+      "reasons": [
+        "mode_mismatch: pure_catalog_only"
+      ]
+    },
+    {
+      "pieceId": "piece.corridor.corridor_section_region_key_gate_1_region_start_open.segment_01.tile_01",
       "shapeId": "shape.corridor.bend.2x2",
       "transform": null,
       "reasons": [
         "kind_mismatch: need corridor",
         "missing_shape_tags: straight,span_long"
+      ]
+    },
+    {
+      "pieceId": "piece.corridor.corridor_section_region_key_gate_1_region_start_open.segment_01.tile_01",
+      "shapeId": "shape.corridor.bend.3x3",
+      "transform": null,
+      "reasons": [
+        "mode_mismatch: pure_catalog_only"
       ]
     },
     {
@@ -3664,6 +4304,30 @@
     },
     {
       "pieceId": "piece.corridor.corridor_section_region_key_gate_1_region_start_open.segment_01.tile_02",
+      "shapeId": "shape.room.threshold.19x14_multi_exit",
+      "transform": null,
+      "reasons": [
+        "mode_mismatch: pure_catalog_only"
+      ]
+    },
+    {
+      "pieceId": "piece.corridor.corridor_section_region_key_gate_1_region_start_open.segment_01.tile_02",
+      "shapeId": "shape.room.pocket.9x9_west_south",
+      "transform": null,
+      "reasons": [
+        "mode_mismatch: pure_catalog_only"
+      ]
+    },
+    {
+      "pieceId": "piece.corridor.corridor_section_region_key_gate_1_region_start_open.segment_01.tile_02",
+      "shapeId": "shape.room.marker.9x9_two_east",
+      "transform": null,
+      "reasons": [
+        "mode_mismatch: pure_catalog_only"
+      ]
+    },
+    {
+      "pieceId": "piece.corridor.corridor_section_region_key_gate_1_region_start_open.segment_01.tile_02",
       "shapeId": "shape.corridor.straight.1",
       "transform": "rotate90",
       "reasons": [
@@ -3688,11 +4352,27 @@
     },
     {
       "pieceId": "piece.corridor.corridor_section_region_key_gate_1_region_start_open.segment_01.tile_02",
+      "shapeId": "shape.corridor.bend.1x1",
+      "transform": null,
+      "reasons": [
+        "mode_mismatch: pure_catalog_only"
+      ]
+    },
+    {
+      "pieceId": "piece.corridor.corridor_section_region_key_gate_1_region_start_open.segment_01.tile_02",
       "shapeId": "shape.corridor.bend.2x2",
       "transform": null,
       "reasons": [
         "kind_mismatch: need corridor",
         "missing_shape_tags: straight,span_short"
+      ]
+    },
+    {
+      "pieceId": "piece.corridor.corridor_section_region_key_gate_1_region_start_open.segment_01.tile_02",
+      "shapeId": "shape.corridor.bend.3x3",
+      "transform": null,
+      "reasons": [
+        "mode_mismatch: pure_catalog_only"
       ]
     },
     {
@@ -3841,6 +4521,30 @@
     },
     {
       "pieceId": "piece.bend.corridor_section_region_key_gate_1_region_start_open.turn_01",
+      "shapeId": "shape.room.threshold.19x14_multi_exit",
+      "transform": null,
+      "reasons": [
+        "mode_mismatch: pure_catalog_only"
+      ]
+    },
+    {
+      "pieceId": "piece.bend.corridor_section_region_key_gate_1_region_start_open.turn_01",
+      "shapeId": "shape.room.pocket.9x9_west_south",
+      "transform": null,
+      "reasons": [
+        "mode_mismatch: pure_catalog_only"
+      ]
+    },
+    {
+      "pieceId": "piece.bend.corridor_section_region_key_gate_1_region_start_open.turn_01",
+      "shapeId": "shape.room.marker.9x9_two_east",
+      "transform": null,
+      "reasons": [
+        "mode_mismatch: pure_catalog_only"
+      ]
+    },
+    {
+      "pieceId": "piece.bend.corridor_section_region_key_gate_1_region_start_open.turn_01",
       "shapeId": "shape.corridor.straight.1",
       "transform": null,
       "reasons": [
@@ -3868,10 +4572,26 @@
     },
     {
       "pieceId": "piece.bend.corridor_section_region_key_gate_1_region_start_open.turn_01",
+      "shapeId": "shape.corridor.bend.1x1",
+      "transform": null,
+      "reasons": [
+        "mode_mismatch: pure_catalog_only"
+      ]
+    },
+    {
+      "pieceId": "piece.bend.corridor_section_region_key_gate_1_region_start_open.turn_01",
       "shapeId": "shape.corridor.bend.2x2",
       "transform": null,
       "reasons": [
         "missing_shape_tags: bend_large"
+      ]
+    },
+    {
+      "pieceId": "piece.bend.corridor_section_region_key_gate_1_region_start_open.turn_01",
+      "shapeId": "shape.corridor.bend.3x3",
+      "transform": null,
+      "reasons": [
+        "mode_mismatch: pure_catalog_only"
       ]
     },
     {
@@ -4036,6 +4756,30 @@
     },
     {
       "pieceId": "piece.corridor.corridor_section_region_key_gate_1_region_start_open.segment_02.tile_01",
+      "shapeId": "shape.room.threshold.19x14_multi_exit",
+      "transform": null,
+      "reasons": [
+        "mode_mismatch: pure_catalog_only"
+      ]
+    },
+    {
+      "pieceId": "piece.corridor.corridor_section_region_key_gate_1_region_start_open.segment_02.tile_01",
+      "shapeId": "shape.room.pocket.9x9_west_south",
+      "transform": null,
+      "reasons": [
+        "mode_mismatch: pure_catalog_only"
+      ]
+    },
+    {
+      "pieceId": "piece.corridor.corridor_section_region_key_gate_1_region_start_open.segment_02.tile_01",
+      "shapeId": "shape.room.marker.9x9_two_east",
+      "transform": null,
+      "reasons": [
+        "mode_mismatch: pure_catalog_only"
+      ]
+    },
+    {
+      "pieceId": "piece.corridor.corridor_section_region_key_gate_1_region_start_open.segment_02.tile_01",
       "shapeId": "shape.corridor.straight.1",
       "transform": null,
       "reasons": [
@@ -4060,11 +4804,27 @@
     },
     {
       "pieceId": "piece.corridor.corridor_section_region_key_gate_1_region_start_open.segment_02.tile_01",
+      "shapeId": "shape.corridor.bend.1x1",
+      "transform": null,
+      "reasons": [
+        "mode_mismatch: pure_catalog_only"
+      ]
+    },
+    {
+      "pieceId": "piece.corridor.corridor_section_region_key_gate_1_region_start_open.segment_02.tile_01",
       "shapeId": "shape.corridor.bend.2x2",
       "transform": null,
       "reasons": [
         "kind_mismatch: need corridor",
         "missing_shape_tags: straight,span_medium"
+      ]
+    },
+    {
+      "pieceId": "piece.corridor.corridor_section_region_key_gate_1_region_start_open.segment_02.tile_01",
+      "shapeId": "shape.corridor.bend.3x3",
+      "transform": null,
+      "reasons": [
+        "mode_mismatch: pure_catalog_only"
       ]
     },
     {
@@ -4213,6 +4973,30 @@
     },
     {
       "pieceId": "piece.corridor.corridor_section_region_key_gate_1_region_start_open.segment_02.tile_02",
+      "shapeId": "shape.room.threshold.19x14_multi_exit",
+      "transform": null,
+      "reasons": [
+        "mode_mismatch: pure_catalog_only"
+      ]
+    },
+    {
+      "pieceId": "piece.corridor.corridor_section_region_key_gate_1_region_start_open.segment_02.tile_02",
+      "shapeId": "shape.room.pocket.9x9_west_south",
+      "transform": null,
+      "reasons": [
+        "mode_mismatch: pure_catalog_only"
+      ]
+    },
+    {
+      "pieceId": "piece.corridor.corridor_section_region_key_gate_1_region_start_open.segment_02.tile_02",
+      "shapeId": "shape.room.marker.9x9_two_east",
+      "transform": null,
+      "reasons": [
+        "mode_mismatch: pure_catalog_only"
+      ]
+    },
+    {
+      "pieceId": "piece.corridor.corridor_section_region_key_gate_1_region_start_open.segment_02.tile_02",
       "shapeId": "shape.corridor.straight.1",
       "transform": "identity",
       "reasons": [
@@ -4237,11 +5021,27 @@
     },
     {
       "pieceId": "piece.corridor.corridor_section_region_key_gate_1_region_start_open.segment_02.tile_02",
+      "shapeId": "shape.corridor.bend.1x1",
+      "transform": null,
+      "reasons": [
+        "mode_mismatch: pure_catalog_only"
+      ]
+    },
+    {
+      "pieceId": "piece.corridor.corridor_section_region_key_gate_1_region_start_open.segment_02.tile_02",
       "shapeId": "shape.corridor.bend.2x2",
       "transform": null,
       "reasons": [
         "kind_mismatch: need corridor",
         "missing_shape_tags: straight,span_short"
+      ]
+    },
+    {
+      "pieceId": "piece.corridor.corridor_section_region_key_gate_1_region_start_open.segment_02.tile_02",
+      "shapeId": "shape.corridor.bend.3x3",
+      "transform": null,
+      "reasons": [
+        "mode_mismatch: pure_catalog_only"
       ]
     },
     {
@@ -4390,6 +5190,30 @@
     },
     {
       "pieceId": "piece.bend.corridor_section_region_key_gate_1_region_start_open.turn_02",
+      "shapeId": "shape.room.threshold.19x14_multi_exit",
+      "transform": null,
+      "reasons": [
+        "mode_mismatch: pure_catalog_only"
+      ]
+    },
+    {
+      "pieceId": "piece.bend.corridor_section_region_key_gate_1_region_start_open.turn_02",
+      "shapeId": "shape.room.pocket.9x9_west_south",
+      "transform": null,
+      "reasons": [
+        "mode_mismatch: pure_catalog_only"
+      ]
+    },
+    {
+      "pieceId": "piece.bend.corridor_section_region_key_gate_1_region_start_open.turn_02",
+      "shapeId": "shape.room.marker.9x9_two_east",
+      "transform": null,
+      "reasons": [
+        "mode_mismatch: pure_catalog_only"
+      ]
+    },
+    {
+      "pieceId": "piece.bend.corridor_section_region_key_gate_1_region_start_open.turn_02",
       "shapeId": "shape.corridor.straight.1",
       "transform": null,
       "reasons": [
@@ -4417,6 +5241,14 @@
     },
     {
       "pieceId": "piece.bend.corridor_section_region_key_gate_1_region_start_open.turn_02",
+      "shapeId": "shape.corridor.bend.1x1",
+      "transform": null,
+      "reasons": [
+        "mode_mismatch: pure_catalog_only"
+      ]
+    },
+    {
+      "pieceId": "piece.bend.corridor_section_region_key_gate_1_region_start_open.turn_02",
       "shapeId": "shape.corridor.bend.2x2",
       "transform": "rotate90",
       "reasons": [
@@ -4437,6 +5269,14 @@
       "transform": "rotate270",
       "reasons": [
         "exit_compatibility_mismatch: shape shape.corridor.bend.2x2 required [exit.turn_02.in:south,exit.turn_02.out:west] available [exit.west:south,exit.south:east]"
+      ]
+    },
+    {
+      "pieceId": "piece.bend.corridor_section_region_key_gate_1_region_start_open.turn_02",
+      "shapeId": "shape.corridor.bend.3x3",
+      "transform": null,
+      "reasons": [
+        "mode_mismatch: pure_catalog_only"
       ]
     },
     {

@@ -564,6 +564,36 @@ struct GeometryLayoutSearchEvidence {
     route_order_attempt: u32,
     search_attempts: u32,
     effective_spacing: GeometrySpacing,
+    #[serde(default = "default_geometry_embedding_kind")]
+    embedding_kind: String,
+    #[serde(default)]
+    embedding_id: String,
+    #[serde(default)]
+    embedding_faces: u32,
+    #[serde(default)]
+    embedding_target_faces: u32,
+    #[serde(default)]
+    embedding_search_steps: u32,
+    #[serde(default)]
+    route_decisions: u32,
+    #[serde(default)]
+    route_backtracks: u32,
+    #[serde(default)]
+    route_path_alternatives: u32,
+    #[serde(default)]
+    route_repairs: u32,
+    #[serde(default)]
+    route_grid_expansions: u32,
+    #[serde(default)]
+    route_path_expansion_exhaustions: u32,
+    #[serde(default)]
+    route_last_failed_section: String,
+    #[serde(default)]
+    route_blocking_owners: Vec<String>,
+}
+
+fn default_geometry_embedding_kind() -> String {
+    "depth_columns".to_owned()
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]

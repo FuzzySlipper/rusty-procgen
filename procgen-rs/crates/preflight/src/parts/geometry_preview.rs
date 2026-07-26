@@ -1042,15 +1042,36 @@ const GEOMETRY_ROUTE_GRID: i32 = 8;
 const GEOMETRY_PORT_MARGIN: i32 = 32;
 const GEOMETRY_PORT_SPACING: i32 = 48;
 const GEOMETRY_CORRIDOR_SEPARATION: i32 = 8;
+const GEOMETRY_MAX_CORRIDOR_HALF_WIDTH: i32 = 10;
 const GEOMETRY_ROUTE_ORDER_COUNT: u32 = 4;
 const GEOMETRY_PORT_ORDER_COUNT: u32 = 2;
+const GEOMETRY_PATH_ALTERNATIVES: u32 = 8;
+const GEOMETRY_ROUTE_DECISION_BUDGET: u32 = 1_024;
+const GEOMETRY_ROUTE_BACKTRACK_BUDGET: u32 = 512;
+const GEOMETRY_PATH_EXPANSION_BUDGET: u32 = 8_192;
+const GEOMETRY_CONFLICT_REPAIR_BUDGET: u32 = 8;
 
 #[derive(Clone, Debug)]
 struct PhysicalPortDemand {
     section_id: String,
     side: String,
     width: i32,
-    opposite_order: usize,
+    opposite_order: i32,
+}
+
+#[derive(Clone, Copy, Debug)]
+struct TopologyPoint {
+    x: i32,
+    y: i32,
+}
+
+#[derive(Clone, Debug)]
+struct TopologyEmbedding {
+    positions: BTreeMap<String, TopologyPoint>,
+    embedding_id: String,
+    faces: u32,
+    target_faces: u32,
+    search_steps: u32,
 }
 
 #[derive(Debug)]
@@ -1059,6 +1080,35 @@ struct GeometryPlacementResult {
     corridors: Vec<GeometryCorridor>,
     bounds: GeometryBounds,
     search: GeometryLayoutSearchEvidence,
+}
+
+#[derive(Clone, Debug, Default)]
+struct PhysicalRouteSearchEvidence {
+    decisions: u32,
+    backtracks: u32,
+    path_alternatives: u32,
+    repairs: u32,
+    deepest_routed: usize,
+    blocking_owners: BTreeSet<String>,
+    budget_exhausted: Option<&'static str>,
+    grid_expansions: u32,
+    path_expansion_exhaustions: u32,
+    last_failed_section: String,
+    last_failed_ports: String,
+}
+
+#[derive(Debug, Default)]
+struct PhysicalPathAlternatives {
+    paths: Vec<Vec<GeometryPoint>>,
+    blocking_owners: BTreeSet<String>,
+    grid_expansions: u32,
+    expansion_exhaustions: u32,
+}
+
+#[derive(Debug)]
+struct PreparedPhysicalSectionRoutes<'a> {
+    section: &'a PhysicalConnectionSection,
+    paths: Vec<Vec<GeometryPoint>>,
 }
 
 #[derive(Debug)]
@@ -1281,43 +1331,71 @@ fn place_and_route_physical_geometry(
         let spacing = geometry_spacing_for_tier(policy, spacing_tier)?;
         last_spacing = spacing.clone();
         spacing_tiers_attempted += 1;
-        for room_order_attempt in 0..policy.room_order_attempts_per_tier {
-            if search_attempts >= policy.max_search_attempts {
-                break;
-            }
-            let mut specs = base_specs.to_vec();
-            specs.sort_by(|left, right| {
-                left.0.cmp(&right.0).then_with(|| {
-                    if room_order_attempt == 0 {
-                        left.1.cmp(&right.1).then_with(|| left.2.cmp(&right.2))
-                    } else {
-                        geometry_layout_order_key(
-                            left.3.id.as_str(),
-                            seed,
-                            u64::from(spacing_tier)
-                                .saturating_mul(u64::from(policy.room_order_attempts_per_tier))
-                                .saturating_add(u64::from(room_order_attempt)),
-                        )
-                        .cmp(&geometry_layout_order_key(
-                            right.3.id.as_str(),
-                            seed,
-                            u64::from(spacing_tier)
-                                .saturating_mul(u64::from(policy.room_order_attempts_per_tier))
-                                .saturating_add(u64::from(room_order_attempt)),
-                        ))
-                        .then_with(|| left.2.cmp(&right.2))
+        for embedding_phase in 0..2_u32 {
+            for room_order_attempt in 0..policy.room_order_attempts_per_tier {
+                if search_attempts >= policy.max_search_attempts {
+                    break;
+                }
+                if (embedding_phase == 0 && room_order_attempt != 0)
+                    || (embedding_phase != 0 && room_order_attempt == 0)
+                {
+                    continue;
+                }
+                let mut specs = base_specs.to_vec();
+                specs.sort_by(|left, right| {
+                    left.0.cmp(&right.0).then_with(|| {
+                        if room_order_attempt == 0 {
+                            left.1.cmp(&right.1).then_with(|| left.2.cmp(&right.2))
+                        } else {
+                            geometry_layout_order_key(
+                                left.3.id.as_str(),
+                                seed,
+                                u64::from(spacing_tier)
+                                    .saturating_mul(u64::from(policy.room_order_attempts_per_tier))
+                                    .saturating_add(u64::from(room_order_attempt)),
+                            )
+                            .cmp(&geometry_layout_order_key(
+                                right.3.id.as_str(),
+                                seed,
+                                u64::from(spacing_tier)
+                                    .saturating_mul(u64::from(policy.room_order_attempts_per_tier))
+                                    .saturating_add(u64::from(room_order_attempt)),
+                            ))
+                            .then_with(|| left.2.cmp(&right.2))
+                        }
+                    })
+                });
+                let topology_embedding = if embedding_phase != 1 {
+                    None
+                } else {
+                    match find_topology_embedding(
+                        connection_plan,
+                        seed,
+                        spacing_tier,
+                        room_order_attempt,
+                    ) {
+                        Ok(embedding) => Some(embedding),
+                        Err(error) => {
+                            last_error = error;
+                            continue;
+                        }
                     }
-                })
-            });
-            let remaining_attempts = policy.max_search_attempts - search_attempts;
-            match place_and_route_physical_geometry_attempt(
-                &specs,
-                connection_plan,
-                &spacing,
-                seed,
-                room_order_attempt,
-                remaining_attempts.min(GEOMETRY_ROUTE_ORDER_COUNT),
-            ) {
+                };
+                let remaining_attempts = policy.max_search_attempts - search_attempts;
+                let route_attempt_limit = if embedding_phase == 1 {
+                    remaining_attempts.min(GEOMETRY_ROUTE_ORDER_COUNT)
+                } else {
+                    remaining_attempts.min(GEOMETRY_PORT_ORDER_COUNT)
+                };
+                match place_and_route_physical_geometry_attempt(
+                    &specs,
+                    connection_plan,
+                    &spacing,
+                    seed,
+                    room_order_attempt,
+                    route_attempt_limit,
+                    topology_embedding.as_ref(),
+                ) {
                 Ok((
                     rooms,
                     corridors,
@@ -1325,6 +1403,7 @@ fn place_and_route_physical_geometry(
                     port_order_attempt,
                     route_order_attempt,
                     attempted_orders,
+                    route_evidence,
                 )) => {
                     search_attempts += attempted_orders;
                     return Ok(GeometryPlacementResult {
@@ -1338,18 +1417,53 @@ fn place_and_route_physical_geometry(
                             route_order_attempt,
                             search_attempts,
                             effective_spacing: spacing,
+                            embedding_kind: topology_embedding
+                                .as_ref()
+                                .map(|_| "planar_rotation")
+                                .unwrap_or("depth_columns")
+                                .to_owned(),
+                            embedding_id: topology_embedding
+                                .as_ref()
+                                .map(|embedding| embedding.embedding_id.clone())
+                                .unwrap_or_else(|| "depth-columns.v1".to_owned()),
+                            embedding_faces: topology_embedding
+                                .as_ref()
+                                .map(|embedding| embedding.faces)
+                                .unwrap_or(0),
+                            embedding_target_faces: topology_embedding
+                                .as_ref()
+                                .map(|embedding| embedding.target_faces)
+                                .unwrap_or(0),
+                            embedding_search_steps: topology_embedding
+                                .as_ref()
+                                .map(|embedding| embedding.search_steps)
+                                .unwrap_or(0),
+                            route_decisions: route_evidence.decisions,
+                            route_backtracks: route_evidence.backtracks,
+                            route_path_alternatives: route_evidence.path_alternatives,
+                            route_repairs: route_evidence.repairs,
+                            route_grid_expansions: route_evidence.grid_expansions,
+                            route_path_expansion_exhaustions: route_evidence
+                                .path_expansion_exhaustions,
+                            route_last_failed_section: route_evidence.last_failed_section.clone(),
+                            route_blocking_owners: route_evidence
+                                .blocking_owners
+                                .iter()
+                                .cloned()
+                                .collect(),
                         },
                     });
                 }
-                Err(GeometryPlacementAttemptError::Invalid(error)) => {
-                    return Err(format!("invalid physical geometry plan: {error}"));
-                }
-                Err(GeometryPlacementAttemptError::RoutesUnavailable {
-                    attempted_orders,
-                    last_error: error,
-                }) => {
-                    search_attempts += attempted_orders;
-                    last_error = error;
+                    Err(GeometryPlacementAttemptError::Invalid(error)) => {
+                        return Err(format!("invalid physical geometry plan: {error}"));
+                    }
+                    Err(GeometryPlacementAttemptError::RoutesUnavailable {
+                        attempted_orders,
+                        last_error: error,
+                    }) => {
+                        search_attempts += attempted_orders;
+                        last_error = error;
+                    }
                 }
             }
         }
@@ -1378,6 +1492,718 @@ fn geometry_layout_order_key(id: &str, seed: u64, attempt: u64) -> u64 {
     value
 }
 
+#[derive(Debug)]
+struct TopologyRng {
+    state: u64,
+}
+
+impl TopologyRng {
+    fn new(seed: u64) -> Self {
+        Self {
+            state: seed ^ 0xA076_1D64_78BD_642F,
+        }
+    }
+
+    fn next_u64(&mut self) -> u64 {
+        let mut value = self.state;
+        value ^= value >> 12;
+        value ^= value << 25;
+        value ^= value >> 27;
+        self.state = value;
+        value.wrapping_mul(0x2545_F491_4F6C_DD1D)
+    }
+
+    fn index(&mut self, length: usize) -> usize {
+        if length <= 1 {
+            0
+        } else {
+            (self.next_u64() % length as u64) as usize
+        }
+    }
+
+    fn shuffle<T>(&mut self, values: &mut [T]) {
+        for index in (1..values.len()).rev() {
+            let other = self.index(index + 1);
+            values.swap(index, other);
+        }
+    }
+}
+
+fn find_topology_embedding(
+    plan: &PhysicalConnectionPlan,
+    seed: u64,
+    spacing_tier: u32,
+    room_order_attempt: u32,
+) -> Result<TopologyEmbedding, String> {
+    let mut rotation = BTreeMap::<String, Vec<String>>::new();
+    let mut undirected_edges = BTreeSet::new();
+    for section in &plan.sections {
+        if section.terminal_regions.len() != 2 {
+            return Err(format!(
+                "topology embedding rejected section {} with {} terminal regions",
+                section.id,
+                section.terminal_regions.len()
+            ));
+        }
+        let left = section.terminal_regions[0].clone();
+        let right = section.terminal_regions[1].clone();
+        if left == right {
+            return Err(format!(
+                "topology embedding rejected self-loop section {}",
+                section.id
+            ));
+        }
+        let edge = if left < right {
+            (left.clone(), right.clone())
+        } else {
+            (right.clone(), left.clone())
+        };
+        if !undirected_edges.insert(edge) {
+            return Err(format!(
+                "topology embedding rejected duplicate physical terminals on {}",
+                section.id
+            ));
+        }
+        rotation.entry(left.clone()).or_default().push(right.clone());
+        rotation.entry(right).or_default().push(left);
+    }
+    for neighbors in rotation.values_mut() {
+        neighbors.sort();
+    }
+    if rotation.is_empty() {
+        return Err("topology embedding rejected an empty physical graph".to_owned());
+    }
+    let vertex_count = u32::try_from(rotation.len()).unwrap_or(u32::MAX);
+    let edge_count = u32::try_from(undirected_edges.len()).unwrap_or(u32::MAX);
+    if vertex_count >= 3 && edge_count > vertex_count.saturating_mul(3).saturating_sub(6) {
+        return Err(format!(
+            "topology embedding necessary-condition failed: {edge_count} edges exceed 3V-6 for {vertex_count} regions"
+        ));
+    }
+    let reachable = topology_reachable_regions(
+        rotation.keys().next().expect("non-empty rotation"),
+        &rotation,
+    );
+    if reachable.len() != rotation.len() {
+        return Err(format!(
+            "topology embedding rejected a disconnected physical graph: reached {} of {} regions",
+            reachable.len(),
+            rotation.len()
+        ));
+    }
+    let target_faces = edge_count.saturating_sub(vertex_count).saturating_add(2);
+    let nonce = u64::from(spacing_tier)
+        .saturating_mul(1_000_003)
+        .saturating_add(u64::from(room_order_attempt));
+    let mut rng = TopologyRng::new(seed ^ nonce.rotate_left(17));
+    for neighbors in rotation.values_mut() {
+        rng.shuffle(neighbors);
+    }
+    let eligible = rotation
+        .iter()
+        .filter(|(_, neighbors)| neighbors.len() >= 3)
+        .map(|(region, _)| region.clone())
+        .collect::<Vec<_>>();
+    let mut faces = topology_embedding_faces(&rotation)
+        .map_err(|error| format!("topology embedding rotation invalid: {error}"))?;
+    let max_steps = 4_096_u32;
+    let mut search_steps = 0_u32;
+    while faces.len() < target_faces as usize && search_steps < max_steps && !eligible.is_empty() {
+        search_steps += 1;
+        let region = &eligible[rng.index(eligible.len())];
+        let (left, right) = {
+            let neighbors = rotation
+                .get_mut(region)
+                .expect("eligible topology region should exist");
+            let left = rng.index(neighbors.len());
+            let mut right = rng.index(neighbors.len());
+            if left == right {
+                right = (right + 1) % neighbors.len();
+            }
+            neighbors.swap(left, right);
+            (left, right)
+        };
+        let candidate_faces = topology_embedding_faces(&rotation)
+            .map_err(|error| format!("topology embedding rotation invalid: {error}"))?;
+        if candidate_faces.len() >= faces.len() {
+            faces = candidate_faces;
+        } else {
+            rotation
+                .get_mut(region)
+                .expect("eligible topology region should exist")
+                .swap(left, right);
+        }
+    }
+    if faces.len() != target_faces as usize {
+        return Err(format!(
+            "topology embedding search exhausted after {search_steps}/{max_steps} rotation decision(s); best witness has {} face(s), Euler target is {target_faces}; spacing tier {spacing_tier}, room embedding attempt {room_order_attempt}",
+            faces.len()
+        ));
+    }
+    let positions = topology_embedding_positions(&rotation, &faces, seed ^ nonce)?;
+    let embedding_id = format!(
+        "rotation.v1.{}",
+        hash_json(&rotation)
+            .map_err(|error| format!("topology embedding witness hash failed: {error}"))?
+    );
+    Ok(TopologyEmbedding {
+        positions,
+        embedding_id,
+        faces: target_faces,
+        target_faces,
+        search_steps,
+    })
+}
+
+fn topology_reachable_regions(
+    start: &str,
+    rotation: &BTreeMap<String, Vec<String>>,
+) -> BTreeSet<String> {
+    let mut reachable = BTreeSet::from([start.to_owned()]);
+    let mut queue = VecDeque::from([start.to_owned()]);
+    while let Some(region) = queue.pop_front() {
+        for neighbor in rotation.get(region.as_str()).into_iter().flatten() {
+            if reachable.insert(neighbor.clone()) {
+                queue.push_back(neighbor.clone());
+            }
+        }
+    }
+    reachable
+}
+
+fn topology_embedding_faces(
+    rotation: &BTreeMap<String, Vec<String>>,
+) -> Result<Vec<Vec<String>>, String> {
+    let half_edge_count = rotation.values().map(Vec::len).sum::<usize>();
+    let mut visited = BTreeSet::<(String, String)>::new();
+    let mut faces = Vec::new();
+    for (from, neighbors) in rotation {
+        for to in neighbors {
+            if visited.contains(&(from.clone(), to.clone())) {
+                continue;
+            }
+            let start = (from.clone(), to.clone());
+            let mut edge = start.clone();
+            let mut face = Vec::new();
+            for _ in 0..=half_edge_count {
+                if !visited.insert(edge.clone()) {
+                    if edge == start {
+                        break;
+                    }
+                    return Err(format!(
+                        "half-edge {} -> {} entered an existing face",
+                        edge.0, edge.1
+                    ));
+                }
+                face.push(edge.0.clone());
+                let at = edge.1.clone();
+                let around = rotation
+                    .get(at.as_str())
+                    .ok_or_else(|| format!("rotation lacks region {at}"))?;
+                let incoming = around
+                    .iter()
+                    .position(|neighbor| neighbor == &edge.0)
+                    .ok_or_else(|| format!("rotation lacks reciprocal edge {} -> {at}", edge.0))?;
+                let next = around[(incoming + around.len() - 1) % around.len()].clone();
+                edge = (at, next);
+                if edge == start {
+                    break;
+                }
+            }
+            if edge != start {
+                return Err(format!(
+                    "face traversal from {} -> {} exceeded {half_edge_count} half-edges",
+                    start.0, start.1
+                ));
+            }
+            faces.push(face);
+        }
+    }
+    if visited.len() != half_edge_count {
+        return Err(format!(
+            "face traversal visited {} of {half_edge_count} half-edges",
+            visited.len()
+        ));
+    }
+    Ok(faces)
+}
+
+fn topology_embedding_positions(
+    rotation: &BTreeMap<String, Vec<String>>,
+    faces: &[Vec<String>],
+    seed: u64,
+) -> Result<BTreeMap<String, TopologyPoint>, String> {
+    if let Some(separator_positions) = topology_separator_band_positions(rotation) {
+        if validate_topology_drawing(rotation, &separator_positions).is_ok() {
+            return Ok(separator_positions);
+        }
+    }
+    let mut active = rotation.keys().cloned().collect::<BTreeSet<_>>();
+    let mut removed = Vec::<(String, String)>::new();
+    loop {
+        let leaves = active
+            .iter()
+            .filter_map(|region| {
+                let neighbors = rotation
+                    .get(region.as_str())
+                    .into_iter()
+                    .flatten()
+                    .filter(|neighbor| active.contains(*neighbor))
+                    .cloned()
+                    .collect::<Vec<_>>();
+                (neighbors.len() <= 1).then(|| {
+                    (
+                        region.clone(),
+                        neighbors.first().cloned().unwrap_or_default(),
+                    )
+                })
+            })
+            .collect::<Vec<_>>();
+        if leaves.is_empty() || leaves.len() == active.len() {
+            break;
+        }
+        for (region, parent) in leaves {
+            active.remove(region.as_str());
+            removed.push((region, parent));
+        }
+    }
+    if active.len() < 3 {
+        return Err(format!(
+            "topology embedding position search requires a cyclic core; found {} core region(s)",
+            active.len()
+        ));
+    }
+    let core_rotation = active
+        .iter()
+        .map(|region| {
+            (
+                region.clone(),
+                rotation
+                    .get(region.as_str())
+                    .expect("active region should have rotation")
+                    .iter()
+                    .filter(|neighbor| active.contains(*neighbor))
+                    .cloned()
+                    .collect::<Vec<_>>(),
+            )
+        })
+        .collect::<BTreeMap<_, _>>();
+    let drawing_rotation = core_rotation.clone();
+    let mut core_faces = topology_embedding_faces(&drawing_rotation)?;
+    core_faces.sort_by(|left, right| {
+        let left_unique = left.iter().collect::<BTreeSet<_>>().len();
+        let right_unique = right.iter().collect::<BTreeSet<_>>().len();
+        right_unique
+            .cmp(&left_unique)
+            .then_with(|| left.join("\u{0}").cmp(&right.join("\u{0}")))
+    });
+    if !core_faces.is_empty() {
+        let face_offset = seed as usize % core_faces.len();
+        core_faces.rotate_left(face_offset);
+    }
+    let mut last_error = "no core face was available".to_owned();
+    for outer_face in core_faces {
+        let mut outer = Vec::new();
+        for region in outer_face {
+            if !outer.contains(&region) {
+                outer.push(region);
+            }
+        }
+        if outer.len() < 3 {
+            continue;
+        }
+        match harmonic_topology_positions(&drawing_rotation, &outer) {
+            Ok(mut positions) => {
+                attach_topology_leaves(&mut positions, &removed, seed);
+                let quantized = quantize_topology_positions(&positions);
+                match validate_topology_drawing(rotation, &quantized) {
+                    Ok(()) => return Ok(quantized),
+                    Err(error) => last_error = error,
+                }
+            }
+            Err(error) => last_error = error,
+        }
+    }
+    Err(format!(
+        "topology embedding drawing search exhausted across {} certified face(s): {last_error}",
+        faces.len()
+    ))
+}
+
+fn topology_separator_band_positions(
+    rotation: &BTreeMap<String, Vec<String>>,
+) -> Option<BTreeMap<String, TopologyPoint>> {
+    let left_terminal = "region.start";
+    let right_terminal = "region.goal";
+    if !rotation.contains_key(left_terminal) || !rotation.contains_key(right_terminal) {
+        return None;
+    }
+    let terminals = BTreeSet::from([left_terminal.to_owned(), right_terminal.to_owned()]);
+    let mut remaining = rotation
+        .keys()
+        .filter(|region| !terminals.contains(*region))
+        .cloned()
+        .collect::<BTreeSet<_>>();
+    let mut components = Vec::<Vec<String>>::new();
+    while let Some(root) = remaining.iter().next().cloned() {
+        remaining.remove(root.as_str());
+        let mut component = BTreeSet::from([root.clone()]);
+        let mut queue = VecDeque::from([root]);
+        while let Some(region) = queue.pop_front() {
+            for neighbor in rotation.get(region.as_str()).into_iter().flatten() {
+                if terminals.contains(neighbor) || !remaining.remove(neighbor.as_str()) {
+                    continue;
+                }
+                component.insert(neighbor.clone());
+                queue.push_back(neighbor.clone());
+            }
+        }
+        components.push(component.into_iter().collect());
+    }
+    if components.len() < 2 {
+        return None;
+    }
+    components.sort();
+    let left_distances = topology_graph_distances(left_terminal, rotation);
+    let right_distances = topology_graph_distances(right_terminal, rotation);
+    let terminal_y = i32::try_from(components.len().saturating_sub(1))
+        .ok()?
+        .saturating_mul(500);
+    let mut positions = BTreeMap::from([
+        (
+            left_terminal.to_owned(),
+            TopologyPoint {
+                x: 0,
+                y: terminal_y,
+            },
+        ),
+        (
+            right_terminal.to_owned(),
+            TopologyPoint {
+                x: 1_000,
+                y: terminal_y,
+            },
+        ),
+    ]);
+    for (component_index, component) in components.iter_mut().enumerate() {
+        component.sort_by(|left, right| {
+            let left_from = *left_distances.get(left.as_str()).unwrap_or(&usize::MAX);
+            let left_to = *right_distances.get(left.as_str()).unwrap_or(&usize::MAX);
+            let right_from = *left_distances.get(right.as_str()).unwrap_or(&usize::MAX);
+            let right_to = *right_distances.get(right.as_str()).unwrap_or(&usize::MAX);
+            left_from
+                .saturating_mul(right_from.saturating_add(right_to))
+                .cmp(&right_from.saturating_mul(left_from.saturating_add(left_to)))
+                .then_with(|| left.cmp(right))
+        });
+        for (order, region) in component.iter().enumerate() {
+            let from = *left_distances.get(region.as_str())?;
+            let to = *right_distances.get(region.as_str())?;
+            let total = from.saturating_add(to).max(1);
+            let x = i32::try_from(from.saturating_mul(1_000) / total).ok()?;
+            let centered_order = i32::try_from(order.saturating_mul(2)).ok()?
+                - i32::try_from(component.len().saturating_sub(1)).ok()?;
+            let y = i32::try_from(component_index)
+                .ok()?
+                .saturating_mul(1_000)
+                .saturating_add(centered_order.saturating_mul(75));
+            positions.insert(region.clone(), TopologyPoint { x, y });
+        }
+    }
+    if validate_topology_drawing(rotation, &positions).is_ok() {
+        return Some(positions);
+    }
+    let mut rng = TopologyRng::new(geometry_layout_order_key(
+        rotation.keys().map(String::as_str).collect::<Vec<_>>().join("|").as_str(),
+        rotation.values().map(Vec::len).sum::<usize>() as u64,
+        0,
+    ));
+    for _ in 0..4_096 {
+        let mut candidate = positions.clone();
+        for (component_index, component) in components.iter().enumerate() {
+            let band_y = i32::try_from(component_index).ok()?.saturating_mul(1_000);
+            for region in component {
+                let point = candidate.get_mut(region.as_str())?;
+                let jitter = i32::try_from(rng.index(801)).ok()?.saturating_sub(400);
+                point.y = band_y.saturating_add(jitter);
+            }
+        }
+        if validate_topology_drawing(rotation, &candidate).is_ok() {
+            return Some(candidate);
+        }
+    }
+    None
+}
+
+fn topology_graph_distances(
+    start: &str,
+    rotation: &BTreeMap<String, Vec<String>>,
+) -> BTreeMap<String, usize> {
+    let mut distances = BTreeMap::from([(start.to_owned(), 0_usize)]);
+    let mut queue = VecDeque::from([start.to_owned()]);
+    while let Some(region) = queue.pop_front() {
+        let next_distance = distances[region.as_str()].saturating_add(1);
+        for neighbor in rotation.get(region.as_str()).into_iter().flatten() {
+            if distances.contains_key(neighbor.as_str()) {
+                continue;
+            }
+            distances.insert(neighbor.clone(), next_distance);
+            queue.push_back(neighbor.clone());
+        }
+    }
+    distances
+}
+
+fn harmonic_topology_positions(
+    rotation: &BTreeMap<String, Vec<String>>,
+    outer: &[String],
+) -> Result<BTreeMap<String, (f64, f64)>, String> {
+    let mut positions = BTreeMap::new();
+    for (index, region) in outer.iter().enumerate() {
+        let angle = std::f64::consts::TAU * index as f64 / outer.len() as f64;
+        positions.insert(region.clone(), (angle.cos(), angle.sin()));
+    }
+    let inner = rotation
+        .keys()
+        .filter(|region| !positions.contains_key(*region))
+        .cloned()
+        .collect::<Vec<_>>();
+    if inner.is_empty() {
+        return Ok(positions);
+    }
+    let indices = inner
+        .iter()
+        .enumerate()
+        .map(|(index, region)| (region.as_str(), index))
+        .collect::<BTreeMap<_, _>>();
+    let mut matrix = vec![vec![0.0; inner.len()]; inner.len()];
+    let mut x_values = vec![0.0; inner.len()];
+    let mut y_values = vec![0.0; inner.len()];
+    for (row, region) in inner.iter().enumerate() {
+        let neighbors = rotation
+            .get(region.as_str())
+            .ok_or_else(|| format!("harmonic embedding lacks region {region}"))?;
+        matrix[row][row] = neighbors.len() as f64;
+        for neighbor in neighbors {
+            if let Some(column) = indices.get(neighbor.as_str()) {
+                matrix[row][*column] -= 1.0;
+            } else if let Some((x, y)) = positions.get(neighbor.as_str()) {
+                x_values[row] += x;
+                y_values[row] += y;
+            } else {
+                return Err(format!(
+                    "harmonic embedding lacks neighbor position for {neighbor}"
+                ));
+            }
+        }
+    }
+    let solved_x = solve_topology_linear_system(matrix.clone(), x_values)?;
+    let solved_y = solve_topology_linear_system(matrix, y_values)?;
+    for (index, region) in inner.into_iter().enumerate() {
+        positions.insert(region, (solved_x[index], solved_y[index]));
+    }
+    Ok(positions)
+}
+
+fn solve_topology_linear_system(
+    mut matrix: Vec<Vec<f64>>,
+    mut values: Vec<f64>,
+) -> Result<Vec<f64>, String> {
+    for pivot in 0..matrix.len() {
+        let best = (pivot..matrix.len())
+            .max_by(|left, right| {
+                matrix[*left][pivot]
+                    .abs()
+                    .partial_cmp(&matrix[*right][pivot].abs())
+                    .unwrap_or(Ordering::Equal)
+            })
+            .expect("pivot range should not be empty");
+        if matrix[best][pivot].abs() < 1.0e-9 {
+            return Err(format!(
+                "harmonic embedding matrix is singular at pivot {pivot}"
+            ));
+        }
+        matrix.swap(pivot, best);
+        values.swap(pivot, best);
+        let divisor = matrix[pivot][pivot];
+        for column in pivot..matrix.len() {
+            matrix[pivot][column] /= divisor;
+        }
+        values[pivot] /= divisor;
+        for row in 0..matrix.len() {
+            if row == pivot {
+                continue;
+            }
+            let factor = matrix[row][pivot];
+            if factor.abs() < 1.0e-12 {
+                continue;
+            }
+            for column in pivot..matrix.len() {
+                matrix[row][column] -= factor * matrix[pivot][column];
+            }
+            values[row] -= factor * values[pivot];
+        }
+    }
+    Ok(values)
+}
+
+fn attach_topology_leaves(
+    positions: &mut BTreeMap<String, (f64, f64)>,
+    removed: &[(String, String)],
+    seed: u64,
+) {
+    let mut attached_by_parent = BTreeMap::<String, usize>::new();
+    for (region, parent) in removed.iter().rev() {
+        let Some((parent_x, parent_y)) = positions.get(parent.as_str()).copied() else {
+            continue;
+        };
+        let (sum_x, sum_y) = positions
+            .values()
+            .fold((0.0, 0.0), |(sum_x, sum_y), (x, y)| {
+                (sum_x + x, sum_y + y)
+            });
+        let count = positions.len().max(1) as f64;
+        let mut angle = (parent_y - sum_y / count).atan2(parent_x - sum_x / count);
+        if !angle.is_finite()
+            || ((parent_x - sum_x / count).abs() + (parent_y - sum_y / count).abs()) < 1.0e-6
+        {
+            angle = (geometry_layout_order_key(region, seed, 0) % 6_283) as f64 / 1_000.0;
+        }
+        let attached = attached_by_parent.entry(parent.clone()).or_insert(0);
+        let offset_index = *attached as f64;
+        *attached += 1;
+        angle += (offset_index - 0.5) * 0.55;
+        let distance = 0.7 + offset_index * 0.18;
+        positions.insert(
+            region.clone(),
+            (
+                parent_x + angle.cos() * distance,
+                parent_y + angle.sin() * distance,
+            ),
+        );
+    }
+}
+
+fn quantize_topology_positions(
+    positions: &BTreeMap<String, (f64, f64)>,
+) -> BTreeMap<String, TopologyPoint> {
+    positions
+        .iter()
+        .map(|(region, (x, y))| {
+            (
+                region.clone(),
+                TopologyPoint {
+                    x: (x * 1_000_000.0).round() as i32,
+                    y: (y * 1_000_000.0).round() as i32,
+                },
+            )
+        })
+        .collect()
+}
+
+fn validate_topology_drawing(
+    rotation: &BTreeMap<String, Vec<String>>,
+    positions: &BTreeMap<String, TopologyPoint>,
+) -> Result<(), String> {
+    let mut occupied = BTreeMap::<(i32, i32), &str>::new();
+    for (region, point) in positions {
+        if let Some(other) = occupied.insert((point.x, point.y), region.as_str()) {
+            return Err(format!(
+                "topology drawing overlaps regions {other} and {region}"
+            ));
+        }
+    }
+    let edges = rotation
+        .iter()
+        .flat_map(|(left, neighbors)| {
+            neighbors
+                .iter()
+                .filter(move |right| left < *right)
+                .map(move |right| (left.as_str(), right.as_str()))
+        })
+        .collect::<Vec<_>>();
+    for (index, (left, right)) in edges.iter().enumerate() {
+        let left_point = positions
+            .get(*left)
+            .ok_or_else(|| format!("topology drawing lacks region {left}"))?;
+        let right_point = positions
+            .get(*right)
+            .ok_or_else(|| format!("topology drawing lacks region {right}"))?;
+        for (other_left, other_right) in edges.iter().skip(index + 1) {
+            if left == other_left
+                || left == other_right
+                || right == other_left
+                || right == other_right
+            {
+                continue;
+            }
+            let other_left_point = positions
+                .get(*other_left)
+                .expect("topology edge endpoint should have a position");
+            let other_right_point = positions
+                .get(*other_right)
+                .expect("topology edge endpoint should have a position");
+            if topology_segments_cross(
+                left_point,
+                right_point,
+                other_left_point,
+                other_right_point,
+            ) {
+                return Err(format!(
+                    "topology drawing crosses {left}--{right} with {other_left}--{other_right}"
+                ));
+            }
+        }
+        for (region, point) in positions {
+            if region == left || region == right {
+                continue;
+            }
+            if topology_point_on_segment(point, left_point, right_point) {
+                return Err(format!(
+                    "topology drawing places region {region} on edge {left}--{right}"
+                ));
+            }
+        }
+    }
+    Ok(())
+}
+
+fn topology_orientation(
+    left: &TopologyPoint,
+    middle: &TopologyPoint,
+    right: &TopologyPoint,
+) -> i64 {
+    i64::from(middle.x - left.x) * i64::from(right.y - left.y)
+        - i64::from(middle.y - left.y) * i64::from(right.x - left.x)
+}
+
+fn topology_segments_cross(
+    left: &TopologyPoint,
+    right: &TopologyPoint,
+    other_left: &TopologyPoint,
+    other_right: &TopologyPoint,
+) -> bool {
+    let first_left = topology_orientation(left, right, other_left);
+    let first_right = topology_orientation(left, right, other_right);
+    let second_left = topology_orientation(other_left, other_right, left);
+    let second_right = topology_orientation(other_left, other_right, right);
+    (first_left > 0 && first_right < 0 || first_left < 0 && first_right > 0)
+        && (second_left > 0 && second_right < 0
+            || second_left < 0 && second_right > 0)
+}
+
+fn topology_point_on_segment(
+    point: &TopologyPoint,
+    left: &TopologyPoint,
+    right: &TopologyPoint,
+) -> bool {
+    topology_orientation(left, right, point) == 0
+        && point.x >= left.x.min(right.x)
+        && point.x <= left.x.max(right.x)
+        && point.y >= left.y.min(right.y)
+        && point.y <= left.y.max(right.y)
+}
+
 fn place_and_route_physical_geometry_attempt(
     region_specs: &[(usize, String, String, &IntermediateRegion)],
     connection_plan: &PhysicalConnectionPlan,
@@ -1385,6 +2211,7 @@ fn place_and_route_physical_geometry_attempt(
     seed: u64,
     room_order_attempt: u32,
     max_route_attempts: u32,
+    topology_embedding: Option<&TopologyEmbedding>,
 ) -> Result<
     (
         Vec<GeometryRoom>,
@@ -1393,6 +2220,7 @@ fn place_and_route_physical_geometry_attempt(
         u32,
         u32,
         u32,
+        PhysicalRouteSearchEvidence,
     ),
     GeometryPlacementAttemptError,
 > {
@@ -1424,10 +2252,15 @@ fn place_and_route_physical_geometry_attempt(
             &region_orders,
             seed,
             port_order_attempt,
+            topology_embedding.map(|embedding| &embedding.positions),
         )
         .map_err(GeometryPlacementAttemptError::Invalid)?;
-        let (rooms, bounds) =
-            place_geometry_rooms(region_specs, spacing, &port_demands)?;
+        let (rooms, bounds) = place_geometry_rooms(
+            region_specs,
+            spacing,
+            &port_demands,
+            topology_embedding.map(|embedding| &embedding.positions),
+        )?;
         match route_physical_sections(
             connection_plan,
             &rooms,
@@ -1438,7 +2271,7 @@ fn place_and_route_physical_geometry_attempt(
                 .saturating_add(port_order_attempt),
             route_attempt_limit,
         ) {
-            Ok((corridors, route_order_attempt, routes_tried)) => {
+            Ok((corridors, route_order_attempt, routes_tried, route_evidence)) => {
                 attempted_orders += routes_tried;
                 return Ok((
                     rooms,
@@ -1447,6 +2280,7 @@ fn place_and_route_physical_geometry_attempt(
                     port_order_attempt,
                     route_order_attempt,
                     attempted_orders,
+                    route_evidence,
                 ));
             }
             Err(GeometryPlacementAttemptError::Invalid(error)) => {
@@ -1471,7 +2305,11 @@ fn place_geometry_rooms(
     region_specs: &[(usize, String, String, &IntermediateRegion)],
     spacing: &GeometrySpacing,
     port_demands: &BTreeMap<String, Vec<PhysicalPortDemand>>,
+    topology_positions: Option<&BTreeMap<String, TopologyPoint>>,
 ) -> Result<(Vec<GeometryRoom>, GeometryBounds), GeometryPlacementAttemptError> {
+    if let Some(positions) = topology_positions {
+        return place_geometry_rooms_from_topology(region_specs, spacing, port_demands, positions);
+    }
     let mut column_widths = BTreeMap::<usize, i32>::new();
     for (depth, _, _, region) in region_specs {
         let (width, _) = connection_aware_room_size(
@@ -1532,12 +2370,102 @@ fn place_geometry_rooms(
     Ok((rooms, bounds))
 }
 
+fn place_geometry_rooms_from_topology(
+    region_specs: &[(usize, String, String, &IntermediateRegion)],
+    spacing: &GeometrySpacing,
+    port_demands: &BTreeMap<String, Vec<PhysicalPortDemand>>,
+    positions: &BTreeMap<String, TopologyPoint>,
+) -> Result<(Vec<GeometryRoom>, GeometryBounds), GeometryPlacementAttemptError> {
+    let mut sizes = BTreeMap::new();
+    let mut maximum_dimension = 0_i32;
+    for (_, _, _, region) in region_specs {
+        let size = connection_aware_room_size(
+            region,
+            port_demands
+                .get(region.id.as_str())
+                .map(Vec::as_slice)
+                .unwrap_or_default(),
+        );
+        maximum_dimension = maximum_dimension.max(size.0).max(size.1);
+        sizes.insert(region.id.as_str(), size);
+    }
+    let points = positions.values().collect::<Vec<_>>();
+    let minimum_axis_distance = points
+        .iter()
+        .enumerate()
+        .flat_map(|(index, left)| {
+            points.iter().skip(index + 1).map(move |right| {
+                i64::from((left.x - right.x).abs().max((left.y - right.y).abs()))
+            })
+        })
+        .filter(|distance| *distance > 0)
+        .min()
+        .ok_or_else(|| {
+            GeometryPlacementAttemptError::Invalid(
+                "topology embedding has no distinct room positions".to_owned(),
+            )
+        })? as f64;
+    let topology_gap = spacing
+        .column_gap
+        .max(spacing.row_gap)
+        .max(GEOMETRY_PORT_SPACING);
+    let target_separation = f64::from(maximum_dimension + topology_gap);
+    let scale = target_separation / minimum_axis_distance;
+    let minimum_x = points
+        .iter()
+        .map(|point| point.x)
+        .min()
+        .expect("topology positions should not be empty");
+    let minimum_y = points
+        .iter()
+        .map(|point| point.y)
+        .min()
+        .expect("topology positions should not be empty");
+    let mut rooms = Vec::new();
+    for (_, _, _, region) in region_specs.iter().cloned() {
+        let point = positions.get(region.id.as_str()).ok_or_else(|| {
+            GeometryPlacementAttemptError::Invalid(format!(
+                "topology embedding lacks room position for {}",
+                region.id
+            ))
+        })?;
+        let (width, height) = sizes[region.id.as_str()];
+        let center_x = f64::from(spacing.room_margin + maximum_dimension / 2)
+            + f64::from(point.x - minimum_x) * scale;
+        let center_y = f64::from(spacing.room_margin + maximum_dimension / 2)
+            + f64::from(point.y - minimum_y) * scale;
+        let x = align_geometry((center_x - f64::from(width) / 2.0).round() as i32, GEOMETRY_ROUTE_GRID);
+        let y = align_geometry((center_y - f64::from(height) / 2.0).round() as i32, GEOMETRY_ROUTE_GRID);
+        rooms.push(GeometryRoom {
+            id: room_id(region.id.as_str()),
+            source_region: region.id.clone(),
+            source_nodes: region.node_ids.clone(),
+            role: region.role.clone(),
+            geometry_role: region.geometry_role.clone(),
+            footprint_class: region.footprint_class.clone(),
+            rect: GeometryRect {
+                x,
+                y,
+                width,
+                height,
+            },
+            ports: Vec::new(),
+            style_tags: geometry_room_style_tags(region),
+        });
+    }
+    assign_physical_room_ports(&mut rooms, port_demands)
+        .map_err(GeometryPlacementAttemptError::Invalid)?;
+    let bounds = geometry_bounds(&rooms, GEOMETRY_ROUTE_GRID, spacing.room_margin);
+    Ok((rooms, bounds))
+}
+
 fn physical_port_demands(
     plan: &PhysicalConnectionPlan,
     depths: &BTreeMap<&str, usize>,
     orders: &BTreeMap<&str, usize>,
     seed: u64,
     port_order_attempt: u32,
+    topology_positions: Option<&BTreeMap<String, TopologyPoint>>,
 ) -> Result<BTreeMap<String, Vec<PhysicalPortDemand>>, String> {
     let mut demands = BTreeMap::<String, Vec<PhysicalPortDemand>>::new();
     for section in &plan.sections {
@@ -1550,26 +2478,60 @@ fn physical_port_demands(
         let right_depth = depths.get(right).copied().unwrap_or(0);
         let left_order = orders.get(left).copied().unwrap_or(0);
         let right_order = orders.get(right).copied().unwrap_or(0);
-        let (left_side, right_side) = physical_port_sides(
-            left_depth,
-            right_depth,
-            left_order,
-            right_order,
-            seed,
-            port_order_attempt,
-            section.id.as_str(),
-        );
+        let (left_side, right_side, left_opposite_order, right_opposite_order) =
+            if let Some(positions) = topology_positions {
+                let left_position = positions
+                    .get(left)
+                    .ok_or_else(|| format!("topology embedding lacks region {left}"))?;
+                let right_position = positions
+                    .get(right)
+                    .ok_or_else(|| format!("topology embedding lacks region {right}"))?;
+                let (left_side, right_side) = topology_port_sides(
+                    left_position,
+                    right_position,
+                    port_order_attempt,
+                    seed,
+                    section.id.as_str(),
+                );
+                let left_order = if matches!(left_side, "north" | "south") {
+                    right_position.x
+                } else {
+                    right_position.y
+                };
+                let right_order = if matches!(right_side, "north" | "south") {
+                    left_position.x
+                } else {
+                    left_position.y
+                };
+                (left_side, right_side, left_order, right_order)
+            } else {
+                let (left_side, right_side) = physical_port_sides(
+                    left_depth,
+                    right_depth,
+                    left_order,
+                    right_order,
+                    seed,
+                    port_order_attempt,
+                    section.id.as_str(),
+                );
+                (
+                    left_side,
+                    right_side,
+                    i32::try_from(right_order).unwrap_or(i32::MAX),
+                    i32::try_from(left_order).unwrap_or(i32::MAX),
+                )
+            };
         demands.entry(left.to_owned()).or_default().push(PhysicalPortDemand {
             section_id: section.id.clone(),
             side: left_side.to_owned(),
             width: section.width,
-            opposite_order: right_order,
+            opposite_order: left_opposite_order,
         });
         demands.entry(right.to_owned()).or_default().push(PhysicalPortDemand {
             section_id: section.id.clone(),
             side: right_side.to_owned(),
             width: section.width,
-            opposite_order: left_order,
+            opposite_order: right_opposite_order,
         });
     }
     for room_demands in demands.values_mut() {
@@ -1580,6 +2542,51 @@ fn physical_port_demands(
         });
     }
     Ok(demands)
+}
+
+fn topology_port_sides(
+    left: &TopologyPoint,
+    right: &TopologyPoint,
+    attempt: u32,
+    seed: u64,
+    section_id: &str,
+) -> (&'static str, &'static str) {
+    let dx = right.x - left.x;
+    let dy = right.y - left.y;
+    let horizontal = if dx >= 0 {
+        ("east", "west")
+    } else {
+        ("west", "east")
+    };
+    let vertical = if dy >= 0 {
+        ("south", "north")
+    } else {
+        ("north", "south")
+    };
+    match attempt {
+        0 => {
+            if dx.abs() >= dy.abs() {
+                horizontal
+            } else {
+                vertical
+            }
+        }
+        _ => {
+            let variant =
+                geometry_layout_order_key(section_id, seed, u64::from(attempt)) % 3;
+            match variant {
+                0 => {
+                    if dx.abs() < dy.abs() {
+                        horizontal
+                    } else {
+                        vertical
+                    }
+                }
+                1 => (horizontal.0, vertical.1),
+                _ => (vertical.0, horizontal.1),
+            }
+        }
+    }
 }
 
 #[allow(clippy::too_many_arguments)]
@@ -1808,7 +2815,15 @@ fn route_physical_sections(
     seed: u64,
     order_nonce: u32,
     max_attempts: u32,
-) -> Result<(Vec<GeometryCorridor>, u32, u32), GeometryPlacementAttemptError> {
+) -> Result<
+    (
+        Vec<GeometryCorridor>,
+        u32,
+        u32,
+        PhysicalRouteSearchEvidence,
+    ),
+    GeometryPlacementAttemptError,
+> {
     let rooms_by_region = rooms
         .iter()
         .map(|room| (room.source_region.as_str(), room))
@@ -1825,10 +2840,10 @@ fn route_physical_sections(
             .unwrap_or(0);
         right_distance.cmp(&left_distance).then_with(|| left.id.cmp(&right.id))
     });
-    let mut orders = vec![sections.clone()];
+    let mut distance_orders = vec![sections.clone()];
     let mut reversed = sections.clone();
     reversed.reverse();
-    orders.push(reversed);
+    distance_orders.push(reversed);
     let mut seeded = sections.clone();
     seeded.sort_by(|left, right| {
         geometry_layout_order_key(left.id.as_str(), seed, u64::from(order_nonce))
@@ -1839,16 +2854,53 @@ fn route_physical_sections(
             ))
             .then_with(|| left.id.cmp(&right.id))
     });
-    orders.push(seeded.clone());
-    seeded.reverse();
-    orders.push(seeded);
+    let mut separator_order = sections.clone();
+    separator_order.sort_by(|left, right| {
+        let terminal_rank = |section: &PhysicalConnectionSection| {
+            u8::from(section.terminal_regions.iter().any(|region| {
+                region == "region.start" || region == "region.goal"
+            }))
+        };
+        let constrained_rank = |section: &PhysicalConnectionSection| {
+            u8::from(
+                section
+                    .traversal_refs
+                    .iter()
+                    .all(|reference| reference.traversal == "open"),
+            )
+        };
+        constrained_rank(left)
+            .cmp(&constrained_rank(right))
+            .then_with(|| terminal_rank(left).cmp(&terminal_rank(right)))
+            .then_with(|| left.id.cmp(&right.id))
+    });
+    let (orders, order_offset) = if max_attempts >= GEOMETRY_ROUTE_ORDER_COUNT {
+        (
+            vec![
+                separator_order.clone(),
+                distance_orders[0].clone(),
+                distance_orders[1].clone(),
+                seeded.clone(),
+            ],
+            0_u32,
+        )
+    } else if order_nonce % GEOMETRY_PORT_ORDER_COUNT == 0 {
+        (distance_orders, 0_u32)
+    } else {
+        (vec![seeded, separator_order], 2_u32)
+    };
     let mut attempted_orders = 0_u32;
     let mut last_error = "no physical route order was attempted".to_owned();
     for (index, order) in orders.into_iter().take(max_attempts as usize).enumerate() {
         attempted_orders += 1;
         match try_route_physical_sections(&order, &rooms_by_region, rooms, bounds) {
-            Ok(corridors) => {
-                return Ok((corridors, index as u32, attempted_orders));
+            Ok((corridors, evidence)) => {
+                return Ok((
+                    corridors,
+                    order_offset + index as u32,
+                    attempted_orders,
+                    evidence,
+                ));
             }
             Err(PhysicalRouteAttemptError::Invalid(error)) => {
                 return Err(GeometryPlacementAttemptError::Invalid(error));
@@ -1886,9 +2938,7 @@ fn try_route_physical_sections(
     rooms_by_region: &BTreeMap<&str, &GeometryRoom>,
     rooms: &[GeometryRoom],
     bounds: &GeometryBounds,
-) -> Result<Vec<GeometryCorridor>, PhysicalRouteAttemptError> {
-    let mut reserved = BTreeSet::new();
-    let mut corridors = Vec::new();
+) -> Result<(Vec<GeometryCorridor>, PhysicalRouteSearchEvidence), PhysicalRouteAttemptError> {
     for section in sections {
         let (from_room, to_room) = section_rooms(section, rooms_by_region)
             .ok_or_else(|| {
@@ -1917,23 +2967,96 @@ fn try_route_physical_sections(
                     to_room.id, section.id
                 ))
             })?;
-        let path = route_physical_section(
-            from_room,
-            from_port,
-            to_room,
-            to_port,
-            section.width,
+        let _ = (from_port, to_port);
+    }
+    let mut evidence = PhysicalRouteSearchEvidence::default();
+    let mut route_order = sections.to_vec();
+    let mut routed_result = None;
+    for repair_attempt in 0..=GEOMETRY_CONFLICT_REPAIR_BUDGET {
+        let mut attempt_evidence = PhysicalRouteSearchEvidence::default();
+        let mut routed = Vec::<(&PhysicalConnectionSection, Vec<GeometryPoint>)>::new();
+        if search_physical_section_routes(
+            &route_order,
+            rooms_by_region,
             rooms,
-            &reserved,
             bounds,
-        )
-        .ok_or_else(|| {
-            PhysicalRouteAttemptError::Unavailable(format!(
-                "single-floor route unavailable for physical section {}",
-                section.id
-            ))
-        })?;
-        reserve_geometry_route(&path, section.width, &mut reserved);
+            &mut routed,
+            &mut attempt_evidence,
+        ) {
+            merge_physical_route_evidence(&mut evidence, &attempt_evidence);
+            routed_result = Some(routed);
+            break;
+        }
+        let failed_section = attempt_evidence.last_failed_section.clone();
+        let blocking_owners = attempt_evidence.blocking_owners.clone();
+        merge_physical_route_evidence(&mut evidence, &attempt_evidence);
+        if repair_attempt == GEOMETRY_CONFLICT_REPAIR_BUDGET {
+            break;
+        }
+        let Some(failed_index) = route_order
+            .iter()
+            .position(|section| section.id == failed_section)
+        else {
+            break;
+        };
+        let blocking_index = route_order
+            .iter()
+            .enumerate()
+            .filter(|(index, section)| {
+                *index < failed_index && blocking_owners.contains(section.id.as_str())
+            })
+            .map(|(index, _)| index)
+            .min();
+        let Some(blocking_index) = blocking_index else {
+            break;
+        };
+        let failed = route_order.remove(failed_index);
+        route_order.insert(blocking_index, failed);
+        evidence.repairs = evidence.repairs.saturating_add(1);
+    }
+    let Some(routed) = routed_result else {
+        let budget = evidence
+            .budget_exhausted
+            .map(|budget| format!("; {budget} budget exhausted"))
+            .unwrap_or_default();
+        let blockers = if evidence.blocking_owners.is_empty() {
+            "none observed".to_owned()
+        } else {
+            evidence
+                .blocking_owners
+                .iter()
+                .cloned()
+                .collect::<Vec<_>>()
+                .join(", ")
+        };
+        return Err(PhysicalRouteAttemptError::Unavailable(format!(
+            "single-floor route search exhausted after routing at most {}/{} physical section(s), {} decision(s), {} backtrack(s), {} path alternative(s), {} repair(s), and {} grid expansion(s), with {} path expansion exhaustion(s){budget}; last failed section: {} {}; blocking owners: {blockers}",
+            evidence.deepest_routed,
+            sections.len(),
+            evidence.decisions,
+            evidence.backtracks,
+            evidence.path_alternatives,
+            evidence.repairs,
+            evidence.grid_expansions,
+            evidence.path_expansion_exhaustions,
+            evidence.last_failed_section,
+            evidence.last_failed_ports,
+        )));
+    };
+    let mut corridors = Vec::new();
+    for (section, path) in routed {
+        let (from_room, to_room) = section_rooms(section, rooms_by_region)
+            .expect("validated section rooms should remain available");
+        let from_port = from_room
+            .ports
+            .iter()
+            .find(|port| port.section_id == section.id)
+            .expect("validated source port should remain available");
+        let to_port = to_room
+            .ports
+            .iter()
+            .find(|port| port.section_id == section.id)
+            .expect("validated target port should remain available");
         let source_connector = section.source_connectors.first().cloned().unwrap_or_default();
         let source_edge = section.source_edges.first().cloned().unwrap_or_default();
         let traversal_hint = if section
@@ -1968,7 +3091,543 @@ fn try_route_physical_sections(
         });
     }
     corridors.sort_by(|left, right| left.physical_section.cmp(&right.physical_section));
-    Ok(corridors)
+    Ok((corridors, evidence))
+}
+
+fn merge_physical_route_evidence(
+    target: &mut PhysicalRouteSearchEvidence,
+    source: &PhysicalRouteSearchEvidence,
+) {
+    target.decisions = target.decisions.saturating_add(source.decisions);
+    target.backtracks = target.backtracks.saturating_add(source.backtracks);
+    target.path_alternatives = target
+        .path_alternatives
+        .saturating_add(source.path_alternatives);
+    target.repairs = target.repairs.saturating_add(source.repairs);
+    target.deepest_routed = target.deepest_routed.max(source.deepest_routed);
+    target
+        .blocking_owners
+        .extend(source.blocking_owners.iter().cloned());
+    target.budget_exhausted = source.budget_exhausted;
+    target.grid_expansions = target
+        .grid_expansions
+        .saturating_add(source.grid_expansions);
+    target.path_expansion_exhaustions = target
+        .path_expansion_exhaustions
+        .saturating_add(source.path_expansion_exhaustions);
+    target.last_failed_section = source.last_failed_section.clone();
+    target.last_failed_ports = source.last_failed_ports.clone();
+}
+
+#[allow(clippy::too_many_arguments)]
+fn search_physical_section_routes<'a>(
+    sections: &[&'a PhysicalConnectionSection],
+    rooms_by_region: &BTreeMap<&str, &GeometryRoom>,
+    rooms: &[GeometryRoom],
+    bounds: &GeometryBounds,
+    routed: &mut Vec<(&'a PhysicalConnectionSection, Vec<GeometryPoint>)>,
+    evidence: &mut PhysicalRouteSearchEvidence,
+) -> bool {
+    let mut prepared = Vec::new();
+    for section in sections {
+        let Some((from_room, to_room)) = section_rooms(section, rooms_by_region) else {
+            return false;
+        };
+        let Some(from_port) = from_room
+            .ports
+            .iter()
+            .find(|port| port.section_id == section.id)
+        else {
+            return false;
+        };
+        let Some(to_port) = to_room
+            .ports
+            .iter()
+            .find(|port| port.section_id == section.id)
+        else {
+            return false;
+        };
+        let alternatives = route_physical_section_alternatives(
+            from_room,
+            from_port,
+            to_room,
+            to_port,
+            section.width,
+            rooms,
+            &BTreeMap::new(),
+            bounds,
+        );
+        evidence
+            .blocking_owners
+            .extend(alternatives.blocking_owners.iter().cloned());
+        evidence.grid_expansions = evidence
+            .grid_expansions
+            .saturating_add(alternatives.grid_expansions);
+        evidence.path_expansion_exhaustions = evidence
+            .path_expansion_exhaustions
+            .saturating_add(alternatives.expansion_exhaustions);
+        evidence.path_alternatives = evidence
+            .path_alternatives
+            .saturating_add(alternatives.paths.len() as u32);
+        if alternatives.paths.is_empty() {
+            evidence.last_failed_section = section.id.clone();
+            evidence.last_failed_ports = format!(
+                "from {}@{},{}:{} to {}@{},{}:{}",
+                from_room.source_region,
+                from_port.point.x,
+                from_port.point.y,
+                from_port.side,
+                to_room.source_region,
+                to_port.point.x,
+                to_port.point.y,
+                to_port.side,
+            );
+            return false;
+        }
+        prepared.push(PreparedPhysicalSectionRoutes {
+            section,
+            paths: alternatives.paths,
+        });
+    }
+    let remaining = (0..prepared.len()).collect::<Vec<_>>();
+    search_prepared_physical_section_routes(
+        &prepared,
+        remaining,
+        rooms_by_region,
+        rooms,
+        bounds,
+        BTreeMap::new(),
+        routed,
+        evidence,
+    )
+}
+
+fn search_prepared_physical_section_routes<'a>(
+    sections: &[PreparedPhysicalSectionRoutes<'a>],
+    remaining: Vec<usize>,
+    rooms_by_region: &BTreeMap<&str, &GeometryRoom>,
+    rooms: &[GeometryRoom],
+    bounds: &GeometryBounds,
+    reserved: BTreeMap<(i32, i32), String>,
+    routed: &mut Vec<(&'a PhysicalConnectionSection, Vec<GeometryPoint>)>,
+    evidence: &mut PhysicalRouteSearchEvidence,
+) -> bool {
+    let depth = sections.len().saturating_sub(remaining.len());
+    evidence.deepest_routed = evidence.deepest_routed.max(depth);
+    if remaining.is_empty() {
+        return true;
+    }
+    if evidence.decisions >= GEOMETRY_ROUTE_DECISION_BUDGET {
+        evidence.budget_exhausted = Some("decision");
+        return false;
+    }
+    let mut selected = None::<(usize, Vec<usize>, BTreeSet<String>)>;
+    for section_index in remaining.iter().copied() {
+        let mut viable = Vec::new();
+        let mut blockers = BTreeSet::new();
+        for (path_index, path) in sections[section_index].paths.iter().enumerate() {
+            let mut blocked = false;
+            for point in path.iter().skip(1) {
+                if let Some(owner) = reserved.get(&(point.x, point.y)) {
+                    blockers.insert(owner.clone());
+                    blocked = true;
+                }
+            }
+            if !blocked {
+                viable.push(path_index);
+            }
+        }
+        if selected
+            .as_ref()
+            .is_none_or(|(_, current, _)| viable.len() < current.len())
+        {
+            selected = Some((section_index, viable, blockers));
+        }
+    }
+    let Some((section_index, viable, blockers)) = selected else {
+        return false;
+    };
+    let prepared = &sections[section_index];
+    let mut candidate_paths = viable
+        .into_iter()
+        .map(|path_index| prepared.paths[path_index].clone())
+        .collect::<Vec<_>>();
+    if candidate_paths.is_empty() {
+        let Some((from_room, to_room)) = section_rooms(prepared.section, rooms_by_region) else {
+            return false;
+        };
+        let Some(from_port) = from_room
+            .ports
+            .iter()
+            .find(|port| port.section_id == prepared.section.id)
+        else {
+            return false;
+        };
+        let Some(to_port) = to_room
+            .ports
+            .iter()
+            .find(|port| port.section_id == prepared.section.id)
+        else {
+            return false;
+        };
+        let alternatives = route_physical_section_alternatives(
+            from_room,
+            from_port,
+            to_room,
+            to_port,
+            prepared.section.width,
+            rooms,
+            &reserved,
+            bounds,
+        );
+        evidence
+            .blocking_owners
+            .extend(alternatives.blocking_owners.iter().cloned());
+        evidence.grid_expansions = evidence
+            .grid_expansions
+            .saturating_add(alternatives.grid_expansions);
+        evidence.path_expansion_exhaustions = evidence
+            .path_expansion_exhaustions
+            .saturating_add(alternatives.expansion_exhaustions);
+        evidence.path_alternatives = evidence
+            .path_alternatives
+            .saturating_add(alternatives.paths.len() as u32);
+        candidate_paths = alternatives.paths;
+        if candidate_paths.is_empty() {
+            evidence.blocking_owners.extend(blockers);
+            evidence.last_failed_section = prepared.section.id.clone();
+            evidence.last_failed_ports =
+                "blocked by bounded dynamic exclusive-route repair".to_owned();
+            return false;
+        }
+    }
+    let next_remaining = remaining
+        .into_iter()
+        .filter(|candidate| *candidate != section_index)
+        .collect::<Vec<_>>();
+    for (alternative_index, path) in candidate_paths.into_iter().enumerate() {
+        if evidence.decisions >= GEOMETRY_ROUTE_DECISION_BUDGET {
+            evidence.budget_exhausted = Some("decision");
+            return false;
+        }
+        evidence.decisions += 1;
+        let mut next_reserved = reserved.clone();
+        reserve_geometry_route(
+            &path,
+            prepared.section.width,
+            prepared.section.id.as_str(),
+            &mut next_reserved,
+        );
+        routed.push((prepared.section, path));
+        if search_prepared_physical_section_routes(
+            sections,
+            next_remaining.clone(),
+            rooms_by_region,
+            rooms,
+            bounds,
+            next_reserved,
+            routed,
+            evidence,
+        ) {
+            return true;
+        }
+        routed.pop();
+        if evidence.backtracks >= GEOMETRY_ROUTE_BACKTRACK_BUDGET {
+            evidence.budget_exhausted = Some("backtrack");
+            return false;
+        }
+        evidence.backtracks += 1;
+        if alternative_index > 0 || evidence.deepest_routed > depth + 1 {
+            evidence.repairs += 1;
+        }
+    }
+    if evidence.last_failed_section.is_empty() {
+        evidence.last_failed_section = prepared.section.id.clone();
+        evidence.last_failed_ports =
+            "blocked by precomputed exclusive route reservations".to_owned();
+    }
+    false
+}
+
+#[allow(clippy::too_many_arguments)]
+fn route_physical_section_alternatives(
+    from_room: &GeometryRoom,
+    from_port: &GeometryRoomPort,
+    to_room: &GeometryRoom,
+    to_port: &GeometryRoomPort,
+    width: i32,
+    rooms: &[GeometryRoom],
+    reserved: &BTreeMap<(i32, i32), String>,
+    bounds: &GeometryBounds,
+) -> PhysicalPathAlternatives {
+    let mut result = PhysicalPathAlternatives::default();
+    let start = GeometryPoint {
+        x: from_port.point.x,
+        y: from_port.point.y,
+    };
+    let end = GeometryPoint {
+        x: to_port.point.x,
+        y: to_port.point.y,
+    };
+    let middle_x = align_geometry((start.x + end.x) / 2, GEOMETRY_ROUTE_GRID);
+    let middle_y = align_geometry((start.y + end.y) / 2, GEOMETRY_ROUTE_GRID);
+    let clearance = width / 2 + GEOMETRY_CORRIDOR_SEPARATION;
+    let start_escape = geometry_port_escape_point(from_port, clearance);
+    let end_escape = geometry_port_escape_point(to_port, clearance);
+    for prefer_horizontal in [true, false] {
+        let path = rasterize_geometry_staircase_route(
+            &start,
+            &start_escape,
+            &end_escape,
+            &end,
+            prefer_horizontal,
+        );
+        let mut blocking_owners = BTreeSet::new();
+        if path.iter().skip(1).all(|point| {
+            geometry_route_available(
+                (point.x, point.y),
+                from_room,
+                from_port,
+                to_room,
+                to_port,
+                width,
+                rooms,
+                reserved,
+                &BTreeSet::new(),
+                bounds,
+                &mut blocking_owners,
+            )
+        }) && !result.paths.iter().any(|existing| existing == &path)
+        {
+            result.paths.push(path);
+        }
+        result.blocking_owners.extend(blocking_owners);
+    }
+    let waypoint_candidates = vec![
+        vec![
+            start.clone(),
+            GeometryPoint {
+                x: end.x,
+                y: start.y,
+            },
+            end.clone(),
+        ],
+        vec![
+            start.clone(),
+            GeometryPoint {
+                x: start.x,
+                y: end.y,
+            },
+            end.clone(),
+        ],
+        vec![
+            start.clone(),
+            GeometryPoint {
+                x: middle_x,
+                y: start.y,
+            },
+            GeometryPoint {
+                x: middle_x,
+                y: end.y,
+            },
+            end.clone(),
+        ],
+        vec![
+            start.clone(),
+            GeometryPoint {
+                x: start.x,
+                y: middle_y,
+            },
+            GeometryPoint {
+                x: end.x,
+                y: middle_y,
+            },
+            end.clone(),
+        ],
+    ];
+    for waypoints in waypoint_candidates {
+        let path = rasterize_topology_waypoints(&waypoints);
+        let mut blocking_owners = BTreeSet::new();
+        if path.iter().skip(1).all(|point| {
+            geometry_route_available(
+                (point.x, point.y),
+                from_room,
+                from_port,
+                to_room,
+                to_port,
+                width,
+                rooms,
+                reserved,
+                &BTreeSet::new(),
+                bounds,
+                &mut blocking_owners,
+            )
+        }) && !result.paths.iter().any(|existing| existing == &path)
+        {
+            result.paths.push(path);
+            if result.paths.len() >= GEOMETRY_PATH_ALTERNATIVES as usize {
+                return result;
+            }
+        }
+        result.blocking_owners.extend(blocking_owners);
+    }
+    let mut excluded = BTreeSet::new();
+    for nonce in 0..GEOMETRY_PATH_ALTERNATIVES {
+        let mut blocking_owners = BTreeSet::new();
+        let mut grid_expansions = 0_u32;
+        let mut expansion_exhausted = false;
+        let Some(path) = route_physical_section(
+            from_room,
+            from_port,
+            to_room,
+            to_port,
+            width,
+            rooms,
+            reserved,
+            &excluded,
+            bounds,
+            nonce,
+            &mut blocking_owners,
+            &mut grid_expansions,
+            &mut expansion_exhausted,
+        ) else {
+            result.blocking_owners.extend(blocking_owners);
+            result.grid_expansions = result.grid_expansions.saturating_add(grid_expansions);
+            result.expansion_exhaustions = result
+                .expansion_exhaustions
+                .saturating_add(u32::from(expansion_exhausted));
+            break;
+        };
+        result.blocking_owners.extend(blocking_owners);
+        result.grid_expansions = result.grid_expansions.saturating_add(grid_expansions);
+        let interior_start = (path.len() / 4).max(1);
+        let interior_end = path.len().saturating_sub(interior_start + 1);
+        if interior_end > interior_start {
+            let span = interior_end - interior_start;
+            let selected =
+                interior_start + (nonce as usize * span / GEOMETRY_PATH_ALTERNATIVES as usize);
+            exclude_geometry_route_band(&path, selected, &mut excluded);
+        }
+        if result.paths.iter().any(|existing| existing == &path) {
+            continue;
+        }
+        result.paths.push(path);
+        if result.paths.len() >= GEOMETRY_PATH_ALTERNATIVES as usize {
+            break;
+        }
+    }
+    result
+}
+
+fn geometry_port_escape_point(port: &GeometryRoomPort, clearance: i32) -> GeometryPoint {
+    let (dx, dy) = direction_vector(port.side.as_str());
+    let steps = align_geometry(clearance, GEOMETRY_ROUTE_GRID) / GEOMETRY_ROUTE_GRID + 1;
+    GeometryPoint {
+        x: port.point.x + dx * steps * GEOMETRY_ROUTE_GRID,
+        y: port.point.y + dy * steps * GEOMETRY_ROUTE_GRID,
+    }
+}
+
+fn rasterize_geometry_staircase_route(
+    start: &GeometryPoint,
+    start_escape: &GeometryPoint,
+    end_escape: &GeometryPoint,
+    end: &GeometryPoint,
+    prefer_horizontal: bool,
+) -> Vec<GeometryPoint> {
+    let mut path = rasterize_topology_waypoints(&[start.clone(), start_escape.clone()]);
+    let mut cursor = (start_escape.x, start_escape.y);
+    let target = (end_escape.x, end_escape.y);
+    let span_x = i64::from(target.0 - cursor.0);
+    let span_y = i64::from(target.1 - cursor.1);
+    let origin = cursor;
+    while cursor != target {
+        let mut candidates = Vec::new();
+        if cursor.0 != target.0 {
+            candidates.push((
+                cursor.0 + (target.0 - cursor.0).signum() * GEOMETRY_ROUTE_GRID,
+                cursor.1,
+                true,
+            ));
+        }
+        if cursor.1 != target.1 {
+            candidates.push((
+                cursor.0,
+                cursor.1 + (target.1 - cursor.1).signum() * GEOMETRY_ROUTE_GRID,
+                false,
+            ));
+        }
+        candidates.sort_by_key(|candidate| {
+            let relative_x = i64::from(candidate.0 - origin.0);
+            let relative_y = i64::from(candidate.1 - origin.1);
+            (
+                (span_x * relative_y - span_y * relative_x).unsigned_abs(),
+                u8::from(candidate.2 != prefer_horizontal),
+            )
+        });
+        let next = candidates[0];
+        cursor = (next.0, next.1);
+        path.push(GeometryPoint {
+            x: cursor.0,
+            y: cursor.1,
+        });
+    }
+    path.extend(rasterize_topology_waypoints(&[
+        end_escape.clone(),
+        end.clone(),
+    ]));
+    dedupe_points(path)
+}
+
+fn exclude_geometry_route_band(
+    path: &[GeometryPoint],
+    center: usize,
+    excluded: &mut BTreeSet<(i32, i32)>,
+) {
+    let start = center.saturating_sub(4).max(1);
+    let end = center
+        .saturating_add(5)
+        .min(path.len().saturating_sub(1));
+    for point in path.iter().take(end).skip(start) {
+        for dy in -2_i32..=2 {
+            for dx in -2_i32..=2 {
+                if dx.abs() + dy.abs() <= 2 {
+                    excluded.insert((
+                        point.x + dx * GEOMETRY_ROUTE_GRID,
+                        point.y + dy * GEOMETRY_ROUTE_GRID,
+                    ));
+                }
+            }
+        }
+    }
+}
+
+fn rasterize_topology_waypoints(waypoints: &[GeometryPoint]) -> Vec<GeometryPoint> {
+    let mut path = Vec::new();
+    for segment in waypoints.windows(2) {
+        let from = &segment[0];
+        let to = &segment[1];
+        if from.x != to.x && from.y != to.y {
+            return Vec::new();
+        }
+        let dx = (to.x - from.x).signum() * GEOMETRY_ROUTE_GRID;
+        let dy = (to.y - from.y).signum() * GEOMETRY_ROUTE_GRID;
+        let mut cursor = (from.x, from.y);
+        if path.is_empty() {
+            path.push(GeometryPoint {
+                x: cursor.0,
+                y: cursor.1,
+            });
+        }
+        while cursor != (to.x, to.y) {
+            cursor = (cursor.0 + dx, cursor.1 + dy);
+            path.push(GeometryPoint {
+                x: cursor.0,
+                y: cursor.1,
+            });
+        }
+    }
+    dedupe_points(path)
 }
 
 #[allow(clippy::too_many_arguments)]
@@ -1979,15 +3638,40 @@ fn route_physical_section(
     to_port: &GeometryRoomPort,
     width: i32,
     rooms: &[GeometryRoom],
-    reserved: &BTreeSet<(i32, i32)>,
+    reserved: &BTreeMap<(i32, i32), String>,
+    excluded: &BTreeSet<(i32, i32)>,
     bounds: &GeometryBounds,
+    nonce: u32,
+    blocking_owners: &mut BTreeSet<String>,
+    grid_expansions: &mut u32,
+    expansion_exhausted: &mut bool,
 ) -> Option<Vec<GeometryPoint>> {
     let start = (from_port.point.x, from_port.point.y);
     let end = (to_port.point.x, to_port.point.y);
-    let mut queue = VecDeque::from([start]);
-    let mut seen = HashSet::from([start]);
+    let mut queue = BinaryHeap::new();
+    queue.push(Reverse((
+        geometry_route_heuristic(start, end).saturating_mul(2),
+        u32::MAX,
+        geometry_route_tie_key(start, nonce),
+        start.0,
+        start.1,
+    )));
+    let mut costs = HashMap::from([(start, 0_u32)]);
     let mut previous = HashMap::new();
-    while let Some(position) = queue.pop_front() {
+    while let Some(Reverse((_estimate, reverse_cost, _tie, x, y))) = queue.pop() {
+        let cost = u32::MAX - reverse_cost;
+        if *grid_expansions >= GEOMETRY_PATH_EXPANSION_BUDGET {
+            *expansion_exhausted = true;
+            blocking_owners.insert(format!(
+                "path_expansion_budget:{GEOMETRY_PATH_EXPANSION_BUDGET}"
+            ));
+            return None;
+        }
+        *grid_expansions += 1;
+        let position = (x, y);
+        if costs.get(&position).copied() != Some(cost) {
+            continue;
+        }
         if position == end {
             break;
         }
@@ -1997,10 +3681,14 @@ fn route_physical_section(
             (position.0 - GEOMETRY_ROUTE_GRID, position.1),
             (position.0, position.1 - GEOMETRY_ROUTE_GRID),
         ];
-        neighbors.sort_by_key(|neighbor| neighbor.0.abs_diff(end.0) + neighbor.1.abs_diff(end.1));
+        neighbors.sort_by_key(|neighbor| {
+            (
+                neighbor.0.abs_diff(end.0) + neighbor.1.abs_diff(end.1),
+                geometry_route_tie_key(*neighbor, nonce),
+            )
+        });
         for neighbor in neighbors {
-            if !seen.insert(neighbor)
-                || !geometry_route_available(
+            if !geometry_route_available(
                     neighbor,
                     from_room,
                     from_port,
@@ -2009,16 +3697,33 @@ fn route_physical_section(
                     width,
                     rooms,
                     reserved,
+                    excluded,
                     bounds,
-                )
+                    blocking_owners,
+                ) {
+                continue;
+            }
+            let next_cost = cost.saturating_add(1);
+            if costs
+                .get(&neighbor)
+                .is_some_and(|existing| *existing <= next_cost)
             {
                 continue;
             }
+            costs.insert(neighbor, next_cost);
             previous.insert(neighbor, position);
-            queue.push_back(neighbor);
+            queue.push(Reverse((
+                next_cost.saturating_add(
+                    geometry_route_heuristic(neighbor, end).saturating_mul(2),
+                ),
+                u32::MAX - next_cost,
+                geometry_route_tie_key(neighbor, nonce),
+                neighbor.0,
+                neighbor.1,
+            )));
         }
     }
-    if !seen.contains(&end) {
+    if !costs.contains_key(&end) {
         return None;
     }
     let mut path = vec![GeometryPoint { x: end.0, y: end.1 }];
@@ -2031,6 +3736,20 @@ fn route_physical_section(
     Some(path)
 }
 
+fn geometry_route_heuristic(position: (i32, i32), end: (i32, i32)) -> u32 {
+    (position.0.abs_diff(end.0) + position.1.abs_diff(end.1))
+        / u32::try_from(GEOMETRY_ROUTE_GRID).expect("positive route grid")
+}
+
+fn geometry_route_tie_key(position: (i32, i32), nonce: u32) -> u64 {
+    let x = u64::from(position.0 as u32);
+    let y = u64::from(position.1 as u32);
+    x.wrapping_mul(0x9E37_79B1)
+        .rotate_left(nonce.saturating_mul(7) % 63 + 1)
+        ^ y.wrapping_mul(0x85EB_CA77)
+        ^ u64::from(nonce).wrapping_mul(0xC2B2_AE3D_27D4_EB4F)
+}
+
 #[allow(clippy::too_many_arguments)]
 fn geometry_route_available(
     position: (i32, i32),
@@ -2040,15 +3759,21 @@ fn geometry_route_available(
     to_port: &GeometryRoomPort,
     width: i32,
     rooms: &[GeometryRoom],
-    reserved: &BTreeSet<(i32, i32)>,
+    reserved: &BTreeMap<(i32, i32), String>,
+    excluded: &BTreeSet<(i32, i32)>,
     bounds: &GeometryBounds,
+    blocking_owners: &mut BTreeSet<String>,
 ) -> bool {
     if position.0 < 0
         || position.1 < 0
         || position.0 > bounds.width
         || position.1 > bounds.height
-        || reserved.contains(&position)
+        || excluded.contains(&position)
     {
+        return false;
+    }
+    if let Some(owner) = reserved.get(&position) {
+        blocking_owners.insert(owner.clone());
         return false;
     }
     let clearance = width / 2 + GEOMETRY_CORRIDOR_SEPARATION;
@@ -2060,8 +3785,15 @@ fn geometry_route_available(
         if !blocked {
             return true;
         }
-        (room.id == from_room.id && geometry_port_approach_contains(position, from_port, clearance))
-            || (room.id == to_room.id && geometry_port_approach_contains(position, to_port, clearance))
+        let approach =
+            (room.id == from_room.id
+                && geometry_port_approach_contains(position, from_port, clearance))
+                || (room.id == to_room.id
+                    && geometry_port_approach_contains(position, to_port, clearance));
+        if !approach {
+            blocking_owners.insert(format!("room:{}", room.source_region));
+        }
+        approach
     })
 }
 
@@ -2084,18 +3816,23 @@ fn geometry_port_approach_contains(
 fn reserve_geometry_route(
     path: &[GeometryPoint],
     width: i32,
-    reserved: &mut BTreeSet<(i32, i32)>,
+    section_id: &str,
+    reserved: &mut BTreeMap<(i32, i32), String>,
 ) {
-    let radius = align_geometry(width / 2 + GEOMETRY_CORRIDOR_SEPARATION + 10, GEOMETRY_ROUTE_GRID)
-        / GEOMETRY_ROUTE_GRID;
+    let required = width / 2
+        + GEOMETRY_CORRIDOR_SEPARATION
+        + GEOMETRY_MAX_CORRIDOR_HALF_WIDTH;
+    let radius = required.saturating_sub(1) / GEOMETRY_ROUTE_GRID;
     for point in path {
         for dy in -radius..=radius {
             for dx in -radius..=radius {
                 if dx.abs() + dy.abs() <= radius {
-                    reserved.insert((
-                        point.x + dx * GEOMETRY_ROUTE_GRID,
-                        point.y + dy * GEOMETRY_ROUTE_GRID,
-                    ));
+                    reserved
+                        .entry((
+                            point.x + dx * GEOMETRY_ROUTE_GRID,
+                            point.y + dy * GEOMETRY_ROUTE_GRID,
+                        ))
+                        .or_insert_with(|| section_id.to_owned());
                 }
             }
         }

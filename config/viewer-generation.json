@@ -84,7 +84,7 @@
     }
   },
   "corridorRealization": {
-    "value": "hybrid",
+    "value": "catalog",
     "defaultValue": "hybrid"
   }
 }

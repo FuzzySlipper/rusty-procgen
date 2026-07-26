@@ -3,7 +3,7 @@
   "schemaVersion": 1,
   "catalogId": "shape_catalog.2d_basic.v1",
   "catalogRef": "fixtures/shape-catalogs/2d-basic.json",
-  "shapeCount": 20,
+  "shapeCount": 25,
   "placementPolicy": {
     "schemaVersion": 1,
     "minimumClearanceCells": 3,
@@ -158,6 +158,74 @@
       ]
     },
     {
+      "shapeId": "shape.room.threshold.19x14_multi_exit",
+      "pieceKinds": [
+        "threshold"
+      ],
+      "footprintCells": 266,
+      "reservedCells": 0,
+      "exitCount": 8,
+      "featureSocketKinds": [
+        "gate_line"
+      ],
+      "allowedTransforms": [
+        "identity"
+      ],
+      "tags": [
+        "medium",
+        "threshold",
+        "gate",
+        "distinct_portals",
+        "pure_catalog_only"
+      ]
+    },
+    {
+      "shapeId": "shape.room.pocket.9x9_west_south",
+      "pieceKinds": [
+        "key",
+        "resource"
+      ],
+      "footprintCells": 81,
+      "reservedCells": 0,
+      "exitCount": 2,
+      "featureSocketKinds": [
+        "key_pickup",
+        "resource_clue"
+      ],
+      "allowedTransforms": [
+        "identity"
+      ],
+      "tags": [
+        "small",
+        "small_pocket",
+        "pickup_pocket",
+        "distinct_portals",
+        "pure_catalog_only"
+      ]
+    },
+    {
+      "shapeId": "shape.room.marker.9x9_two_east",
+      "pieceKinds": [
+        "room"
+      ],
+      "footprintCells": 81,
+      "reservedCells": 0,
+      "exitCount": 2,
+      "featureSocketKinds": [
+        "marker"
+      ],
+      "allowedTransforms": [
+        "identity"
+      ],
+      "tags": [
+        "medium",
+        "marker_room",
+        "start",
+        "distinct_portals",
+        "pure_catalog_only"
+      ]
+    },
+    {
       "shapeId": "shape.corridor.straight.1",
       "pieceKinds": [
         "corridor",
@@ -216,6 +284,28 @@
       ]
     },
     {
+      "shapeId": "shape.corridor.bend.1x1",
+      "pieceKinds": [
+        "bend"
+      ],
+      "footprintCells": 1,
+      "reservedCells": 0,
+      "exitCount": 2,
+      "featureSocketKinds": [],
+      "allowedTransforms": [
+        "identity",
+        "rotate90",
+        "rotate180",
+        "rotate270"
+      ],
+      "tags": [
+        "corridor",
+        "bend",
+        "bend_tight",
+        "pure_catalog_only"
+      ]
+    },
+    {
       "shapeId": "shape.corridor.bend.2x2",
       "pieceKinds": [
         "bend"
@@ -234,6 +324,28 @@
         "corridor",
         "bend",
         "bend_small"
+      ]
+    },
+    {
+      "shapeId": "shape.corridor.bend.3x3",
+      "pieceKinds": [
+        "bend"
+      ],
+      "footprintCells": 5,
+      "reservedCells": 0,
+      "exitCount": 2,
+      "featureSocketKinds": [],
+      "allowedTransforms": [
+        "identity",
+        "rotate90",
+        "rotate180",
+        "rotate270"
+      ],
+      "tags": [
+        "corridor",
+        "bend",
+        "bend_large",
+        "pure_catalog_only"
       ]
     },
     {
@@ -536,7 +648,8 @@
       "tags": [
         "large",
         "flow_junction",
-        "distinct_portals"
+        "distinct_portals",
+        "pure_catalog_fallback"
       ]
     }
   ],

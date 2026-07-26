@@ -251,6 +251,19 @@ mod tests {
                 search_attempts: 1,
                 effective_spacing: geometry_spacing_for_tier(&default_geometry_layout_policy(), 0)
                     .expect("default spacing"),
+                embedding_kind: default_geometry_embedding_kind(),
+                embedding_id: "depth-columns.v1".to_owned(),
+                embedding_faces: 0,
+                embedding_target_faces: 0,
+                embedding_search_steps: 0,
+                route_decisions: 0,
+                route_backtracks: 0,
+                route_path_alternatives: 0,
+                route_repairs: 0,
+                route_grid_expansions: 0,
+                route_path_expansion_exhaustions: 0,
+                route_last_failed_section: String::new(),
+                route_blocking_owners: Vec::new(),
             },
             bounds: GeometryBounds {
                 width: 480,
@@ -2615,6 +2628,7 @@ mod tests {
             geometry_args.seed,
             0,
             2,
+            None,
         )
         .expect_err("the original fixed room/route decision should reject");
         assert!(matches!(
