@@ -1796,9 +1796,23 @@ fn endpoint_fanout_offset(
 }
 
 fn placement_geometry_scale(placement: &PiecePlacement) -> i32 {
-    let scale_multiplier =
-        i32::try_from(placement.realization_search.realization_scale_tier + 1).unwrap_or(i32::MAX);
+    let scale_multiplier = realization_scale_multiplier(
+        placement.realization_search.realization_scale_tier,
+    )
+    .filter(|scale_multiplier| REALIZATION_SCALE_MULTIPLIERS.contains(scale_multiplier))
+    .unwrap_or_else(|| {
+        REALIZATION_SCALE_MULTIPLIERS
+            .last()
+            .copied()
+            .unwrap_or(1)
+    });
     geometry_scale_for_multiplier(&placement.placement_policy, scale_multiplier)
+}
+
+fn realization_scale_multiplier(realization_scale_tier: u32) -> Option<i32> {
+    realization_scale_tier
+        .checked_add(1)
+        .and_then(|scale_multiplier| i32::try_from(scale_multiplier).ok())
 }
 
 fn geometry_scale_for_multiplier(
@@ -2240,15 +2254,21 @@ fn validate_piece_placement(placement: &PiecePlacement) -> ValidationReport {
     }
     validate_piece_placement_policy(&placement.placement_policy, &mut diagnostics);
     validate_corridor_realization(placement, &mut diagnostics);
-    let selected_scale_multiplier =
-        i32::try_from(placement.realization_search.realization_scale_tier + 1)
-            .unwrap_or(i32::MAX);
-    let selected_route_budget = piece_route_search_budget(selected_scale_multiplier);
+    let selected_scale_multiplier = realization_scale_multiplier(
+        placement.realization_search.realization_scale_tier,
+    );
+    let selected_route_budget = selected_scale_multiplier
+        .map(piece_route_search_budget)
+        .unwrap_or(FULL_PIECE_ROUTE_SEARCH_BUDGET);
+    let expected_realization_attempts = placement
+        .realization_search
+        .realization_scale_tier
+        .checked_add(1);
     if placement.realization_search.realization_attempts == 0
         || placement.realization_search.realization_attempts
             > REALIZATION_SCALE_MULTIPLIERS.len() as u32
-        || placement.realization_search.realization_attempts
-            != placement.realization_search.realization_scale_tier + 1
+        || expected_realization_attempts
+            != Some(placement.realization_search.realization_attempts)
         || placement.realization_search.realization_scale_tier
             >= REALIZATION_SCALE_MULTIPLIERS.len() as u32
         || placement.realization_search.route_attempts == 0

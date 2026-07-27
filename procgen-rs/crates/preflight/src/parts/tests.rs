@@ -3036,6 +3036,18 @@ mod tests {
             .iter()
             .any(|diagnostic| diagnostic.code == "piece_realization_search_evidence_invalid"));
 
+        let mut overflowing_search_evidence = placement.clone();
+        overflowing_search_evidence
+            .realization_search
+            .realization_scale_tier = u32::MAX;
+        let report = validate_piece_placement(&overflowing_search_evidence);
+        assert!(!report.ok);
+        assert!(report.fatal_count > 0);
+        assert!(report
+            .diagnostics
+            .iter()
+            .any(|diagnostic| diagnostic.code == "piece_realization_search_evidence_invalid"));
+
         let mut unreachable = placement;
         unreachable.glued_exits.clear();
         unreachable.dangling_exits.clear();
