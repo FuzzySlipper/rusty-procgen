@@ -168,6 +168,13 @@ for (const baseline of fixture.compactnessBaseline) {
       selectedEmbedding: geometry.layoutSearch.embeddingId,
       spacingTier: geometry.layoutSearch.spacingTier,
     },
+    physicalRealization: {
+      scaleMultiplier: placement.realizationSearch.realizationScaleTier + 1,
+      attempts: placement.realizationSearch.realizationAttempts,
+      routeDecisions: placement.realizationSearch.routeDecisions,
+      routeBacktracks: placement.realizationSearch.routeBacktracks,
+      routeBudgetExhausted: placement.realizationSearch.routeBudgetExhausted,
+    },
     refs: {
       geometry: accepted.geometryRef,
       placement: accepted.piecePlacementRef,

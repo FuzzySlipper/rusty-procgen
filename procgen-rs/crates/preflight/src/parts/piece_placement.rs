@@ -30,15 +30,8 @@ fn assemble_piece_placement(
         return assemble_pure_catalog_placement(catalog, plan, shape_match, args);
     }
     let mut last_error = "no piece realization was attempted".to_owned();
-    let minimum_scale_multiplier = minimum_projection_scale_multiplier(
-        &catalog.placement_policy,
-        plan.links.iter().any(|link| !link.route_points.is_empty()),
-    );
     let mut realization_attempts = 0_u32;
-    for scale_multiplier in REALIZATION_SCALE_MULTIPLIERS
-        .into_iter()
-        .filter(|scale_multiplier| *scale_multiplier >= minimum_scale_multiplier)
-    {
+    for scale_multiplier in REALIZATION_SCALE_MULTIPLIERS {
         realization_attempts = realization_attempts.saturating_add(1);
         match assemble_piece_placement_attempt(
             catalog,
@@ -66,21 +59,6 @@ fn assemble_piece_placement(
     Err(format!(
         "piece realization search exhausted after {realization_attempts} scale tier(s); last realization failure: {last_error}"
     ))
-}
-
-fn minimum_projection_scale_multiplier(
-    policy: &PiecePlacementPolicy,
-    has_geometry_lanes: bool,
-) -> i32 {
-    if !has_geometry_lanes {
-        return 1;
-    }
-    let placement_unit = (policy.minimum_clearance_cells + policy.wall_thickness_cells).max(1);
-    let required_geometry_scale = policy
-        .minimum_clearance_cells
-        .saturating_add(1)
-        .saturating_mul(3);
-    (required_geometry_scale + placement_unit - 1) / placement_unit
 }
 
 fn assemble_piece_placement_attempt(
@@ -300,7 +278,9 @@ fn assemble_piece_placement_attempt(
     if placement.corridor_realization == CorridorRealization::Catalog {
         placement.realization_search.route_attempts = 1;
     } else {
-        let (connection_cells, route_search) = derive_connection_cells(&placement)?;
+        let route_budget = piece_route_search_budget(scale_multiplier);
+        let (connection_cells, route_search) =
+            derive_connection_cells_with_budget(&placement, route_budget)?;
         placement.connection_cells = connection_cells;
         placement.realization_search.route_order_attempt = route_search.route_order_attempt;
         placement.realization_search.route_attempts = route_search.route_attempts;
@@ -862,14 +842,51 @@ fn collect_section_room_endpoints(placement: &PiecePlacement) -> SectionRoomEndp
     section_room_endpoints
 }
 
-const PIECE_ROUTE_ORDER_COUNT: u32 = 4;
 const REALIZATION_SCALE_MULTIPLIERS: [i32; 4] = [1, 2, 3, 4];
-const PIECE_ROUTE_PATH_ALTERNATIVES: u32 = 4;
-const PIECE_ROUTE_DECISION_BUDGET: u32 = 256;
-const PIECE_ROUTE_BACKTRACK_BUDGET: u32 = 128;
 
+#[derive(Clone, Copy)]
+struct PieceRouteSearchBudget {
+    compact_probe: bool,
+    order_attempts: usize,
+    path_alternatives: u32,
+    decisions: u32,
+    backtracks: u32,
+}
+
+const FULL_PIECE_ROUTE_SEARCH_BUDGET: PieceRouteSearchBudget = PieceRouteSearchBudget {
+    compact_probe: false,
+    order_attempts: 4,
+    path_alternatives: 4,
+    decisions: 256,
+    backtracks: 128,
+};
+
+const COMPACT_PIECE_ROUTE_PROBE_BUDGET: PieceRouteSearchBudget = PieceRouteSearchBudget {
+    compact_probe: true,
+    order_attempts: 1,
+    path_alternatives: 1,
+    decisions: 16,
+    backtracks: 8,
+};
+
+fn piece_route_search_budget(scale_multiplier: i32) -> PieceRouteSearchBudget {
+    if scale_multiplier < 3 {
+        COMPACT_PIECE_ROUTE_PROBE_BUDGET
+    } else {
+        FULL_PIECE_ROUTE_SEARCH_BUDGET
+    }
+}
+
+#[cfg(test)]
 fn derive_connection_cells(
     placement: &PiecePlacement,
+) -> Result<(Vec<PlacementCellRef>, PieceRealizationSearchEvidence), String> {
+    derive_connection_cells_with_budget(placement, FULL_PIECE_ROUTE_SEARCH_BUDGET)
+}
+
+fn derive_connection_cells_with_budget(
+    placement: &PiecePlacement,
+    budget: PieceRouteSearchBudget,
 ) -> Result<(Vec<PlacementCellRef>, PieceRealizationSearchEvidence), String> {
     let mut base_order = placement.glued_exits.iter().collect::<Vec<_>>();
     let mut orders = Vec::new();
@@ -902,11 +919,11 @@ fn derive_connection_cells(
     let mut route_attempts = 0_u32;
     for (route_order_attempt, order) in orders
         .into_iter()
-        .take(PIECE_ROUTE_ORDER_COUNT as usize)
+        .take(budget.order_attempts)
         .enumerate()
     {
         route_attempts += 1;
-        match try_derive_connection_cells(placement, &order) {
+        match try_derive_connection_cells(placement, &order, budget) {
             Ok((cells, mut search)) => {
                 search.route_order_attempt = route_order_attempt as u32;
                 search.route_attempts = route_attempts;
@@ -926,6 +943,7 @@ fn derive_connection_cells(
 fn try_derive_connection_cells(
     placement: &PiecePlacement,
     glued_order: &[&GluedExit],
+    budget: PieceRouteSearchBudget,
 ) -> Result<(Vec<PlacementCellRef>, PieceRealizationSearchEvidence), String> {
     let instances = placement
         .instances
@@ -948,47 +966,49 @@ fn try_derive_connection_cells(
     let bounds = placement_route_bounds(placement);
     let mut ranked_order = glued_order.to_vec();
     let empty_routed_sections = RoutedSections::new();
-    ranked_order.sort_by_cached_key(|glued| {
-        let same_section_instances = section_instances
-            .get(glued.source_section.as_str())
-            .unwrap_or(&no_section_instances);
-        let alternatives = (0..PIECE_ROUTE_PATH_ALTERNATIVES)
-            .filter_map(|route_nonce| {
-                let bridge = route_connection_for_mode(
-                    placement,
-                    glued,
-                    &occupied_by_cell,
-                    &reserved,
-                    &empty_routed_sections,
-                    &section_room_endpoints,
-                    same_section_instances,
-                    bounds,
-                    route_nonce,
-                )?;
-                if placement.corridor_realization == CorridorRealization::Hybrid {
-                    stitch_catalog_section_pieces(
+    if !budget.compact_probe {
+        ranked_order.sort_by_cached_key(|glued| {
+            let same_section_instances = section_instances
+                .get(glued.source_section.as_str())
+                .unwrap_or(&no_section_instances);
+            let alternatives = (0..budget.path_alternatives)
+                .filter_map(|route_nonce| {
+                    let bridge = route_connection_for_mode(
                         placement,
                         glued,
-                        bridge,
                         &occupied_by_cell,
                         &reserved,
                         &empty_routed_sections,
                         &section_room_endpoints,
                         same_section_instances,
+                        bounds,
                         route_nonce,
-                    )
-                } else {
-                    Some(bridge)
-                }
-            })
-            .map(|path| {
-                path.into_iter()
-                    .map(|cell| (cell.x, cell.y))
-                    .collect::<Vec<_>>()
-            })
-            .collect::<BTreeSet<_>>();
-        (alternatives.len(), glued.id.clone())
-    });
+                    )?;
+                    if placement.corridor_realization == CorridorRealization::Hybrid {
+                        stitch_catalog_section_pieces(
+                            placement,
+                            glued,
+                            bridge,
+                            &occupied_by_cell,
+                            &reserved,
+                            &empty_routed_sections,
+                            &section_room_endpoints,
+                            same_section_instances,
+                            route_nonce,
+                        )
+                    } else {
+                        Some(bridge)
+                    }
+                })
+                .map(|path| {
+                    path.into_iter()
+                        .map(|cell| (cell.x, cell.y))
+                        .collect::<Vec<_>>()
+                })
+                .collect::<BTreeSet<_>>();
+            (alternatives.len(), glued.id.clone())
+        });
+    }
     let mut search = PieceRealizationSearchEvidence::default();
     let (cells, _) = search_piece_connection_cells(
         placement,
@@ -1004,6 +1024,7 @@ fn try_derive_connection_cells(
         RoutedSections::new(),
         Vec::new(),
         &mut search,
+        budget,
     )?;
     Ok((cells, search))
 }
@@ -1023,40 +1044,45 @@ fn search_piece_connection_cells(
     routed_sections: RoutedSections,
     cells: Vec<PlacementCellRef>,
     search: &mut PieceRealizationSearchEvidence,
+    budget: PieceRouteSearchBudget,
 ) -> Result<(Vec<PlacementCellRef>, RoutedSections), String> {
     if index >= glued_order.len() {
         return Ok((cells, routed_sections));
     }
     let mut selected_order = glued_order.to_vec();
-    let selected_index = (index..selected_order.len())
-        .min_by_key(|candidate_index| {
-            let glued = selected_order[*candidate_index];
-            let same_section_instances = section_instances
-                .get(glued.source_section.as_str())
-                .unwrap_or(no_section_instances);
-            (0..PIECE_ROUTE_PATH_ALTERNATIVES)
-                .filter_map(|route_nonce| {
-                    route_connection_for_mode(
-                        placement,
-                        glued,
-                        occupied_by_cell,
-                        reserved,
-                        &routed_sections,
-                        section_room_endpoints,
-                        same_section_instances,
-                        bounds,
-                        route_nonce,
-                    )
-                })
-                .map(|path| {
-                    path.into_iter()
-                        .map(|cell| (cell.x, cell.y))
-                        .collect::<Vec<_>>()
-                })
-                .collect::<BTreeSet<_>>()
-                .len()
-        })
-        .expect("non-empty remaining piece routes");
+    let selected_index = if budget.compact_probe {
+        index
+    } else {
+        (index..selected_order.len())
+            .min_by_key(|candidate_index| {
+                let glued = selected_order[*candidate_index];
+                let same_section_instances = section_instances
+                    .get(glued.source_section.as_str())
+                    .unwrap_or(no_section_instances);
+                (0..budget.path_alternatives)
+                    .filter_map(|route_nonce| {
+                        route_connection_for_mode(
+                            placement,
+                            glued,
+                            occupied_by_cell,
+                            reserved,
+                            &routed_sections,
+                            section_room_endpoints,
+                            same_section_instances,
+                            bounds,
+                            route_nonce,
+                        )
+                    })
+                    .map(|path| {
+                        path.into_iter()
+                            .map(|cell| (cell.x, cell.y))
+                            .collect::<Vec<_>>()
+                    })
+                    .collect::<BTreeSet<_>>()
+                    .len()
+            })
+            .expect("non-empty remaining piece routes")
+    };
     selected_order.swap(index, selected_index);
     let glued = selected_order[index];
     let Some(from) = instances.get(glued.from_instance.as_str()) else {
@@ -1074,6 +1100,7 @@ fn search_piece_connection_cells(
             routed_sections,
             cells,
             search,
+            budget,
         );
     };
     let Some(to) = instances.get(glued.to_instance.as_str()) else {
@@ -1091,6 +1118,7 @@ fn search_piece_connection_cells(
             routed_sections,
             cells,
             search,
+            budget,
         );
     };
     let same_section_instances = section_instances
@@ -1099,12 +1127,12 @@ fn search_piece_connection_cells(
     let instance_id = format!("connection.{}", slugify_label(glued.id.as_str()));
     let mut distinct_paths = BTreeSet::new();
     let mut last_error = String::new();
-    for route_nonce in 0..PIECE_ROUTE_PATH_ALTERNATIVES {
-        if search.route_decisions >= PIECE_ROUTE_DECISION_BUDGET {
+    for route_nonce in 0..budget.path_alternatives {
+        if search.route_decisions >= budget.decisions {
             search.route_budget_exhausted = Some("decision".to_owned());
             return Err(format!(
-                "piece route decision budget {PIECE_ROUTE_DECISION_BUDGET} exhausted while routing {}",
-                glued.id
+                "piece route decision budget {} exhausted while routing {}",
+                budget.decisions, glued.id
             ));
         }
         let bridge = route_connection_for_mode(
@@ -1221,15 +1249,16 @@ fn search_piece_connection_cells(
             next_routed_sections,
             next_cells,
             search,
+            budget,
         ) {
             Ok(result) => return Ok(result),
             Err(error) => last_error = error,
         }
-        if search.route_backtracks >= PIECE_ROUTE_BACKTRACK_BUDGET {
+        if search.route_backtracks >= budget.backtracks {
             search.route_budget_exhausted = Some("backtrack".to_owned());
             return Err(format!(
-                "piece route backtrack budget {PIECE_ROUTE_BACKTRACK_BUDGET} exhausted while routing {}",
-                glued.id
+                "piece route backtrack budget {} exhausted while routing {}",
+                budget.backtracks, glued.id
             ));
         }
         search.route_backtracks = search.route_backtracks.saturating_add(1);
@@ -2211,15 +2240,24 @@ fn validate_piece_placement(placement: &PiecePlacement) -> ValidationReport {
     }
     validate_piece_placement_policy(&placement.placement_policy, &mut diagnostics);
     validate_corridor_realization(placement, &mut diagnostics);
+    let selected_scale_multiplier =
+        i32::try_from(placement.realization_search.realization_scale_tier + 1)
+            .unwrap_or(i32::MAX);
+    let selected_route_budget = piece_route_search_budget(selected_scale_multiplier);
     if placement.realization_search.realization_attempts == 0
         || placement.realization_search.realization_attempts
             > REALIZATION_SCALE_MULTIPLIERS.len() as u32
+        || placement.realization_search.realization_attempts
+            != placement.realization_search.realization_scale_tier + 1
         || placement.realization_search.realization_scale_tier
             >= REALIZATION_SCALE_MULTIPLIERS.len() as u32
         || placement.realization_search.route_attempts == 0
-        || placement.realization_search.route_attempts > PIECE_ROUTE_ORDER_COUNT
+        || placement.realization_search.route_attempts
+            > u32::try_from(selected_route_budget.order_attempts).unwrap_or(u32::MAX)
         || placement.realization_search.route_order_attempt
             >= placement.realization_search.route_attempts
+        || placement.realization_search.route_decisions > selected_route_budget.decisions
+        || placement.realization_search.route_backtracks > selected_route_budget.backtracks
     {
         diagnostics.push(fatal(
             "piece_realization_search_evidence_invalid",

@@ -103,6 +103,37 @@ try {
     throw new Error('failed catalog-aware rebuild changed the persisted configuration');
   }
 
+  const compact = structuredClone(defaults);
+  for (const key of ['initialRoomMargin', 'initialColumnGap', 'initialRowGap']) {
+    compact.geometryLayoutPolicy[key].value = 32;
+  }
+  for (const key of ['roomMarginGrowth', 'columnGapGrowth', 'rowGapGrowth']) {
+    compact.geometryLayoutPolicy[key].value = 8;
+  }
+  compact.corridorRealization.value = 'procedural';
+  const compactResult = await postRebuild({ candidateId, config: compact }, 200);
+  if (
+    compactResult.placement?.realizationSearch?.realizationScaleTier !== 0
+    || compactResult.placement.realizationSearch.realizationAttempts !== 1
+    || compactResult.metrics?.footprintWidth > 59
+    || compactResult.metrics?.footprintHeight > 30
+    || compactResult.metrics?.routedCorridorCells > 88
+    || compactResult.geometryValidation?.ok !== true
+    || compactResult.placementValidation?.ok !== true
+    || compactResult.builtFlowValidation?.ok !== true
+  ) {
+    throw new Error(
+      `compact-first physical realization regressed for ${candidateId}: `
+        + JSON.stringify({
+          search: compactResult.placement?.realizationSearch,
+          metrics: compactResult.metrics,
+      }),
+    );
+  }
+  if (JSON.stringify(await readConfigFile()) !== JSON.stringify(compact)) {
+    throw new Error('successful compact-first rebuild did not persist the unified configuration');
+  }
+
   const constrained = structuredClone(configured);
   for (const key of ['initialRoomMargin', 'initialColumnGap', 'initialRowGap']) {
     constrained.geometryLayoutPolicy[key].value = 32;
@@ -118,7 +149,7 @@ try {
     422,
     'geometry_search_exhausted',
   );
-  if (JSON.stringify(await readConfigFile()) !== JSON.stringify(pureCatalog)) {
+  if (JSON.stringify(await readConfigFile()) !== JSON.stringify(compact)) {
     throw new Error('failed pipeline rebuild changed the persisted configuration');
   }
 
@@ -127,7 +158,7 @@ try {
     400,
     'invalid_generationConfig_fields',
   );
-  if (JSON.stringify(await readConfigFile()) !== JSON.stringify(pureCatalog)) {
+  if (JSON.stringify(await readConfigFile()) !== JSON.stringify(compact)) {
     throw new Error('invalid configuration request changed the persisted configuration');
   }
 
@@ -159,7 +190,11 @@ try {
   }
 
   console.log(
-    `generation config smoke passed; ${candidateId} combined build ${first.buildId.slice(0, 12)}, rollback preserved config, defaults reset in ${resetResult.buildId.slice(0, 12)}`,
+    `generation config smoke passed; ${candidateId} compact physical scale 1 at `
+      + `${compactResult.metrics.footprintWidth}x${compactResult.metrics.footprintHeight}/`
+      + `${compactResult.metrics.routedCorridorCells} routed cells; combined build `
+      + `${first.buildId.slice(0, 12)}, rollback preserved config, defaults reset in `
+      + `${resetResult.buildId.slice(0, 12)}`,
   );
 } finally {
   server.kill('SIGTERM');

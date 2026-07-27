@@ -99,6 +99,14 @@ safe room separation from room envelopes and compare bounded compact
 alternatives automatically. Maximum tiers and route attempts remain hard
 escalation bounds for both.
 
+Geometry compactness and physical realization scale are separate. Procedural
+and hybrid assembly first probe the geometry at physical scale 1 with a small,
+deterministic route budget, then scale 2, and only use the full route-search
+budget at scales 3 and 4. A dense layout may therefore retain more spacing
+after lower scales fail clearance-safe exclusive routing, while a simple layout
+such as seed 5801 stays at scale 1. The viewer rebuild summary reports the
+selected physical scale and number of attempted scales.
+
 After regeneration, verify that the committed report is byte-identical with:
 
 ```bash

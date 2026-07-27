@@ -2703,6 +2703,8 @@ mod tests {
         let report = validate_piece_placement(&placement);
 
         assert!(report.ok, "{:?}", report.diagnostics);
+        assert_eq!(placement.realization_search.realization_scale_tier, 1);
+        assert_eq!(placement.realization_search.realization_attempts, 2);
         assert_eq!(placement.kind, "asha_procgen.piece_placement.v1");
         assert_eq!(placement.grid_connectivity, GridConnectivity::FourWay);
         assert_eq!(placement.placement_policy, PiecePlacementPolicy::default());
@@ -2842,6 +2844,8 @@ mod tests {
             .expect("route backtracking should recover nested-boss realization");
         let repeated = assemble_piece_placement(&catalog, &plan, &shape_match, &assemble_args)
             .expect("repeated realization should recover");
+        assert_eq!(first.realization_search.realization_scale_tier, 2);
+        assert_eq!(first.realization_search.realization_attempts, 3);
         assert!(first.realization_search.route_attempts >= 1);
         assert_eq!(first.realization_search, repeated.realization_search);
         assert_eq!(
@@ -2885,6 +2889,32 @@ mod tests {
             .expect_err("out-of-bounds glued exits must exhaust bounded route search");
         assert!(error
             .starts_with("piece route search exhausted after 4 deterministic order attempt(s)"));
+    }
+
+    #[test]
+    fn piece_realization_scale_search_starts_with_a_bounded_compact_probe() {
+        assert_eq!(REALIZATION_SCALE_MULTIPLIERS, [1, 2, 3, 4]);
+
+        for scale_multiplier in [1, 2] {
+            let budget = piece_route_search_budget(scale_multiplier);
+            assert!(budget.compact_probe);
+            assert_eq!(budget.order_attempts, 1);
+            assert_eq!(budget.path_alternatives, 1);
+            assert!(budget.decisions < FULL_PIECE_ROUTE_SEARCH_BUDGET.decisions);
+            assert!(budget.backtracks < FULL_PIECE_ROUTE_SEARCH_BUDGET.backtracks);
+        }
+        for scale_multiplier in [3, 4] {
+            let budget = piece_route_search_budget(scale_multiplier);
+            assert!(!budget.compact_probe);
+            assert_eq!(
+                budget.order_attempts,
+                FULL_PIECE_ROUTE_SEARCH_BUDGET.order_attempts
+            );
+            assert_eq!(
+                budget.path_alternatives,
+                FULL_PIECE_ROUTE_SEARCH_BUDGET.path_alternatives
+            );
+        }
     }
 
     #[test]
@@ -2995,6 +3025,16 @@ mod tests {
             .diagnostics
             .iter()
             .any(|diagnostic| { diagnostic.code == "piece_connection_wall_clearance_violated" }));
+
+        let mut bad_search_evidence = placement.clone();
+        bad_search_evidence
+            .realization_search
+            .realization_attempts = 1;
+        let report = validate_piece_placement(&bad_search_evidence);
+        assert!(report
+            .diagnostics
+            .iter()
+            .any(|diagnostic| diagnostic.code == "piece_realization_search_evidence_invalid"));
 
         let mut unreachable = placement;
         unreachable.glued_exits.clear();

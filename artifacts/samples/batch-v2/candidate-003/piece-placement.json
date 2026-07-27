@@ -21,7 +21,7 @@
   },
   "realizationSearch": {
     "realizationScaleTier": 3,
-    "realizationAttempts": 2,
+    "realizationAttempts": 4,
     "routeOrderAttempt": 0,
     "routeAttempts": 1,
     "routeDecisions": 17,

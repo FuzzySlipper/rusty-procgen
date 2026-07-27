@@ -50,6 +50,12 @@
           "selectedEmbedding": "rotation.v1.fnv1a64:2d6154821dcc2528",
           "spacingTier": 0
         },
+        "physicalRealization": {
+          "scaleMultiplier": 3,
+          "attempts": 3,
+          "routeDecisions": 13,
+          "routeBacktracks": 0
+        },
         "refs": {
           "geometry": "artifacts/samples/batch-v2/candidate-000/geometry-2d.json",
           "placement": "artifacts/samples/batch-v2/candidate-000/piece-placement.json"
@@ -81,6 +87,12 @@
           "validLayoutCandidates": 1,
           "selectedEmbedding": "depth-columns.v1",
           "spacingTier": 0
+        },
+        "physicalRealization": {
+          "scaleMultiplier": 3,
+          "attempts": 3,
+          "routeDecisions": 10,
+          "routeBacktracks": 0
         },
         "refs": {
           "geometry": "artifacts/samples/batch-v2/candidate-001/geometry-2d.json",
@@ -114,6 +126,12 @@
           "selectedEmbedding": "rotation.v1.fnv1a64:ff9783ae4de8add3",
           "spacingTier": 0
         },
+        "physicalRealization": {
+          "scaleMultiplier": 3,
+          "attempts": 3,
+          "routeDecisions": 14,
+          "routeBacktracks": 0
+        },
         "refs": {
           "geometry": "artifacts/samples/batch-v2/candidate-002/geometry-2d.json",
           "placement": "artifacts/samples/batch-v2/candidate-002/piece-placement.json"
@@ -145,6 +163,12 @@
           "validLayoutCandidates": 1,
           "selectedEmbedding": "rotation.v1.fnv1a64:3c4edee973b2b328",
           "spacingTier": 0
+        },
+        "physicalRealization": {
+          "scaleMultiplier": 4,
+          "attempts": 4,
+          "routeDecisions": 17,
+          "routeBacktracks": 0
         },
         "refs": {
           "geometry": "artifacts/samples/batch-v2/candidate-003/geometry-2d.json",
@@ -178,6 +202,12 @@
           "selectedEmbedding": "rotation.v1.fnv1a64:e1ea877c80da15c0",
           "spacingTier": 0
         },
+        "physicalRealization": {
+          "scaleMultiplier": 3,
+          "attempts": 3,
+          "routeDecisions": 13,
+          "routeBacktracks": 0
+        },
         "refs": {
           "geometry": "artifacts/samples/batch-v2/candidate-004/geometry-2d.json",
           "placement": "artifacts/samples/batch-v2/candidate-004/piece-placement.json"
@@ -196,19 +226,25 @@
         "current": {
           "roomEnvelopeArea": 146944,
           "corridorCenterlineLength": 624,
-          "routedShellCount": 683,
+          "routedShellCount": 324,
           "occupiedCellCount": 216
         },
         "reductions": {
           "roomEnvelopeAreaBasisPoints": 0,
           "corridorCenterlineLengthBasisPoints": 0,
-          "routedShellCountBasisPoints": 0,
+          "routedShellCountBasisPoints": 5256,
           "occupiedCellCountBasisPoints": 0
         },
         "search": {
           "validLayoutCandidates": 1,
           "selectedEmbedding": "depth-columns.v1",
           "spacingTier": 0
+        },
+        "physicalRealization": {
+          "scaleMultiplier": 2,
+          "attempts": 2,
+          "routeDecisions": 4,
+          "routeBacktracks": 0
         },
         "refs": {
           "geometry": "artifacts/samples/batch-v2/candidate-006/geometry-2d.json",
@@ -242,6 +278,12 @@
           "selectedEmbedding": "rotation.v1.fnv1a64:ad74edbdc5510798",
           "spacingTier": 0
         },
+        "physicalRealization": {
+          "scaleMultiplier": 3,
+          "attempts": 3,
+          "routeDecisions": 13,
+          "routeBacktracks": 0
+        },
         "refs": {
           "geometry": "artifacts/samples/batch-v2/candidate-007/geometry-2d.json",
           "placement": "artifacts/samples/batch-v2/candidate-007/piece-placement.json"
@@ -274,6 +316,12 @@
           "selectedEmbedding": "depth-columns.v1",
           "spacingTier": 0
         },
+        "physicalRealization": {
+          "scaleMultiplier": 3,
+          "attempts": 3,
+          "routeDecisions": 10,
+          "routeBacktracks": 0
+        },
         "refs": {
           "geometry": "artifacts/samples/batch-v2/candidate-008/geometry-2d.json",
           "placement": "artifacts/samples/batch-v2/candidate-008/piece-placement.json"
@@ -305,6 +353,12 @@
           "validLayoutCandidates": 3,
           "selectedEmbedding": "rotation.v1.fnv1a64:026677036b82d145",
           "spacingTier": 0
+        },
+        "physicalRealization": {
+          "scaleMultiplier": 3,
+          "attempts": 3,
+          "routeDecisions": 14,
+          "routeBacktracks": 0
         },
         "refs": {
           "geometry": "artifacts/samples/batch-v2/candidate-009/geometry-2d.json",
@@ -377,7 +431,7 @@
       },
       "realizationSearch": {
         "scaleTier": 2,
-        "attempts": 1,
+        "attempts": 3,
         "routeOrderAttempt": 0,
         "routeAttempts": 1,
         "decisions": 13,
@@ -453,7 +507,7 @@
       },
       "realizationSearch": {
         "scaleTier": 2,
-        "attempts": 1,
+        "attempts": 3,
         "routeOrderAttempt": 0,
         "routeAttempts": 1,
         "decisions": 10,
@@ -530,7 +584,7 @@
       },
       "realizationSearch": {
         "scaleTier": 2,
-        "attempts": 1,
+        "attempts": 3,
         "routeOrderAttempt": 0,
         "routeAttempts": 1,
         "decisions": 14,
@@ -610,7 +664,7 @@
       },
       "realizationSearch": {
         "scaleTier": 3,
-        "attempts": 2,
+        "attempts": 4,
         "routeOrderAttempt": 0,
         "routeAttempts": 1,
         "decisions": 17,
@@ -687,7 +741,7 @@
       },
       "realizationSearch": {
         "scaleTier": 2,
-        "attempts": 1,
+        "attempts": 3,
         "routeOrderAttempt": 0,
         "routeAttempts": 1,
         "decisions": 13,
@@ -784,11 +838,11 @@
         "corridorCenterlineLength": 624,
         "routedShellCost": 8400,
         "bendCount": 8,
-        "routedShellCount": 683
+        "routedShellCount": 324
       },
       "realizationSearch": {
-        "scaleTier": 2,
-        "attempts": 1,
+        "scaleTier": 1,
+        "attempts": 2,
         "routeOrderAttempt": 0,
         "routeAttempts": 1,
         "decisions": 4,

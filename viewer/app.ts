@@ -371,6 +371,16 @@ interface PiecePlacement {
   readonly cellSize: number;
   readonly gridConnectivity: 'four_way' | 'eight_way';
   readonly placementPolicy: PiecePlacementPolicy;
+  readonly realizationSearch: {
+    readonly realizationScaleTier: number;
+    readonly realizationAttempts: number;
+    readonly routeOrderAttempt: number;
+    readonly routeAttempts: number;
+    readonly routeDecisions: number;
+    readonly routeBacktracks: number;
+    readonly routePathAlternatives: number;
+    readonly routeRepairs: number;
+  };
   readonly catalogSearch?: {
     readonly schemaVersion: 1;
     readonly decisions: number;
@@ -1434,7 +1444,8 @@ async function applyGenerationConfig(): Promise<void> {
     currentCorridorExperimentId = null;
     populateGenerationConfigControls(result.config);
     const compactness = result.geometry.layoutSearch;
-    generationConfigImpact.textContent = `Configured build: ${result.metrics.footprintWidth} × ${result.metrics.footprintHeight} footprint; ${result.metrics.corridorPrefabInstances} corridor prefabs; ${result.metrics.routedCorridorCells.toLocaleString()} routed cells. Geometry selected ${compactness.embeddingKind ?? 'legacy'} from ${(compactness.validLayoutCandidates ?? 1).toLocaleString()} valid bounded candidate(s) with ${(compactness.compactnessEnvelopeArea ?? 0).toLocaleString()} envelope area and ${(compactness.compactnessCorridorCenterlineLength ?? 0).toLocaleString()} centerline units.`;
+    const realization = result.placement.realizationSearch;
+    generationConfigImpact.textContent = `Configured build: ${result.metrics.footprintWidth} × ${result.metrics.footprintHeight} footprint; ${result.metrics.corridorPrefabInstances} corridor prefabs; ${result.metrics.routedCorridorCells.toLocaleString()} routed cells. Geometry selected ${compactness.embeddingKind ?? 'legacy'} from ${(compactness.validLayoutCandidates ?? 1).toLocaleString()} valid bounded candidate(s) with ${(compactness.compactnessEnvelopeArea ?? 0).toLocaleString()} envelope area and ${(compactness.compactnessCorridorCenterlineLength ?? 0).toLocaleString()} centerline units. Physical realization used scale ${(realization.realizationScaleTier + 1).toLocaleString()} after ${realization.realizationAttempts.toLocaleString()} bounded attempt(s).`;
     syncVoxelDoorStateControls();
     syncGenerationConfigControls();
     setGenerationConfigStatus(
