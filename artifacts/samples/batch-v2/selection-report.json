@@ -9,6 +9,541 @@
   "generatedCount": 10,
   "accepted": [
     {
+      "candidateId": "candidate.first_slice.5501",
+      "profileSequence": "hub-hazard-boss",
+      "topologyFingerprint": "topology:544fdebf614b3e9f",
+      "duplicateOf": null,
+      "budgetChecks": [
+        {
+          "code": "min_optional_branches",
+          "ok": true,
+          "detail": "optional branches 12 >= budget 2"
+        },
+        {
+          "code": "max_dead_ends",
+          "ok": true,
+          "detail": "dead ends 0 <= budget 0"
+        }
+      ],
+      "budgetPenalty": 0.0,
+      "selectionScore": 0.67,
+      "artifactRef": "artifacts/samples/batch-v2/candidate-003/accepted.json",
+      "validationRef": "artifacts/samples/batch-v2/candidate-003/validation.graph.json",
+      "scoreRef": "artifacts/samples/batch-v2/candidate-003/score.graph.json",
+      "layoutRef": "artifacts/samples/batch-v2/candidate-003/layout-2d.json",
+      "analysisRef": "artifacts/samples/batch-v2/candidate-003/analysis.graph.json",
+      "compatibleRulesRef": "artifacts/samples/batch-v2/candidate-003/compatible-rules.json",
+      "spatialIntentRef": "artifacts/samples/batch-v2/candidate-003/spatial-intent.json",
+      "intermediateBreakdownRef": "artifacts/samples/batch-v2/candidate-003/intermediate-breakdown.json",
+      "intermediateValidationRef": "artifacts/samples/batch-v2/candidate-003/intermediate.validation.json",
+      "physicalConnectionPlanRef": "artifacts/samples/batch-v2/candidate-003/physical-connection-plan.json",
+      "geometryRef": "artifacts/samples/batch-v2/candidate-003/geometry-2d.json",
+      "geometryValidationRef": "artifacts/samples/batch-v2/candidate-003/geometry-2d.validation.json",
+      "htmlPreviewRef": "artifacts/samples/batch-v2/candidate-003/html-preview.json",
+      "htmlRef": "artifacts/samples/batch-v2/candidate-003/geometry-2d.preview.html",
+      "shapeCatalogRef": "fixtures/shape-catalogs/2d-basic.json",
+      "catalogInspectionRef": "artifacts/samples/batch-v2/candidate-003/shape-catalog.report.json",
+      "piecePlanRef": "artifacts/samples/batch-v2/candidate-003/piece-plan.json",
+      "shapeMatchRef": "artifacts/samples/batch-v2/candidate-003/piece-shape-match.json",
+      "piecePlacementRef": "artifacts/samples/batch-v2/candidate-003/piece-placement.json",
+      "piecePlacementValidationRef": "artifacts/samples/batch-v2/candidate-003/piece-placement.validation.json",
+      "builtFlowValidationRef": "artifacts/samples/batch-v2/candidate-003/built-flow.validation.json",
+      "overall": 0.67,
+      "metrics": {
+        "bossCount": 1.0,
+        "criticalPathLength": 2.0,
+        "deadEndCount": 0.0,
+        "edgeCount": 19.0,
+        "hazardCount": 2.0,
+        "hubCount": 1.0,
+        "lockedEdgeCount": 1.0,
+        "loopCount": 8.0,
+        "mergeCount": 1.0,
+        "nodeCount": 12.0,
+        "optionalBranchCount": 12.0,
+        "preparationCount": 3.0,
+        "pressureEdgeCount": 2.0,
+        "rejoinEdgeCount": 3.0,
+        "shortcutCount": 0.0,
+        "wayfindingAnchorCount": 1.0
+      },
+      "tags": [
+        "approach",
+        "boss",
+        "branch",
+        "critical",
+        "hazard",
+        "hub",
+        "key",
+        "lock",
+        "locked",
+        "merge",
+        "optional",
+        "preparation",
+        "pressure",
+        "rejoin",
+        "return",
+        "reward",
+        "wayfinding_anchor"
+      ]
+    },
+    {
+      "candidateId": "candidate.first_slice.5201",
+      "profileSequence": "hub-merge",
+      "topologyFingerprint": "topology:418e96fe6aa81a3a",
+      "duplicateOf": null,
+      "budgetChecks": [
+        {
+          "code": "min_optional_branches",
+          "ok": true,
+          "detail": "optional branches 8 >= budget 2"
+        },
+        {
+          "code": "max_dead_ends",
+          "ok": true,
+          "detail": "dead ends 0 <= budget 0"
+        }
+      ],
+      "budgetPenalty": 0.0,
+      "selectionScore": 0.6,
+      "artifactRef": "artifacts/samples/batch-v2/candidate-000/accepted.json",
+      "validationRef": "artifacts/samples/batch-v2/candidate-000/validation.graph.json",
+      "scoreRef": "artifacts/samples/batch-v2/candidate-000/score.graph.json",
+      "layoutRef": "artifacts/samples/batch-v2/candidate-000/layout-2d.json",
+      "analysisRef": "artifacts/samples/batch-v2/candidate-000/analysis.graph.json",
+      "compatibleRulesRef": "artifacts/samples/batch-v2/candidate-000/compatible-rules.json",
+      "spatialIntentRef": "artifacts/samples/batch-v2/candidate-000/spatial-intent.json",
+      "intermediateBreakdownRef": "artifacts/samples/batch-v2/candidate-000/intermediate-breakdown.json",
+      "intermediateValidationRef": "artifacts/samples/batch-v2/candidate-000/intermediate.validation.json",
+      "physicalConnectionPlanRef": "artifacts/samples/batch-v2/candidate-000/physical-connection-plan.json",
+      "geometryRef": "artifacts/samples/batch-v2/candidate-000/geometry-2d.json",
+      "geometryValidationRef": "artifacts/samples/batch-v2/candidate-000/geometry-2d.validation.json",
+      "htmlPreviewRef": "artifacts/samples/batch-v2/candidate-000/html-preview.json",
+      "htmlRef": "artifacts/samples/batch-v2/candidate-000/geometry-2d.preview.html",
+      "shapeCatalogRef": "fixtures/shape-catalogs/2d-basic.json",
+      "catalogInspectionRef": "artifacts/samples/batch-v2/candidate-000/shape-catalog.report.json",
+      "piecePlanRef": "artifacts/samples/batch-v2/candidate-000/piece-plan.json",
+      "shapeMatchRef": "artifacts/samples/batch-v2/candidate-000/piece-shape-match.json",
+      "piecePlacementRef": "artifacts/samples/batch-v2/candidate-000/piece-placement.json",
+      "piecePlacementValidationRef": "artifacts/samples/batch-v2/candidate-000/piece-placement.validation.json",
+      "builtFlowValidationRef": "artifacts/samples/batch-v2/candidate-000/built-flow.validation.json",
+      "overall": 0.6,
+      "metrics": {
+        "bossCount": 0.0,
+        "criticalPathLength": 2.0,
+        "deadEndCount": 0.0,
+        "edgeCount": 15.0,
+        "hazardCount": 1.0,
+        "hubCount": 1.0,
+        "lockedEdgeCount": 1.0,
+        "loopCount": 7.0,
+        "mergeCount": 2.0,
+        "nodeCount": 9.0,
+        "optionalBranchCount": 8.0,
+        "preparationCount": 1.0,
+        "pressureEdgeCount": 1.0,
+        "rejoinEdgeCount": 4.0,
+        "shortcutCount": 1.0,
+        "wayfindingAnchorCount": 2.0
+      },
+      "tags": [
+        "approach",
+        "branch",
+        "critical",
+        "hazard",
+        "hub",
+        "key",
+        "lock",
+        "merge",
+        "optional",
+        "preparation",
+        "pressure",
+        "rejoin",
+        "return",
+        "reward",
+        "shortcut",
+        "wayfinding_anchor"
+      ]
+    },
+    {
+      "candidateId": "candidate.first_slice.5901",
+      "profileSequence": "hub-merge",
+      "topologyFingerprint": "topology:418e96fe6aa81a3a",
+      "duplicateOf": "candidate.first_slice.5201",
+      "budgetChecks": [
+        {
+          "code": "min_optional_branches",
+          "ok": true,
+          "detail": "optional branches 8 >= budget 2"
+        },
+        {
+          "code": "max_dead_ends",
+          "ok": true,
+          "detail": "dead ends 0 <= budget 0"
+        }
+      ],
+      "budgetPenalty": 0.0,
+      "selectionScore": 0.6,
+      "artifactRef": "artifacts/samples/batch-v2/candidate-007/accepted.json",
+      "validationRef": "artifacts/samples/batch-v2/candidate-007/validation.graph.json",
+      "scoreRef": "artifacts/samples/batch-v2/candidate-007/score.graph.json",
+      "layoutRef": "artifacts/samples/batch-v2/candidate-007/layout-2d.json",
+      "analysisRef": "artifacts/samples/batch-v2/candidate-007/analysis.graph.json",
+      "compatibleRulesRef": "artifacts/samples/batch-v2/candidate-007/compatible-rules.json",
+      "spatialIntentRef": "artifacts/samples/batch-v2/candidate-007/spatial-intent.json",
+      "intermediateBreakdownRef": "artifacts/samples/batch-v2/candidate-007/intermediate-breakdown.json",
+      "intermediateValidationRef": "artifacts/samples/batch-v2/candidate-007/intermediate.validation.json",
+      "physicalConnectionPlanRef": "artifacts/samples/batch-v2/candidate-007/physical-connection-plan.json",
+      "geometryRef": "artifacts/samples/batch-v2/candidate-007/geometry-2d.json",
+      "geometryValidationRef": "artifacts/samples/batch-v2/candidate-007/geometry-2d.validation.json",
+      "htmlPreviewRef": "artifacts/samples/batch-v2/candidate-007/html-preview.json",
+      "htmlRef": "artifacts/samples/batch-v2/candidate-007/geometry-2d.preview.html",
+      "shapeCatalogRef": "fixtures/shape-catalogs/2d-basic.json",
+      "catalogInspectionRef": "artifacts/samples/batch-v2/candidate-007/shape-catalog.report.json",
+      "piecePlanRef": "artifacts/samples/batch-v2/candidate-007/piece-plan.json",
+      "shapeMatchRef": "artifacts/samples/batch-v2/candidate-007/piece-shape-match.json",
+      "piecePlacementRef": "artifacts/samples/batch-v2/candidate-007/piece-placement.json",
+      "piecePlacementValidationRef": "artifacts/samples/batch-v2/candidate-007/piece-placement.validation.json",
+      "builtFlowValidationRef": "artifacts/samples/batch-v2/candidate-007/built-flow.validation.json",
+      "overall": 0.6,
+      "metrics": {
+        "bossCount": 0.0,
+        "criticalPathLength": 2.0,
+        "deadEndCount": 0.0,
+        "edgeCount": 15.0,
+        "hazardCount": 1.0,
+        "hubCount": 1.0,
+        "lockedEdgeCount": 1.0,
+        "loopCount": 7.0,
+        "mergeCount": 2.0,
+        "nodeCount": 9.0,
+        "optionalBranchCount": 8.0,
+        "preparationCount": 1.0,
+        "pressureEdgeCount": 1.0,
+        "rejoinEdgeCount": 4.0,
+        "shortcutCount": 1.0,
+        "wayfindingAnchorCount": 2.0
+      },
+      "tags": [
+        "approach",
+        "branch",
+        "critical",
+        "hazard",
+        "hub",
+        "key",
+        "lock",
+        "merge",
+        "optional",
+        "preparation",
+        "pressure",
+        "rejoin",
+        "return",
+        "reward",
+        "shortcut",
+        "wayfinding_anchor"
+      ]
+    },
+    {
+      "candidateId": "candidate.first_slice.5401",
+      "profileSequence": "hazard-treasure-merge",
+      "topologyFingerprint": "topology:6b22395a3dc8714c",
+      "duplicateOf": null,
+      "budgetChecks": [
+        {
+          "code": "min_optional_branches",
+          "ok": true,
+          "detail": "optional branches 8 >= budget 2"
+        },
+        {
+          "code": "max_dead_ends",
+          "ok": true,
+          "detail": "dead ends 0 <= budget 0"
+        }
+      ],
+      "budgetPenalty": 0.0,
+      "selectionScore": 0.59,
+      "artifactRef": "artifacts/samples/batch-v2/candidate-002/accepted.json",
+      "validationRef": "artifacts/samples/batch-v2/candidate-002/validation.graph.json",
+      "scoreRef": "artifacts/samples/batch-v2/candidate-002/score.graph.json",
+      "layoutRef": "artifacts/samples/batch-v2/candidate-002/layout-2d.json",
+      "analysisRef": "artifacts/samples/batch-v2/candidate-002/analysis.graph.json",
+      "compatibleRulesRef": "artifacts/samples/batch-v2/candidate-002/compatible-rules.json",
+      "spatialIntentRef": "artifacts/samples/batch-v2/candidate-002/spatial-intent.json",
+      "intermediateBreakdownRef": "artifacts/samples/batch-v2/candidate-002/intermediate-breakdown.json",
+      "intermediateValidationRef": "artifacts/samples/batch-v2/candidate-002/intermediate.validation.json",
+      "physicalConnectionPlanRef": "artifacts/samples/batch-v2/candidate-002/physical-connection-plan.json",
+      "geometryRef": "artifacts/samples/batch-v2/candidate-002/geometry-2d.json",
+      "geometryValidationRef": "artifacts/samples/batch-v2/candidate-002/geometry-2d.validation.json",
+      "htmlPreviewRef": "artifacts/samples/batch-v2/candidate-002/html-preview.json",
+      "htmlRef": "artifacts/samples/batch-v2/candidate-002/geometry-2d.preview.html",
+      "shapeCatalogRef": "fixtures/shape-catalogs/2d-basic.json",
+      "catalogInspectionRef": "artifacts/samples/batch-v2/candidate-002/shape-catalog.report.json",
+      "piecePlanRef": "artifacts/samples/batch-v2/candidate-002/piece-plan.json",
+      "shapeMatchRef": "artifacts/samples/batch-v2/candidate-002/piece-shape-match.json",
+      "piecePlacementRef": "artifacts/samples/batch-v2/candidate-002/piece-placement.json",
+      "piecePlacementValidationRef": "artifacts/samples/batch-v2/candidate-002/piece-placement.validation.json",
+      "builtFlowValidationRef": "artifacts/samples/batch-v2/candidate-002/built-flow.validation.json",
+      "overall": 0.59,
+      "metrics": {
+        "bossCount": 0.0,
+        "criticalPathLength": 2.0,
+        "deadEndCount": 0.0,
+        "edgeCount": 14.0,
+        "hazardCount": 1.0,
+        "hubCount": 0.0,
+        "lockedEdgeCount": 4.0,
+        "loopCount": 6.0,
+        "mergeCount": 1.0,
+        "nodeCount": 9.0,
+        "optionalBranchCount": 8.0,
+        "preparationCount": 1.0,
+        "pressureEdgeCount": 1.0,
+        "rejoinEdgeCount": 4.0,
+        "shortcutCount": 1.0,
+        "wayfindingAnchorCount": 1.0
+      },
+      "tags": [
+        "approach",
+        "branch",
+        "critical",
+        "hazard",
+        "key",
+        "lock",
+        "locked",
+        "merge",
+        "optional",
+        "preparation",
+        "pressure",
+        "rejoin",
+        "return",
+        "reward",
+        "shortcut",
+        "wayfinding_anchor"
+      ]
+    },
+    {
+      "candidateId": "candidate.first_slice.6101",
+      "profileSequence": "hazard-treasure-merge",
+      "topologyFingerprint": "topology:6b22395a3dc8714c",
+      "duplicateOf": "candidate.first_slice.5401",
+      "budgetChecks": [
+        {
+          "code": "min_optional_branches",
+          "ok": true,
+          "detail": "optional branches 8 >= budget 2"
+        },
+        {
+          "code": "max_dead_ends",
+          "ok": true,
+          "detail": "dead ends 0 <= budget 0"
+        }
+      ],
+      "budgetPenalty": 0.0,
+      "selectionScore": 0.59,
+      "artifactRef": "artifacts/samples/batch-v2/candidate-009/accepted.json",
+      "validationRef": "artifacts/samples/batch-v2/candidate-009/validation.graph.json",
+      "scoreRef": "artifacts/samples/batch-v2/candidate-009/score.graph.json",
+      "layoutRef": "artifacts/samples/batch-v2/candidate-009/layout-2d.json",
+      "analysisRef": "artifacts/samples/batch-v2/candidate-009/analysis.graph.json",
+      "compatibleRulesRef": "artifacts/samples/batch-v2/candidate-009/compatible-rules.json",
+      "spatialIntentRef": "artifacts/samples/batch-v2/candidate-009/spatial-intent.json",
+      "intermediateBreakdownRef": "artifacts/samples/batch-v2/candidate-009/intermediate-breakdown.json",
+      "intermediateValidationRef": "artifacts/samples/batch-v2/candidate-009/intermediate.validation.json",
+      "physicalConnectionPlanRef": "artifacts/samples/batch-v2/candidate-009/physical-connection-plan.json",
+      "geometryRef": "artifacts/samples/batch-v2/candidate-009/geometry-2d.json",
+      "geometryValidationRef": "artifacts/samples/batch-v2/candidate-009/geometry-2d.validation.json",
+      "htmlPreviewRef": "artifacts/samples/batch-v2/candidate-009/html-preview.json",
+      "htmlRef": "artifacts/samples/batch-v2/candidate-009/geometry-2d.preview.html",
+      "shapeCatalogRef": "fixtures/shape-catalogs/2d-basic.json",
+      "catalogInspectionRef": "artifacts/samples/batch-v2/candidate-009/shape-catalog.report.json",
+      "piecePlanRef": "artifacts/samples/batch-v2/candidate-009/piece-plan.json",
+      "shapeMatchRef": "artifacts/samples/batch-v2/candidate-009/piece-shape-match.json",
+      "piecePlacementRef": "artifacts/samples/batch-v2/candidate-009/piece-placement.json",
+      "piecePlacementValidationRef": "artifacts/samples/batch-v2/candidate-009/piece-placement.validation.json",
+      "builtFlowValidationRef": "artifacts/samples/batch-v2/candidate-009/built-flow.validation.json",
+      "overall": 0.59,
+      "metrics": {
+        "bossCount": 0.0,
+        "criticalPathLength": 2.0,
+        "deadEndCount": 0.0,
+        "edgeCount": 14.0,
+        "hazardCount": 1.0,
+        "hubCount": 0.0,
+        "lockedEdgeCount": 4.0,
+        "loopCount": 6.0,
+        "mergeCount": 1.0,
+        "nodeCount": 9.0,
+        "optionalBranchCount": 8.0,
+        "preparationCount": 1.0,
+        "pressureEdgeCount": 1.0,
+        "rejoinEdgeCount": 4.0,
+        "shortcutCount": 1.0,
+        "wayfindingAnchorCount": 1.0
+      },
+      "tags": [
+        "approach",
+        "branch",
+        "critical",
+        "hazard",
+        "key",
+        "lock",
+        "locked",
+        "merge",
+        "optional",
+        "preparation",
+        "pressure",
+        "rejoin",
+        "return",
+        "reward",
+        "shortcut",
+        "wayfinding_anchor"
+      ]
+    },
+    {
+      "candidateId": "candidate.first_slice.5301",
+      "profileSequence": "nested-boss",
+      "topologyFingerprint": "topology:75da51af2e5b93b4",
+      "duplicateOf": null,
+      "budgetChecks": [
+        {
+          "code": "min_optional_branches",
+          "ok": true,
+          "detail": "optional branches 2 >= budget 2"
+        },
+        {
+          "code": "max_dead_ends",
+          "ok": true,
+          "detail": "dead ends 0 <= budget 0"
+        }
+      ],
+      "budgetPenalty": 0.0,
+      "selectionScore": 0.37,
+      "artifactRef": "artifacts/samples/batch-v2/candidate-001/accepted.json",
+      "validationRef": "artifacts/samples/batch-v2/candidate-001/validation.graph.json",
+      "scoreRef": "artifacts/samples/batch-v2/candidate-001/score.graph.json",
+      "layoutRef": "artifacts/samples/batch-v2/candidate-001/layout-2d.json",
+      "analysisRef": "artifacts/samples/batch-v2/candidate-001/analysis.graph.json",
+      "compatibleRulesRef": "artifacts/samples/batch-v2/candidate-001/compatible-rules.json",
+      "spatialIntentRef": "artifacts/samples/batch-v2/candidate-001/spatial-intent.json",
+      "intermediateBreakdownRef": "artifacts/samples/batch-v2/candidate-001/intermediate-breakdown.json",
+      "intermediateValidationRef": "artifacts/samples/batch-v2/candidate-001/intermediate.validation.json",
+      "physicalConnectionPlanRef": "artifacts/samples/batch-v2/candidate-001/physical-connection-plan.json",
+      "geometryRef": "artifacts/samples/batch-v2/candidate-001/geometry-2d.json",
+      "geometryValidationRef": "artifacts/samples/batch-v2/candidate-001/geometry-2d.validation.json",
+      "htmlPreviewRef": "artifacts/samples/batch-v2/candidate-001/html-preview.json",
+      "htmlRef": "artifacts/samples/batch-v2/candidate-001/geometry-2d.preview.html",
+      "shapeCatalogRef": "fixtures/shape-catalogs/2d-basic.json",
+      "catalogInspectionRef": "artifacts/samples/batch-v2/candidate-001/shape-catalog.report.json",
+      "piecePlanRef": "artifacts/samples/batch-v2/candidate-001/piece-plan.json",
+      "shapeMatchRef": "artifacts/samples/batch-v2/candidate-001/piece-shape-match.json",
+      "piecePlacementRef": "artifacts/samples/batch-v2/candidate-001/piece-placement.json",
+      "piecePlacementValidationRef": "artifacts/samples/batch-v2/candidate-001/piece-placement.validation.json",
+      "builtFlowValidationRef": "artifacts/samples/batch-v2/candidate-001/built-flow.validation.json",
+      "overall": 0.37,
+      "metrics": {
+        "bossCount": 1.0,
+        "criticalPathLength": 4.0,
+        "deadEndCount": 0.0,
+        "edgeCount": 10.0,
+        "hazardCount": 0.0,
+        "hubCount": 0.0,
+        "lockedEdgeCount": 1.0,
+        "loopCount": 3.0,
+        "mergeCount": 0.0,
+        "nodeCount": 8.0,
+        "optionalBranchCount": 2.0,
+        "preparationCount": 2.0,
+        "pressureEdgeCount": 0.0,
+        "rejoinEdgeCount": 0.0,
+        "shortcutCount": 0.0,
+        "wayfindingAnchorCount": 0.0
+      },
+      "tags": [
+        "approach",
+        "boss",
+        "branch",
+        "critical",
+        "key",
+        "lock",
+        "locked",
+        "optional",
+        "preparation",
+        "return"
+      ]
+    },
+    {
+      "candidateId": "candidate.first_slice.6001",
+      "profileSequence": "nested-boss",
+      "topologyFingerprint": "topology:75da51af2e5b93b4",
+      "duplicateOf": "candidate.first_slice.5301",
+      "budgetChecks": [
+        {
+          "code": "min_optional_branches",
+          "ok": true,
+          "detail": "optional branches 2 >= budget 2"
+        },
+        {
+          "code": "max_dead_ends",
+          "ok": true,
+          "detail": "dead ends 0 <= budget 0"
+        }
+      ],
+      "budgetPenalty": 0.0,
+      "selectionScore": 0.37,
+      "artifactRef": "artifacts/samples/batch-v2/candidate-008/accepted.json",
+      "validationRef": "artifacts/samples/batch-v2/candidate-008/validation.graph.json",
+      "scoreRef": "artifacts/samples/batch-v2/candidate-008/score.graph.json",
+      "layoutRef": "artifacts/samples/batch-v2/candidate-008/layout-2d.json",
+      "analysisRef": "artifacts/samples/batch-v2/candidate-008/analysis.graph.json",
+      "compatibleRulesRef": "artifacts/samples/batch-v2/candidate-008/compatible-rules.json",
+      "spatialIntentRef": "artifacts/samples/batch-v2/candidate-008/spatial-intent.json",
+      "intermediateBreakdownRef": "artifacts/samples/batch-v2/candidate-008/intermediate-breakdown.json",
+      "intermediateValidationRef": "artifacts/samples/batch-v2/candidate-008/intermediate.validation.json",
+      "physicalConnectionPlanRef": "artifacts/samples/batch-v2/candidate-008/physical-connection-plan.json",
+      "geometryRef": "artifacts/samples/batch-v2/candidate-008/geometry-2d.json",
+      "geometryValidationRef": "artifacts/samples/batch-v2/candidate-008/geometry-2d.validation.json",
+      "htmlPreviewRef": "artifacts/samples/batch-v2/candidate-008/html-preview.json",
+      "htmlRef": "artifacts/samples/batch-v2/candidate-008/geometry-2d.preview.html",
+      "shapeCatalogRef": "fixtures/shape-catalogs/2d-basic.json",
+      "catalogInspectionRef": "artifacts/samples/batch-v2/candidate-008/shape-catalog.report.json",
+      "piecePlanRef": "artifacts/samples/batch-v2/candidate-008/piece-plan.json",
+      "shapeMatchRef": "artifacts/samples/batch-v2/candidate-008/piece-shape-match.json",
+      "piecePlacementRef": "artifacts/samples/batch-v2/candidate-008/piece-placement.json",
+      "piecePlacementValidationRef": "artifacts/samples/batch-v2/candidate-008/piece-placement.validation.json",
+      "builtFlowValidationRef": "artifacts/samples/batch-v2/candidate-008/built-flow.validation.json",
+      "overall": 0.37,
+      "metrics": {
+        "bossCount": 1.0,
+        "criticalPathLength": 4.0,
+        "deadEndCount": 0.0,
+        "edgeCount": 10.0,
+        "hazardCount": 0.0,
+        "hubCount": 0.0,
+        "lockedEdgeCount": 1.0,
+        "loopCount": 3.0,
+        "mergeCount": 0.0,
+        "nodeCount": 8.0,
+        "optionalBranchCount": 2.0,
+        "preparationCount": 2.0,
+        "pressureEdgeCount": 0.0,
+        "rejoinEdgeCount": 0.0,
+        "shortcutCount": 0.0,
+        "wayfindingAnchorCount": 0.0
+      },
+      "tags": [
+        "approach",
+        "boss",
+        "branch",
+        "critical",
+        "key",
+        "lock",
+        "locked",
+        "optional",
+        "preparation",
+        "return"
+      ]
+    },
+    {
       "candidateId": "candidate.first_slice.5801",
       "profileSequence": "lock-key-baseline",
       "topologyFingerprint": "topology:9cb0a811896f1cf7",
@@ -89,82 +624,7 @@
           "severity": "fatal",
           "node": null,
           "edge": null,
-          "detail": "Physical connection planning or exclusive placement failed: geometry search exhausted after 20 route attempt(s) across 5 spacing tier(s), 4 room order(s) per tier, 2 port allocation(s) per room order, and up to 2 route order(s) per port allocation; initial spacing margin/column/row=96/144/64, final spacing=288/432/224; last route failure: topology embedding drawing search exhausted across 11 certified face(s): topology drawing overlaps regions region.key_deep_2 and region.key_treasure_1"
-        }
-      ]
-    },
-    {
-      "candidateId": "candidate.first_slice.5501",
-      "profileSequence": "hub-hazard-boss",
-      "candidateRef": "artifacts/samples/batch-v2/candidate-003/accepted.json",
-      "physicalConnectionPlanRef": "artifacts/samples/batch-v2/candidate-003/physical-connection-plan.json",
-      "diagnostics": [
-        {
-          "code": "selection_geometry_route_search_exhausted",
-          "severity": "fatal",
-          "node": null,
-          "edge": null,
-          "detail": "Physical connection planning or exclusive placement failed: geometry search exhausted after 24 route attempt(s) across 5 spacing tier(s), 4 room order(s) per tier, 2 port allocation(s) per room order, and up to 2 route order(s) per port allocation; initial spacing margin/column/row=96/144/64, final spacing=288/432/224; last route failure: topology embedding drawing search exhausted across 7 certified face(s): topology drawing crosses region.gate_boss_1--region.resource_boss_prep_1 with region.hazard_sluice_1--region.start"
-        }
-      ]
-    },
-    {
-      "candidateId": "candidate.first_slice.5201",
-      "profileSequence": "hub-merge",
-      "candidateRef": "artifacts/samples/batch-v2/candidate-000/accepted.json",
-      "physicalConnectionPlanRef": "artifacts/samples/batch-v2/candidate-000/physical-connection-plan.json",
-      "diagnostics": [
-        {
-          "code": "selection_geometry_route_search_exhausted",
-          "severity": "fatal",
-          "node": null,
-          "edge": null,
-          "detail": "Physical connection planning or exclusive placement failed: geometry search exhausted after 80 route attempt(s) across 5 spacing tier(s), 4 room order(s) per tier, 2 port allocation(s) per room order, and up to 2 route order(s) per port allocation; initial spacing margin/column/row=96/144/64, final spacing=288/432/224; last route failure: single-floor route unavailable for physical section section.region_junction_merge_1.region_start.open"
-        }
-      ]
-    },
-    {
-      "candidateId": "candidate.first_slice.5901",
-      "profileSequence": "hub-merge",
-      "candidateRef": "artifacts/samples/batch-v2/candidate-007/accepted.json",
-      "physicalConnectionPlanRef": "artifacts/samples/batch-v2/candidate-007/physical-connection-plan.json",
-      "diagnostics": [
-        {
-          "code": "selection_geometry_route_search_exhausted",
-          "severity": "fatal",
-          "node": null,
-          "edge": null,
-          "detail": "Physical connection planning or exclusive placement failed: geometry search exhausted after 80 route attempt(s) across 5 spacing tier(s), 4 room order(s) per tier, 2 port allocation(s) per room order, and up to 2 route order(s) per port allocation; initial spacing margin/column/row=96/144/64, final spacing=288/432/224; last route failure: single-floor route unavailable for physical section section.region_hub_central_1.region_resource_clue_1.open"
-        }
-      ]
-    },
-    {
-      "candidateId": "candidate.first_slice.5401",
-      "profileSequence": "hazard-treasure-merge",
-      "candidateRef": "artifacts/samples/batch-v2/candidate-002/accepted.json",
-      "physicalConnectionPlanRef": "artifacts/samples/batch-v2/candidate-002/physical-connection-plan.json",
-      "diagnostics": [
-        {
-          "code": "selection_geometry_route_search_exhausted",
-          "severity": "fatal",
-          "node": null,
-          "edge": null,
-          "detail": "Physical connection planning or exclusive placement failed: geometry search exhausted after 52 route attempt(s) across 5 spacing tier(s), 4 room order(s) per tier, 2 port allocation(s) per room order, and up to 2 route order(s) per port allocation; initial spacing margin/column/row=96/144/64, final spacing=288/432/224; last route failure: single-floor route unavailable for physical section section.region_gate_locked_1.region_start.open"
-        }
-      ]
-    },
-    {
-      "candidateId": "candidate.first_slice.6101",
-      "profileSequence": "hazard-treasure-merge",
-      "candidateRef": "artifacts/samples/batch-v2/candidate-009/accepted.json",
-      "physicalConnectionPlanRef": "artifacts/samples/batch-v2/candidate-009/physical-connection-plan.json",
-      "diagnostics": [
-        {
-          "code": "selection_geometry_route_search_exhausted",
-          "severity": "fatal",
-          "node": null,
-          "edge": null,
-          "detail": "Physical connection planning or exclusive placement failed: geometry search exhausted after 56 route attempt(s) across 5 spacing tier(s), 4 room order(s) per tier, 2 port allocation(s) per room order, and up to 2 route order(s) per port allocation; initial spacing margin/column/row=96/144/64, final spacing=288/432/224; last route failure: topology embedding drawing search exhausted across 7 certified face(s): topology drawing crosses region.gate_locked_1--region.goal with region.junction_merge_1--region.treasure_gated_1"
+          "detail": "Physical connection planning or exclusive placement failed: geometry search exhausted after 10 route attempt(s) across 5 spacing tier(s), 4 room order(s) per tier, 2 port allocation(s) per room order, and up to 2 route order(s) per port allocation; initial spacing margin/column/row=96/144/64, final spacing=288/432/224; last route failure: topology embedding drawing search exhausted across 11 certified face(s): topology drawing overlaps regions region.key_deep_2 and region.key_treasure_1"
         }
       ]
     },
@@ -180,36 +640,6 @@
           "node": null,
           "edge": null,
           "detail": "Physical connection planning or exclusive placement failed: selection candidate.first_slice.5601 built flow validation failed with 1 fatal diagnostic(s)"
-        }
-      ]
-    },
-    {
-      "candidateId": "candidate.first_slice.5301",
-      "profileSequence": "nested-boss",
-      "candidateRef": "artifacts/samples/batch-v2/candidate-001/accepted.json",
-      "physicalConnectionPlanRef": "artifacts/samples/batch-v2/candidate-001/physical-connection-plan.json",
-      "diagnostics": [
-        {
-          "code": "selection_global_search_budget_exhausted",
-          "severity": "fatal",
-          "node": null,
-          "edge": null,
-          "detail": "Physical connection planning or exclusive placement failed: global shape/piece search budget exhausted after 4 shape/transform alternative(s); last realization failure: piece realization search exhausted after 2 scale tier(s); last realization failure: piece route search exhausted after 4 deterministic order attempt(s); last route failure: no clearance-safe connection route exists for glued exit glue.piece_link_corridor_section_region_gate_locked_2_region_resource_boss_prep_1_open_catalog between instance.piece_room_room_region_gate_locked_2 at 465,519 (north) and instance.piece_room_room_region_resource_boss_prep_1 at 465,145 (south); blocked by previously routed physical sections"
-        }
-      ]
-    },
-    {
-      "candidateId": "candidate.first_slice.6001",
-      "profileSequence": "nested-boss",
-      "candidateRef": "artifacts/samples/batch-v2/candidate-008/accepted.json",
-      "physicalConnectionPlanRef": "artifacts/samples/batch-v2/candidate-008/physical-connection-plan.json",
-      "diagnostics": [
-        {
-          "code": "selection_global_search_budget_exhausted",
-          "severity": "fatal",
-          "node": null,
-          "edge": null,
-          "detail": "Physical connection planning or exclusive placement failed: global shape/piece search budget exhausted after 4 shape/transform alternative(s); last realization failure: piece realization search exhausted after 2 scale tier(s); last realization failure: piece route search exhausted after 4 deterministic order attempt(s); last route failure: no clearance-safe connection route exists for glued exit glue.piece_link_corridor_section_region_gate_locked_2_region_resource_boss_prep_1_open_catalog between instance.piece_room_room_region_gate_locked_2 at 257,287 (north) and instance.piece_room_room_region_resource_boss_prep_1 at 257,81 (south); blocked by previously routed physical sections"
         }
       ]
     }

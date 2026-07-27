@@ -1,0 +1,1757 @@
+{
+  "kind": "asha_procgen.geometry_2d.v1",
+  "schemaVersion": 1,
+  "geometryId": "geometry.candidate.first_slice.5501.14302",
+  "candidateId": "candidate.first_slice.5501",
+  "seed": 14302,
+  "sourceCandidateRef": "artifacts/samples/batch-v2/candidate-003/accepted.json",
+  "sourceIntermediateRef": "artifacts/samples/batch-v2/candidate-003/intermediate-breakdown.json",
+  "sourceConnectionPlanRef": "artifacts/samples/batch-v2/candidate-003/physical-connection-plan.json",
+  "connectionPlanId": "physical_connections.candidate.first_slice.5501",
+  "layoutPolicy": {
+    "kind": "asha_procgen.geometry_layout_policy.v1",
+    "schemaVersion": 1,
+    "initialRoomMargin": 96,
+    "initialColumnGap": 144,
+    "initialRowGap": 64,
+    "roomMarginGrowth": 48,
+    "columnGapGrowth": 72,
+    "rowGapGrowth": 40,
+    "maxSpacingTiers": 5,
+    "roomOrderAttemptsPerTier": 4,
+    "maxSearchAttempts": 80
+  },
+  "layoutSearch": {
+    "spacingTier": 0,
+    "roomOrderAttempt": 3,
+    "portOrderAttempt": 0,
+    "routeOrderAttempt": 0,
+    "searchAttempts": 11,
+    "effectiveSpacing": {
+      "roomMargin": 96,
+      "columnGap": 144,
+      "rowGap": 64
+    },
+    "embeddingKind": "planar_rotation",
+    "embeddingId": "rotation.v1.fnv1a64:3c4edee973b2b328",
+    "embeddingFaces": 7,
+    "embeddingTargetFaces": 7,
+    "embeddingSearchSteps": 9,
+    "routeDecisions": 89,
+    "routeBacktracks": 72,
+    "routePathAlternatives": 280,
+    "routeRepairs": 65,
+    "routeGridExpansions": 262144,
+    "routePathExpansionExhaustions": 64,
+    "routeLastFailedSection": "",
+    "routeBlockingOwners": [
+      "path_expansion_budget:4096",
+      "room:region.gate_boss_1",
+      "room:region.gate_locked_1",
+      "room:region.goal",
+      "room:region.hazard_sluice_1",
+      "room:region.hazard_watch_1",
+      "room:region.hub_central_1",
+      "room:region.key_gate_1",
+      "room:region.resource_boss_prep_1",
+      "room:region.resource_clue_1",
+      "room:region.resource_safety_1",
+      "room:region.start",
+      "section.region_hub_central_1.region_resource_clue_1.open",
+      "section.region_hub_central_1.region_start.open"
+    ]
+  },
+  "bounds": {
+    "width": 2048,
+    "height": 4160,
+    "grid": 8
+  },
+  "rooms": [
+    {
+      "id": "room.region_start",
+      "sourceRegion": "region.start",
+      "sourceNodes": [
+        "start"
+      ],
+      "role": "start",
+      "geometryRole": "entry",
+      "footprintClass": "marker_room",
+      "rect": {
+        "x": 160,
+        "y": 736,
+        "width": 128,
+        "height": 2960
+      },
+      "ports": [
+        {
+          "id": "port.room_region_start.section_region_key_gate_1_region_start_open",
+          "sectionId": "section.region_key_gate_1.region_start.open",
+          "side": "east",
+          "point": {
+            "x": 288,
+            "y": 776
+          },
+          "width": 12
+        },
+        {
+          "id": "port.room_region_start.section_region_gate_locked_1_region_start_open",
+          "sectionId": "section.region_gate_locked_1.region_start.open",
+          "side": "east",
+          "point": {
+            "x": 288,
+            "y": 1112
+          },
+          "width": 12
+        },
+        {
+          "id": "port.room_region_start.section_region_resource_safety_1_region_start_open",
+          "sectionId": "section.region_resource_safety_1.region_start.open",
+          "side": "east",
+          "point": {
+            "x": 288,
+            "y": 1968
+          },
+          "width": 12
+        },
+        {
+          "id": "port.room_region_start.section_region_hazard_sluice_1_region_start_open",
+          "sectionId": "section.region_hazard_sluice_1.region_start.open",
+          "side": "east",
+          "point": {
+            "x": 288,
+            "y": 2536
+          },
+          "width": 20
+        },
+        {
+          "id": "port.room_region_start.section_region_hub_central_1_region_start_open",
+          "sectionId": "section.region_hub_central_1.region_start.open",
+          "side": "east",
+          "point": {
+            "x": 288,
+            "y": 3656
+          },
+          "width": 12
+        }
+      ],
+      "styleTags": [
+        "choice_readability",
+        "entry",
+        "entry_spawn",
+        "medium",
+        "start"
+      ]
+    },
+    {
+      "id": "room.region_hub_central_1",
+      "sourceRegion": "region.hub_central_1",
+      "sourceNodes": [
+        "hub.central_1"
+      ],
+      "role": "landmark_hub",
+      "geometryRole": "landmark_junction",
+      "footprintClass": "hub",
+      "rect": {
+        "x": 976,
+        "y": 3608,
+        "width": 160,
+        "height": 112
+      },
+      "ports": [
+        {
+          "id": "port.room_region_hub_central_1.section_region_hub_central_1_region_treasure_cache_1_open",
+          "sectionId": "section.region_hub_central_1.region_treasure_cache_1.open",
+          "side": "north",
+          "point": {
+            "x": 1056,
+            "y": 3608
+          },
+          "width": 12
+        },
+        {
+          "id": "port.room_region_hub_central_1.section_region_goal_region_hub_central_1_open",
+          "sectionId": "section.region_goal.region_hub_central_1.open",
+          "side": "east",
+          "point": {
+            "x": 1136,
+            "y": 3664
+          },
+          "width": 12
+        },
+        {
+          "id": "port.room_region_hub_central_1.section_region_hazard_watch_1_region_hub_central_1_open",
+          "sectionId": "section.region_hazard_watch_1.region_hub_central_1.open",
+          "side": "south",
+          "point": {
+            "x": 1056,
+            "y": 3720
+          },
+          "width": 20
+        },
+        {
+          "id": "port.room_region_hub_central_1.section_region_hub_central_1_region_start_open",
+          "sectionId": "section.region_hub_central_1.region_start.open",
+          "side": "west",
+          "point": {
+            "x": 976,
+            "y": 3640
+          },
+          "width": 12
+        },
+        {
+          "id": "port.room_region_hub_central_1.section_region_hub_central_1_region_resource_clue_1_open",
+          "sectionId": "section.region_hub_central_1.region_resource_clue_1.open",
+          "side": "west",
+          "point": {
+            "x": 976,
+            "y": 3688
+          },
+          "width": 12
+        }
+      ],
+      "styleTags": [
+        "choice_readability",
+        "landmark_hub",
+        "landmark_junction",
+        "large",
+        "merge_readability",
+        "multi_spoke_orientation"
+      ]
+    },
+    {
+      "id": "room.region_key_gate_1",
+      "sourceRegion": "region.key_gate_1",
+      "sourceNodes": [
+        "key.gate_1"
+      ],
+      "role": "standard",
+      "geometryRole": "key_pocket",
+      "footprintClass": "small_pocket",
+      "rect": {
+        "x": 592,
+        "y": 736,
+        "width": 96,
+        "height": 80
+      },
+      "ports": [
+        {
+          "id": "port.room_region_key_gate_1.section_region_gate_locked_1_region_key_gate_1_open",
+          "sectionId": "section.region_gate_locked_1.region_key_gate_1.open",
+          "side": "east",
+          "point": {
+            "x": 688,
+            "y": 776
+          },
+          "width": 12
+        },
+        {
+          "id": "port.room_region_key_gate_1.section_region_key_gate_1_region_start_open",
+          "sectionId": "section.region_key_gate_1.region_start.open",
+          "side": "west",
+          "point": {
+            "x": 592,
+            "y": 776
+          },
+          "width": 12
+        }
+      ],
+      "styleTags": [
+        "key_pocket",
+        "pickup_pocket",
+        "small",
+        "standard"
+      ]
+    },
+    {
+      "id": "room.region_gate_locked_1",
+      "sourceRegion": "region.gate_locked_1",
+      "sourceNodes": [
+        "gate.locked_1"
+      ],
+      "role": "gate",
+      "geometryRole": "threshold",
+      "footprintClass": "threshold",
+      "rect": {
+        "x": 1144,
+        "y": 1064,
+        "width": 112,
+        "height": 112
+      },
+      "ports": [
+        {
+          "id": "port.room_region_gate_locked_1.section_region_gate_locked_1_region_resource_boss_prep_1_open",
+          "sectionId": "section.region_gate_locked_1.region_resource_boss_prep_1.open",
+          "side": "north",
+          "point": {
+            "x": 1176,
+            "y": 1064
+          },
+          "width": 12
+        },
+        {
+          "id": "port.room_region_gate_locked_1.section_region_gate_boss_1_region_gate_locked_1_open",
+          "sectionId": "section.region_gate_boss_1.region_gate_locked_1.open",
+          "side": "north",
+          "point": {
+            "x": 1224,
+            "y": 1064
+          },
+          "width": 12
+        },
+        {
+          "id": "port.room_region_gate_locked_1.section_region_gate_locked_1_region_key_gate_1_open",
+          "sectionId": "section.region_gate_locked_1.region_key_gate_1.open",
+          "side": "west",
+          "point": {
+            "x": 1144,
+            "y": 1096
+          },
+          "width": 12
+        },
+        {
+          "id": "port.room_region_gate_locked_1.section_region_gate_locked_1_region_start_open",
+          "sectionId": "section.region_gate_locked_1.region_start.open",
+          "side": "west",
+          "point": {
+            "x": 1144,
+            "y": 1144
+          },
+          "width": 12
+        }
+      ],
+      "styleTags": [
+        "choice_readability",
+        "gate",
+        "locked_threshold_preview",
+        "medium",
+        "merge_readability",
+        "reveal_line",
+        "threshold"
+      ]
+    },
+    {
+      "id": "room.region_resource_safety_1",
+      "sourceRegion": "region.resource_safety_1",
+      "sourceNodes": [
+        "resource.safety_1"
+      ],
+      "role": "standard",
+      "geometryRole": "chamber",
+      "footprintClass": "small_pocket",
+      "rect": {
+        "x": 736,
+        "y": 1928,
+        "width": 96,
+        "height": 80
+      },
+      "ports": [
+        {
+          "id": "port.room_region_resource_safety_1.section_region_hazard_sluice_1_region_resource_safety_1_open",
+          "sectionId": "section.region_hazard_sluice_1.region_resource_safety_1.open",
+          "side": "south",
+          "point": {
+            "x": 784,
+            "y": 2008
+          },
+          "width": 12
+        },
+        {
+          "id": "port.room_region_resource_safety_1.section_region_resource_safety_1_region_start_open",
+          "sectionId": "section.region_resource_safety_1.region_start.open",
+          "side": "west",
+          "point": {
+            "x": 736,
+            "y": 1968
+          },
+          "width": 12
+        }
+      ],
+      "styleTags": [
+        "chamber",
+        "pickup_pocket",
+        "small",
+        "standard"
+      ]
+    },
+    {
+      "id": "room.region_hazard_sluice_1",
+      "sourceRegion": "region.hazard_sluice_1",
+      "sourceNodes": [
+        "hazard.sluice_1"
+      ],
+      "role": "pressure",
+      "geometryRole": "hazard_route",
+      "footprintClass": "pressure_lane",
+      "rect": {
+        "x": 1200,
+        "y": 2504,
+        "width": 144,
+        "height": 80
+      },
+      "ports": [
+        {
+          "id": "port.room_region_hazard_sluice_1.section_region_hazard_sluice_1_region_resource_safety_1_open",
+          "sectionId": "section.region_hazard_sluice_1.region_resource_safety_1.open",
+          "side": "north",
+          "point": {
+            "x": 1272,
+            "y": 2504
+          },
+          "width": 12
+        },
+        {
+          "id": "port.room_region_hazard_sluice_1.section_region_goal_region_hazard_sluice_1_open",
+          "sectionId": "section.region_goal.region_hazard_sluice_1.open",
+          "side": "east",
+          "point": {
+            "x": 1344,
+            "y": 2544
+          },
+          "width": 12
+        },
+        {
+          "id": "port.room_region_hazard_sluice_1.section_region_hazard_sluice_1_region_start_open",
+          "sectionId": "section.region_hazard_sluice_1.region_start.open",
+          "side": "west",
+          "point": {
+            "x": 1200,
+            "y": 2544
+          },
+          "width": 20
+        }
+      ],
+      "styleTags": [
+        "hazard_route",
+        "medium",
+        "merge_readability",
+        "pressure",
+        "readable_hazard_approach"
+      ]
+    },
+    {
+      "id": "room.region_resource_clue_1",
+      "sourceRegion": "region.resource_clue_1",
+      "sourceNodes": [
+        "resource.clue_1"
+      ],
+      "role": "standard",
+      "geometryRole": "chamber",
+      "footprintClass": "small_pocket",
+      "rect": {
+        "x": 416,
+        "y": 3560,
+        "width": 96,
+        "height": 80
+      },
+      "ports": [
+        {
+          "id": "port.room_region_resource_clue_1.section_region_hub_central_1_region_resource_clue_1_open",
+          "sectionId": "section.region_hub_central_1.region_resource_clue_1.open",
+          "side": "east",
+          "point": {
+            "x": 512,
+            "y": 3600
+          },
+          "width": 12
+        }
+      ],
+      "styleTags": [
+        "chamber",
+        "pickup_pocket",
+        "small",
+        "standard"
+      ]
+    },
+    {
+      "id": "room.region_resource_boss_prep_1",
+      "sourceRegion": "region.resource_boss_prep_1",
+      "sourceNodes": [
+        "resource.boss_prep_1"
+      ],
+      "role": "standard",
+      "geometryRole": "chamber",
+      "footprintClass": "small_pocket",
+      "rect": {
+        "x": 776,
+        "y": 184,
+        "width": 96,
+        "height": 80
+      },
+      "ports": [
+        {
+          "id": "port.room_region_resource_boss_prep_1.section_region_gate_boss_1_region_resource_boss_prep_1_open",
+          "sectionId": "section.region_gate_boss_1.region_resource_boss_prep_1.open",
+          "side": "east",
+          "point": {
+            "x": 872,
+            "y": 224
+          },
+          "width": 12
+        },
+        {
+          "id": "port.room_region_resource_boss_prep_1.section_region_gate_locked_1_region_resource_boss_prep_1_open",
+          "sectionId": "section.region_gate_locked_1.region_resource_boss_prep_1.open",
+          "side": "south",
+          "point": {
+            "x": 824,
+            "y": 264
+          },
+          "width": 12
+        }
+      ],
+      "styleTags": [
+        "chamber",
+        "pickup_pocket",
+        "small",
+        "standard"
+      ]
+    },
+    {
+      "id": "room.region_goal",
+      "sourceRegion": "region.goal",
+      "sourceNodes": [
+        "goal"
+      ],
+      "role": "goal",
+      "geometryRole": "destination",
+      "footprintClass": "marker_room",
+      "rect": {
+        "x": 1824,
+        "y": 440,
+        "width": 128,
+        "height": 3616
+      },
+      "ports": [
+        {
+          "id": "port.room_region_goal.section_region_gate_boss_1_region_goal_connector_edge_boss_1_goal",
+          "sectionId": "section.region_gate_boss_1.region_goal.connector_edge_boss_1_goal",
+          "side": "west",
+          "point": {
+            "x": 1824,
+            "y": 480
+          },
+          "width": 18
+        },
+        {
+          "id": "port.room_region_goal.section_region_goal_region_hazard_sluice_1_open",
+          "sectionId": "section.region_goal.region_hazard_sluice_1.open",
+          "side": "west",
+          "point": {
+            "x": 1824,
+            "y": 2536
+          },
+          "width": 12
+        },
+        {
+          "id": "port.room_region_goal.section_region_goal_region_hub_central_1_open",
+          "sectionId": "section.region_goal.region_hub_central_1.open",
+          "side": "west",
+          "point": {
+            "x": 1824,
+            "y": 3656
+          },
+          "width": 12
+        },
+        {
+          "id": "port.room_region_goal.section_region_goal_region_hazard_watch_1_open",
+          "sectionId": "section.region_goal.region_hazard_watch_1.open",
+          "side": "west",
+          "point": {
+            "x": 1824,
+            "y": 4016
+          },
+          "width": 12
+        }
+      ],
+      "styleTags": [
+        "destination",
+        "destination_arrival",
+        "goal",
+        "medium",
+        "merge_readability"
+      ]
+    },
+    {
+      "id": "room.region_gate_boss_1",
+      "sourceRegion": "region.gate_boss_1",
+      "sourceNodes": [
+        "gate.boss_1"
+      ],
+      "role": "boss_gate",
+      "geometryRole": "boss_threshold",
+      "footprintClass": "threshold_large",
+      "rect": {
+        "x": 1544,
+        "y": 424,
+        "width": 144,
+        "height": 112
+      },
+      "ports": [
+        {
+          "id": "port.room_region_gate_boss_1.section_region_gate_boss_1_region_goal_connector_edge_boss_1_goal",
+          "sectionId": "section.region_gate_boss_1.region_goal.connector_edge_boss_1_goal",
+          "side": "east",
+          "point": {
+            "x": 1688,
+            "y": 480
+          },
+          "width": 18
+        },
+        {
+          "id": "port.room_region_gate_boss_1.section_region_gate_boss_1_region_gate_locked_1_open",
+          "sectionId": "section.region_gate_boss_1.region_gate_locked_1.open",
+          "side": "south",
+          "point": {
+            "x": 1616,
+            "y": 536
+          },
+          "width": 12
+        },
+        {
+          "id": "port.room_region_gate_boss_1.section_region_gate_boss_1_region_resource_boss_prep_1_open",
+          "sectionId": "section.region_gate_boss_1.region_resource_boss_prep_1.open",
+          "side": "west",
+          "point": {
+            "x": 1544,
+            "y": 480
+          },
+          "width": 12
+        }
+      ],
+      "styleTags": [
+        "approach_then_reveal",
+        "boss_gate",
+        "boss_threshold",
+        "large",
+        "merge_readability",
+        "reveal_line"
+      ]
+    },
+    {
+      "id": "room.region_hazard_watch_1",
+      "sourceRegion": "region.hazard_watch_1",
+      "sourceNodes": [
+        "hazard.watch_1"
+      ],
+      "role": "pressure",
+      "geometryRole": "hazard_route",
+      "footprintClass": "pressure_lane",
+      "rect": {
+        "x": 1216,
+        "y": 3984,
+        "width": 144,
+        "height": 80
+      },
+      "ports": [
+        {
+          "id": "port.room_region_hazard_watch_1.section_region_hazard_watch_1_region_hub_central_1_open",
+          "sectionId": "section.region_hazard_watch_1.region_hub_central_1.open",
+          "side": "north",
+          "point": {
+            "x": 1288,
+            "y": 3984
+          },
+          "width": 20
+        },
+        {
+          "id": "port.room_region_hazard_watch_1.section_region_goal_region_hazard_watch_1_open",
+          "sectionId": "section.region_goal.region_hazard_watch_1.open",
+          "side": "east",
+          "point": {
+            "x": 1360,
+            "y": 4024
+          },
+          "width": 12
+        }
+      ],
+      "styleTags": [
+        "hazard_route",
+        "medium",
+        "pressure",
+        "readable_hazard_approach"
+      ]
+    },
+    {
+      "id": "room.region_treasure_cache_1",
+      "sourceRegion": "region.treasure_cache_1",
+      "sourceNodes": [
+        "treasure.cache_1"
+      ],
+      "role": "reward",
+      "geometryRole": "reward_pocket",
+      "footprintClass": "pocket",
+      "rect": {
+        "x": 1008,
+        "y": 2912,
+        "width": 96,
+        "height": 80
+      },
+      "ports": [
+        {
+          "id": "port.room_region_treasure_cache_1.section_region_hub_central_1_region_treasure_cache_1_open",
+          "sectionId": "section.region_hub_central_1.region_treasure_cache_1.open",
+          "side": "south",
+          "point": {
+            "x": 1056,
+            "y": 2992
+          },
+          "width": 12
+        }
+      ],
+      "styleTags": [
+        "optional_reward_access",
+        "reward",
+        "reward_pocket",
+        "small"
+      ]
+    }
+  ],
+  "corridors": [
+    {
+      "id": "corridor.section_region_gate_boss_1_region_gate_locked_1_open",
+      "physicalSection": "section.region_gate_boss_1.region_gate_locked_1.open",
+      "sourceConnector": "connector.edge_approach_boss_1",
+      "sourceEdge": "edge.approach.boss_1",
+      "sourceConnectors": [
+        "connector.edge_approach_boss_1"
+      ],
+      "sourceEdges": [
+        "edge.approach.boss_1"
+      ],
+      "traversalRefs": [
+        {
+          "connectorId": "connector.edge_approach_boss_1",
+          "edgeId": "edge.approach.boss_1",
+          "fromRegion": "region.gate_locked_1",
+          "toRegion": "region.gate_boss_1",
+          "traversal": "open",
+          "requiredItem": null
+        }
+      ],
+      "fromRoom": "room.region_gate_boss_1",
+      "toRoom": "room.region_gate_locked_1",
+      "traversalHint": "open",
+      "semanticTags": [
+        "corridor",
+        "open"
+      ],
+      "width": 12,
+      "fromPort": "port.room_region_gate_boss_1.section_region_gate_boss_1_region_gate_locked_1_open",
+      "toPort": "port.room_region_gate_locked_1.section_region_gate_boss_1_region_gate_locked_1_open",
+      "points": [
+        {
+          "x": 1616,
+          "y": 536
+        },
+        {
+          "x": 1616,
+          "y": 800
+        },
+        {
+          "x": 1224,
+          "y": 800
+        },
+        {
+          "x": 1224,
+          "y": 1064
+        }
+      ]
+    },
+    {
+      "id": "corridor.section_region_gate_boss_1_region_goal_connector_edge_boss_1_goal",
+      "physicalSection": "section.region_gate_boss_1.region_goal.connector_edge_boss_1_goal",
+      "sourceConnector": "connector.edge_boss_1_goal",
+      "sourceEdge": "edge.boss_1.goal",
+      "sourceConnectors": [
+        "connector.edge_boss_1_goal"
+      ],
+      "sourceEdges": [
+        "edge.boss_1.goal"
+      ],
+      "traversalRefs": [
+        {
+          "connectorId": "connector.edge_boss_1_goal",
+          "edgeId": "edge.boss_1.goal",
+          "fromRegion": "region.gate_boss_1",
+          "toRegion": "region.goal",
+          "traversal": "locked",
+          "requiredItem": "item.boss_preparation_1"
+        }
+      ],
+      "fromRoom": "room.region_gate_boss_1",
+      "toRoom": "room.region_goal",
+      "traversalHint": "locked",
+      "semanticTags": [
+        "gated_connector",
+        "locked",
+        "locked_threshold",
+        "preview_line",
+        "visible_before_reachable"
+      ],
+      "width": 18,
+      "fromPort": "port.room_region_gate_boss_1.section_region_gate_boss_1_region_goal_connector_edge_boss_1_goal",
+      "toPort": "port.room_region_goal.section_region_gate_boss_1_region_goal_connector_edge_boss_1_goal",
+      "points": [
+        {
+          "x": 1688,
+          "y": 480
+        },
+        {
+          "x": 1824,
+          "y": 480
+        }
+      ]
+    },
+    {
+      "id": "corridor.section_region_gate_boss_1_region_resource_boss_prep_1_open",
+      "physicalSection": "section.region_gate_boss_1.region_resource_boss_prep_1.open",
+      "sourceConnector": "connector.edge_boss_prep_1_boss_1",
+      "sourceEdge": "edge.boss_prep_1.boss_1",
+      "sourceConnectors": [
+        "connector.edge_boss_prep_1_boss_1"
+      ],
+      "sourceEdges": [
+        "edge.boss_prep_1.boss_1"
+      ],
+      "traversalRefs": [
+        {
+          "connectorId": "connector.edge_boss_prep_1_boss_1",
+          "edgeId": "edge.boss_prep_1.boss_1",
+          "fromRegion": "region.resource_boss_prep_1",
+          "toRegion": "region.gate_boss_1",
+          "traversal": "open",
+          "requiredItem": null
+        }
+      ],
+      "fromRoom": "room.region_gate_boss_1",
+      "toRoom": "room.region_resource_boss_prep_1",
+      "traversalHint": "open",
+      "semanticTags": [
+        "merge_rejoin_clarity",
+        "open",
+        "rejoin_corridor"
+      ],
+      "width": 12,
+      "fromPort": "port.room_region_gate_boss_1.section_region_gate_boss_1_region_resource_boss_prep_1_open",
+      "toPort": "port.room_region_resource_boss_prep_1.section_region_gate_boss_1_region_resource_boss_prep_1_open",
+      "points": [
+        {
+          "x": 1544,
+          "y": 480
+        },
+        {
+          "x": 1208,
+          "y": 480
+        },
+        {
+          "x": 1208,
+          "y": 224
+        },
+        {
+          "x": 872,
+          "y": 224
+        }
+      ]
+    },
+    {
+      "id": "corridor.section_region_gate_locked_1_region_key_gate_1_open",
+      "physicalSection": "section.region_gate_locked_1.region_key_gate_1.open",
+      "sourceConnector": "connector.edge_key_1_gate_1",
+      "sourceEdge": "edge.key_1.gate_1",
+      "sourceConnectors": [
+        "connector.edge_key_1_gate_1"
+      ],
+      "sourceEdges": [
+        "edge.key_1.gate_1"
+      ],
+      "traversalRefs": [
+        {
+          "connectorId": "connector.edge_key_1_gate_1",
+          "edgeId": "edge.key_1.gate_1",
+          "fromRegion": "region.key_gate_1",
+          "toRegion": "region.gate_locked_1",
+          "traversal": "open",
+          "requiredItem": null
+        }
+      ],
+      "fromRoom": "room.region_gate_locked_1",
+      "toRoom": "room.region_key_gate_1",
+      "traversalHint": "open",
+      "semanticTags": [
+        "merge_rejoin_clarity",
+        "open",
+        "rejoin_corridor"
+      ],
+      "width": 12,
+      "fromPort": "port.room_region_gate_locked_1.section_region_gate_locked_1_region_key_gate_1_open",
+      "toPort": "port.room_region_key_gate_1.section_region_gate_locked_1_region_key_gate_1_open",
+      "points": [
+        {
+          "x": 1144,
+          "y": 1096
+        },
+        {
+          "x": 920,
+          "y": 1096
+        },
+        {
+          "x": 920,
+          "y": 776
+        },
+        {
+          "x": 688,
+          "y": 776
+        }
+      ]
+    },
+    {
+      "id": "corridor.section_region_gate_locked_1_region_resource_boss_prep_1_open",
+      "physicalSection": "section.region_gate_locked_1.region_resource_boss_prep_1.open",
+      "sourceConnector": "connector.edge_approach_boss_prep_1",
+      "sourceEdge": "edge.approach.boss_prep_1",
+      "sourceConnectors": [
+        "connector.edge_approach_boss_prep_1"
+      ],
+      "sourceEdges": [
+        "edge.approach.boss_prep_1"
+      ],
+      "traversalRefs": [
+        {
+          "connectorId": "connector.edge_approach_boss_prep_1",
+          "edgeId": "edge.approach.boss_prep_1",
+          "fromRegion": "region.gate_locked_1",
+          "toRegion": "region.resource_boss_prep_1",
+          "traversal": "open",
+          "requiredItem": null
+        }
+      ],
+      "fromRoom": "room.region_gate_locked_1",
+      "toRoom": "room.region_resource_boss_prep_1",
+      "traversalHint": "open",
+      "semanticTags": [
+        "corridor",
+        "open"
+      ],
+      "width": 12,
+      "fromPort": "port.room_region_gate_locked_1.section_region_gate_locked_1_region_resource_boss_prep_1_open",
+      "toPort": "port.room_region_resource_boss_prep_1.section_region_gate_locked_1_region_resource_boss_prep_1_open",
+      "points": [
+        {
+          "x": 1176,
+          "y": 1064
+        },
+        {
+          "x": 1176,
+          "y": 664
+        },
+        {
+          "x": 824,
+          "y": 664
+        },
+        {
+          "x": 824,
+          "y": 264
+        }
+      ]
+    },
+    {
+      "id": "corridor.section_region_gate_locked_1_region_start_open",
+      "physicalSection": "section.region_gate_locked_1.region_start.open",
+      "sourceConnector": "connector.edge_start_gate_1",
+      "sourceEdge": "edge.start.gate_1",
+      "sourceConnectors": [
+        "connector.edge_start_gate_1"
+      ],
+      "sourceEdges": [
+        "edge.start.gate_1"
+      ],
+      "traversalRefs": [
+        {
+          "connectorId": "connector.edge_start_gate_1",
+          "edgeId": "edge.start.gate_1",
+          "fromRegion": "region.start",
+          "toRegion": "region.gate_locked_1",
+          "traversal": "open",
+          "requiredItem": null
+        }
+      ],
+      "fromRoom": "room.region_gate_locked_1",
+      "toRoom": "room.region_start",
+      "traversalHint": "open",
+      "semanticTags": [
+        "corridor",
+        "open"
+      ],
+      "width": 12,
+      "fromPort": "port.room_region_gate_locked_1.section_region_gate_locked_1_region_start_open",
+      "toPort": "port.room_region_start.section_region_gate_locked_1_region_start_open",
+      "points": [
+        {
+          "x": 1144,
+          "y": 1144
+        },
+        {
+          "x": 720,
+          "y": 1144
+        },
+        {
+          "x": 720,
+          "y": 1112
+        },
+        {
+          "x": 288,
+          "y": 1112
+        }
+      ]
+    },
+    {
+      "id": "corridor.section_region_goal_region_hazard_sluice_1_open",
+      "physicalSection": "section.region_goal.region_hazard_sluice_1.open",
+      "sourceConnector": "connector.edge_sluice_1_goal",
+      "sourceEdge": "edge.sluice_1.goal",
+      "sourceConnectors": [
+        "connector.edge_sluice_1_goal"
+      ],
+      "sourceEdges": [
+        "edge.sluice_1.goal"
+      ],
+      "traversalRefs": [
+        {
+          "connectorId": "connector.edge_sluice_1_goal",
+          "edgeId": "edge.sluice_1.goal",
+          "fromRegion": "region.hazard_sluice_1",
+          "toRegion": "region.goal",
+          "traversal": "open",
+          "requiredItem": null
+        }
+      ],
+      "fromRoom": "room.region_goal",
+      "toRoom": "room.region_hazard_sluice_1",
+      "traversalHint": "open",
+      "semanticTags": [
+        "merge_rejoin_clarity",
+        "open",
+        "rejoin_corridor"
+      ],
+      "width": 12,
+      "fromPort": "port.room_region_goal.section_region_goal_region_hazard_sluice_1_open",
+      "toPort": "port.room_region_hazard_sluice_1.section_region_goal_region_hazard_sluice_1_open",
+      "points": [
+        {
+          "x": 1824,
+          "y": 2536
+        },
+        {
+          "x": 1584,
+          "y": 2536
+        },
+        {
+          "x": 1584,
+          "y": 2544
+        },
+        {
+          "x": 1344,
+          "y": 2544
+        }
+      ]
+    },
+    {
+      "id": "corridor.section_region_goal_region_hazard_watch_1_open",
+      "physicalSection": "section.region_goal.region_hazard_watch_1.open",
+      "sourceConnector": "connector.edge_watch_1_goal",
+      "sourceEdge": "edge.watch_1.goal",
+      "sourceConnectors": [
+        "connector.edge_watch_1_goal"
+      ],
+      "sourceEdges": [
+        "edge.watch_1.goal"
+      ],
+      "traversalRefs": [
+        {
+          "connectorId": "connector.edge_watch_1_goal",
+          "edgeId": "edge.watch_1.goal",
+          "fromRegion": "region.hazard_watch_1",
+          "toRegion": "region.goal",
+          "traversal": "open",
+          "requiredItem": null
+        }
+      ],
+      "fromRoom": "room.region_goal",
+      "toRoom": "room.region_hazard_watch_1",
+      "traversalHint": "open",
+      "semanticTags": [
+        "merge_rejoin_clarity",
+        "open",
+        "rejoin_corridor"
+      ],
+      "width": 12,
+      "fromPort": "port.room_region_goal.section_region_goal_region_hazard_watch_1_open",
+      "toPort": "port.room_region_hazard_watch_1.section_region_goal_region_hazard_watch_1_open",
+      "points": [
+        {
+          "x": 1824,
+          "y": 4016
+        },
+        {
+          "x": 1592,
+          "y": 4016
+        },
+        {
+          "x": 1592,
+          "y": 4024
+        },
+        {
+          "x": 1360,
+          "y": 4024
+        }
+      ]
+    },
+    {
+      "id": "corridor.section_region_goal_region_hub_central_1_open",
+      "physicalSection": "section.region_goal.region_hub_central_1.open",
+      "sourceConnector": "connector.edge_hub_1_goal",
+      "sourceEdge": "edge.hub_1.goal",
+      "sourceConnectors": [
+        "connector.edge_hub_1_goal"
+      ],
+      "sourceEdges": [
+        "edge.hub_1.goal"
+      ],
+      "traversalRefs": [
+        {
+          "connectorId": "connector.edge_hub_1_goal",
+          "edgeId": "edge.hub_1.goal",
+          "fromRegion": "region.hub_central_1",
+          "toRegion": "region.goal",
+          "traversal": "open",
+          "requiredItem": null
+        }
+      ],
+      "fromRoom": "room.region_goal",
+      "toRoom": "room.region_hub_central_1",
+      "traversalHint": "open",
+      "semanticTags": [
+        "merge_rejoin_clarity",
+        "open",
+        "rejoin_corridor"
+      ],
+      "width": 12,
+      "fromPort": "port.room_region_goal.section_region_goal_region_hub_central_1_open",
+      "toPort": "port.room_region_hub_central_1.section_region_goal_region_hub_central_1_open",
+      "points": [
+        {
+          "x": 1824,
+          "y": 3656
+        },
+        {
+          "x": 1480,
+          "y": 3656
+        },
+        {
+          "x": 1480,
+          "y": 3664
+        },
+        {
+          "x": 1136,
+          "y": 3664
+        }
+      ]
+    },
+    {
+      "id": "corridor.section_region_hazard_sluice_1_region_resource_safety_1_open",
+      "physicalSection": "section.region_hazard_sluice_1.region_resource_safety_1.open",
+      "sourceConnector": "connector.edge_safety_1_sluice_1",
+      "sourceEdge": "edge.safety_1.sluice_1",
+      "sourceConnectors": [
+        "connector.edge_safety_1_sluice_1"
+      ],
+      "sourceEdges": [
+        "edge.safety_1.sluice_1"
+      ],
+      "traversalRefs": [
+        {
+          "connectorId": "connector.edge_safety_1_sluice_1",
+          "edgeId": "edge.safety_1.sluice_1",
+          "fromRegion": "region.resource_safety_1",
+          "toRegion": "region.hazard_sluice_1",
+          "traversal": "open",
+          "requiredItem": null
+        }
+      ],
+      "fromRoom": "room.region_hazard_sluice_1",
+      "toRoom": "room.region_resource_safety_1",
+      "traversalHint": "open",
+      "semanticTags": [
+        "corridor",
+        "open"
+      ],
+      "width": 12,
+      "fromPort": "port.room_region_hazard_sluice_1.section_region_hazard_sluice_1_region_resource_safety_1_open",
+      "toPort": "port.room_region_resource_safety_1.section_region_hazard_sluice_1_region_resource_safety_1_open",
+      "points": [
+        {
+          "x": 1272,
+          "y": 2504
+        },
+        {
+          "x": 1272,
+          "y": 2256
+        },
+        {
+          "x": 784,
+          "y": 2256
+        },
+        {
+          "x": 784,
+          "y": 2008
+        }
+      ]
+    },
+    {
+      "id": "corridor.section_region_hazard_sluice_1_region_start_open",
+      "physicalSection": "section.region_hazard_sluice_1.region_start.open",
+      "sourceConnector": "connector.edge_start_sluice_1",
+      "sourceEdge": "edge.start.sluice_1",
+      "sourceConnectors": [
+        "connector.edge_start_sluice_1"
+      ],
+      "sourceEdges": [
+        "edge.start.sluice_1"
+      ],
+      "traversalRefs": [
+        {
+          "connectorId": "connector.edge_start_sluice_1",
+          "edgeId": "edge.start.sluice_1",
+          "fromRegion": "region.start",
+          "toRegion": "region.hazard_sluice_1",
+          "traversal": "open",
+          "requiredItem": null
+        }
+      ],
+      "fromRoom": "room.region_hazard_sluice_1",
+      "toRoom": "room.region_start",
+      "traversalHint": "open",
+      "semanticTags": [
+        "open",
+        "pressure_path",
+        "pressure_route"
+      ],
+      "width": 20,
+      "fromPort": "port.room_region_hazard_sluice_1.section_region_hazard_sluice_1_region_start_open",
+      "toPort": "port.room_region_start.section_region_hazard_sluice_1_region_start_open",
+      "points": [
+        {
+          "x": 1200,
+          "y": 2544
+        },
+        {
+          "x": 744,
+          "y": 2544
+        },
+        {
+          "x": 744,
+          "y": 2536
+        },
+        {
+          "x": 288,
+          "y": 2536
+        }
+      ]
+    },
+    {
+      "id": "corridor.section_region_hazard_watch_1_region_hub_central_1_open",
+      "physicalSection": "section.region_hazard_watch_1.region_hub_central_1.open",
+      "sourceConnector": "connector.edge_hub_1_watch_1",
+      "sourceEdge": "edge.hub_1.watch_1",
+      "sourceConnectors": [
+        "connector.edge_hub_1_watch_1"
+      ],
+      "sourceEdges": [
+        "edge.hub_1.watch_1"
+      ],
+      "traversalRefs": [
+        {
+          "connectorId": "connector.edge_hub_1_watch_1",
+          "edgeId": "edge.hub_1.watch_1",
+          "fromRegion": "region.hub_central_1",
+          "toRegion": "region.hazard_watch_1",
+          "traversal": "open",
+          "requiredItem": null
+        }
+      ],
+      "fromRoom": "room.region_hazard_watch_1",
+      "toRoom": "room.region_hub_central_1",
+      "traversalHint": "open",
+      "semanticTags": [
+        "open",
+        "pressure_path",
+        "pressure_route"
+      ],
+      "width": 20,
+      "fromPort": "port.room_region_hazard_watch_1.section_region_hazard_watch_1_region_hub_central_1_open",
+      "toPort": "port.room_region_hub_central_1.section_region_hazard_watch_1_region_hub_central_1_open",
+      "points": [
+        {
+          "x": 1288,
+          "y": 3984
+        },
+        {
+          "x": 1288,
+          "y": 3856
+        },
+        {
+          "x": 1056,
+          "y": 3856
+        },
+        {
+          "x": 1056,
+          "y": 3720
+        }
+      ]
+    },
+    {
+      "id": "corridor.section_region_hub_central_1_region_resource_clue_1_open",
+      "physicalSection": "section.region_hub_central_1.region_resource_clue_1.open",
+      "sourceConnector": "connector.edge_clue_1_hub_1",
+      "sourceEdge": "edge.clue_1.hub_1",
+      "sourceConnectors": [
+        "connector.edge_clue_1_hub_1",
+        "connector.edge_hub_1_clue_1"
+      ],
+      "sourceEdges": [
+        "edge.clue_1.hub_1",
+        "edge.hub_1.clue_1"
+      ],
+      "traversalRefs": [
+        {
+          "connectorId": "connector.edge_clue_1_hub_1",
+          "edgeId": "edge.clue_1.hub_1",
+          "fromRegion": "region.resource_clue_1",
+          "toRegion": "region.hub_central_1",
+          "traversal": "open",
+          "requiredItem": null
+        },
+        {
+          "connectorId": "connector.edge_hub_1_clue_1",
+          "edgeId": "edge.hub_1.clue_1",
+          "fromRegion": "region.hub_central_1",
+          "toRegion": "region.resource_clue_1",
+          "traversal": "open",
+          "requiredItem": null
+        }
+      ],
+      "fromRoom": "room.region_hub_central_1",
+      "toRoom": "room.region_resource_clue_1",
+      "traversalHint": "open",
+      "semanticTags": [
+        "corridor",
+        "merge_rejoin_clarity",
+        "open",
+        "rejoin_corridor"
+      ],
+      "width": 12,
+      "fromPort": "port.room_region_hub_central_1.section_region_hub_central_1_region_resource_clue_1_open",
+      "toPort": "port.room_region_resource_clue_1.section_region_hub_central_1_region_resource_clue_1_open",
+      "points": [
+        {
+          "x": 976,
+          "y": 3688
+        },
+        {
+          "x": 744,
+          "y": 3688
+        },
+        {
+          "x": 744,
+          "y": 3600
+        },
+        {
+          "x": 512,
+          "y": 3600
+        }
+      ]
+    },
+    {
+      "id": "corridor.section_region_hub_central_1_region_start_open",
+      "physicalSection": "section.region_hub_central_1.region_start.open",
+      "sourceConnector": "connector.edge_start_hub_1",
+      "sourceEdge": "edge.start.hub_1",
+      "sourceConnectors": [
+        "connector.edge_start_hub_1"
+      ],
+      "sourceEdges": [
+        "edge.start.hub_1"
+      ],
+      "traversalRefs": [
+        {
+          "connectorId": "connector.edge_start_hub_1",
+          "edgeId": "edge.start.hub_1",
+          "fromRegion": "region.start",
+          "toRegion": "region.hub_central_1",
+          "traversal": "open",
+          "requiredItem": null
+        }
+      ],
+      "fromRoom": "room.region_hub_central_1",
+      "toRoom": "room.region_start",
+      "traversalHint": "open",
+      "semanticTags": [
+        "corridor",
+        "open"
+      ],
+      "width": 12,
+      "fromPort": "port.room_region_hub_central_1.section_region_hub_central_1_region_start_open",
+      "toPort": "port.room_region_start.section_region_hub_central_1_region_start_open",
+      "points": [
+        {
+          "x": 976,
+          "y": 3640
+        },
+        {
+          "x": 952,
+          "y": 3640
+        },
+        {
+          "x": 952,
+          "y": 3536
+        },
+        {
+          "x": 312,
+          "y": 3536
+        },
+        {
+          "x": 312,
+          "y": 3656
+        },
+        {
+          "x": 288,
+          "y": 3656
+        }
+      ]
+    },
+    {
+      "id": "corridor.section_region_hub_central_1_region_treasure_cache_1_open",
+      "physicalSection": "section.region_hub_central_1.region_treasure_cache_1.open",
+      "sourceConnector": "connector.edge_cache_1_hub_1",
+      "sourceEdge": "edge.cache_1.hub_1",
+      "sourceConnectors": [
+        "connector.edge_cache_1_hub_1",
+        "connector.edge_hub_1_cache_1"
+      ],
+      "sourceEdges": [
+        "edge.cache_1.hub_1",
+        "edge.hub_1.cache_1"
+      ],
+      "traversalRefs": [
+        {
+          "connectorId": "connector.edge_cache_1_hub_1",
+          "edgeId": "edge.cache_1.hub_1",
+          "fromRegion": "region.treasure_cache_1",
+          "toRegion": "region.hub_central_1",
+          "traversal": "open",
+          "requiredItem": null
+        },
+        {
+          "connectorId": "connector.edge_hub_1_cache_1",
+          "edgeId": "edge.hub_1.cache_1",
+          "fromRegion": "region.hub_central_1",
+          "toRegion": "region.treasure_cache_1",
+          "traversal": "open",
+          "requiredItem": null
+        }
+      ],
+      "fromRoom": "room.region_hub_central_1",
+      "toRoom": "room.region_treasure_cache_1",
+      "traversalHint": "open",
+      "semanticTags": [
+        "corridor",
+        "merge_rejoin_clarity",
+        "open",
+        "rejoin_corridor"
+      ],
+      "width": 12,
+      "fromPort": "port.room_region_hub_central_1.section_region_hub_central_1_region_treasure_cache_1_open",
+      "toPort": "port.room_region_treasure_cache_1.section_region_hub_central_1_region_treasure_cache_1_open",
+      "points": [
+        {
+          "x": 1056,
+          "y": 3608
+        },
+        {
+          "x": 1056,
+          "y": 2992
+        }
+      ]
+    },
+    {
+      "id": "corridor.section_region_key_gate_1_region_start_open",
+      "physicalSection": "section.region_key_gate_1.region_start.open",
+      "sourceConnector": "connector.edge_start_key_1",
+      "sourceEdge": "edge.start.key_1",
+      "sourceConnectors": [
+        "connector.edge_start_key_1"
+      ],
+      "sourceEdges": [
+        "edge.start.key_1"
+      ],
+      "traversalRefs": [
+        {
+          "connectorId": "connector.edge_start_key_1",
+          "edgeId": "edge.start.key_1",
+          "fromRegion": "region.start",
+          "toRegion": "region.key_gate_1",
+          "traversal": "open",
+          "requiredItem": null
+        }
+      ],
+      "fromRoom": "room.region_key_gate_1",
+      "toRoom": "room.region_start",
+      "traversalHint": "open",
+      "semanticTags": [
+        "corridor",
+        "open"
+      ],
+      "width": 12,
+      "fromPort": "port.room_region_key_gate_1.section_region_key_gate_1_region_start_open",
+      "toPort": "port.room_region_start.section_region_key_gate_1_region_start_open",
+      "points": [
+        {
+          "x": 592,
+          "y": 776
+        },
+        {
+          "x": 288,
+          "y": 776
+        }
+      ]
+    },
+    {
+      "id": "corridor.section_region_resource_safety_1_region_start_open",
+      "physicalSection": "section.region_resource_safety_1.region_start.open",
+      "sourceConnector": "connector.edge_start_safety_1",
+      "sourceEdge": "edge.start.safety_1",
+      "sourceConnectors": [
+        "connector.edge_start_safety_1"
+      ],
+      "sourceEdges": [
+        "edge.start.safety_1"
+      ],
+      "traversalRefs": [
+        {
+          "connectorId": "connector.edge_start_safety_1",
+          "edgeId": "edge.start.safety_1",
+          "fromRegion": "region.start",
+          "toRegion": "region.resource_safety_1",
+          "traversal": "open",
+          "requiredItem": null
+        }
+      ],
+      "fromRoom": "room.region_resource_safety_1",
+      "toRoom": "room.region_start",
+      "traversalHint": "open",
+      "semanticTags": [
+        "corridor",
+        "open"
+      ],
+      "width": 12,
+      "fromPort": "port.room_region_resource_safety_1.section_region_resource_safety_1_region_start_open",
+      "toPort": "port.room_region_start.section_region_resource_safety_1_region_start_open",
+      "points": [
+        {
+          "x": 736,
+          "y": 1968
+        },
+        {
+          "x": 288,
+          "y": 1968
+        }
+      ]
+    }
+  ],
+  "contents": [
+    {
+      "id": "content.room_region_start.start_marker",
+      "roomId": "room.region_start",
+      "sourceRef": "node:start;region:region.start",
+      "kind": "start_marker",
+      "label": "Start",
+      "tags": [
+        "choice_readability",
+        "critical",
+        "entry",
+        "entry_spawn",
+        "medium",
+        "start",
+        "start_marker"
+      ]
+    },
+    {
+      "id": "content.room_region_key_gate_1.key_pickup",
+      "roomId": "room.region_key_gate_1",
+      "sourceRef": "node:key.gate_1;region:region.key_gate_1",
+      "kind": "key_pickup",
+      "label": "Key Pickup",
+      "tags": [
+        "branch",
+        "key",
+        "key_pickup",
+        "key_pocket",
+        "pickup_pocket",
+        "small",
+        "standard"
+      ]
+    },
+    {
+      "id": "content.room_region_gate_locked_1.locked_gate",
+      "roomId": "room.region_gate_locked_1",
+      "sourceRef": "node:gate.locked_1;region:region.gate_locked_1",
+      "kind": "locked_gate",
+      "label": "Locked Gate",
+      "tags": [
+        "choice_readability",
+        "critical",
+        "gate",
+        "lock",
+        "locked_gate",
+        "locked_threshold_preview",
+        "medium",
+        "merge_readability",
+        "reveal_line",
+        "threshold"
+      ]
+    },
+    {
+      "id": "content.room_region_resource_safety_1.resource_clue",
+      "roomId": "room.region_resource_safety_1",
+      "sourceRef": "node:resource.safety_1;region:region.resource_safety_1",
+      "kind": "resource_clue",
+      "label": "Resource Clue",
+      "tags": [
+        "chamber",
+        "optional",
+        "pickup_pocket",
+        "preparation",
+        "resource",
+        "resource_clue",
+        "small",
+        "standard"
+      ]
+    },
+    {
+      "id": "content.room_region_hazard_sluice_1.hazard",
+      "roomId": "room.region_hazard_sluice_1",
+      "sourceRef": "node:hazard.sluice_1;region:region.hazard_sluice_1",
+      "kind": "hazard",
+      "label": "Hazard",
+      "tags": [
+        "hazard",
+        "hazard_route",
+        "medium",
+        "merge_readability",
+        "optional",
+        "pressure",
+        "readable_hazard_approach"
+      ]
+    },
+    {
+      "id": "content.room_region_resource_clue_1.resource_clue",
+      "roomId": "room.region_resource_clue_1",
+      "sourceRef": "node:resource.clue_1;region:region.resource_clue_1",
+      "kind": "resource_clue",
+      "label": "Resource Clue",
+      "tags": [
+        "chamber",
+        "optional",
+        "pickup_pocket",
+        "preparation",
+        "resource",
+        "resource_clue",
+        "small",
+        "standard"
+      ]
+    },
+    {
+      "id": "content.room_region_resource_boss_prep_1.resource_clue",
+      "roomId": "room.region_resource_boss_prep_1",
+      "sourceRef": "node:resource.boss_prep_1;region:region.resource_boss_prep_1",
+      "kind": "resource_clue",
+      "label": "Resource Clue",
+      "tags": [
+        "chamber",
+        "optional",
+        "pickup_pocket",
+        "preparation",
+        "resource",
+        "resource_clue",
+        "small",
+        "standard"
+      ]
+    },
+    {
+      "id": "content.room_region_goal.goal_marker",
+      "roomId": "room.region_goal",
+      "sourceRef": "node:goal;region:region.goal",
+      "kind": "goal_marker",
+      "label": "Goal",
+      "tags": [
+        "critical",
+        "destination",
+        "destination_arrival",
+        "goal",
+        "goal_marker",
+        "medium",
+        "merge_readability"
+      ]
+    },
+    {
+      "id": "content.room_region_gate_boss_1.boss_threshold",
+      "roomId": "room.region_gate_boss_1",
+      "sourceRef": "node:gate.boss_1;region:region.gate_boss_1",
+      "kind": "boss_threshold",
+      "label": "Boss Threshold",
+      "tags": [
+        "approach_then_reveal",
+        "boss",
+        "boss_gate",
+        "boss_threshold",
+        "critical",
+        "gate",
+        "large",
+        "merge_readability",
+        "reveal_line"
+      ]
+    },
+    {
+      "id": "content.room_region_hazard_watch_1.hazard",
+      "roomId": "room.region_hazard_watch_1",
+      "sourceRef": "node:hazard.watch_1;region:region.hazard_watch_1",
+      "kind": "hazard",
+      "label": "Hazard",
+      "tags": [
+        "hazard",
+        "hazard_route",
+        "medium",
+        "optional",
+        "pressure",
+        "readable_hazard_approach"
+      ]
+    },
+    {
+      "id": "content.room_region_treasure_cache_1.reward_cache",
+      "roomId": "room.region_treasure_cache_1",
+      "sourceRef": "node:treasure.cache_1;region:region.treasure_cache_1",
+      "kind": "reward_cache",
+      "label": "Reward Cache",
+      "tags": [
+        "optional",
+        "optional_reward_access",
+        "reward",
+        "reward_cache",
+        "reward_pocket",
+        "small",
+        "treasure"
+      ]
+    }
+  ],
+  "skippedConnectors": []
+}

@@ -4,8 +4,8 @@
   "command": "graph apply-rule branch_merge_shortcut",
   "status": "ok",
   "seed": 5605,
-  "inputHash": "fnv1a64:0c185f272f996d6a",
-  "outputHash": "fnv1a64:3399cae5fe7cce0d",
+  "inputHash": "fnv1a64:0b78f6f60ca4411b",
+  "outputHash": "fnv1a64:d69408e09216a8ef",
   "outputRef": "artifacts/samples/batch-v2/candidate-004/candidate-004-branch_merge_shortcut.json",
   "diagnostics": []
 }

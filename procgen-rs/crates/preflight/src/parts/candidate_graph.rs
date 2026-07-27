@@ -772,9 +772,9 @@ fn apply_graph_rule(candidate: &mut Candidate, rule: GraphRule, seed: u64) -> Ve
                     from: "treasure.gated_1".to_owned(),
                     to: "goal".to_owned(),
                     kind: EdgeKind::OptionalBranch,
-                    traversal: TraversalKind::Open,
-                    required_item: None,
-                    tags: vec!["rejoin".to_owned()],
+                    traversal: TraversalKind::Locked,
+                    required_item: Some("item.treasure_key_1".to_owned()),
+                    tags: vec!["locked".to_owned(), "rejoin".to_owned()],
                 },
             ]);
         }
@@ -805,6 +805,7 @@ fn apply_graph_rule(candidate: &mut Candidate, rule: GraphRule, seed: u64) -> Ve
                 ));
                 return diagnostics;
             };
+            let secondary_guard_item = guarded_node_item(candidate, secondary_source);
             candidate.graph.nodes.push(Node {
                 id: "junction.merge_1".to_owned(),
                 kind: NodeKind::Junction,
@@ -827,9 +828,17 @@ fn apply_graph_rule(candidate: &mut Candidate, rule: GraphRule, seed: u64) -> Ve
                     from: secondary_source.to_owned(),
                     to: "junction.merge_1".to_owned(),
                     kind: EdgeKind::OptionalBranch,
-                    traversal: TraversalKind::Open,
-                    required_item: None,
-                    tags: vec!["rejoin".to_owned()],
+                    traversal: if secondary_guard_item.is_some() {
+                        TraversalKind::Locked
+                    } else {
+                        TraversalKind::Open
+                    },
+                    required_item: secondary_guard_item.clone(),
+                    tags: if secondary_guard_item.is_some() {
+                        vec!["locked".to_owned(), "rejoin".to_owned()]
+                    } else {
+                        vec!["rejoin".to_owned()]
+                    },
                 },
                 Edge {
                     id: "edge.merge_1.goal.shortcut".to_owned(),
@@ -848,6 +857,19 @@ fn apply_graph_rule(candidate: &mut Candidate, rule: GraphRule, seed: u64) -> Ve
 
 fn has_node(candidate: &Candidate, node_id: &str) -> bool {
     candidate.graph.nodes.iter().any(|node| node.id == node_id)
+}
+
+fn guarded_node_item(candidate: &Candidate, node_id: &str) -> Option<String> {
+    let mut guard_items = candidate
+        .graph
+        .edges
+        .iter()
+        .filter(|edge| edge.to == node_id && edge.traversal == TraversalKind::Locked)
+        .filter_map(|edge| edge.required_item.clone())
+        .collect::<Vec<_>>();
+    guard_items.sort();
+    guard_items.dedup();
+    (guard_items.len() == 1).then(|| guard_items.remove(0))
 }
 
 fn has_edge(candidate: &Candidate, edge_id: &str) -> bool {

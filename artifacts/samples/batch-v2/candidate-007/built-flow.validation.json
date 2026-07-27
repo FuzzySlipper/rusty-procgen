@@ -1,0 +1,118 @@
+{
+  "kind": "asha_procgen.validation.built_flow.v1",
+  "schemaVersion": 1,
+  "validationId": "built_flow_validation.piece_placement.piece_shape_match.piece_plan.geometry.candidate.first_slice.5901.14304.hybrid.14335.alternative_0",
+  "candidateId": "candidate.first_slice.5901",
+  "geometryId": "geometry.candidate.first_slice.5901.14304",
+  "planId": "piece_plan.geometry.candidate.first_slice.5901.14304.hybrid",
+  "placementId": "piece_placement.piece_shape_match.piece_plan.geometry.candidate.first_slice.5901.14304.hybrid.14335.alternative_0",
+  "candidateRef": "artifacts/samples/batch-v2/candidate-007/accepted.json",
+  "geometryRef": "artifacts/samples/batch-v2/candidate-007/geometry-2d.json",
+  "piecePlanRef": "artifacts/samples/batch-v2/candidate-007/piece-plan.json",
+  "piecePlacementRef": "artifacts/samples/batch-v2/candidate-007/piece-placement.json",
+  "walkableProjection": {
+    "source": "piecePlacement.occupiedCells+connectionCells minus closed gatePortal.cells",
+    "cellCount": 11917,
+    "projectionHash": "fnv1a64:3dfbc401245fbb07"
+  },
+  "progression": [
+    {
+      "step": 0,
+      "items": [],
+      "reachableNodes": [
+        "gate.locked_1",
+        "goal",
+        "hazard.watch_1",
+        "hub.central_1",
+        "junction.merge_1",
+        "key.gate_1",
+        "resource.clue_1",
+        "start",
+        "treasure.cache_1"
+      ],
+      "reachableEdges": [
+        "edge.start.gate_1",
+        "edge.start.key_1",
+        "edge.key_1.gate_1",
+        "edge.start.hub_1",
+        "edge.hub_1.goal",
+        "edge.hub_1.clue_1",
+        "edge.clue_1.hub_1",
+        "edge.hub_1.watch_1",
+        "edge.watch_1.goal",
+        "edge.hub_1.cache_1",
+        "edge.cache_1.hub_1",
+        "edge.start.merge_1",
+        "edge.secondary.merge_1",
+        "edge.merge_1.goal.shortcut"
+      ],
+      "openPortals": [
+        "gate_portal.section_region_gate_locked_1_region_key_gate_1_open",
+        "gate_portal.section_region_gate_locked_1_region_start_open",
+        "gate_portal.section_region_goal_region_hazard_watch_1_open",
+        "gate_portal.section_region_goal_region_hub_central_1_open",
+        "gate_portal.section_region_goal_region_junction_merge_1_open",
+        "gate_portal.section_region_hazard_watch_1_region_hub_central_1_open",
+        "gate_portal.section_region_hub_central_1_region_junction_merge_1_open",
+        "gate_portal.section_region_hub_central_1_region_resource_clue_1_open",
+        "gate_portal.section_region_hub_central_1_region_start_open",
+        "gate_portal.section_region_hub_central_1_region_treasure_cache_1_open",
+        "gate_portal.section_region_junction_merge_1_region_start_open",
+        "gate_portal.section_region_key_gate_1_region_start_open"
+      ]
+    },
+    {
+      "step": 1,
+      "items": [
+        "item.gate_key_1"
+      ],
+      "reachableNodes": [
+        "gate.locked_1",
+        "goal",
+        "hazard.watch_1",
+        "hub.central_1",
+        "junction.merge_1",
+        "key.gate_1",
+        "resource.clue_1",
+        "start",
+        "treasure.cache_1"
+      ],
+      "reachableEdges": [
+        "edge.start.gate_1",
+        "edge.gate_1.goal",
+        "edge.start.key_1",
+        "edge.key_1.gate_1",
+        "edge.start.hub_1",
+        "edge.hub_1.goal",
+        "edge.hub_1.clue_1",
+        "edge.clue_1.hub_1",
+        "edge.hub_1.watch_1",
+        "edge.watch_1.goal",
+        "edge.hub_1.cache_1",
+        "edge.cache_1.hub_1",
+        "edge.start.merge_1",
+        "edge.secondary.merge_1",
+        "edge.merge_1.goal.shortcut"
+      ],
+      "openPortals": [
+        "gate_portal.section_region_gate_locked_1_region_goal_connector_edge_gate_1_goal",
+        "gate_portal.section_region_gate_locked_1_region_key_gate_1_open",
+        "gate_portal.section_region_gate_locked_1_region_start_open",
+        "gate_portal.section_region_goal_region_hazard_watch_1_open",
+        "gate_portal.section_region_goal_region_hub_central_1_open",
+        "gate_portal.section_region_goal_region_junction_merge_1_open",
+        "gate_portal.section_region_hazard_watch_1_region_hub_central_1_open",
+        "gate_portal.section_region_hub_central_1_region_junction_merge_1_open",
+        "gate_portal.section_region_hub_central_1_region_resource_clue_1_open",
+        "gate_portal.section_region_hub_central_1_region_start_open",
+        "gate_portal.section_region_hub_central_1_region_treasure_cache_1_open",
+        "gate_portal.section_region_junction_merge_1_region_start_open",
+        "gate_portal.section_region_key_gate_1_region_start_open"
+      ]
+    }
+  ],
+  "portalCount": 13,
+  "ok": true,
+  "fatalCount": 0,
+  "diagnostics": []
+}

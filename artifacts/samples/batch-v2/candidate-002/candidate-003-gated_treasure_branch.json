@@ -230,9 +230,10 @@
         "from": "treasure.gated_1",
         "to": "goal",
         "kind": "optional_branch",
-        "traversal": "open",
-        "requiredItem": null,
+        "traversal": "locked",
+        "requiredItem": "item.treasure_key_1",
         "tags": [
+          "locked",
           "rejoin"
         ]
       }

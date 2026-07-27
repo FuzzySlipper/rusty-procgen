@@ -714,6 +714,8 @@ struct PieceExitRequirement {
     id: String,
     direction: String,
     width: i32,
+    #[serde(default)]
+    order: i32,
     tags: Vec<String>,
 }
 
@@ -848,6 +850,18 @@ struct PieceRealizationSearchEvidence {
     realization_attempts: u32,
     route_order_attempt: u32,
     route_attempts: u32,
+    #[serde(default)]
+    route_decisions: u32,
+    #[serde(default)]
+    route_backtracks: u32,
+    #[serde(default)]
+    route_path_alternatives: u32,
+    #[serde(default)]
+    route_repairs: u32,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    route_blocking_owners: Vec<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    route_budget_exhausted: Option<String>,
 }
 
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]

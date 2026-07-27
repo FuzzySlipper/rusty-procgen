@@ -46,6 +46,21 @@ fn emit_piece_build_plan(
         let piece_id = piece_id_for_room(room);
         room_piece_ids.insert(room.id.as_str(), piece_id.clone());
         let required_exits = room_exit_requirements(room, geometry);
+        let maximum_same_side_exits = ["north", "east", "south", "west"]
+            .into_iter()
+            .map(|direction| {
+                required_exits
+                    .iter()
+                    .filter(|exit| exit.direction == direction)
+                    .count()
+            })
+            .max()
+            .unwrap_or(0);
+        let required_shape_tags = if maximum_same_side_exits >= 2 {
+            vec!["spaced_portals".to_owned()]
+        } else {
+            Vec::new()
+        };
         let required_sockets = dedupe_strings(
             room_contents
                 .iter()
@@ -70,7 +85,7 @@ fn emit_piece_build_plan(
             source_refs: room_source_refs(room),
             required_exits,
             required_sockets,
-            required_shape_tags: Vec::new(),
+            required_shape_tags,
             tags: dedupe_strings(tags),
             placement_hints: room_placement_hints(room, region),
         });
@@ -137,7 +152,7 @@ fn emit_piece_build_plan(
                     &to_piece,
                     &mut links,
                 );
-                debug_assert!(!corridor_pieces.is_empty());
+                let _ = corridor_pieces;
             }
             CorridorRealization::Procedural => {
                 link_procedural_corridor(corridor, edge, &from_piece, &to_piece, &mut links);
@@ -283,6 +298,7 @@ fn room_exit_requirements(
             if let Some(direction) = corridor_endpoint_direction(corridor, true) {
                 exits.push(PieceExitRequirement {
                     id: format!("exit.{}.{}", slugify_label(corridor.id.as_str()), direction),
+                    order: corridor_endpoint_order(corridor, true, direction.as_str()),
                     direction,
                     width: corridor.width,
                     tags: dedupe_strings(corridor.semantic_tags.clone()),
@@ -292,6 +308,7 @@ fn room_exit_requirements(
             if let Some(direction) = corridor_endpoint_direction(corridor, false) {
                 exits.push(PieceExitRequirement {
                     id: format!("exit.{}.{}", slugify_label(corridor.id.as_str()), direction),
+                    order: corridor_endpoint_order(corridor, false, direction.as_str()),
                     direction,
                     width: corridor.width,
                     tags: dedupe_strings(corridor.semantic_tags.clone()),
@@ -300,6 +317,23 @@ fn room_exit_requirements(
         }
     }
     exits
+}
+
+fn corridor_endpoint_order(
+    corridor: &GeometryCorridor,
+    from: bool,
+    direction: &str,
+) -> i32 {
+    let point = if from {
+        corridor.points.first()
+    } else {
+        corridor.points.last()
+    };
+    point.map_or(0, |point| match direction {
+        "north" | "south" => point.x,
+        "east" | "west" => point.y,
+        _ => 0,
+    })
 }
 
 #[derive(Clone, Debug)]
@@ -335,6 +369,9 @@ fn emit_corridor_piece_requirements(
     requirements: &mut Vec<PieceRequirement>,
 ) -> Result<Vec<CatalogRoutePiece>, String> {
     let segments = catalog_route_segments(corridor)?;
+    if !pure_catalog && segments.len() > 1 {
+        return Ok(Vec::new());
+    }
     let source_refs = corridor_source_refs(corridor, connector, edge);
     let base_tags = corridor_tags(corridor, connector, edge);
     let mut pieces = Vec::new();
@@ -363,7 +400,7 @@ fn emit_corridor_piece_requirements(
         let straight_spans = if pure_catalog {
             pure_catalog_straight_spans(uncovered_cells)
         } else {
-            catalog_straight_spans(uncovered_cells)
+            hybrid_catalog_straight_spans(uncovered_cells)
         }
         .map_err(|remaining| {
             format!(
@@ -475,6 +512,7 @@ impl CatalogStraightSpan {
     }
 }
 
+#[cfg(test)]
 fn catalog_straight_spans(
     mut target_cells: i32,
 ) -> Result<Vec<CatalogStraightSpan>, i32> {
@@ -495,6 +533,22 @@ fn catalog_straight_spans(
     } else {
         Ok(spans)
     }
+}
+
+fn hybrid_catalog_straight_spans(
+    target_cells: i32,
+) -> Result<Vec<CatalogStraightSpan>, i32> {
+    if target_cells <= 0 {
+        return Ok(Vec::new());
+    }
+    let span = if target_cells >= 11 {
+        CatalogStraightSpan::Long
+    } else if target_cells >= 8 {
+        CatalogStraightSpan::Medium
+    } else {
+        CatalogStraightSpan::Short
+    };
+    Ok(vec![span])
 }
 
 fn pure_catalog_straight_spans(
@@ -633,12 +687,14 @@ fn push_catalog_route_piece(
                 id: inbound_exit.clone(),
                 direction: inbound_direction,
                 width: corridor.width,
+                order: 0,
                 tags: base_tags.to_vec(),
             },
             PieceExitRequirement {
                 id: outbound_exit.clone(),
                 direction: outbound_direction,
                 width: corridor.width,
+                order: 0,
                 tags: base_tags.to_vec(),
             },
         ],

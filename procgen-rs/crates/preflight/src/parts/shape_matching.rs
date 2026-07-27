@@ -278,7 +278,12 @@ fn match_exit_variants_with_direction_offset(
     max_variants: usize,
 ) -> Vec<Vec<MatchedExit>> {
     let mut required_exits = requirement.required_exits.iter().collect::<Vec<_>>();
-    required_exits.sort_by(|left, right| left.id.cmp(&right.id));
+    required_exits.sort_by(|left, right| {
+        left.direction
+            .cmp(&right.direction)
+            .then_with(|| left.order.cmp(&right.order))
+            .then_with(|| left.id.cmp(&right.id))
+    });
     let mut variants = Vec::new();
     append_exit_map_variants(
         &required_exits,
@@ -322,7 +327,11 @@ fn append_exit_map_variants(
                 && exit_width_compatible(required_exit.width, exit.width)
         })
         .collect::<Vec<_>>();
-    compatible.sort_by(|(_, left), (_, right)| left.id.cmp(&right.id));
+    compatible.sort_by(|(_, left), (_, right)| {
+        catalog_exit_order(left)
+            .cmp(&catalog_exit_order(right))
+            .then_with(|| left.id.cmp(&right.id))
+    });
     for (index, catalog_exit) in compatible {
         used.insert(index);
         mapped.push(MatchedExit {
@@ -647,6 +656,14 @@ fn static_shape_rejection_reasons(
     requirement: &PieceRequirement,
 ) -> Vec<String> {
     let mut reasons = Vec::new();
+    if shape.tags.iter().any(|tag| tag == "spaced_portals")
+        && !requirement
+            .required_shape_tags
+            .iter()
+            .any(|tag| tag == "spaced_portals")
+    {
+        reasons.push("specialized_shape_not_required: spaced_portals".to_owned());
+    }
     if !shape
         .piece_kinds
         .iter()
@@ -765,7 +782,12 @@ fn match_exits(
     let mut mapped = Vec::new();
     let mut used = BTreeSet::new();
     let mut required_exits = requirement.required_exits.iter().collect::<Vec<_>>();
-    required_exits.sort_by(|left, right| left.id.cmp(&right.id));
+    required_exits.sort_by(|left, right| {
+        left.direction
+            .cmp(&right.direction)
+            .then_with(|| left.order.cmp(&right.order))
+            .then_with(|| left.id.cmp(&right.id))
+    });
     for required_exit in required_exits {
         let candidate = transformed_exits
             .iter()
@@ -775,7 +797,11 @@ fn match_exits(
                     && exit.direction == required_exit.direction
                     && exit_width_compatible(required_exit.width, exit.width)
             })
-            .min_by(|(_, left), (_, right)| left.id.cmp(&right.id));
+            .min_by(|(_, left), (_, right)| {
+                catalog_exit_order(left)
+                    .cmp(&catalog_exit_order(right))
+                    .then_with(|| left.id.cmp(&right.id))
+            });
         let Some((index, catalog_exit)) = candidate else {
             return None;
         };
@@ -790,6 +816,14 @@ fn match_exits(
         });
     }
     Some(mapped)
+}
+
+fn catalog_exit_order(exit: &CatalogExit) -> i32 {
+    match exit.direction.as_str() {
+        "north" | "south" => exit.x,
+        "east" | "west" => exit.y,
+        _ => 0,
+    }
 }
 
 fn exit_width_compatible(required_width: i32, catalog_width: i32) -> bool {

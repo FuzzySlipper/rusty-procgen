@@ -36,7 +36,20 @@
     "embeddingId": "depth-columns.v1",
     "embeddingFaces": 0,
     "embeddingTargetFaces": 0,
-    "embeddingSearchSteps": 0
+    "embeddingSearchSteps": 0,
+    "routeDecisions": 4,
+    "routeBacktracks": 0,
+    "routePathAlternatives": 32,
+    "routeRepairs": 0,
+    "routeGridExpansions": 0,
+    "routePathExpansionExhaustions": 0,
+    "routeLastFailedSection": "",
+    "routeBlockingOwners": [
+      "room:region.gate_locked_1",
+      "room:region.goal",
+      "room:region.key_gate_1",
+      "room:region.start"
+    ]
   },
   "bounds": {
     "width": 848,
@@ -265,11 +278,11 @@
           "y": 136
         },
         {
-          "x": 600,
+          "x": 552,
           "y": 136
         },
         {
-          "x": 600,
+          "x": 552,
           "y": 144
         },
         {
@@ -317,11 +330,11 @@
         },
         {
           "x": 424,
-          "y": 224
+          "y": 208
         },
         {
           "x": 416,
-          "y": 224
+          "y": 208
         },
         {
           "x": 416,
@@ -366,11 +379,11 @@
           "y": 136
         },
         {
-          "x": 240,
+          "x": 296,
           "y": 136
         },
         {
-          "x": 240,
+          "x": 296,
           "y": 128
         },
         {
@@ -416,11 +429,11 @@
           "y": 280
         },
         {
-          "x": 240,
+          "x": 296,
           "y": 280
         },
         {
-          "x": 240,
+          "x": 296,
           "y": 176
         },
         {

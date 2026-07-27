@@ -1,0 +1,8 @@
+{
+  "kind": "asha_procgen.validation.piece_placement.v1",
+  "schemaVersion": 1,
+  "stateHash": "fnv1a64:6b6c47c6e9550c4f",
+  "ok": true,
+  "fatalCount": 0,
+  "diagnostics": []
+}

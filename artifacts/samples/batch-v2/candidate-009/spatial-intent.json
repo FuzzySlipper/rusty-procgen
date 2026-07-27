@@ -2,7 +2,7 @@
   "kind": "asha_procgen.spatial_intent.v1",
   "schemaVersion": 1,
   "candidateId": "candidate.first_slice.6101",
-  "stateHash": "fnv1a64:106e83112c8ec41e",
+  "stateHash": "fnv1a64:b035c0a5743824fc",
   "analysisRef": "artifacts/samples/batch-v2/candidate-009/analysis.graph.json",
   "annotations": [
     {
@@ -99,7 +99,9 @@
       "targetType": "edge",
       "targetId": "edge.treasure_1.goal",
       "intents": [
-        "merge_rejoin_clarity"
+        "gated_connector",
+        "merge_rejoin_clarity",
+        "visible_before_reachable"
       ],
       "rationale": "Edge edge.treasure_1.goal has traversal or topology intent."
     },
@@ -107,7 +109,9 @@
       "targetType": "edge",
       "targetId": "edge.secondary.merge_1",
       "intents": [
-        "merge_rejoin_clarity"
+        "gated_connector",
+        "merge_rejoin_clarity",
+        "visible_before_reachable"
       ],
       "rationale": "Edge edge.secondary.merge_1 has traversal or topology intent."
     },

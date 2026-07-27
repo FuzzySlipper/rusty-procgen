@@ -5,7 +5,7 @@
   "status": "ok",
   "seed": 5404,
   "inputHash": "fnv1a64:feb513d1a6bc9676",
-  "outputHash": "fnv1a64:16774295609929df",
+  "outputHash": "fnv1a64:a0188a259965f514",
   "outputRef": "artifacts/samples/batch-v2/candidate-002/candidate-003-gated_treasure_branch.json",
   "diagnostics": []
 }

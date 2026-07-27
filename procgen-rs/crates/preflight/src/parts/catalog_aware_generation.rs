@@ -1112,6 +1112,7 @@ fn materialize_catalog_composition(
             realization_attempts: 1,
             route_order_attempt: 0,
             route_attempts: 1,
+            ..PieceRealizationSearchEvidence::default()
         },
         catalog_search: Some(CatalogSearchEvidence {
             schema_version: 1,
@@ -1195,12 +1196,14 @@ fn catalog_route_piece(
                 id: "exit.catalog_route.in".to_owned(),
                 direction: back_direction.to_owned(),
                 width: 12,
+                order: 0,
                 tags: vec!["catalog_route".to_owned()],
             },
             PieceExitRequirement {
                 id: "exit.catalog_route.out".to_owned(),
                 direction: forward_direction.to_owned(),
                 width: 12,
+                order: 0,
                 tags: vec!["catalog_route".to_owned()],
             },
         ],

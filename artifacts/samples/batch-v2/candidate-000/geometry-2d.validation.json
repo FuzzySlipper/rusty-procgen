@@ -1,0 +1,8 @@
+{
+  "kind": "asha_procgen.validation.geometry_2d.v1",
+  "schemaVersion": 1,
+  "stateHash": "fnv1a64:e4989ffe929a14f1",
+  "ok": true,
+  "fatalCount": 0,
+  "diagnostics": []
+}

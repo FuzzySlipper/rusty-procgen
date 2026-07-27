@@ -29,11 +29,17 @@ fn assemble_piece_placement(
     if plan.corridor_realization == CorridorRealization::Catalog {
         return assemble_pure_catalog_placement(catalog, plan, shape_match, args);
     }
-    const REALIZATION_SCALE_MULTIPLIERS: [i32; 2] = [1, 2];
     let mut last_error = "no piece realization was attempted".to_owned();
-    for (realization_scale_tier, scale_multiplier) in
-        REALIZATION_SCALE_MULTIPLIERS.into_iter().enumerate()
+    let minimum_scale_multiplier = minimum_projection_scale_multiplier(
+        &catalog.placement_policy,
+        plan.links.iter().any(|link| !link.route_points.is_empty()),
+    );
+    let mut realization_attempts = 0_u32;
+    for scale_multiplier in REALIZATION_SCALE_MULTIPLIERS
+        .into_iter()
+        .filter(|scale_multiplier| *scale_multiplier >= minimum_scale_multiplier)
     {
+        realization_attempts = realization_attempts.saturating_add(1);
         match assemble_piece_placement_attempt(
             catalog,
             plan,
@@ -44,9 +50,8 @@ fn assemble_piece_placement(
             Ok(mut placement) => {
                 placement
                     .realization_search
-                    .realization_scale_tier = realization_scale_tier as u32;
-                placement.realization_search.realization_attempts =
-                    realization_scale_tier as u32 + 1;
+                    .realization_scale_tier = u32::try_from(scale_multiplier - 1).unwrap_or(u32::MAX);
+                placement.realization_search.realization_attempts = realization_attempts;
                 return Ok(placement);
             }
             Err(error)
@@ -59,9 +64,23 @@ fn assemble_piece_placement(
         }
     }
     Err(format!(
-        "piece realization search exhausted after {} scale tier(s); last realization failure: {last_error}",
-        REALIZATION_SCALE_MULTIPLIERS.len()
+        "piece realization search exhausted after {realization_attempts} scale tier(s); last realization failure: {last_error}"
     ))
+}
+
+fn minimum_projection_scale_multiplier(
+    policy: &PiecePlacementPolicy,
+    has_geometry_lanes: bool,
+) -> i32 {
+    if !has_geometry_lanes {
+        return 1;
+    }
+    let placement_unit = (policy.minimum_clearance_cells + policy.wall_thickness_cells).max(1);
+    let required_geometry_scale = policy
+        .minimum_clearance_cells
+        .saturating_add(1)
+        .saturating_mul(3);
+    (required_geometry_scale + placement_unit - 1) / placement_unit
 }
 
 fn assemble_piece_placement_attempt(
@@ -144,7 +163,12 @@ fn assemble_piece_placement_attempt(
         let instance_id = format!("instance.{}", slugify_label(matched.piece_id.as_str()));
         let allowed_contact_instances =
             catalog_section_contact_instances(plan, requirement, &instances);
-        let desired_origin = catalog_route_piece_origin(plan, matched, requirement, &instances)
+        let desired_origin = catalog_route_piece_origin(
+            plan,
+            matched,
+            requirement,
+            geometry_scale_for_multiplier(&catalog.placement_policy, scale_multiplier),
+        )
             .or_else(|| {
                 linked_piece_origin(
                     plan,
@@ -153,10 +177,11 @@ fn assemble_piece_placement_attempt(
                     &instances,
                     &catalog.placement_policy,
                 )
-            })
+        })
         .unwrap_or_else(|| {
-            scaled_desired_origin(
-                desired_origin_for_requirement(requirement, index),
+            scaled_desired_origin_for_requirement(
+                requirement,
+                index,
                 &catalog.placement_policy,
                 scale_multiplier,
             )
@@ -279,6 +304,15 @@ fn assemble_piece_placement_attempt(
         placement.connection_cells = connection_cells;
         placement.realization_search.route_order_attempt = route_search.route_order_attempt;
         placement.realization_search.route_attempts = route_search.route_attempts;
+        placement.realization_search.route_decisions = route_search.route_decisions;
+        placement.realization_search.route_backtracks = route_search.route_backtracks;
+        placement.realization_search.route_path_alternatives =
+            route_search.route_path_alternatives;
+        placement.realization_search.route_repairs = route_search.route_repairs;
+        placement.realization_search.route_blocking_owners =
+            route_search.route_blocking_owners;
+        placement.realization_search.route_budget_exhausted =
+            route_search.route_budget_exhausted;
     }
     Ok(placement)
 }
@@ -323,7 +357,7 @@ fn catalog_route_piece_origin(
     plan: &PieceBuildPlan,
     matched: &MatchedPiece,
     requirement: &PieceRequirement,
-    instances: &[PieceInstance],
+    geometry_scale: i32,
 ) -> Option<GridCell> {
     if !plan.corridor_realization.uses_catalog_pieces()
         || !matches!(requirement.kind.as_str(), "corridor" | "bend" | "junction")
@@ -334,37 +368,10 @@ fn catalog_route_piece_origin(
         .source_refs
         .iter()
         .find_map(|reference| reference.strip_prefix("physicalSection:"))?;
-    let links = plan
-        .links
+    plan.links
         .iter()
-        .filter(|link| link.source_section == source_section)
-        .collect::<Vec<_>>();
-    let first_link = links.first()?;
-    let last_link = links.last()?;
-    let instances_by_piece = instances
-        .iter()
-        .map(|instance| (instance.piece_id.as_str(), instance))
-        .collect::<BTreeMap<_, _>>();
-    let from_room = instances_by_piece.get(first_link.from_piece.as_str())?;
-    let to_room = instances_by_piece.get(last_link.to_piece.as_str())?;
-    let from_exit = from_room
-        .exit_map
-        .iter()
-        .find(|exit| exit.requirement_exit_id == first_link.from_exit)?;
-    let to_exit = to_room
-        .exit_map
-        .iter()
-        .find(|exit| exit.requirement_exit_id == last_link.to_exit)?;
-    let mut route_points = Vec::new();
-    for link in &links {
-        for point in &link.route_points {
-            if route_points.last() != Some(point) {
-                route_points.push(point.clone());
-            }
-        }
-    }
-    let source_start = route_points.first()?;
-    let source_end = route_points.last()?;
+        .any(|link| link.source_section == source_section)
+        .then_some(())?;
     let anchor = requirement.placement_hints.iter().find_map(|hint| {
         let values = parse_i32_parts(hint.strip_prefix("point:")?);
         (values.len() == 2).then(|| GeometryPoint {
@@ -372,19 +379,10 @@ fn catalog_route_piece_origin(
             y: values[1],
         })
     })?;
-    let target = map_source_point_to_target(
-        &anchor,
-        source_start,
-        source_end,
-        &GridCell {
-            x: from_exit.x,
-            y: from_exit.y,
-        },
-        &GridCell {
-            x: to_exit.x,
-            y: to_exit.y,
-        },
-    );
+    let target = GridCell {
+        x: rounded_ratio(anchor.x, geometry_scale, 24),
+        y: rounded_ratio(anchor.y, geometry_scale, 24),
+    };
     let exit_count = matched.exit_map.len().max(1) as i32;
     let local_anchor_x = matched.exit_map.iter().map(|exit| exit.x).sum::<i32>() / exit_count;
     let local_anchor_y = matched.exit_map.iter().map(|exit| exit.y).sum::<i32>() / exit_count;
@@ -392,31 +390,6 @@ fn catalog_route_piece_origin(
         x: target.x - local_anchor_x,
         y: target.y - local_anchor_y,
     })
-}
-
-fn map_source_point_to_target(
-    point: &GeometryPoint,
-    source_start: &GeometryPoint,
-    source_end: &GeometryPoint,
-    target_start: &GridCell,
-    target_end: &GridCell,
-) -> GridCell {
-    let source_dx = source_end.x - source_start.x;
-    let source_dy = source_end.y - source_start.y;
-    let target_dx = target_end.x - target_start.x;
-    let target_dy = target_end.y - target_start.y;
-    GridCell {
-        x: if source_dx == 0 {
-            target_start.x + (point.x - source_start.x) / 8
-        } else {
-            target_start.x + rounded_ratio(point.x - source_start.x, target_dx, source_dx)
-        },
-        y: if source_dy == 0 {
-            target_start.y + (point.y - source_start.y) / 8
-        } else {
-            target_start.y + rounded_ratio(point.y - source_start.y, target_dy, source_dy)
-        },
-    }
 }
 
 fn linked_piece_origin(
@@ -501,28 +474,22 @@ fn linked_piece_origin(
     anchors.into_iter().next().map(|(_, _, origin)| origin)
 }
 
-fn scaled_desired_origin(
-    origin: GridCell,
+fn scaled_desired_origin_for_requirement(
+    requirement: &PieceRequirement,
+    index: usize,
     policy: &PiecePlacementPolicy,
     scale_multiplier: i32,
 ) -> GridCell {
     let scale = (policy.minimum_clearance_cells + policy.wall_thickness_cells)
         .saturating_mul(scale_multiplier);
-    GridCell {
-        x: origin.x.saturating_mul(scale),
-        y: origin.y.saturating_mul(scale),
-    }
-}
-
-fn desired_origin_for_requirement(requirement: &PieceRequirement, index: usize) -> GridCell {
     const GEOMETRY_CELL_SIZE: i32 = 24;
     for hint in &requirement.placement_hints {
         if let Some(rest) = hint.strip_prefix("geometryRect:") {
             let values = parse_i32_parts(rest);
             if values.len() == 4 {
                 return GridCell {
-                    x: values[0] / GEOMETRY_CELL_SIZE,
-                    y: values[1] / GEOMETRY_CELL_SIZE,
+                    x: rounded_ratio(values[0], scale, GEOMETRY_CELL_SIZE),
+                    y: rounded_ratio(values[1], scale, GEOMETRY_CELL_SIZE),
                 };
             }
         }
@@ -530,8 +497,16 @@ fn desired_origin_for_requirement(requirement: &PieceRequirement, index: usize) 
             let values = parse_i32_parts(rest);
             if values.len() == 4 {
                 return GridCell {
-                    x: ((values[0] + values[2]) / 2) / GEOMETRY_CELL_SIZE,
-                    y: ((values[1] + values[3]) / 2) / GEOMETRY_CELL_SIZE,
+                    x: rounded_ratio(
+                        (values[0] + values[2]) / 2,
+                        scale,
+                        GEOMETRY_CELL_SIZE,
+                    ),
+                    y: rounded_ratio(
+                        (values[1] + values[3]) / 2,
+                        scale,
+                        GEOMETRY_CELL_SIZE,
+                    ),
                 };
             }
         }
@@ -539,15 +514,15 @@ fn desired_origin_for_requirement(requirement: &PieceRequirement, index: usize) 
             let values = parse_i32_parts(rest);
             if values.len() == 2 {
                 return GridCell {
-                    x: values[0] / GEOMETRY_CELL_SIZE,
-                    y: values[1] / GEOMETRY_CELL_SIZE,
+                    x: rounded_ratio(values[0], scale, GEOMETRY_CELL_SIZE),
+                    y: rounded_ratio(values[1], scale, GEOMETRY_CELL_SIZE),
                 };
             }
         }
     }
     GridCell {
-        x: (index as i32 % 24) * 5,
-        y: (index as i32 / 24) * 5,
+        x: (index as i32 % 24).saturating_mul(5).saturating_mul(scale),
+        y: (index as i32 / 24).saturating_mul(5).saturating_mul(scale),
     }
 }
 
@@ -888,6 +863,10 @@ fn collect_section_room_endpoints(placement: &PiecePlacement) -> SectionRoomEndp
 }
 
 const PIECE_ROUTE_ORDER_COUNT: u32 = 4;
+const REALIZATION_SCALE_MULTIPLIERS: [i32; 4] = [1, 2, 3, 4];
+const PIECE_ROUTE_PATH_ALTERNATIVES: u32 = 4;
+const PIECE_ROUTE_DECISION_BUDGET: u32 = 256;
+const PIECE_ROUTE_BACKTRACK_BUDGET: u32 = 128;
 
 fn derive_connection_cells(
     placement: &PiecePlacement,
@@ -928,15 +907,12 @@ fn derive_connection_cells(
     {
         route_attempts += 1;
         match try_derive_connection_cells(placement, &order) {
-            Ok(cells) => {
+            Ok((cells, mut search)) => {
+                search.route_order_attempt = route_order_attempt as u32;
+                search.route_attempts = route_attempts;
                 return Ok((
                     cells,
-                    PieceRealizationSearchEvidence {
-                        realization_scale_tier: 0,
-                        realization_attempts: 0,
-                        route_order_attempt: route_order_attempt as u32,
-                        route_attempts,
-                    },
+                    search,
                 ));
             }
             Err(error) => last_error = error,
@@ -950,7 +926,7 @@ fn derive_connection_cells(
 fn try_derive_connection_cells(
     placement: &PiecePlacement,
     glued_order: &[&GluedExit],
-) -> Result<Vec<PlacementCellRef>, String> {
+) -> Result<(Vec<PlacementCellRef>, PieceRealizationSearchEvidence), String> {
     let instances = placement
         .instances
         .iter()
@@ -970,42 +946,199 @@ fn try_derive_connection_cells(
     let section_instances = collect_catalog_section_instances(placement);
     let no_section_instances = BTreeSet::new();
     let bounds = placement_route_bounds(placement);
-    let mut cells = Vec::new();
-    let mut routed_sections = RoutedSections::new();
-    for glued in glued_order {
-        let Some(from) = instances.get(glued.from_instance.as_str()) else {
-            continue;
-        };
-        let Some(to) = instances.get(glued.to_instance.as_str()) else {
-            continue;
-        };
-        let instance_id = format!("connection.{}", slugify_label(glued.id.as_str()));
+    let mut ranked_order = glued_order.to_vec();
+    let empty_routed_sections = RoutedSections::new();
+    ranked_order.sort_by_cached_key(|glued| {
         let same_section_instances = section_instances
             .get(glued.source_section.as_str())
             .unwrap_or(&no_section_instances);
+        let alternatives = (0..PIECE_ROUTE_PATH_ALTERNATIVES)
+            .filter_map(|route_nonce| {
+                let bridge = route_connection_for_mode(
+                    placement,
+                    glued,
+                    &occupied_by_cell,
+                    &reserved,
+                    &empty_routed_sections,
+                    &section_room_endpoints,
+                    same_section_instances,
+                    bounds,
+                    route_nonce,
+                )?;
+                if placement.corridor_realization == CorridorRealization::Hybrid {
+                    stitch_catalog_section_pieces(
+                        placement,
+                        glued,
+                        bridge,
+                        &occupied_by_cell,
+                        &reserved,
+                        &empty_routed_sections,
+                        &section_room_endpoints,
+                        same_section_instances,
+                        route_nonce,
+                    )
+                } else {
+                    Some(bridge)
+                }
+            })
+            .map(|path| {
+                path.into_iter()
+                    .map(|cell| (cell.x, cell.y))
+                    .collect::<Vec<_>>()
+            })
+            .collect::<BTreeSet<_>>();
+        (alternatives.len(), glued.id.clone())
+    });
+    let mut search = PieceRealizationSearchEvidence::default();
+    let (cells, _) = search_piece_connection_cells(
+        placement,
+        &ranked_order,
+        0,
+        &instances,
+        &occupied_by_cell,
+        &reserved,
+        &section_room_endpoints,
+        &section_instances,
+        &no_section_instances,
+        bounds,
+        RoutedSections::new(),
+        Vec::new(),
+        &mut search,
+    )?;
+    Ok((cells, search))
+}
+
+#[allow(clippy::too_many_arguments)]
+fn search_piece_connection_cells(
+    placement: &PiecePlacement,
+    glued_order: &[&GluedExit],
+    index: usize,
+    instances: &BTreeMap<&str, &PieceInstance>,
+    occupied_by_cell: &BTreeMap<(i32, i32), &str>,
+    reserved: &BTreeSet<(i32, i32)>,
+    section_room_endpoints: &SectionRoomEndpoints,
+    section_instances: &BTreeMap<String, BTreeSet<String>>,
+    no_section_instances: &BTreeSet<String>,
+    bounds: (i32, i32, i32, i32),
+    routed_sections: RoutedSections,
+    cells: Vec<PlacementCellRef>,
+    search: &mut PieceRealizationSearchEvidence,
+) -> Result<(Vec<PlacementCellRef>, RoutedSections), String> {
+    if index >= glued_order.len() {
+        return Ok((cells, routed_sections));
+    }
+    let mut selected_order = glued_order.to_vec();
+    let selected_index = (index..selected_order.len())
+        .min_by_key(|candidate_index| {
+            let glued = selected_order[*candidate_index];
+            let same_section_instances = section_instances
+                .get(glued.source_section.as_str())
+                .unwrap_or(no_section_instances);
+            (0..PIECE_ROUTE_PATH_ALTERNATIVES)
+                .filter_map(|route_nonce| {
+                    route_connection_for_mode(
+                        placement,
+                        glued,
+                        occupied_by_cell,
+                        reserved,
+                        &routed_sections,
+                        section_room_endpoints,
+                        same_section_instances,
+                        bounds,
+                        route_nonce,
+                    )
+                })
+                .map(|path| {
+                    path.into_iter()
+                        .map(|cell| (cell.x, cell.y))
+                        .collect::<Vec<_>>()
+                })
+                .collect::<BTreeSet<_>>()
+                .len()
+        })
+        .expect("non-empty remaining piece routes");
+    selected_order.swap(index, selected_index);
+    let glued = selected_order[index];
+    let Some(from) = instances.get(glued.from_instance.as_str()) else {
+        return search_piece_connection_cells(
+            placement,
+            &selected_order,
+            index + 1,
+            instances,
+            occupied_by_cell,
+            reserved,
+            section_room_endpoints,
+            section_instances,
+            no_section_instances,
+            bounds,
+            routed_sections,
+            cells,
+            search,
+        );
+    };
+    let Some(to) = instances.get(glued.to_instance.as_str()) else {
+        return search_piece_connection_cells(
+            placement,
+            &selected_order,
+            index + 1,
+            instances,
+            occupied_by_cell,
+            reserved,
+            section_room_endpoints,
+            section_instances,
+            no_section_instances,
+            bounds,
+            routed_sections,
+            cells,
+            search,
+        );
+    };
+    let same_section_instances = section_instances
+        .get(glued.source_section.as_str())
+        .unwrap_or(no_section_instances);
+    let instance_id = format!("connection.{}", slugify_label(glued.id.as_str()));
+    let mut distinct_paths = BTreeSet::new();
+    let mut last_error = String::new();
+    for route_nonce in 0..PIECE_ROUTE_PATH_ALTERNATIVES {
+        if search.route_decisions >= PIECE_ROUTE_DECISION_BUDGET {
+            search.route_budget_exhausted = Some("decision".to_owned());
+            return Err(format!(
+                "piece route decision budget {PIECE_ROUTE_DECISION_BUDGET} exhausted while routing {}",
+                glued.id
+            ));
+        }
         let bridge = route_connection_for_mode(
             placement,
             glued,
-            &occupied_by_cell,
-            &reserved,
+            occupied_by_cell,
+            reserved,
             &routed_sections,
-            &section_room_endpoints,
+            section_room_endpoints,
             same_section_instances,
             bounds,
+            route_nonce,
         );
         let Some(mut bridge) = bridge else {
             let without_routed_sections = route_connection_for_mode(
                 placement,
                 glued,
-                &occupied_by_cell,
-                &reserved,
+                occupied_by_cell,
+                reserved,
                 &RoutedSections::new(),
-                &section_room_endpoints,
+                section_room_endpoints,
                 same_section_instances,
                 bounds,
+                route_nonce,
             )
             .is_some();
-            return Err(format!(
+            if without_routed_sections {
+                for owners in routed_sections.values() {
+                    search
+                        .route_blocking_owners
+                        .extend(owners.iter().cloned());
+                }
+            }
+            last_error = format!(
                 "no clearance-safe connection route exists for glued exit {} between {} at {},{} ({}) and {} at {},{} ({}); {}",
                 glued.id,
                 from.instance_id,
@@ -1021,28 +1154,44 @@ fn try_derive_connection_cells(
                 } else {
                     "piece occupancy or reservations block every route"
                 },
-            ));
+            );
+            continue;
         };
         if placement.corridor_realization == CorridorRealization::Hybrid {
-            bridge = stitch_catalog_section_pieces(
+            let Some(stitched) = stitch_catalog_section_pieces(
                 placement,
                 glued,
                 bridge,
-                &occupied_by_cell,
-                &reserved,
+                occupied_by_cell,
+                reserved,
                 &routed_sections,
-                &section_room_endpoints,
+                section_room_endpoints,
                 same_section_instances,
-            )
-            .ok_or_else(|| {
-                format!(
+                route_nonce,
+            ) else {
+                last_error = format!(
                     "catalog physical section {} could not connect every planned prefab to its route",
                     glued.source_section
-                )
-            })?;
+                );
+                continue;
+            };
+            bridge = stitched;
         }
+        let mut seen_bridge_cells = BTreeSet::new();
+        bridge.retain(|cell| seen_bridge_cells.insert((cell.x, cell.y)));
+        let signature = bridge
+            .iter()
+            .map(|cell| (cell.x, cell.y))
+            .collect::<Vec<_>>();
+        if !distinct_paths.insert(signature) {
+            continue;
+        }
+        search.route_path_alternatives = search.route_path_alternatives.saturating_add(1);
+        search.route_decisions = search.route_decisions.saturating_add(1);
+        let mut next_routed_sections = routed_sections.clone();
+        let mut next_cells = cells.clone();
         for cell in bridge {
-            routed_sections
+            next_routed_sections
                 .entry((cell.x, cell.y))
                 .or_default()
                 .insert(glued.source_section.clone());
@@ -1052,14 +1201,47 @@ fn try_derive_connection_cells(
             {
                 continue;
             }
-            cells.push(PlacementCellRef {
+            next_cells.push(PlacementCellRef {
                 instance_id: instance_id.clone(),
                 x: cell.x,
                 y: cell.y,
             });
         }
+        match search_piece_connection_cells(
+            placement,
+            &selected_order,
+            index + 1,
+            instances,
+            occupied_by_cell,
+            reserved,
+            section_room_endpoints,
+            section_instances,
+            no_section_instances,
+            bounds,
+            next_routed_sections,
+            next_cells,
+            search,
+        ) {
+            Ok(result) => return Ok(result),
+            Err(error) => last_error = error,
+        }
+        if search.route_backtracks >= PIECE_ROUTE_BACKTRACK_BUDGET {
+            search.route_budget_exhausted = Some("backtrack".to_owned());
+            return Err(format!(
+                "piece route backtrack budget {PIECE_ROUTE_BACKTRACK_BUDGET} exhausted while routing {}",
+                glued.id
+            ));
+        }
+        search.route_backtracks = search.route_backtracks.saturating_add(1);
+        search.route_repairs = search.route_repairs.saturating_add(1);
     }
-    Ok(cells)
+    search.route_blocking_owners.sort();
+    search.route_blocking_owners.dedup();
+    Err(if last_error.is_empty() {
+        format!("no materially distinct route alternative exists for {}", glued.id)
+    } else {
+        last_error
+    })
 }
 
 #[allow(clippy::too_many_arguments)]
@@ -1072,15 +1254,36 @@ fn stitch_catalog_section_pieces(
     routed_sections: &RoutedSections,
     section_room_endpoints: &SectionRoomEndpoints,
     same_section_instances: &BTreeSet<String>,
+    route_nonce: u32,
 ) -> Option<Vec<GridCell>> {
-    let waypoints = map_geometry_lane_to_room_exits(glued)?;
+    let endpoint_escape = placement.placement_policy.minimum_clearance_cells
+        + placement.placement_policy.wall_thickness_cells
+        + 1;
+    let waypoints = map_geometry_lane_to_room_exits(
+        glued,
+        placement_geometry_scale(placement),
+        endpoint_escape,
+        placement.placement_policy.minimum_clearance_cells,
+        section_room_endpoints,
+    )?;
     let lane = rasterize_orthogonal_waypoints(&waypoints)?;
     let lane_positions = lane
         .iter()
         .map(|cell| (cell.x, cell.y))
         .collect::<BTreeSet<_>>();
-    let envelope = placement.placement_policy.minimum_clearance_cells * 2
+    let base_envelope = placement.placement_policy.minimum_clearance_cells * 2
         + placement.placement_policy.wall_thickness_cells;
+    let maximum_piece_offset = occupied_by_cell
+        .iter()
+        .filter(|(_, owner)| same_section_instances.contains(**owner))
+        .map(|(position, _)| distance_to_lane(*position, &lane_positions))
+        .max()
+        .unwrap_or(0);
+    let envelope = base_envelope.max(
+        i32::try_from(maximum_piece_offset)
+            .unwrap_or(i32::MAX)
+            .saturating_add(base_envelope),
+    );
     let lane_distances = build_lane_distance_map(&lane_positions, envelope);
     let mut connected = bridge
         .iter()
@@ -1114,6 +1317,7 @@ fn stitch_catalog_section_pieces(
             section_room_endpoints,
             same_section_instances,
             &lane_distances,
+            route_nonce,
         )?;
         for cell in stitch {
             let position = (cell.x, cell.y);
@@ -1138,6 +1342,7 @@ fn route_catalog_stitch(
     section_room_endpoints: &SectionRoomEndpoints,
     same_section_instances: &BTreeSet<String>,
     lane_distances: &BTreeMap<(i32, i32), u32>,
+    route_nonce: u32,
 ) -> Option<Vec<GridCell>> {
     let min_x = connected.iter().map(|position| position.0).min()?;
     let max_x = connected.iter().map(|position| position.0).max()?;
@@ -1165,11 +1370,17 @@ fn route_catalog_stitch(
     let mut previous = HashMap::new();
     for start in starts {
         let heuristic = distance_to_connected_bounds(*start);
-        frontier.push(Reverse((heuristic, 0_u32, start.0, start.1)));
+        frontier.push(Reverse((
+            heuristic,
+            0_u32,
+            piece_route_tie_key(*start, route_nonce),
+            start.0,
+            start.1,
+        )));
         best_cost.insert(*start, 0_u32);
     }
     let mut target = None;
-    while let Some(Reverse((_, cost, x, y))) = frontier.pop() {
+    while let Some(Reverse((_, cost, _, x, y))) = frontier.pop() {
         let position = (x, y);
         if cost > best_cost.get(&position).copied().unwrap_or(u32::MAX) {
             continue;
@@ -1210,7 +1421,13 @@ fn route_catalog_stitch(
             best_cost.insert(neighbor, next_cost);
             previous.insert(neighbor, position);
             let priority = next_cost.saturating_add(distance_to_connected_bounds(neighbor));
-            frontier.push(Reverse((priority, next_cost, neighbor.0, neighbor.1)));
+            frontier.push(Reverse((
+                priority,
+                next_cost,
+                piece_route_tie_key(neighbor, route_nonce),
+                neighbor.0,
+                neighbor.1,
+            )));
         }
     }
     let mut cursor = target?;
@@ -1267,6 +1484,7 @@ fn route_connection_for_mode(
     section_room_endpoints: &SectionRoomEndpoints,
     same_section_instances: &BTreeSet<String>,
     bounds: (i32, i32, i32, i32),
+    route_nonce: u32,
 ) -> Option<Vec<GridCell>> {
     if !glued.route_points.is_empty() {
         realize_planned_lane_connection(
@@ -1278,6 +1496,8 @@ fn route_connection_for_mode(
             routed_sections,
             section_room_endpoints,
             same_section_instances,
+            placement_geometry_scale(placement),
+            route_nonce,
         )
     } else {
         route_instance_connection(
@@ -1291,6 +1511,7 @@ fn route_connection_for_mode(
             section_room_endpoints,
             same_section_instances,
             bounds,
+            route_nonce,
         )
     }
 }
@@ -1304,9 +1525,43 @@ fn realize_planned_lane_connection(
     routed_sections: &RoutedSections,
     section_room_endpoints: &SectionRoomEndpoints,
     same_section_instances: &BTreeSet<String>,
+    geometry_scale: i32,
+    route_nonce: u32,
 ) -> Option<Vec<GridCell>> {
-    let waypoints = map_geometry_lane_to_room_exits(glued)?;
+    let waypoints = map_geometry_lane_to_room_exits(
+        glued,
+        geometry_scale,
+        corridor_clearance + wall_clearance + 1,
+        corridor_clearance,
+        section_room_endpoints,
+    )?;
     let lane = rasterize_orthogonal_waypoints(&waypoints)?;
+    let direct_lane_available = lane
+        .iter()
+        .skip(1)
+        .take(lane.len().saturating_sub(2))
+        .all(|cell| {
+            bridge_position_available(
+                (cell.x, cell.y),
+                glued.from_instance.as_str(),
+                glued.to_instance.as_str(),
+                &glued.from_cell,
+                glued.from_direction.as_str(),
+                &glued.to_cell,
+                glued.to_direction.as_str(),
+                occupied_by_cell,
+                reserved,
+                wall_clearance,
+                corridor_clearance,
+                routed_sections,
+                section_room_endpoints,
+                glued.source_section.as_str(),
+                same_section_instances,
+            )
+        });
+    if direct_lane_available {
+        return Some(lane);
+    }
     let lane_positions = lane
         .iter()
         .map(|cell| (cell.x, cell.y))
@@ -1323,6 +1578,7 @@ fn realize_planned_lane_connection(
         section_room_endpoints,
         same_section_instances,
         &lane_distances,
+        route_nonce,
     )
 }
 
@@ -1350,40 +1606,187 @@ fn build_lane_distance_map(
     distances
 }
 
-fn map_geometry_lane_to_room_exits(glued: &GluedExit) -> Option<Vec<GridCell>> {
-    let source_start = glued.route_points.first()?;
-    let source_end = glued.route_points.last()?;
+fn map_geometry_lane_to_room_exits(
+    glued: &GluedExit,
+    geometry_scale: i32,
+    endpoint_escape: i32,
+    corridor_clearance: i32,
+    section_room_endpoints: &SectionRoomEndpoints,
+) -> Option<Vec<GridCell>> {
     if glued.route_points.len() < 2 {
         return None;
     }
-    let source_dx = source_end.x - source_start.x;
-    let source_dy = source_end.y - source_start.y;
-    let target_dx = glued.to_cell.x - glued.from_cell.x;
-    let target_dy = glued.to_cell.y - glued.from_cell.y;
-    let mut waypoints = Vec::new();
-    for point in &glued.route_points {
-        let x = if source_dx == 0 {
-            glued.from_cell.x + (point.x - source_start.x) / 8
+    let mut mapped = glued
+        .route_points
+        .iter()
+        .map(|point| GridCell {
+            x: rounded_ratio(point.x, geometry_scale, 24),
+            y: rounded_ratio(point.y, geometry_scale, 24),
+        })
+        .collect::<Vec<_>>();
+    let source_first = &glued.route_points[0];
+    let source_second = &glued.route_points[1];
+    let source_penultimate = &glued.route_points[glued.route_points.len() - 2];
+    let source_last = &glued.route_points[glued.route_points.len() - 1];
+    let (from_dx, from_dy) = direction_vector(glued.from_direction.as_str());
+    let (to_dx, to_dy) = direction_vector(glued.to_direction.as_str());
+    let fanout_stride = corridor_clearance.saturating_add(2);
+    let from_fanout_offset = endpoint_fanout_offset(
+        glued.from_instance.as_str(),
+        &glued.from_cell,
+        glued.from_direction.as_str(),
+        section_room_endpoints,
+        fanout_stride,
+    );
+    let to_fanout_offset = endpoint_fanout_offset(
+        glued.to_instance.as_str(),
+        &glued.to_cell,
+        glued.to_direction.as_str(),
+        section_room_endpoints,
+        fanout_stride,
+    );
+    let mapped_last = mapped.last_mut()?;
+    let mapped_last_forward =
+        (mapped_last.x - glued.to_cell.x) * to_dx + (mapped_last.y - glued.to_cell.y) * to_dy;
+    if mapped_last_forward < endpoint_escape {
+        if to_dx != 0 {
+            mapped_last.x = glued.to_cell.x + to_dx * endpoint_escape;
         } else {
-            glued.from_cell.x
-                + rounded_ratio(point.x - source_start.x, target_dx, source_dx)
-        };
-        let y = if source_dy == 0 {
-            glued.from_cell.y + (point.y - source_start.y) / 8
+            mapped_last.y = glued.to_cell.y + to_dy * endpoint_escape;
+        }
+    }
+    mapped_last.x = mapped_last
+        .x
+        .saturating_add(to_dx.saturating_mul(to_fanout_offset));
+    mapped_last.y = mapped_last
+        .y
+        .saturating_add(to_dy.saturating_mul(to_fanout_offset));
+    let mapped_first = mapped.first_mut()?;
+    let mapped_first_forward =
+        (mapped_first.x - glued.from_cell.x) * from_dx
+            + (mapped_first.y - glued.from_cell.y) * from_dy;
+    if mapped_first_forward < endpoint_escape {
+        if from_dx != 0 {
+            mapped_first.x = glued.from_cell.x + from_dx * endpoint_escape;
         } else {
-            glued.from_cell.y
-                + rounded_ratio(point.y - source_start.y, target_dy, source_dy)
-        };
-        let cell = GridCell { x, y };
+            mapped_first.y = glued.from_cell.y + from_dy * endpoint_escape;
+        }
+    }
+    mapped_first.x = mapped_first
+        .x
+        .saturating_add(from_dx.saturating_mul(from_fanout_offset));
+    mapped_first.y = mapped_first
+        .y
+        .saturating_add(from_dy.saturating_mul(from_fanout_offset));
+    let mapped_first = mapped.first()?;
+    let mapped_last = mapped.last()?;
+    let from_escape = GridCell {
+        x: glued.from_cell.x + from_dx * endpoint_escape,
+        y: glued.from_cell.y + from_dy * endpoint_escape,
+    };
+    let to_escape = GridCell {
+        x: glued.to_cell.x + to_dx * endpoint_escape,
+        y: glued.to_cell.y + to_dy * endpoint_escape,
+    };
+
+    // Geometry room footprints can be much larger than the selected catalog
+    // pieces. Keep the certified global lane, but replace its first room-bound
+    // endpoint with an outward catalog-exit throat. At the destination, retain
+    // the global endpoint as the transverse turn before entering its compact
+    // catalog room. This avoids folding a long port-offset adjustment directly
+    // against either room wall.
+    let start_alignment = if source_first.y == source_second.y {
+        GridCell {
+            x: mapped_first.x,
+            y: from_escape.y,
+        }
+    } else {
+        GridCell {
+            x: from_escape.x,
+            y: mapped_first.y,
+        }
+    };
+    let end_alignment = if source_penultimate.y == source_last.y {
+        GridCell {
+            x: mapped_last.x,
+            y: to_escape.y,
+        }
+    } else {
+        GridCell {
+            x: to_escape.x,
+            y: mapped_last.y,
+        }
+    };
+
+    let mut waypoints = vec![glued.from_cell.clone(), from_escape, start_alignment];
+    for cell in &mapped {
+        if waypoints.last() != Some(cell) {
+            waypoints.push(cell.clone());
+        }
+    }
+    for cell in [end_alignment, to_escape, glued.to_cell.clone()] {
         if waypoints.last() != Some(&cell) {
             waypoints.push(cell);
         }
     }
-    waypoints[0] = glued.from_cell.clone();
-    let last = waypoints.len() - 1;
-    waypoints[last] = glued.to_cell.clone();
-    normalize_orthogonal_waypoints(&mut waypoints, glued);
+    normalize_orthogonal_grid_waypoints(&mut waypoints);
     Some(waypoints)
+}
+
+fn endpoint_fanout_offset(
+    instance: &str,
+    endpoint: &GridCell,
+    direction: &str,
+    section_room_endpoints: &SectionRoomEndpoints,
+    stride: i32,
+) -> i32 {
+    let horizontal = matches!(direction, "east" | "west");
+    let mut peers = section_room_endpoints
+        .values()
+        .filter_map(|rooms| rooms.get(instance))
+        .flatten()
+        .filter(|(_, peer_direction)| peer_direction == direction)
+        .map(|(cell, _)| {
+            (
+                if horizontal { cell.y } else { cell.x },
+                cell.x,
+                cell.y,
+            )
+        })
+        .collect::<Vec<_>>();
+    peers.sort();
+    peers.dedup();
+    let rank = peers
+        .iter()
+        .position(|(_, x, y)| *x == endpoint.x && *y == endpoint.y)
+        .unwrap_or(0);
+    let reverse_rank = peers.len().saturating_sub(1).saturating_sub(rank);
+    i32::try_from(reverse_rank)
+        .unwrap_or(i32::MAX)
+        .saturating_mul(stride)
+}
+
+fn placement_geometry_scale(placement: &PiecePlacement) -> i32 {
+    let scale_multiplier =
+        i32::try_from(placement.realization_search.realization_scale_tier + 1).unwrap_or(i32::MAX);
+    geometry_scale_for_multiplier(&placement.placement_policy, scale_multiplier)
+}
+
+fn geometry_scale_for_multiplier(
+    placement_policy: &PiecePlacementPolicy,
+    scale_multiplier: i32,
+) -> i32 {
+    let room_scale = (placement_policy.minimum_clearance_cells
+        + placement_policy.wall_thickness_cells)
+        .saturating_mul(scale_multiplier);
+    // Geometry routes use an 8-pixel grid while placement uses individual
+    // cells. Preserve strictly more than the configured cell clearance when
+    // projecting neighboring geometry lanes: (clearance + 1) * 24 / 8.
+    let clearance_scale = placement_policy
+        .minimum_clearance_cells
+        .saturating_add(1)
+        .saturating_mul(3);
+    room_scale.max(clearance_scale)
 }
 
 fn rounded_ratio(value: i32, numerator: i32, denominator: i32) -> i32 {
@@ -1404,27 +1807,15 @@ fn rounded_ratio(value: i32, numerator: i32, denominator: i32) -> i32 {
     rounded.clamp(i64::from(i32::MIN), i64::from(i32::MAX)) as i32
 }
 
-fn normalize_orthogonal_waypoints(waypoints: &mut Vec<GridCell>, glued: &GluedExit) {
+fn normalize_orthogonal_grid_waypoints(waypoints: &mut Vec<GridCell>) {
     let mut normalized = vec![waypoints[0].clone()];
-    for (index, to) in waypoints.iter().enumerate().skip(1) {
+    for to in waypoints.iter().skip(1) {
         let from = normalized.last().expect("normalized has a start");
         if from.x != to.x && from.y != to.y {
-            let source_from = &glued.route_points[index - 1];
-            let source_to = &glued.route_points[index];
-            let bend = if source_from.y == source_to.y {
-                GridCell {
-                    x: to.x,
-                    y: from.y,
-                }
-            } else {
-                GridCell {
-                    x: from.x,
-                    y: to.y,
-                }
-            };
-            if normalized.last() != Some(&bend) {
-                normalized.push(bend);
-            }
+            normalized.push(GridCell {
+                x: to.x,
+                y: from.y,
+            });
         }
         if normalized.last() != Some(to) {
             normalized.push(to.clone());
@@ -1467,6 +1858,7 @@ fn route_bridge_cells_in_lane(
     section_room_endpoints: &SectionRoomEndpoints,
     same_section_instances: &BTreeSet<String>,
     lane_distances: &BTreeMap<(i32, i32), u32>,
+    route_nonce: u32,
 ) -> Option<Vec<GridCell>> {
     let start = (glued.from_cell.x, glued.from_cell.y);
     let end = (glued.to_cell.x, glued.to_cell.y);
@@ -1479,12 +1871,15 @@ fn route_bridge_cells_in_lane(
         }
         let mut neighbors = grid_neighbors(position, GridConnectivity::FourWay);
         neighbors.sort_by_key(|neighbor| {
-            lane_distances
-                .get(neighbor)
-                .copied()
-                .unwrap_or(u32::MAX)
-                .saturating_mul(1_000)
-                .saturating_add(neighbor.0.abs_diff(end.0) + neighbor.1.abs_diff(end.1))
+            (
+                lane_distances
+                    .get(neighbor)
+                    .copied()
+                    .unwrap_or(u32::MAX)
+                    .saturating_mul(1_000)
+                    .saturating_add(neighbor.0.abs_diff(end.0) + neighbor.1.abs_diff(end.1)),
+                piece_route_tie_key(*neighbor, route_nonce),
+            )
         });
         for neighbor in neighbors {
             if !seen.insert(neighbor) || (neighbor != end && !lane_distances.contains_key(&neighbor))
@@ -1554,6 +1949,7 @@ fn route_instance_connection(
     section_room_endpoints: &SectionRoomEndpoints,
     same_section_instances: &BTreeSet<String>,
     bounds: (i32, i32, i32, i32),
+    route_nonce: u32,
 ) -> Option<Vec<GridCell>> {
     route_bridge_cells(
         &glued.from_cell,
@@ -1572,6 +1968,7 @@ fn route_instance_connection(
         glued.source_section.as_str(),
         same_section_instances,
         bounds,
+        route_nonce,
     )
 }
 
@@ -1607,6 +2004,15 @@ fn placement_route_bounds(placement: &PiecePlacement) -> (i32, i32, i32, i32) {
     (min_x, max_x, min_y, max_y)
 }
 
+fn piece_route_tie_key(position: (i32, i32), nonce: u32) -> u64 {
+    let x = u64::from(position.0 as u32);
+    let y = u64::from(position.1 as u32);
+    x.wrapping_mul(0x9E37_79B1)
+        .rotate_left(nonce.saturating_mul(11) % 63 + 1)
+        ^ y.wrapping_mul(0x85EB_CA77)
+        ^ u64::from(nonce).wrapping_mul(0xC2B2_AE3D_27D4_EB4F)
+}
+
 fn route_bridge_cells(
     start: &GridCell,
     end: &GridCell,
@@ -1624,6 +2030,7 @@ fn route_bridge_cells(
     source_section: &str,
     same_section_instances: &BTreeSet<String>,
     bounds: (i32, i32, i32, i32),
+    route_nonce: u32,
 ) -> Option<Vec<GridCell>> {
     let start_position = (start.x, start.y);
     let end_position = (end.x, end.y);
@@ -1636,7 +2043,14 @@ fn route_bridge_cells(
         if position == end_position {
             break;
         }
-        for neighbor in grid_neighbors(position, connectivity) {
+        let mut neighbors = grid_neighbors(position, connectivity);
+        neighbors.sort_by_key(|neighbor| {
+            (
+                neighbor.0.abs_diff(end_position.0) + neighbor.1.abs_diff(end_position.1),
+                piece_route_tie_key(*neighbor, route_nonce),
+            )
+        });
+        for neighbor in neighbors {
             if !position_in_bounds(neighbor, bounds) || !seen.insert(neighbor) {
                 continue;
             }
@@ -1798,9 +2212,10 @@ fn validate_piece_placement(placement: &PiecePlacement) -> ValidationReport {
     validate_piece_placement_policy(&placement.placement_policy, &mut diagnostics);
     validate_corridor_realization(placement, &mut diagnostics);
     if placement.realization_search.realization_attempts == 0
-        || placement.realization_search.realization_attempts > 2
+        || placement.realization_search.realization_attempts
+            > REALIZATION_SCALE_MULTIPLIERS.len() as u32
         || placement.realization_search.realization_scale_tier
-            >= placement.realization_search.realization_attempts
+            >= REALIZATION_SCALE_MULTIPLIERS.len() as u32
         || placement.realization_search.route_attempts == 0
         || placement.realization_search.route_attempts > PIECE_ROUTE_ORDER_COUNT
         || placement.realization_search.route_order_attempt
@@ -2458,7 +2873,15 @@ fn validate_placement_cells(placement: &PiecePlacement, diagnostics: &mut Vec<Di
             ));
         }
         if !glued.route_points.is_empty() {
-            let lane = map_geometry_lane_to_room_exits(glued)
+            let lane = map_geometry_lane_to_room_exits(
+                glued,
+                placement_geometry_scale(placement),
+                placement.placement_policy.minimum_clearance_cells
+                    + placement.placement_policy.wall_thickness_cells
+                    + 1,
+                placement.placement_policy.minimum_clearance_cells,
+                &section_room_endpoints,
+            )
                 .and_then(|waypoints| rasterize_orthogonal_waypoints(&waypoints))
                 .unwrap_or_default()
                 .into_iter()
@@ -2507,20 +2930,30 @@ fn connection_contact_at_shared_room(
         let Some(right_endpoints) = right_rooms.get(room) else {
             return false;
         };
-        left_endpoints.iter().any(|(cell, direction)| {
-            endpoint_approach_contains(
-                left_position,
-                cell,
-                direction.as_str(),
-                approach_length,
-            )
-        }) && right_endpoints.iter().any(|(cell, direction)| {
-            endpoint_approach_contains(
-                right_position,
-                cell,
-                direction.as_str(),
-                approach_length,
-            )
+        left_endpoints.iter().any(|(left_cell, left_direction)| {
+            right_endpoints.iter().any(|(right_cell, right_direction)| {
+                // A catalog room with several clearance-spaced exits needs a
+                // bounded fan-out throat as wide as the two portal offsets.
+                // Contacts remain legal only for sections declared on that
+                // same room and only while both routes stay in their outward
+                // endpoint cones.
+                let portal_span = left_cell.x.abs_diff(right_cell.x)
+                    + left_cell.y.abs_diff(right_cell.y);
+                let fanout_length = approach_length
+                    .saturating_mul(2)
+                    .saturating_add(i32::try_from(portal_span).unwrap_or(i32::MAX));
+                endpoint_approach_contains(
+                    left_position,
+                    left_cell,
+                    left_direction.as_str(),
+                    fanout_length,
+                ) && endpoint_approach_contains(
+                    right_position,
+                    right_cell,
+                    right_direction.as_str(),
+                    fanout_length,
+                )
+            })
         })
     })
 }

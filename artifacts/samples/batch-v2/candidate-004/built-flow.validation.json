@@ -12,8 +12,8 @@
   "piecePlacementRef": "artifacts/samples/batch-v2/candidate-004/piece-placement.json",
   "walkableProjection": {
     "source": "piecePlacement.occupiedCells+connectionCells minus closed gatePortal.cells",
-    "cellCount": 3442,
-    "projectionHash": "fnv1a64:179f8e857ca674e6"
+    "cellCount": 8068,
+    "projectionHash": "fnv1a64:5b9c8dd2d210966d"
   },
   "progression": [
     {
@@ -47,9 +47,7 @@
         "gate_portal.section_region_gate_locked_1_region_start_open",
         "gate_portal.section_region_gate_locked_2_region_key_deep_2_open",
         "gate_portal.section_region_goal_region_junction_merge_1_open",
-        "gate_portal.section_region_goal_region_treasure_gated_1_open",
         "gate_portal.section_region_junction_merge_1_region_start_open",
-        "gate_portal.section_region_junction_merge_1_region_treasure_gated_1_open",
         "gate_portal.section_region_key_gate_1_region_start_open",
         "gate_portal.section_region_key_treasure_1_region_start_open"
       ]
@@ -95,9 +93,9 @@
         "gate_portal.section_region_gate_locked_2_region_goal_connector_edge_gate_2_goal",
         "gate_portal.section_region_gate_locked_2_region_key_deep_2_open",
         "gate_portal.section_region_goal_region_junction_merge_1_open",
-        "gate_portal.section_region_goal_region_treasure_gated_1_open",
+        "gate_portal.section_region_goal_region_treasure_gated_1_connector_edge_treasure_1_goal",
         "gate_portal.section_region_junction_merge_1_region_start_open",
-        "gate_portal.section_region_junction_merge_1_region_treasure_gated_1_open",
+        "gate_portal.section_region_junction_merge_1_region_treasure_gated_1_connector_edge_secondary_merge_1",
         "gate_portal.section_region_key_gate_1_region_start_open",
         "gate_portal.section_region_key_treasure_1_region_start_open",
         "gate_portal.section_region_key_treasure_1_region_treasure_gated_1_connector_edge_treasure_key_1_treasure_1"

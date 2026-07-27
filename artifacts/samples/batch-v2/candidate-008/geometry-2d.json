@@ -23,24 +23,41 @@
   },
   "layoutSearch": {
     "spacingTier": 0,
-    "roomOrderAttempt": 1,
+    "roomOrderAttempt": 0,
     "portOrderAttempt": 0,
     "routeOrderAttempt": 0,
-    "searchAttempts": 5,
+    "searchAttempts": 1,
     "effectiveSpacing": {
       "roomMargin": 96,
       "columnGap": 144,
       "rowGap": 64
     },
-    "embeddingKind": "planar_rotation",
-    "embeddingId": "rotation.v1.fnv1a64:03bdd3bb8f1dbee4",
-    "embeddingFaces": 4,
-    "embeddingTargetFaces": 4,
-    "embeddingSearchSteps": 0
+    "embeddingKind": "depth_columns",
+    "embeddingId": "depth-columns.v1",
+    "embeddingFaces": 0,
+    "embeddingTargetFaces": 0,
+    "embeddingSearchSteps": 0,
+    "routeDecisions": 10,
+    "routeBacktracks": 0,
+    "routePathAlternatives": 80,
+    "routeRepairs": 0,
+    "routeGridExpansions": 0,
+    "routePathExpansionExhaustions": 0,
+    "routeLastFailedSection": "",
+    "routeBlockingOwners": [
+      "room:region.gate_boss_1",
+      "room:region.gate_locked_1",
+      "room:region.gate_locked_2",
+      "room:region.goal",
+      "room:region.key_deep_2",
+      "room:region.key_gate_1",
+      "room:region.resource_boss_prep_1",
+      "room:region.start"
+    ]
   },
   "bounds": {
-    "width": 1432,
-    "height": 1144,
+    "width": 1392,
+    "height": 480,
     "grid": 8
   },
   "rooms": [
@@ -54,29 +71,29 @@
       "geometryRole": "entry",
       "footprintClass": "marker_room",
       "rect": {
-        "x": 400,
-        "y": 120,
+        "x": 96,
+        "y": 96,
         "width": 128,
-        "height": 96
+        "height": 112
       },
       "ports": [
         {
           "id": "port.room_region_start.section_region_gate_locked_1_region_start_open",
           "sectionId": "section.region_gate_locked_1.region_start.open",
-          "side": "south",
+          "side": "east",
           "point": {
-            "x": 464,
-            "y": 216
+            "x": 224,
+            "y": 128
           },
           "width": 12
         },
         {
           "id": "port.room_region_start.section_region_key_gate_1_region_start_open",
           "sectionId": "section.region_key_gate_1.region_start.open",
-          "side": "west",
+          "side": "east",
           "point": {
-            "x": 400,
-            "y": 168
+            "x": 224,
+            "y": 176
           },
           "width": 12
         }
@@ -90,50 +107,6 @@
       ]
     },
     {
-      "id": "room.region_key_gate_1",
-      "sourceRegion": "region.key_gate_1",
-      "sourceNodes": [
-        "key.gate_1"
-      ],
-      "role": "standard",
-      "geometryRole": "key_pocket",
-      "footprintClass": "small_pocket",
-      "rect": {
-        "x": 120,
-        "y": 360,
-        "width": 96,
-        "height": 80
-      },
-      "ports": [
-        {
-          "id": "port.room_region_key_gate_1.section_region_key_gate_1_region_start_open",
-          "sectionId": "section.region_key_gate_1.region_start.open",
-          "side": "east",
-          "point": {
-            "x": 216,
-            "y": 400
-          },
-          "width": 12
-        },
-        {
-          "id": "port.room_region_key_gate_1.section_region_gate_locked_1_region_key_gate_1_open",
-          "sectionId": "section.region_gate_locked_1.region_key_gate_1.open",
-          "side": "south",
-          "point": {
-            "x": 168,
-            "y": 440
-          },
-          "width": 12
-        }
-      ],
-      "styleTags": [
-        "key_pocket",
-        "pickup_pocket",
-        "small",
-        "standard"
-      ]
-    },
-    {
       "id": "room.region_gate_locked_1",
       "sourceRegion": "region.gate_locked_1",
       "sourceNodes": [
@@ -143,39 +116,19 @@
       "geometryRole": "threshold",
       "footprintClass": "threshold",
       "rect": {
-        "x": 112,
-        "y": 720,
+        "x": 368,
+        "y": 96,
         "width": 112,
         "height": 112
       },
       "ports": [
         {
-          "id": "port.room_region_gate_locked_1.section_region_gate_locked_1_region_key_gate_1_open",
-          "sectionId": "section.region_gate_locked_1.region_key_gate_1.open",
-          "side": "north",
-          "point": {
-            "x": 144,
-            "y": 720
-          },
-          "width": 12
-        },
-        {
-          "id": "port.room_region_gate_locked_1.section_region_gate_locked_1_region_start_open",
-          "sectionId": "section.region_gate_locked_1.region_start.open",
-          "side": "north",
-          "point": {
-            "x": 192,
-            "y": 720
-          },
-          "width": 12
-        },
-        {
           "id": "port.room_region_gate_locked_1.section_region_gate_locked_1_region_gate_locked_2_open",
           "sectionId": "section.region_gate_locked_1.region_gate_locked_2.open",
           "side": "east",
           "point": {
-            "x": 224,
-            "y": 752
+            "x": 480,
+            "y": 128
           },
           "width": 12
         },
@@ -184,8 +137,28 @@
           "sectionId": "section.region_gate_locked_1.region_key_deep_2.open",
           "side": "east",
           "point": {
-            "x": 224,
-            "y": 800
+            "x": 480,
+            "y": 176
+          },
+          "width": 12
+        },
+        {
+          "id": "port.room_region_gate_locked_1.section_region_gate_locked_1_region_key_gate_1_open",
+          "sectionId": "section.region_gate_locked_1.region_key_gate_1.open",
+          "side": "south",
+          "point": {
+            "x": 424,
+            "y": 208
+          },
+          "width": 12
+        },
+        {
+          "id": "port.room_region_gate_locked_1.section_region_gate_locked_1_region_start_open",
+          "sectionId": "section.region_gate_locked_1.region_start.open",
+          "side": "west",
+          "point": {
+            "x": 368,
+            "y": 152
           },
           "width": 12
         }
@@ -201,6 +174,50 @@
       ]
     },
     {
+      "id": "room.region_key_gate_1",
+      "sourceRegion": "region.key_gate_1",
+      "sourceNodes": [
+        "key.gate_1"
+      ],
+      "role": "standard",
+      "geometryRole": "key_pocket",
+      "footprintClass": "small_pocket",
+      "rect": {
+        "x": 368,
+        "y": 272,
+        "width": 96,
+        "height": 80
+      },
+      "ports": [
+        {
+          "id": "port.room_region_key_gate_1.section_region_gate_locked_1_region_key_gate_1_open",
+          "sectionId": "section.region_gate_locked_1.region_key_gate_1.open",
+          "side": "north",
+          "point": {
+            "x": 416,
+            "y": 272
+          },
+          "width": 12
+        },
+        {
+          "id": "port.room_region_key_gate_1.section_region_key_gate_1_region_start_open",
+          "sectionId": "section.region_key_gate_1.region_start.open",
+          "side": "west",
+          "point": {
+            "x": 368,
+            "y": 312
+          },
+          "width": 12
+        }
+      ],
+      "styleTags": [
+        "key_pocket",
+        "pickup_pocket",
+        "small",
+        "standard"
+      ]
+    },
+    {
       "id": "room.region_gate_locked_2",
       "sourceRegion": "region.gate_locked_2",
       "sourceNodes": [
@@ -210,29 +227,39 @@
       "geometryRole": "threshold",
       "footprintClass": "threshold",
       "rect": {
-        "x": 768,
-        "y": 864,
+        "x": 624,
+        "y": 96,
         "width": 112,
         "height": 112
       },
       "ports": [
         {
-          "id": "port.room_region_gate_locked_2.section_region_gate_locked_2_region_resource_boss_prep_1_open",
-          "sectionId": "section.region_gate_locked_2.region_resource_boss_prep_1.open",
-          "side": "north",
+          "id": "port.room_region_gate_locked_2.section_region_gate_boss_1_region_gate_locked_2_open",
+          "sectionId": "section.region_gate_boss_1.region_gate_locked_2.open",
+          "side": "east",
           "point": {
-            "x": 800,
-            "y": 864
+            "x": 736,
+            "y": 128
           },
           "width": 12
         },
         {
-          "id": "port.room_region_gate_locked_2.section_region_gate_boss_1_region_gate_locked_2_open",
-          "sectionId": "section.region_gate_boss_1.region_gate_locked_2.open",
-          "side": "north",
+          "id": "port.room_region_gate_locked_2.section_region_gate_locked_2_region_resource_boss_prep_1_open",
+          "sectionId": "section.region_gate_locked_2.region_resource_boss_prep_1.open",
+          "side": "east",
           "point": {
-            "x": 848,
-            "y": 864
+            "x": 736,
+            "y": 176
+          },
+          "width": 12
+        },
+        {
+          "id": "port.room_region_gate_locked_2.section_region_gate_locked_2_region_key_deep_2_open",
+          "sectionId": "section.region_gate_locked_2.region_key_deep_2.open",
+          "side": "south",
+          "point": {
+            "x": 680,
+            "y": 208
           },
           "width": 12
         },
@@ -241,18 +268,8 @@
           "sectionId": "section.region_gate_locked_1.region_gate_locked_2.open",
           "side": "west",
           "point": {
-            "x": 768,
-            "y": 896
-          },
-          "width": 12
-        },
-        {
-          "id": "port.room_region_gate_locked_2.section_region_gate_locked_2_region_key_deep_2_open",
-          "sectionId": "section.region_gate_locked_2.region_key_deep_2.open",
-          "side": "west",
-          "point": {
-            "x": 768,
-            "y": 944
+            "x": 624,
+            "y": 152
           },
           "width": 12
         }
@@ -277,8 +294,8 @@
       "geometryRole": "key_pocket",
       "footprintClass": "small_pocket",
       "rect": {
-        "x": 416,
-        "y": 968,
+        "x": 624,
+        "y": 272,
         "width": 96,
         "height": 80
       },
@@ -286,10 +303,10 @@
         {
           "id": "port.room_region_key_deep_2.section_region_gate_locked_2_region_key_deep_2_open",
           "sectionId": "section.region_gate_locked_2.region_key_deep_2.open",
-          "side": "east",
+          "side": "north",
           "point": {
-            "x": 512,
-            "y": 1008
+            "x": 672,
+            "y": 272
           },
           "width": 12
         },
@@ -298,8 +315,8 @@
           "sectionId": "section.region_gate_locked_1.region_key_deep_2.open",
           "side": "west",
           "point": {
-            "x": 416,
-            "y": 1008
+            "x": 624,
+            "y": 312
           },
           "width": 12
         }
@@ -321,39 +338,39 @@
       "geometryRole": "boss_threshold",
       "footprintClass": "threshold_large",
       "rect": {
-        "x": 912,
-        "y": 536,
+        "x": 880,
+        "y": 96,
         "width": 144,
         "height": 112
       },
       "ports": [
         {
-          "id": "port.room_region_gate_boss_1.section_region_gate_boss_1_region_resource_boss_prep_1_open",
-          "sectionId": "section.region_gate_boss_1.region_resource_boss_prep_1.open",
-          "side": "north",
-          "point": {
-            "x": 984,
-            "y": 536
-          },
-          "width": 12
-        },
-        {
           "id": "port.room_region_gate_boss_1.section_region_gate_boss_1_region_goal_connector_edge_boss_1_goal",
           "sectionId": "section.region_gate_boss_1.region_goal.connector_edge_boss_1_goal",
           "side": "east",
           "point": {
-            "x": 1056,
-            "y": 592
+            "x": 1024,
+            "y": 152
           },
           "width": 18
         },
         {
-          "id": "port.room_region_gate_boss_1.section_region_gate_boss_1_region_gate_locked_2_open",
-          "sectionId": "section.region_gate_boss_1.region_gate_locked_2.open",
+          "id": "port.room_region_gate_boss_1.section_region_gate_boss_1_region_resource_boss_prep_1_open",
+          "sectionId": "section.region_gate_boss_1.region_resource_boss_prep_1.open",
           "side": "south",
           "point": {
-            "x": 984,
-            "y": 648
+            "x": 952,
+            "y": 208
+          },
+          "width": 12
+        },
+        {
+          "id": "port.room_region_gate_boss_1.section_region_gate_boss_1_region_gate_locked_2_open",
+          "sectionId": "section.region_gate_boss_1.region_gate_locked_2.open",
+          "side": "west",
+          "point": {
+            "x": 880,
+            "y": 152
           },
           "width": 12
         }
@@ -377,29 +394,29 @@
       "geometryRole": "chamber",
       "footprintClass": "small_pocket",
       "rect": {
-        "x": 768,
-        "y": 216,
-        "width": 112,
+        "x": 880,
+        "y": 272,
+        "width": 96,
         "height": 80
       },
       "ports": [
         {
-          "id": "port.room_region_resource_boss_prep_1.section_region_gate_locked_2_region_resource_boss_prep_1_open",
-          "sectionId": "section.region_gate_locked_2.region_resource_boss_prep_1.open",
-          "side": "south",
+          "id": "port.room_region_resource_boss_prep_1.section_region_gate_boss_1_region_resource_boss_prep_1_open",
+          "sectionId": "section.region_gate_boss_1.region_resource_boss_prep_1.open",
+          "side": "north",
           "point": {
-            "x": 800,
-            "y": 296
+            "x": 928,
+            "y": 272
           },
           "width": 12
         },
         {
-          "id": "port.room_region_resource_boss_prep_1.section_region_gate_boss_1_region_resource_boss_prep_1_open",
-          "sectionId": "section.region_gate_boss_1.region_resource_boss_prep_1.open",
-          "side": "south",
+          "id": "port.room_region_resource_boss_prep_1.section_region_gate_locked_2_region_resource_boss_prep_1_open",
+          "sectionId": "section.region_gate_locked_2.region_resource_boss_prep_1.open",
+          "side": "west",
           "point": {
-            "x": 848,
-            "y": 296
+            "x": 880,
+            "y": 312
           },
           "width": 12
         }
@@ -421,8 +438,8 @@
       "geometryRole": "destination",
       "footprintClass": "marker_room",
       "rect": {
-        "x": 1208,
-        "y": 456,
+        "x": 1168,
+        "y": 96,
         "width": 128,
         "height": 96
       },
@@ -432,8 +449,8 @@
           "sectionId": "section.region_gate_boss_1.region_goal.connector_edge_boss_1_goal",
           "side": "west",
           "point": {
-            "x": 1208,
-            "y": 504
+            "x": 1168,
+            "y": 144
           },
           "width": 18
         }
@@ -480,20 +497,20 @@
       "toPort": "port.room_region_gate_locked_2.section_region_gate_boss_1_region_gate_locked_2_open",
       "points": [
         {
-          "x": 984,
-          "y": 648
+          "x": 880,
+          "y": 152
         },
         {
-          "x": 984,
-          "y": 848
+          "x": 808,
+          "y": 152
         },
         {
-          "x": 848,
-          "y": 848
+          "x": 808,
+          "y": 128
         },
         {
-          "x": 848,
-          "y": 864
+          "x": 736,
+          "y": 128
         }
       ]
     },
@@ -533,20 +550,20 @@
       "toPort": "port.room_region_goal.section_region_gate_boss_1_region_goal_connector_edge_boss_1_goal",
       "points": [
         {
-          "x": 1056,
-          "y": 592
+          "x": 1024,
+          "y": 152
         },
         {
-          "x": 1184,
-          "y": 592
+          "x": 1096,
+          "y": 152
         },
         {
-          "x": 1184,
-          "y": 504
+          "x": 1096,
+          "y": 144
         },
         {
-          "x": 1208,
-          "y": 504
+          "x": 1168,
+          "y": 144
         }
       ]
     },
@@ -584,20 +601,20 @@
       "toPort": "port.room_region_resource_boss_prep_1.section_region_gate_boss_1_region_resource_boss_prep_1_open",
       "points": [
         {
-          "x": 984,
-          "y": 536
+          "x": 952,
+          "y": 208
         },
         {
-          "x": 984,
-          "y": 520
+          "x": 952,
+          "y": 240
         },
         {
-          "x": 848,
-          "y": 520
+          "x": 928,
+          "y": 240
         },
         {
-          "x": 848,
-          "y": 296
+          "x": 928,
+          "y": 272
         }
       ]
     },
@@ -634,20 +651,20 @@
       "toPort": "port.room_region_gate_locked_2.section_region_gate_locked_1_region_gate_locked_2_open",
       "points": [
         {
-          "x": 224,
-          "y": 752
+          "x": 480,
+          "y": 128
         },
         {
-          "x": 752,
-          "y": 752
+          "x": 552,
+          "y": 128
         },
         {
-          "x": 752,
-          "y": 896
+          "x": 552,
+          "y": 152
         },
         {
-          "x": 768,
-          "y": 896
+          "x": 624,
+          "y": 152
         }
       ]
     },
@@ -684,20 +701,20 @@
       "toPort": "port.room_region_key_deep_2.section_region_gate_locked_1_region_key_deep_2_open",
       "points": [
         {
-          "x": 224,
-          "y": 800
+          "x": 480,
+          "y": 176
         },
         {
-          "x": 400,
-          "y": 800
+          "x": 552,
+          "y": 176
         },
         {
-          "x": 400,
-          "y": 1008
+          "x": 552,
+          "y": 312
         },
         {
-          "x": 416,
-          "y": 1008
+          "x": 624,
+          "y": 312
         }
       ]
     },
@@ -735,28 +752,20 @@
       "toPort": "port.room_region_key_gate_1.section_region_gate_locked_1_region_key_gate_1_open",
       "points": [
         {
-          "x": 144,
-          "y": 720
+          "x": 424,
+          "y": 208
         },
         {
-          "x": 144,
-          "y": 704
+          "x": 424,
+          "y": 240
         },
         {
-          "x": 160,
-          "y": 704
+          "x": 416,
+          "y": 240
         },
         {
-          "x": 160,
-          "y": 696
-        },
-        {
-          "x": 168,
-          "y": 696
-        },
-        {
-          "x": 168,
-          "y": 440
+          "x": 416,
+          "y": 272
         }
       ]
     },
@@ -793,20 +802,20 @@
       "toPort": "port.room_region_start.section_region_gate_locked_1_region_start_open",
       "points": [
         {
-          "x": 192,
-          "y": 720
+          "x": 368,
+          "y": 152
         },
         {
-          "x": 192,
-          "y": 704
+          "x": 296,
+          "y": 152
         },
         {
-          "x": 464,
-          "y": 704
+          "x": 296,
+          "y": 128
         },
         {
-          "x": 464,
-          "y": 216
+          "x": 224,
+          "y": 128
         }
       ]
     },
@@ -844,20 +853,20 @@
       "toPort": "port.room_region_key_deep_2.section_region_gate_locked_2_region_key_deep_2_open",
       "points": [
         {
-          "x": 768,
-          "y": 944
+          "x": 680,
+          "y": 208
         },
         {
-          "x": 752,
-          "y": 944
+          "x": 680,
+          "y": 240
         },
         {
-          "x": 752,
-          "y": 1008
+          "x": 672,
+          "y": 240
         },
         {
-          "x": 512,
-          "y": 1008
+          "x": 672,
+          "y": 272
         }
       ]
     },
@@ -894,12 +903,20 @@
       "toPort": "port.room_region_resource_boss_prep_1.section_region_gate_locked_2_region_resource_boss_prep_1_open",
       "points": [
         {
-          "x": 800,
-          "y": 864
+          "x": 736,
+          "y": 176
         },
         {
-          "x": 800,
-          "y": 296
+          "x": 808,
+          "y": 176
+        },
+        {
+          "x": 808,
+          "y": 312
+        },
+        {
+          "x": 880,
+          "y": 312
         }
       ]
     },
@@ -936,20 +953,20 @@
       "toPort": "port.room_region_start.section_region_key_gate_1_region_start_open",
       "points": [
         {
-          "x": 216,
-          "y": 400
+          "x": 368,
+          "y": 312
         },
         {
-          "x": 384,
-          "y": 400
+          "x": 296,
+          "y": 312
         },
         {
-          "x": 384,
-          "y": 168
+          "x": 296,
+          "y": 176
         },
         {
-          "x": 400,
-          "y": 168
+          "x": 224,
+          "y": 176
         }
       ]
     }
@@ -972,22 +989,6 @@
       ]
     },
     {
-      "id": "content.room_region_key_gate_1.key_pickup",
-      "roomId": "room.region_key_gate_1",
-      "sourceRef": "node:key.gate_1;region:region.key_gate_1",
-      "kind": "key_pickup",
-      "label": "Key Pickup",
-      "tags": [
-        "branch",
-        "key",
-        "key_pickup",
-        "key_pocket",
-        "pickup_pocket",
-        "small",
-        "standard"
-      ]
-    },
-    {
       "id": "content.room_region_gate_locked_1.locked_gate",
       "roomId": "room.region_gate_locked_1",
       "sourceRef": "node:gate.locked_1;region:region.gate_locked_1",
@@ -1004,6 +1005,22 @@
         "merge_readability",
         "reveal_line",
         "threshold"
+      ]
+    },
+    {
+      "id": "content.room_region_key_gate_1.key_pickup",
+      "roomId": "room.region_key_gate_1",
+      "sourceRef": "node:key.gate_1;region:region.key_gate_1",
+      "kind": "key_pickup",
+      "label": "Key Pickup",
+      "tags": [
+        "branch",
+        "key",
+        "key_pickup",
+        "key_pocket",
+        "pickup_pocket",
+        "small",
+        "standard"
       ]
     },
     {

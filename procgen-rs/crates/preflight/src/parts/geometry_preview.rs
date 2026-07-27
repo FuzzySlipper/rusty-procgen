@@ -1046,10 +1046,10 @@ const GEOMETRY_MAX_CORRIDOR_HALF_WIDTH: i32 = 10;
 const GEOMETRY_ROUTE_ORDER_COUNT: u32 = 4;
 const GEOMETRY_PORT_ORDER_COUNT: u32 = 2;
 const GEOMETRY_PATH_ALTERNATIVES: u32 = 8;
-const GEOMETRY_ROUTE_DECISION_BUDGET: u32 = 1_024;
-const GEOMETRY_ROUTE_BACKTRACK_BUDGET: u32 = 512;
-const GEOMETRY_PATH_EXPANSION_BUDGET: u32 = 8_192;
-const GEOMETRY_CONFLICT_REPAIR_BUDGET: u32 = 8;
+const GEOMETRY_ROUTE_DECISION_BUDGET: u32 = 256;
+const GEOMETRY_ROUTE_BACKTRACK_BUDGET: u32 = 128;
+const GEOMETRY_PATH_EXPANSION_BUDGET: u32 = 4_096;
+const GEOMETRY_CONFLICT_REPAIR_BUDGET: u32 = 2;
 
 #[derive(Clone, Debug)]
 struct PhysicalPortDemand {
@@ -1072,6 +1072,8 @@ struct TopologyEmbedding {
     faces: u32,
     target_faces: u32,
     search_steps: u32,
+    minimum_clearance: f64,
+    terminal_bars: bool,
 }
 
 #[derive(Debug)]
@@ -1640,7 +1642,22 @@ fn find_topology_embedding(
             faces.len()
         ));
     }
-    let positions = topology_embedding_positions(&rotation, &faces, seed ^ nonce)?;
+    let (raw_positions, terminal_bars) = topology_embedding_positions(
+        &rotation,
+        &faces,
+        seed ^ nonce,
+    )?;
+    let positions = improve_topology_drawing_clearance(
+        &rotation,
+        if terminal_bars {
+            orient_topology_terminals(raw_positions)
+        } else {
+            raw_positions
+        },
+        seed ^ nonce ^ 0x84B9_3F2D_571A_CE60,
+    );
+    validate_topology_drawing(&rotation, &positions)?;
+    let minimum_clearance = topology_drawing_clearance(&rotation, &positions)?;
     let embedding_id = format!(
         "rotation.v1.{}",
         hash_json(&rotation)
@@ -1652,7 +1669,67 @@ fn find_topology_embedding(
         faces: target_faces,
         target_faces,
         search_steps,
+        minimum_clearance,
+        terminal_bars,
     })
+}
+
+fn orient_topology_terminals(
+    positions: BTreeMap<String, TopologyPoint>,
+) -> BTreeMap<String, TopologyPoint> {
+    let Some(start) = positions.get("region.start").copied() else {
+        return positions;
+    };
+    let Some(goal) = positions.get("region.goal").copied() else {
+        return positions;
+    };
+    let dx = f64::from(goal.x - start.x);
+    let dy = f64::from(goal.y - start.y);
+    let length = dx.hypot(dy);
+    if length <= f64::EPSILON {
+        return positions;
+    }
+    let cosine = dx / length;
+    let sine = dy / length;
+    let mut oriented = positions
+        .into_iter()
+        .map(|(region, point)| {
+            let relative_x = f64::from(point.x - start.x);
+            let relative_y = f64::from(point.y - start.y);
+            (
+                region,
+                TopologyPoint {
+                    x: (relative_x * cosine + relative_y * sine).round() as i32,
+                    y: (-relative_x * sine + relative_y * cosine).round() as i32,
+                },
+            )
+        })
+        .collect::<BTreeMap<_, _>>();
+    let nonterminal_x = oriented
+        .iter()
+        .filter(|(region, _)| {
+            region.as_str() != "region.start" && region.as_str() != "region.goal"
+        })
+        .map(|(_, point)| point.x)
+        .collect::<Vec<_>>();
+    let minimum = nonterminal_x.iter().min().copied();
+    let maximum = nonterminal_x.iter().max().copied();
+    if let (Some(minimum), Some(maximum)) = (minimum, maximum) {
+        let current_start = oriented["region.start"].x;
+        let current_goal = oriented["region.goal"].x;
+        if minimum <= current_start || maximum >= current_goal {
+            let padding = (maximum - minimum).abs().saturating_div(8).max(1);
+            if let Some(start) = oriented.get_mut("region.start") {
+                start.x = minimum.saturating_sub(padding);
+                start.y = 0;
+            }
+            if let Some(goal) = oriented.get_mut("region.goal") {
+                goal.x = maximum.saturating_add(padding);
+                goal.y = 0;
+            }
+        }
+    }
+    oriented
 }
 
 fn topology_reachable_regions(
@@ -1732,10 +1809,10 @@ fn topology_embedding_positions(
     rotation: &BTreeMap<String, Vec<String>>,
     faces: &[Vec<String>],
     seed: u64,
-) -> Result<BTreeMap<String, TopologyPoint>, String> {
+) -> Result<(BTreeMap<String, TopologyPoint>, bool), String> {
     if let Some(separator_positions) = topology_separator_band_positions(rotation) {
         if validate_topology_drawing(rotation, &separator_positions).is_ok() {
-            return Ok(separator_positions);
+            return Ok((separator_positions, true));
         }
     }
     let mut active = rotation.keys().cloned().collect::<BTreeSet<_>>();
@@ -1802,7 +1879,7 @@ fn topology_embedding_positions(
         core_faces.rotate_left(face_offset);
     }
     let mut last_error = "no core face was available".to_owned();
-    for outer_face in core_faces {
+    for (face_index, outer_face) in core_faces.into_iter().enumerate() {
         let mut outer = Vec::new();
         for region in outer_face {
             if !outer.contains(&region) {
@@ -1815,9 +1892,13 @@ fn topology_embedding_positions(
         match harmonic_topology_positions(&drawing_rotation, &outer) {
             Ok(mut positions) => {
                 attach_topology_leaves(&mut positions, &removed, seed);
-                let quantized = quantize_topology_positions(&positions);
+                let quantized = improve_topology_drawing_clearance(
+                    rotation,
+                    quantize_topology_positions(&positions),
+                    seed ^ face_index as u64,
+                );
                 match validate_topology_drawing(rotation, &quantized) {
-                    Ok(()) => return Ok(quantized),
+                    Ok(()) => return Ok((quantized, false)),
                     Err(error) => last_error = error,
                 }
             }
@@ -2105,6 +2186,21 @@ fn validate_topology_drawing(
     rotation: &BTreeMap<String, Vec<String>>,
     positions: &BTreeMap<String, TopologyPoint>,
 ) -> Result<(), String> {
+    validate_topology_drawing_combinatorial(rotation, positions)?;
+    let minimum_clearance = topology_drawing_clearance(rotation, positions)?;
+    let required_clearance = topology_drawing_span(positions) / 32.0;
+    if minimum_clearance < required_clearance {
+        return Err(format!(
+            "topology drawing feature clearance {minimum_clearance:.3} is below required {required_clearance:.3}"
+        ));
+    }
+    Ok(())
+}
+
+fn validate_topology_drawing_combinatorial(
+    rotation: &BTreeMap<String, Vec<String>>,
+    positions: &BTreeMap<String, TopologyPoint>,
+) -> Result<(), String> {
     let mut occupied = BTreeMap::<(i32, i32), &str>::new();
     for (region, point) in positions {
         if let Some(other) = occupied.insert((point.x, point.y), region.as_str()) {
@@ -2166,6 +2262,138 @@ fn validate_topology_drawing(
         }
     }
     Ok(())
+}
+
+fn topology_drawing_span(positions: &BTreeMap<String, TopologyPoint>) -> f64 {
+    let minimum_x = positions.values().map(|point| point.x).min().unwrap_or(0);
+    let maximum_x = positions.values().map(|point| point.x).max().unwrap_or(0);
+    let minimum_y = positions.values().map(|point| point.y).min().unwrap_or(0);
+    let maximum_y = positions.values().map(|point| point.y).max().unwrap_or(0);
+    f64::from((maximum_x - minimum_x).max(maximum_y - minimum_y).max(1))
+}
+
+fn improve_topology_drawing_clearance(
+    rotation: &BTreeMap<String, Vec<String>>,
+    positions: BTreeMap<String, TopologyPoint>,
+    seed: u64,
+) -> BTreeMap<String, TopologyPoint> {
+    if validate_topology_drawing_combinatorial(rotation, &positions).is_err() {
+        return positions;
+    }
+    const TARGET_CLEARANCE_RATIO: f64 = 1.0 / 16.0;
+    let initial_ratio = topology_drawing_clearance(rotation, &positions).unwrap_or(0.0)
+        / topology_drawing_span(&positions);
+    if initial_ratio >= TARGET_CLEARANCE_RATIO {
+        return positions;
+    }
+    let regions = positions
+        .keys()
+        .filter(|region| {
+            region.as_str() != "region.start" && region.as_str() != "region.goal"
+        })
+        .cloned()
+        .collect::<Vec<_>>();
+    if regions.is_empty() {
+        return positions;
+    }
+    let mut rng = TopologyRng::new(seed ^ 0xD1B5_4A32_D192_ED03);
+    let mut best = positions;
+    let mut best_ratio = topology_drawing_clearance(rotation, &best).unwrap_or(0.0)
+        / topology_drawing_span(&best);
+    for attempt in 0..32_768_u32 {
+        let mut candidate = best.clone();
+        let region = &regions[rng.index(regions.len())];
+        let span = topology_drawing_span(&best).round().max(1.0) as i32;
+        let divisor = 6_i32.saturating_add(i32::try_from(attempt / 2_048).unwrap_or(i32::MAX));
+        let radius = (span / divisor).max(span / 128).max(1);
+        let offset_span = usize::try_from(radius.saturating_mul(2).saturating_add(1))
+            .unwrap_or(usize::MAX);
+        let dx = i32::try_from(rng.index(offset_span)).unwrap_or(i32::MAX) - radius;
+        let dy = i32::try_from(rng.index(offset_span)).unwrap_or(i32::MAX) - radius;
+        let point = candidate
+            .get_mut(region.as_str())
+            .expect("clearance search region should exist");
+        point.x = point.x.saturating_add(dx);
+        point.y = point.y.saturating_add(dy);
+        if validate_topology_drawing_combinatorial(rotation, &candidate).is_err() {
+            continue;
+        }
+        let ratio = topology_drawing_clearance(rotation, &candidate).unwrap_or(0.0)
+            / topology_drawing_span(&candidate);
+        if ratio <= best_ratio {
+            continue;
+        }
+        best = candidate;
+        best_ratio = ratio;
+        if best_ratio >= TARGET_CLEARANCE_RATIO {
+            break;
+        }
+    }
+    best
+}
+
+fn topology_drawing_clearance(
+    rotation: &BTreeMap<String, Vec<String>>,
+    positions: &BTreeMap<String, TopologyPoint>,
+) -> Result<f64, String> {
+    let edges = rotation
+        .iter()
+        .flat_map(|(left, neighbors)| {
+            neighbors
+                .iter()
+                .filter(move |right| left < *right)
+                .map(move |right| (left.as_str(), right.as_str()))
+        })
+        .collect::<Vec<_>>();
+    let mut minimum = f64::INFINITY;
+    for (index, (region, point)) in positions.iter().enumerate() {
+        for other in positions.values().skip(index + 1) {
+            let dx = f64::from(point.x - other.x);
+            let dy = f64::from(point.y - other.y);
+            minimum = minimum.min(dx.hypot(dy));
+        }
+        for (left, right) in &edges {
+            if region == left || region == right {
+                continue;
+            }
+            let left_point = positions
+                .get(*left)
+                .ok_or_else(|| format!("topology drawing lacks region {left}"))?;
+            let right_point = positions
+                .get(*right)
+                .ok_or_else(|| format!("topology drawing lacks region {right}"))?;
+            minimum = minimum.min(topology_point_segment_distance(
+                point,
+                left_point,
+                right_point,
+            ));
+        }
+    }
+    if minimum.is_finite() {
+        Ok(minimum)
+    } else {
+        Ok(1.0)
+    }
+}
+
+fn topology_point_segment_distance(
+    point: &TopologyPoint,
+    left: &TopologyPoint,
+    right: &TopologyPoint,
+) -> f64 {
+    let segment_x = f64::from(right.x - left.x);
+    let segment_y = f64::from(right.y - left.y);
+    let length_squared = segment_x * segment_x + segment_y * segment_y;
+    if length_squared <= f64::EPSILON {
+        return f64::from(point.x - left.x).hypot(f64::from(point.y - left.y));
+    }
+    let relative_x = f64::from(point.x - left.x);
+    let relative_y = f64::from(point.y - left.y);
+    let projection =
+        ((relative_x * segment_x + relative_y * segment_y) / length_squared).clamp(0.0, 1.0);
+    let closest_x = f64::from(left.x) + projection * segment_x;
+    let closest_y = f64::from(left.y) + projection * segment_y;
+    (f64::from(point.x) - closest_x).hypot(f64::from(point.y) - closest_y)
 }
 
 fn topology_orientation(
@@ -2253,6 +2481,7 @@ fn place_and_route_physical_geometry_attempt(
             seed,
             port_order_attempt,
             topology_embedding.map(|embedding| &embedding.positions),
+            topology_embedding.is_some_and(|embedding| embedding.terminal_bars),
         )
         .map_err(GeometryPlacementAttemptError::Invalid)?;
         let (rooms, bounds) = place_geometry_rooms(
@@ -2260,6 +2489,8 @@ fn place_and_route_physical_geometry_attempt(
             spacing,
             &port_demands,
             topology_embedding.map(|embedding| &embedding.positions),
+            topology_embedding.map(|embedding| embedding.minimum_clearance),
+            topology_embedding.is_some_and(|embedding| embedding.terminal_bars),
         )?;
         match route_physical_sections(
             connection_plan,
@@ -2306,9 +2537,18 @@ fn place_geometry_rooms(
     spacing: &GeometrySpacing,
     port_demands: &BTreeMap<String, Vec<PhysicalPortDemand>>,
     topology_positions: Option<&BTreeMap<String, TopologyPoint>>,
+    topology_clearance: Option<f64>,
+    topology_terminal_bars: bool,
 ) -> Result<(Vec<GeometryRoom>, GeometryBounds), GeometryPlacementAttemptError> {
     if let Some(positions) = topology_positions {
-        return place_geometry_rooms_from_topology(region_specs, spacing, port_demands, positions);
+        return place_geometry_rooms_from_topology(
+            region_specs,
+            spacing,
+            port_demands,
+            positions,
+            topology_clearance.unwrap_or(f64::INFINITY),
+            topology_terminal_bars,
+        );
     }
     let mut column_widths = BTreeMap::<usize, i32>::new();
     for (depth, _, _, region) in region_specs {
@@ -2364,7 +2604,7 @@ fn place_geometry_rooms(
             style_tags: geometry_room_style_tags(region),
         });
     }
-    assign_physical_room_ports(&mut rooms, port_demands)
+    assign_physical_room_ports(&mut rooms, port_demands, None)
         .map_err(GeometryPlacementAttemptError::Invalid)?;
     let bounds = geometry_bounds(&rooms, GEOMETRY_ROUTE_GRID, spacing.room_margin);
     Ok((rooms, bounds))
@@ -2375,6 +2615,8 @@ fn place_geometry_rooms_from_topology(
     spacing: &GeometrySpacing,
     port_demands: &BTreeMap<String, Vec<PhysicalPortDemand>>,
     positions: &BTreeMap<String, TopologyPoint>,
+    topology_clearance: f64,
+    topology_terminal_bars: bool,
 ) -> Result<(Vec<GeometryRoom>, GeometryBounds), GeometryPlacementAttemptError> {
     let mut sizes = BTreeMap::new();
     let mut maximum_dimension = 0_i32;
@@ -2405,12 +2647,13 @@ fn place_geometry_rooms_from_topology(
                 "topology embedding has no distinct room positions".to_owned(),
             )
         })? as f64;
-    let topology_gap = spacing
-        .column_gap
-        .max(spacing.row_gap)
-        .max(GEOMETRY_PORT_SPACING);
-    let target_separation = f64::from(maximum_dimension + topology_gap);
-    let scale = target_separation / minimum_axis_distance;
+    // The embedding clearance is measured between every non-incident feature,
+    // so scaling that clearance to a full legacy column gap needlessly turns
+    // sparse planar drawings into multi-thousand-cell corridors. Reserve the
+    // actual maximum room envelope instead.
+    let target_separation = f64::from(maximum_dimension);
+    let minimum_feature_distance = minimum_axis_distance.min(topology_clearance).max(1.0);
+    let scale = target_separation / minimum_feature_distance;
     let minimum_x = points
         .iter()
         .map(|point| point.x)
@@ -2429,11 +2672,40 @@ fn place_geometry_rooms_from_topology(
                 region.id
             ))
         })?;
-        let (width, height) = sizes[region.id.as_str()];
+        let (width, mut height) = sizes[region.id.as_str()];
+        let demands = port_demands
+            .get(region.id.as_str())
+            .map(Vec::as_slice)
+            .unwrap_or_default();
+        let vertical_orders = demands
+            .iter()
+            .filter(|demand| matches!(demand.side.as_str(), "east" | "west"))
+            .map(|demand| demand.opposite_order)
+            .collect::<Vec<_>>();
+        let terminal_vertical_span = topology_terminal_bars.then_some(()).and_then(|()| matches!(
+            region.id.as_str(),
+            "region.start" | "region.goal"
+        )
+        .then(|| {
+            let minimum = vertical_orders.iter().min().copied()?;
+            let maximum = vertical_orders.iter().max().copied()?;
+            (minimum != maximum).then_some((minimum, maximum))
+        })
+        .flatten());
+        let topology_y = if let Some((minimum, maximum)) = terminal_vertical_span {
+            let mapped_span = (f64::from(maximum - minimum) * scale).round() as i32;
+            height = align_geometry(
+                height.max(mapped_span + GEOMETRY_PORT_MARGIN * 2),
+                GEOMETRY_ROUTE_GRID * 2,
+            );
+            f64::from(minimum + maximum) / 2.0
+        } else {
+            f64::from(point.y)
+        };
         let center_x = f64::from(spacing.room_margin + maximum_dimension / 2)
             + f64::from(point.x - minimum_x) * scale;
         let center_y = f64::from(spacing.room_margin + maximum_dimension / 2)
-            + f64::from(point.y - minimum_y) * scale;
+            + (topology_y - f64::from(minimum_y)) * scale;
         let x = align_geometry((center_x - f64::from(width) / 2.0).round() as i32, GEOMETRY_ROUTE_GRID);
         let y = align_geometry((center_y - f64::from(height) / 2.0).round() as i32, GEOMETRY_ROUTE_GRID);
         rooms.push(GeometryRoom {
@@ -2453,7 +2725,7 @@ fn place_geometry_rooms_from_topology(
             style_tags: geometry_room_style_tags(region),
         });
     }
-    assign_physical_room_ports(&mut rooms, port_demands)
+    assign_physical_room_ports(&mut rooms, port_demands, Some(scale))
         .map_err(GeometryPlacementAttemptError::Invalid)?;
     let bounds = geometry_bounds(&rooms, GEOMETRY_ROUTE_GRID, spacing.room_margin);
     Ok((rooms, bounds))
@@ -2466,6 +2738,7 @@ fn physical_port_demands(
     seed: u64,
     port_order_attempt: u32,
     topology_positions: Option<&BTreeMap<String, TopologyPoint>>,
+    topology_terminal_bars: bool,
 ) -> Result<BTreeMap<String, Vec<PhysicalPortDemand>>, String> {
     let mut demands = BTreeMap::<String, Vec<PhysicalPortDemand>>::new();
     for section in &plan.sections {
@@ -2486,13 +2759,25 @@ fn physical_port_demands(
                 let right_position = positions
                     .get(right)
                     .ok_or_else(|| format!("topology embedding lacks region {right}"))?;
-                let (left_side, right_side) = topology_port_sides(
-                    left_position,
-                    right_position,
-                    port_order_attempt,
-                    seed,
-                    section.id.as_str(),
-                );
+                let (left_side, right_side) = if topology_terminal_bars {
+                    topology_terminal_port_sides(left, right, positions).unwrap_or_else(|| {
+                        topology_port_sides(
+                            left_position,
+                            right_position,
+                            port_order_attempt,
+                            seed,
+                            section.id.as_str(),
+                        )
+                    })
+                } else {
+                    topology_port_sides(
+                        left_position,
+                        right_position,
+                        port_order_attempt,
+                        seed,
+                        section.id.as_str(),
+                    )
+                };
                 let left_order = if matches!(left_side, "north" | "south") {
                     right_position.x
                 } else {
@@ -2586,6 +2871,36 @@ fn topology_port_sides(
                 _ => (vertical.0, horizontal.1),
             }
         }
+    }
+}
+
+fn topology_terminal_port_sides(
+    left: &str,
+    right: &str,
+    positions: &BTreeMap<String, TopologyPoint>,
+) -> Option<(&'static str, &'static str)> {
+    let start = positions.get("region.start")?;
+    let goal = positions.get("region.goal")?;
+    let dx = goal.x - start.x;
+    let dy = goal.y - start.y;
+    if dx.abs() < dy.abs() {
+        return None;
+    }
+    let start_side = if dx >= 0 { "east" } else { "west" };
+    let goal_side = if dx >= 0 { "west" } else { "east" };
+    let side_toward = |from: &str, to: &str| {
+        let from_x = positions.get(from)?.x;
+        let to_x = positions.get(to)?.x;
+        Some(if to_x >= from_x { "east" } else { "west" })
+    };
+    match (left, right) {
+        ("region.start", "region.goal") => Some((start_side, goal_side)),
+        ("region.goal", "region.start") => Some((goal_side, start_side)),
+        ("region.start", _) => Some((start_side, side_toward(right, left)?)),
+        (_, "region.start") => Some((side_toward(left, right)?, start_side)),
+        ("region.goal", _) => Some((goal_side, side_toward(right, left)?)),
+        (_, "region.goal") => Some((side_toward(left, right)?, goal_side)),
+        _ => None,
     }
 }
 
@@ -2689,6 +3004,7 @@ fn align_geometry(value: i32, grid: i32) -> i32 {
 fn assign_physical_room_ports(
     rooms: &mut [GeometryRoom],
     demands: &BTreeMap<String, Vec<PhysicalPortDemand>>,
+    topology_scale: Option<f64>,
 ) -> Result<(), String> {
     for room in rooms {
         let room_demands = demands
@@ -2701,8 +3017,56 @@ fn assign_physical_room_ports(
                 .filter(|demand| demand.side == side)
                 .collect::<Vec<_>>();
             let count = side_demands.len() as i32;
+            let order_bounds = side_demands
+                .iter()
+                .map(|demand| demand.opposite_order)
+                .fold(None::<(i32, i32)>, |bounds, order| {
+                    Some(match bounds {
+                        Some((minimum, maximum)) => {
+                            (minimum.min(order), maximum.max(order))
+                        }
+                        None => (order, order),
+                    })
+                });
+            let mapped_offsets = topology_scale
+                .zip(order_bounds)
+                .filter(|(scale, (minimum, maximum))| {
+                    (f64::from(maximum - minimum) * *scale).round() as i32
+                        >= (count - 1) * GEOMETRY_PORT_SPACING
+                })
+                .and_then(|(scale, (minimum, maximum))| {
+                    let midpoint = f64::from(minimum + maximum) / 2.0;
+                    let half_span = match side {
+                        "north" | "south" => room.rect.width / 2,
+                        "east" | "west" => room.rect.height / 2,
+                        _ => 0,
+                    };
+                    let offsets = side_demands
+                        .iter()
+                        .map(|demand| {
+                            let mapped =
+                                ((f64::from(demand.opposite_order) - midpoint) * scale).round()
+                                    as i32;
+                            align_geometry_nearest(
+                                mapped.clamp(
+                                    -half_span + GEOMETRY_PORT_MARGIN,
+                                    half_span - GEOMETRY_PORT_MARGIN,
+                                ),
+                                GEOMETRY_ROUTE_GRID,
+                            )
+                        })
+                        .collect::<Vec<_>>();
+                    (offsets.iter().copied().collect::<BTreeSet<_>>().len()
+                        == offsets.len())
+                    .then_some(offsets)
+                });
             for (index, demand) in side_demands.into_iter().enumerate() {
-                let offset = (index as i32 * 2 - (count - 1)) * GEOMETRY_PORT_SPACING / 2;
+                let fixed_offset =
+                    (index as i32 * 2 - (count - 1)) * GEOMETRY_PORT_SPACING / 2;
+                let offset = mapped_offsets
+                    .as_ref()
+                    .and_then(|offsets| offsets.get(index).copied())
+                    .unwrap_or(fixed_offset);
                 let point = match side {
                     "north" => GeometryPoint { x: room.rect.x + room.rect.width / 2 + offset, y: room.rect.y },
                     "east" => GeometryPoint { x: room.rect.x + room.rect.width, y: room.rect.y + room.rect.height / 2 + offset },
@@ -2721,6 +3085,10 @@ fn assign_physical_room_ports(
         }
     }
     Ok(())
+}
+
+fn align_geometry_nearest(value: i32, grid: i32) -> i32 {
+    (f64::from(value) / f64::from(grid)).round() as i32 * grid
 }
 
 fn geometry_contents(
@@ -3374,35 +3742,6 @@ fn route_physical_section_alternatives(
     let clearance = width / 2 + GEOMETRY_CORRIDOR_SEPARATION;
     let start_escape = geometry_port_escape_point(from_port, clearance);
     let end_escape = geometry_port_escape_point(to_port, clearance);
-    for prefer_horizontal in [true, false] {
-        let path = rasterize_geometry_staircase_route(
-            &start,
-            &start_escape,
-            &end_escape,
-            &end,
-            prefer_horizontal,
-        );
-        let mut blocking_owners = BTreeSet::new();
-        if path.iter().skip(1).all(|point| {
-            geometry_route_available(
-                (point.x, point.y),
-                from_room,
-                from_port,
-                to_room,
-                to_port,
-                width,
-                rooms,
-                reserved,
-                &BTreeSet::new(),
-                bounds,
-                &mut blocking_owners,
-            )
-        }) && !result.paths.iter().any(|existing| existing == &path)
-        {
-            result.paths.push(path);
-        }
-        result.blocking_owners.extend(blocking_owners);
-    }
     let waypoint_candidates = vec![
         vec![
             start.clone(),
@@ -3446,6 +3785,93 @@ fn route_physical_section_alternatives(
         ],
     ];
     for waypoints in waypoint_candidates {
+        let path = rasterize_topology_waypoints(&waypoints);
+        let mut blocking_owners = BTreeSet::new();
+        if path.iter().skip(1).all(|point| {
+            geometry_route_available(
+                (point.x, point.y),
+                from_room,
+                from_port,
+                to_room,
+                to_port,
+                width,
+                rooms,
+                reserved,
+                &BTreeSet::new(),
+                bounds,
+                &mut blocking_owners,
+            )
+        }) && !result.paths.iter().any(|existing| existing == &path)
+        {
+            result.paths.push(path);
+            if result.paths.len() >= GEOMETRY_PATH_ALTERNATIVES as usize {
+                return result;
+            }
+        }
+        result.blocking_owners.extend(blocking_owners);
+    }
+    let detour_margin = clearance + GEOMETRY_ROUTE_GRID;
+    let mut detour_x = rooms
+        .iter()
+        .flat_map(|room| {
+            [
+                align_geometry_nearest(room.rect.x - detour_margin, GEOMETRY_ROUTE_GRID),
+                align_geometry_nearest(
+                    room.rect.x + room.rect.width + detour_margin,
+                    GEOMETRY_ROUTE_GRID,
+                ),
+            ]
+        })
+        .filter(|x| *x >= 0 && *x <= bounds.width)
+        .collect::<BTreeSet<_>>()
+        .into_iter()
+        .collect::<Vec<_>>();
+    detour_x.sort_by_key(|x| (x.abs_diff(middle_x), *x));
+    let mut detour_y = rooms
+        .iter()
+        .flat_map(|room| {
+            [
+                align_geometry_nearest(room.rect.y - detour_margin, GEOMETRY_ROUTE_GRID),
+                align_geometry_nearest(
+                    room.rect.y + room.rect.height + detour_margin,
+                    GEOMETRY_ROUTE_GRID,
+                ),
+            ]
+        })
+        .filter(|y| *y >= 0 && *y <= bounds.height)
+        .collect::<BTreeSet<_>>()
+        .into_iter()
+        .collect::<Vec<_>>();
+    detour_y.sort_by_key(|y| (y.abs_diff(middle_y), *y));
+    let detour_waypoints = detour_x
+        .into_iter()
+        .map(|x| {
+            vec![
+                start.clone(),
+                start_escape.clone(),
+                GeometryPoint {
+                    x,
+                    y: start_escape.y,
+                },
+                GeometryPoint { x, y: end_escape.y },
+                end_escape.clone(),
+                end.clone(),
+            ]
+        })
+        .chain(detour_y.into_iter().map(|y| {
+            vec![
+                start.clone(),
+                start_escape.clone(),
+                GeometryPoint {
+                    x: start_escape.x,
+                    y,
+                },
+                GeometryPoint { x: end_escape.x, y },
+                end_escape.clone(),
+                end.clone(),
+            ]
+        }));
+    for waypoints in detour_waypoints {
         let path = rasterize_topology_waypoints(&waypoints);
         let mut blocking_owners = BTreeSet::new();
         if path.iter().skip(1).all(|point| {
@@ -3515,6 +3941,41 @@ fn route_physical_section_alternatives(
         if result.paths.len() >= GEOMETRY_PATH_ALTERNATIVES as usize {
             break;
         }
+    }
+    // Staircases are a final completeness fallback. Prefer the sparse
+    // orthogonal witnesses and turn-aware grid paths above so downstream
+    // catalog realization does not receive one bend per diagonal grid step.
+    for prefer_horizontal in [true, false] {
+        let path = rasterize_geometry_staircase_route(
+            &start,
+            &start_escape,
+            &end_escape,
+            &end,
+            prefer_horizontal,
+        );
+        let mut blocking_owners = BTreeSet::new();
+        if path.iter().skip(1).all(|point| {
+            geometry_route_available(
+                (point.x, point.y),
+                from_room,
+                from_port,
+                to_room,
+                to_port,
+                width,
+                rooms,
+                reserved,
+                &BTreeSet::new(),
+                bounds,
+                &mut blocking_owners,
+            )
+        }) && !result.paths.iter().any(|existing| existing == &path)
+        {
+            result.paths.push(path);
+            if result.paths.len() >= GEOMETRY_PATH_ALTERNATIVES as usize {
+                return result;
+            }
+        }
+        result.blocking_owners.extend(blocking_owners);
     }
     result
 }
@@ -3648,6 +4109,9 @@ fn route_physical_section(
 ) -> Option<Vec<GeometryPoint>> {
     let start = (from_port.point.x, from_port.point.y);
     let end = (to_port.point.x, to_port.point.y);
+    const START_DIRECTION: u8 = 4;
+    const TURN_COST: u32 = 16;
+    let start_state = (start.0, start.1, START_DIRECTION);
     let mut queue = BinaryHeap::new();
     queue.push(Reverse((
         geometry_route_heuristic(start, end).saturating_mul(2),
@@ -3655,10 +4119,12 @@ fn route_physical_section(
         geometry_route_tie_key(start, nonce),
         start.0,
         start.1,
+        START_DIRECTION,
     )));
-    let mut costs = HashMap::from([(start, 0_u32)]);
+    let mut costs = HashMap::from([(start_state, 0_u32)]);
     let mut previous = HashMap::new();
-    while let Some(Reverse((_estimate, reverse_cost, _tie, x, y))) = queue.pop() {
+    let mut final_state = None;
+    while let Some(Reverse((_estimate, reverse_cost, _tie, x, y, direction))) = queue.pop() {
         let cost = u32::MAX - reverse_cost;
         if *grid_expansions >= GEOMETRY_PATH_EXPANSION_BUDGET {
             *expansion_exhausted = true;
@@ -3668,28 +4134,31 @@ fn route_physical_section(
             return None;
         }
         *grid_expansions += 1;
-        let position = (x, y);
-        if costs.get(&position).copied() != Some(cost) {
+        let state = (x, y, direction);
+        if costs.get(&state).copied() != Some(cost) {
             continue;
         }
+        let position = (x, y);
         if position == end {
+            final_state = Some(state);
             break;
         }
         let mut neighbors = vec![
-            (position.0 + GEOMETRY_ROUTE_GRID, position.1),
-            (position.0, position.1 + GEOMETRY_ROUTE_GRID),
-            (position.0 - GEOMETRY_ROUTE_GRID, position.1),
-            (position.0, position.1 - GEOMETRY_ROUTE_GRID),
+            (position.0 + GEOMETRY_ROUTE_GRID, position.1, 0_u8),
+            (position.0, position.1 + GEOMETRY_ROUTE_GRID, 1_u8),
+            (position.0 - GEOMETRY_ROUTE_GRID, position.1, 2_u8),
+            (position.0, position.1 - GEOMETRY_ROUTE_GRID, 3_u8),
         ];
         neighbors.sort_by_key(|neighbor| {
             (
                 neighbor.0.abs_diff(end.0) + neighbor.1.abs_diff(end.1),
-                geometry_route_tie_key(*neighbor, nonce),
+                geometry_route_tie_key((neighbor.0, neighbor.1), nonce),
             )
         });
         for neighbor in neighbors {
+            let neighbor_position = (neighbor.0, neighbor.1);
             if !geometry_route_available(
-                    neighbor,
+                    neighbor_position,
                     from_room,
                     from_port,
                     to_room,
@@ -3703,34 +4172,38 @@ fn route_physical_section(
                 ) {
                 continue;
             }
-            let next_cost = cost.saturating_add(1);
+            let turn_cost =
+                u32::from(direction != START_DIRECTION && direction != neighbor.2) * TURN_COST;
+            let next_cost = cost.saturating_add(1).saturating_add(turn_cost);
+            let neighbor_state = (neighbor.0, neighbor.1, neighbor.2);
             if costs
-                .get(&neighbor)
+                .get(&neighbor_state)
                 .is_some_and(|existing| *existing <= next_cost)
             {
                 continue;
             }
-            costs.insert(neighbor, next_cost);
-            previous.insert(neighbor, position);
+            costs.insert(neighbor_state, next_cost);
+            previous.insert(neighbor_state, state);
             queue.push(Reverse((
                 next_cost.saturating_add(
-                    geometry_route_heuristic(neighbor, end).saturating_mul(2),
+                    geometry_route_heuristic(neighbor_position, end).saturating_mul(2),
                 ),
                 u32::MAX - next_cost,
-                geometry_route_tie_key(neighbor, nonce),
+                geometry_route_tie_key(neighbor_position, nonce),
                 neighbor.0,
                 neighbor.1,
+                neighbor.2,
             )));
         }
     }
-    if !costs.contains_key(&end) {
-        return None;
-    }
+    let mut cursor = final_state?;
     let mut path = vec![GeometryPoint { x: end.0, y: end.1 }];
-    let mut cursor = end;
-    while cursor != start {
+    while cursor != start_state {
         cursor = *previous.get(&cursor)?;
-        path.push(GeometryPoint { x: cursor.0, y: cursor.1 });
+        path.push(GeometryPoint {
+            x: cursor.0,
+            y: cursor.1,
+        });
     }
     path.reverse();
     Some(path)

@@ -2,7 +2,7 @@
   "kind": "asha_procgen.intermediate_breakdown.v1",
   "schemaVersion": 2,
   "candidateId": "candidate.first_slice.5601",
-  "stateHash": "fnv1a64:3399cae5fe7cce0d",
+  "stateHash": "fnv1a64:d69408e09216a8ef",
   "annotationRef": "artifacts/samples/batch-v2/candidate-004/spatial-intent.json",
   "regions": [
     {
@@ -287,13 +287,19 @@
       "fromRegion": "region.treasure_gated_1",
       "toRegion": "region.goal",
       "intents": [
-        "merge_rejoin_clarity"
+        "gated_connector",
+        "merge_rejoin_clarity",
+        "visible_before_reachable"
       ],
       "affordances": [
+        "locked_threshold",
+        "preview_line",
         "rejoin_corridor"
       ],
-      "traversalHint": "open",
+      "traversalHint": "locked",
       "constraintRefs": [
+        "preserve_gated_connector:edge.treasure_1.goal",
+        "preserve_lock_preview:edge.treasure_1.goal",
         "preserve_rejoin_clarity:edge.treasure_1.goal"
       ]
     },
@@ -315,13 +321,19 @@
       "fromRegion": "region.treasure_gated_1",
       "toRegion": "region.junction_merge_1",
       "intents": [
-        "merge_rejoin_clarity"
+        "gated_connector",
+        "merge_rejoin_clarity",
+        "visible_before_reachable"
       ],
       "affordances": [
+        "locked_threshold",
+        "preview_line",
         "rejoin_corridor"
       ],
-      "traversalHint": "open",
+      "traversalHint": "locked",
       "constraintRefs": [
+        "preserve_gated_connector:edge.secondary.merge_1",
+        "preserve_lock_preview:edge.secondary.merge_1",
         "preserve_rejoin_clarity:edge.secondary.merge_1"
       ]
     },
@@ -491,6 +503,18 @@
       "detail": "Preserve visible_before_reachable for edge.treasure_key_1.treasure_1."
     },
     {
+      "code": "preserve_gated_connector",
+      "target": "edge.treasure_1.goal",
+      "targetType": "edge",
+      "sourceIntents": [
+        "gated_connector"
+      ],
+      "graphRefs": [
+        "edge.treasure_1.goal"
+      ],
+      "detail": "Preserve gated_connector for edge.treasure_1.goal."
+    },
+    {
       "code": "preserve_rejoin_clarity",
       "target": "edge.treasure_1.goal",
       "targetType": "edge",
@@ -503,6 +527,30 @@
       "detail": "Preserve merge_rejoin_clarity for edge.treasure_1.goal."
     },
     {
+      "code": "preserve_lock_preview",
+      "target": "edge.treasure_1.goal",
+      "targetType": "edge",
+      "sourceIntents": [
+        "visible_before_reachable"
+      ],
+      "graphRefs": [
+        "edge.treasure_1.goal"
+      ],
+      "detail": "Preserve visible_before_reachable for edge.treasure_1.goal."
+    },
+    {
+      "code": "preserve_gated_connector",
+      "target": "edge.secondary.merge_1",
+      "targetType": "edge",
+      "sourceIntents": [
+        "gated_connector"
+      ],
+      "graphRefs": [
+        "edge.secondary.merge_1"
+      ],
+      "detail": "Preserve gated_connector for edge.secondary.merge_1."
+    },
+    {
       "code": "preserve_rejoin_clarity",
       "target": "edge.secondary.merge_1",
       "targetType": "edge",
@@ -513,6 +561,18 @@
         "edge.secondary.merge_1"
       ],
       "detail": "Preserve merge_rejoin_clarity for edge.secondary.merge_1."
+    },
+    {
+      "code": "preserve_lock_preview",
+      "target": "edge.secondary.merge_1",
+      "targetType": "edge",
+      "sourceIntents": [
+        "visible_before_reachable"
+      ],
+      "graphRefs": [
+        "edge.secondary.merge_1"
+      ],
+      "detail": "Preserve visible_before_reachable for edge.secondary.merge_1."
     },
     {
       "code": "preserve_rejoin_clarity",

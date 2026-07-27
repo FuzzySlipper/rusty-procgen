@@ -232,6 +232,7 @@ fn assemble_pure_catalog_placement(
             realization_attempts: 1,
             route_order_attempt: 0,
             route_attempts: 1,
+            ..PieceRealizationSearchEvidence::default()
         },
         catalog_search: Some(CatalogSearchEvidence {
             schema_version: 1,

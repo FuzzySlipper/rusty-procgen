@@ -160,7 +160,7 @@
       ]
     },
     {
-      "id": "section.region_goal.region_treasure_gated_1.open",
+      "id": "section.region_goal.region_treasure_gated_1.connector_edge_treasure_1_goal",
       "topology": "corridor_2",
       "terminalRegions": [
         "region.goal",
@@ -178,15 +178,19 @@
           "edgeId": "edge.treasure_1.goal",
           "fromRegion": "region.treasure_gated_1",
           "toRegion": "region.goal",
-          "traversal": "open",
-          "requiredItem": null
+          "traversal": "locked",
+          "requiredItem": "item.treasure_key_1"
         }
       ],
-      "width": 12,
+      "width": 18,
       "semanticTags": [
+        "gated_connector",
+        "locked",
+        "locked_threshold",
         "merge_rejoin_clarity",
-        "open",
-        "rejoin_corridor"
+        "preview_line",
+        "rejoin_corridor",
+        "visible_before_reachable"
       ]
     },
     {
@@ -278,7 +282,7 @@
       ]
     },
     {
-      "id": "section.region_junction_merge_1.region_treasure_gated_1.open",
+      "id": "section.region_junction_merge_1.region_treasure_gated_1.connector_edge_secondary_merge_1",
       "topology": "corridor_2",
       "terminalRegions": [
         "region.junction_merge_1",
@@ -296,15 +300,19 @@
           "edgeId": "edge.secondary.merge_1",
           "fromRegion": "region.treasure_gated_1",
           "toRegion": "region.junction_merge_1",
-          "traversal": "open",
-          "requiredItem": null
+          "traversal": "locked",
+          "requiredItem": "item.treasure_key_1"
         }
       ],
-      "width": 12,
+      "width": 18,
       "semanticTags": [
+        "gated_connector",
+        "locked",
+        "locked_threshold",
         "merge_rejoin_clarity",
-        "open",
-        "rejoin_corridor"
+        "preview_line",
+        "rejoin_corridor",
+        "visible_before_reachable"
       ]
     },
     {
@@ -459,7 +467,7 @@
     {
       "edgeId": "edge.secondary.merge_1",
       "connectorId": "connector.edge_secondary_merge_1",
-      "sectionId": "section.region_junction_merge_1.region_treasure_gated_1.open",
+      "sectionId": "section.region_junction_merge_1.region_treasure_gated_1.connector_edge_secondary_merge_1",
       "fromRegion": "region.treasure_gated_1",
       "toRegion": "region.junction_merge_1"
     },
@@ -515,7 +523,7 @@
     {
       "edgeId": "edge.treasure_1.goal",
       "connectorId": "connector.edge_treasure_1_goal",
-      "sectionId": "section.region_goal.region_treasure_gated_1.open",
+      "sectionId": "section.region_goal.region_treasure_gated_1.connector_edge_treasure_1_goal",
       "fromRegion": "region.treasure_gated_1",
       "toRegion": "region.goal"
     },

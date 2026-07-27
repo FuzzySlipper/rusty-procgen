@@ -1,8 +1,8 @@
 {
   "kind": "asha_procgen.score.graph.v1",
   "schemaVersion": 1,
-  "stateHash": "fnv1a64:3399cae5fe7cce0d",
-  "overall": 0.45,
+  "stateHash": "fnv1a64:d69408e09216a8ef",
+  "overall": 0.5,
   "metrics": {
     "bossCount": 0.0,
     "criticalPathLength": 2.0,
@@ -10,7 +10,7 @@
     "edgeCount": 13.0,
     "hazardCount": 0.0,
     "hubCount": 0.0,
-    "lockedEdgeCount": 2.0,
+    "lockedEdgeCount": 4.0,
     "loopCount": 5.0,
     "mergeCount": 1.0,
     "nodeCount": 9.0,

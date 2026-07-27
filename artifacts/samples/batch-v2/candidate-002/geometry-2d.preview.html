@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Asha Procgen Dungeon Preview</title>
+<style>
+:root { color-scheme: dark; font-family: Inter, ui-sans-serif, system-ui, sans-serif; background: #0b0d10; color: #e8edf2; }
+body { margin: 0; background: #0b0d10; }
+main { min-height: 100vh; display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 0; }
+.stage { overflow: auto; padding: 24px; background: #0f1318; }
+.panel { border-left: 1px solid #2b3440; padding: 20px; background: #121820; }
+h1 { margin: 0 0 12px; font-size: 20px; }
+h2 { margin: 20px 0 8px; font-size: 14px; color: #b7c4d3; text-transform: uppercase; }
+p, li { color: #c7d1dc; font-size: 13px; line-height: 1.45; }
+code { color: #f8d67a; overflow-wrap: anywhere; }
+svg { display: block; min-width: 2664px; min-height: 5200px; background: #151b22; border: 1px solid #2d3743; }
+.corridor { fill: none; stroke: #6e7f93; stroke-linecap: round; stroke-linejoin: round; opacity: 0.82; }
+.corridor-locked { stroke: #f0b35f; }
+.corridor-hidden { stroke: #c792ea; stroke-dasharray: 10 8; }
+.corridor-one-way-return { stroke: #5fb3ff; stroke-dasharray: 16 6; }
+.room rect { stroke: #d3deea; stroke-width: 1.5; }
+.room-label { fill: #f4f8fb; font-size: 13px; font-weight: 700; }
+.content-label { fill: #d6e0eb; font-size: 11px; }
+.legend { list-style: none; padding: 0; margin: 0; }
+.legend li { display: flex; align-items: center; gap: 8px; margin: 6px 0; }
+.legend span { display: inline-block; width: 12px; height: 12px; border-radius: 2px; }
+.status-ok { color: #7bd88f; }
+.status-bad { color: #ff6b6b; }
+@media (max-width: 900px) { main { grid-template-columns: 1fr; } .panel { border-left: 0; border-top: 1px solid #2b3440; } }
+</style>
+</head>
+<body data-preview-kind="asha_procgen.html_preview.v1" data-kind="asha_procgen.geometry_2d.v1">
+<main>
+<section class="stage" aria-label="Dungeon floor plan">
+<svg xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="preview-title" viewBox="0 0 2664 5200">
+<title id="preview-title">Generated dungeon preview for geometry.candidate.first_slice.5401.14305</title>
+<g class="corridors">
+<polyline class="corridor corridor-locked" data-source-edge="edge.gate_1.goal" points="1464,784 2440,784" stroke-width="18" />
+<polyline class="corridor corridor-open" data-source-edge="edge.key_1.gate_1" points="1408,744 1408,520 1000,520 1000,288" stroke-width="12" />
+<polyline class="corridor corridor-open" data-source-edge="edge.start.gate_1" points="1352,784 312,784" stroke-width="12" />
+<polyline class="corridor corridor-open" data-source-edge="edge.sluice_1.goal" points="2440,3600 1560,3600" stroke-width="12" />
+<polyline class="corridor corridor-open" data-source-edge="edge.merge_1.goal.shortcut" points="2440,4552 1456,4552" stroke-width="14" />
+<polyline class="corridor corridor-locked" data-source-edge="edge.treasure_1.goal" points="2440,5040 1800,5040" stroke-width="18" />
+<polyline class="corridor corridor-open" data-source-edge="edge.safety_1.sluice_1" points="1488,3560 1488,3336 1000,3336 1000,3112" stroke-width="12" />
+<polyline class="corridor corridor-open" data-source-edge="edge.start.sluice_1" points="1416,3600 864,3600 864,3592 312,3592" stroke-width="20" />
+<polyline class="corridor corridor-open" data-source-edge="edge.start.merge_1" points="1296,4552 312,4552" stroke-width="12" />
+<polyline class="corridor corridor-locked" data-source-edge="edge.secondary.merge_1" points="1376,4608 1376,4808 1752,4808 1752,5000" stroke-width="18" />
+<polyline class="corridor corridor-open" data-source-edge="edge.start.key_1" points="952,248 312,248" stroke-width="12" />
+<polyline class="corridor corridor-open" data-source-edge="edge.start.treasure_key_1" points="952,5064 312,5064" stroke-width="12" />
+<polyline class="corridor corridor-locked" data-source-edge="edge.treasure_key_1.treasure_1" points="1048,5064 1376,5064 1376,5040 1704,5040" stroke-width="18" />
+<polyline class="corridor corridor-open" data-source-edge="edge.start.safety_1" points="952,3072 632,3072 632,3064 312,3064" stroke-width="12" />
+</g>
+<g class="rooms">
+<g class="room room-start" data-room-id="room.region_start" data-role="start">
+  <rect x="184" y="216" width="128" height="4880" rx="6" fill="#1f5f89" />
+  <text class="room-label" x="194" y="236">start / entry</text>
+  <text class="content-label content-start-marker" x="194" y="254">Start</text>
+</g>
+<g class="room room-pressure" data-room-id="room.region_hazard_sluice_1" data-role="pressure">
+  <rect x="1416" y="3560" width="144" height="80" rx="6" fill="#733238" />
+  <text class="room-label" x="1426" y="3580">pressure / hazard_route</text>
+  <text class="content-label content-hazard" x="1426" y="3598">Hazard</text>
+</g>
+<g class="room room-standard" data-room-id="room.region_resource_safety_1" data-role="standard">
+  <rect x="952" y="3032" width="96" height="80" rx="6" fill="#2d3a47" />
+  <text class="room-label" x="962" y="3052">standard / chamber</text>
+  <text class="content-label content-resource-clue" x="962" y="3070">Resource Clue</text>
+</g>
+<g class="room room-gate" data-room-id="room.region_gate_locked_1" data-role="gate">
+  <rect x="1352" y="744" width="112" height="80" rx="6" fill="#725124" />
+  <text class="room-label" x="1362" y="764">gate / threshold</text>
+  <text class="content-label content-locked-gate" x="1362" y="782">Locked Gate</text>
+</g>
+<g class="room room-landmark-hub" data-room-id="room.region_junction_merge_1" data-role="landmark_hub">
+  <rect x="1296" y="4496" width="160" height="112" rx="6" fill="#394762" />
+  <text class="room-label" x="1306" y="4516">landmark_hub / landmark_junction</text>
+</g>
+<g class="room room-standard" data-room-id="room.region_key_treasure_1" data-role="standard">
+  <rect x="952" y="5024" width="96" height="80" rx="6" fill="#2d3a47" />
+  <text class="room-label" x="962" y="5044">standard / key_pocket</text>
+  <text class="content-label content-key-pickup" x="962" y="5062">Key Pickup</text>
+</g>
+<g class="room room-standard" data-room-id="room.region_key_gate_1" data-role="standard">
+  <rect x="952" y="208" width="96" height="80" rx="6" fill="#2d3a47" />
+  <text class="room-label" x="962" y="228">standard / key_pocket</text>
+  <text class="content-label content-key-pickup" x="962" y="246">Key Pickup</text>
+</g>
+<g class="room room-reward" data-room-id="room.region_treasure_gated_1" data-role="reward">
+  <rect x="1704" y="5000" width="96" height="80" rx="6" fill="#245a38" />
+  <text class="room-label" x="1714" y="5020">reward / reward_pocket</text>
+  <text class="content-label content-reward-cache" x="1714" y="5038">Reward Cache</text>
+</g>
+<g class="room room-goal" data-room-id="room.region_goal" data-role="goal">
+  <rect x="2440" y="752" width="128" height="4320" rx="6" fill="#1f5f89" />
+  <text class="room-label" x="2450" y="772">goal / destination</text>
+  <text class="content-label content-goal-marker" x="2450" y="790">Goal</text>
+</g>
+</g>
+</svg>
+</section>
+<aside class="panel">
+<h1>Dungeon Preview</h1>
+<p class="status-ok">Validation: ok</p>
+<p>Geometry: <code>artifacts/samples/batch-v2/candidate-002/geometry-2d.json</code></p>
+<p>Validation: <code>artifacts/samples/batch-v2/candidate-002/geometry-2d.validation.json</code></p>
+<p>Rooms: 9 · Corridors: 14 · Contents: 8</p>
+<h2>Legend</h2>
+<ul class="legend">
+<li><span style="background:#5fb3ff"></span>Start/Goal</li>
+<li><span style="background:#f0b35f"></span>Gate/Boss</li>
+<li><span style="background:#ff6b6b"></span>Hazard</li>
+<li><span style="background:#7bd88f"></span>Reward/Key</li>
+<li><span style="background:#c792ea"></span>Secret/Shortcut</li>
+<li><span style="background:#94a3b8"></span>Standard</li>
+</ul>
+<h2>Diagnostics</h2>
+<ul>
+<li>No diagnostics.</li>
+</ul>
+</aside>
+</main>
+</body>
+</html>

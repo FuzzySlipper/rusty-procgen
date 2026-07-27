@@ -2,8 +2,8 @@
   "kind": "asha_procgen.accepted_artifact.v1",
   "schemaVersion": 1,
   "artifactId": "accepted.candidate.first_slice.5701",
-  "candidateHash": "fnv1a64:8267109b4fa09875",
-  "layoutHash": "fnv1a64:4b8d4e8669cf4b16",
+  "candidateHash": "fnv1a64:752c58fd32fbfa2a",
+  "layoutHash": "fnv1a64:cc9df7fd125998e9",
   "validationRef": "artifacts/samples/batch-v2/candidate-005/validation.graph.json",
   "scoreRef": "artifacts/samples/batch-v2/candidate-005/score.graph.json",
   "candidate": {
@@ -511,9 +511,10 @@
           "from": "treasure.gated_1",
           "to": "goal",
           "kind": "optional_branch",
-          "traversal": "open",
-          "requiredItem": null,
+          "traversal": "locked",
+          "requiredItem": "item.treasure_key_1",
           "tags": [
+            "locked",
             "rejoin"
           ]
         },
@@ -913,8 +914,8 @@
         "fromNode": "treasure.gated_1",
         "toNode": "goal",
         "kind": "optional_branch",
-        "traversal": "open",
-        "requiredItem": null
+        "traversal": "locked",
+        "requiredItem": "item.treasure_key_1"
       },
       {
         "edgeId": "edge.start.merge_1",
@@ -945,8 +946,8 @@
   "scoreSummary": {
     "kind": "asha_procgen.score.graph.v1",
     "schemaVersion": 1,
-    "stateHash": "fnv1a64:8267109b4fa09875",
-    "overall": 0.8,
+    "stateHash": "fnv1a64:752c58fd32fbfa2a",
+    "overall": 0.82,
     "metrics": {
       "bossCount": 1.0,
       "criticalPathLength": 2.0,
@@ -954,7 +955,7 @@
       "edgeCount": 28.0,
       "hazardCount": 2.0,
       "hubCount": 1.0,
-      "lockedEdgeCount": 2.0,
+      "lockedEdgeCount": 3.0,
       "loopCount": 12.0,
       "mergeCount": 2.0,
       "nodeCount": 17.0,

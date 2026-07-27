@@ -3334,6 +3334,7 @@ mod tests {
             y,
             direction: direction.to_owned(),
             width: 1,
+            order: 0,
             tags: Vec::new(),
         }
     }

@@ -2,8 +2,8 @@
   "kind": "asha_procgen.accepted_artifact.v1",
   "schemaVersion": 1,
   "artifactId": "accepted.candidate.first_slice.6101",
-  "candidateHash": "fnv1a64:106e83112c8ec41e",
-  "layoutHash": "fnv1a64:f3aeded55df43ffd",
+  "candidateHash": "fnv1a64:b035c0a5743824fc",
+  "layoutHash": "fnv1a64:2d7a35e2c47f11f9",
   "validationRef": "artifacts/samples/batch-v2/candidate-009/validation.graph.json",
   "scoreRef": "artifacts/samples/batch-v2/candidate-009/score.graph.json",
   "candidate": {
@@ -254,9 +254,10 @@
           "from": "treasure.gated_1",
           "to": "goal",
           "kind": "optional_branch",
-          "traversal": "open",
-          "requiredItem": null,
+          "traversal": "locked",
+          "requiredItem": "item.treasure_key_1",
           "tags": [
+            "locked",
             "rejoin"
           ]
         },
@@ -276,9 +277,10 @@
           "from": "treasure.gated_1",
           "to": "junction.merge_1",
           "kind": "optional_branch",
-          "traversal": "open",
-          "requiredItem": null,
+          "traversal": "locked",
+          "requiredItem": "item.treasure_key_1",
           "tags": [
+            "locked",
             "rejoin"
           ]
         },
@@ -472,8 +474,8 @@
         "fromNode": "treasure.gated_1",
         "toNode": "goal",
         "kind": "optional_branch",
-        "traversal": "open",
-        "requiredItem": null
+        "traversal": "locked",
+        "requiredItem": "item.treasure_key_1"
       },
       {
         "edgeId": "edge.start.merge_1",
@@ -488,8 +490,8 @@
         "fromNode": "treasure.gated_1",
         "toNode": "junction.merge_1",
         "kind": "optional_branch",
-        "traversal": "open",
-        "requiredItem": null
+        "traversal": "locked",
+        "requiredItem": "item.treasure_key_1"
       },
       {
         "edgeId": "edge.merge_1.goal.shortcut",
@@ -504,8 +506,8 @@
   "scoreSummary": {
     "kind": "asha_procgen.score.graph.v1",
     "schemaVersion": 1,
-    "stateHash": "fnv1a64:106e83112c8ec41e",
-    "overall": 0.54,
+    "stateHash": "fnv1a64:b035c0a5743824fc",
+    "overall": 0.59,
     "metrics": {
       "bossCount": 0.0,
       "criticalPathLength": 2.0,
@@ -513,7 +515,7 @@
       "edgeCount": 14.0,
       "hazardCount": 1.0,
       "hubCount": 0.0,
-      "lockedEdgeCount": 2.0,
+      "lockedEdgeCount": 4.0,
       "loopCount": 6.0,
       "mergeCount": 1.0,
       "nodeCount": 9.0,

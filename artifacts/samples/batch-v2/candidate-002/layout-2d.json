@@ -173,8 +173,8 @@
       "fromNode": "treasure.gated_1",
       "toNode": "goal",
       "kind": "optional_branch",
-      "traversal": "open",
-      "requiredItem": null
+      "traversal": "locked",
+      "requiredItem": "item.treasure_key_1"
     },
     {
       "edgeId": "edge.start.merge_1",
@@ -189,8 +189,8 @@
       "fromNode": "treasure.gated_1",
       "toNode": "junction.merge_1",
       "kind": "optional_branch",
-      "traversal": "open",
-      "requiredItem": null
+      "traversal": "locked",
+      "requiredItem": "item.treasure_key_1"
     },
     {
       "edgeId": "edge.merge_1.goal.shortcut",

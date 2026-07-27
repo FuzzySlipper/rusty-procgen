@@ -2,7 +2,7 @@
   "kind": "asha_procgen.rule_compatibility.v1",
   "schemaVersion": 1,
   "candidateId": "candidate.first_slice.6101",
-  "stateHash": "fnv1a64:106e83112c8ec41e",
+  "stateHash": "fnv1a64:b035c0a5743824fc",
   "rules": [
     {
       "rule": "lock_key_loop",

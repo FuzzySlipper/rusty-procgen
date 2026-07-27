@@ -1,0 +1,9 @@
+{
+  "kind": "asha_procgen.html_preview.v1",
+  "schemaVersion": 1,
+  "previewId": "preview.geometry.candidate.first_slice.5501.14302",
+  "geometryRef": "artifacts/samples/batch-v2/candidate-003/geometry-2d.json",
+  "validationRef": "artifacts/samples/batch-v2/candidate-003/geometry-2d.validation.json",
+  "htmlRef": "artifacts/samples/batch-v2/candidate-003/geometry-2d.preview.html",
+  "screenshotHint": null
+}

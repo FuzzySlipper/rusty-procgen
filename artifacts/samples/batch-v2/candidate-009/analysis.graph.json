@@ -2,7 +2,7 @@
   "kind": "asha_procgen.graph_analysis.v1",
   "schemaVersion": 1,
   "candidateId": "candidate.first_slice.6101",
-  "stateHash": "fnv1a64:106e83112c8ec41e",
+  "stateHash": "fnv1a64:b035c0a5743824fc",
   "criticalPath": [
     "start",
     "gate.locked_1",
@@ -76,6 +76,18 @@
     },
     {
       "edgeId": "edge.treasure_key_1.treasure_1",
+      "requiredItem": "item.treasure_key_1",
+      "providerNode": "key.treasure_1",
+      "providerReachableBeforeLock": true
+    },
+    {
+      "edgeId": "edge.treasure_1.goal",
+      "requiredItem": "item.treasure_key_1",
+      "providerNode": "key.treasure_1",
+      "providerReachableBeforeLock": true
+    },
+    {
+      "edgeId": "edge.secondary.merge_1",
       "requiredItem": "item.treasure_key_1",
       "providerNode": "key.treasure_1",
       "providerReachableBeforeLock": true
