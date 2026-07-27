@@ -12,8 +12,8 @@
   "piecePlacementRef": "artifacts/samples/batch-v2/candidate-004/piece-placement.json",
   "walkableProjection": {
     "source": "piecePlacement.occupiedCells+connectionCells minus closed gatePortal.cells",
-    "cellCount": 8068,
-    "projectionHash": "fnv1a64:5b9c8dd2d210966d"
+    "cellCount": 8083,
+    "projectionHash": "fnv1a64:60450bc85dd7955e"
   },
   "progression": [
     {
@@ -103,15 +103,7 @@
     }
   ],
   "portalCount": 13,
-  "ok": false,
-  "fatalCount": 1,
-  "diagnostics": [
-    {
-      "code": "built_flow_reachability_mismatch",
-      "severity": "fatal",
-      "node": null,
-      "edge": null,
-      "detail": "At progression step 0 with items [], physical flood fill is missing [] and adds [treasure.gated_1]."
-    }
-  ]
+  "ok": true,
+  "fatalCount": 0,
+  "diagnostics": []
 }

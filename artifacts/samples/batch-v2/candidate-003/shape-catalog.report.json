@@ -3,7 +3,7 @@
   "schemaVersion": 1,
   "catalogId": "shape_catalog.2d_basic.v1",
   "catalogRef": "fixtures/shape-catalogs/2d-basic.json",
-  "shapeCount": 26,
+  "shapeCount": 27,
   "placementPolicy": {
     "schemaVersion": 1,
     "minimumClearanceCells": 3,
@@ -608,6 +608,52 @@
         "resource",
         "preparation",
         "clue"
+      ]
+    },
+    {
+      "shapeId": "shape.room.flow_junction.spaced_8_exit",
+      "pieceKinds": [
+        "room",
+        "landing",
+        "threshold",
+        "reward",
+        "key",
+        "hazard",
+        "boss",
+        "secret",
+        "shortcut",
+        "resource"
+      ],
+      "footprintCells": 45,
+      "reservedCells": 0,
+      "exitCount": 8,
+      "featureSocketKinds": [
+        "boss_space",
+        "container",
+        "gate_line",
+        "hazard",
+        "hazard_zone",
+        "key_pickup",
+        "landmark",
+        "lock_marker",
+        "marker",
+        "resource_clue",
+        "reward_cache",
+        "secret_marker",
+        "shortcut_marker"
+      ],
+      "allowedTransforms": [
+        "identity",
+        "rotate90",
+        "rotate180",
+        "rotate270"
+      ],
+      "tags": [
+        "large",
+        "flow_junction",
+        "distinct_portals",
+        "spaced_portals",
+        "spaced_portals_compact"
       ]
     },
     {

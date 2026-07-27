@@ -1,0 +1,451 @@
+{
+  "kind": "asha_procgen.geometry_recovery_report.v1",
+  "schemaVersion": 1,
+  "corpusRef": "fixtures/geometry-recovery/v1.json",
+  "selectionRef": "artifacts/samples/batch-v2/selection-report.json",
+  "batchSeed": 5201,
+  "batchCount": 10,
+  "acceptedCount": 9,
+  "rejectedCount": 1,
+  "minimumAccepted": 8,
+  "families": [
+    {
+      "profileSequence": "hub-merge",
+      "candidateIndex": 0,
+      "candidateSeed": 5201,
+      "baselineGeometryOutcome": "rejected",
+      "normalizedPlanSha256": "6e6dea62ce3dfe44c5e20dd78b4cfc9144d229165589cf54fbb9e4d5469897fd",
+      "currentOutcome": "accepted",
+      "stages": {
+        "feasibility": "rotation_witness",
+        "geometry": "accepted",
+        "configuredRealization": "hybrid",
+        "placementValidation": "accepted",
+        "builtFlowValidation": "accepted"
+      },
+      "embedding": {
+        "kind": "planar_rotation",
+        "id": "rotation.v1.fnv1a64:51894d8f02f4c8f4",
+        "faces": 6,
+        "targetFaces": 6,
+        "searchSteps": 17
+      },
+      "geometrySearch": {
+        "attempts": 17,
+        "spacingTier": 1,
+        "roomOrderAttempt": 1,
+        "portOrderAttempt": 0,
+        "routeOrderAttempt": 0,
+        "routedSections": 13,
+        "decisions": 17,
+        "backtracks": 4,
+        "pathAlternatives": 104,
+        "repairs": 3,
+        "gridExpansions": 12289,
+        "pathExpansionExhaustions": 3,
+        "blockingOwners": [
+          "path_expansion_budget:4096",
+          "room:region.gate_locked_1",
+          "room:region.goal",
+          "room:region.hazard_watch_1",
+          "room:region.hub_central_1",
+          "room:region.junction_merge_1",
+          "room:region.key_gate_1",
+          "room:region.resource_clue_1",
+          "room:region.start",
+          "room:region.treasure_cache_1",
+          "section.region_hub_central_1.region_junction_merge_1.open"
+        ],
+        "budgetExhausted": null
+      },
+      "realizationSearch": {
+        "scaleTier": 2,
+        "attempts": 1,
+        "routeOrderAttempt": 0,
+        "routeAttempts": 1,
+        "decisions": 13,
+        "backtracks": 0,
+        "pathAlternatives": 13,
+        "repairs": 0,
+        "blockingOwners": [],
+        "budgetExhausted": null
+      },
+      "refs": {
+        "physicalPlan": "artifacts/samples/batch-v2/candidate-000/physical-connection-plan.json",
+        "geometry": "artifacts/samples/batch-v2/candidate-000/geometry-2d.json",
+        "geometryValidation": "artifacts/samples/batch-v2/candidate-000/geometry-2d.validation.json",
+        "placement": "artifacts/samples/batch-v2/candidate-000/piece-placement.json",
+        "placementValidation": "artifacts/samples/batch-v2/candidate-000/piece-placement.validation.json",
+        "builtFlowValidation": "artifacts/samples/batch-v2/candidate-000/built-flow.validation.json"
+      }
+    },
+    {
+      "profileSequence": "nested-boss",
+      "candidateIndex": 1,
+      "candidateSeed": 5301,
+      "baselineGeometryOutcome": "accepted",
+      "normalizedPlanSha256": "eca386465afdf0b2093d71b1c8a55c12d9e75897550f73411753a6b23a3c39ff",
+      "currentOutcome": "accepted",
+      "stages": {
+        "feasibility": "rotation_witness",
+        "geometry": "accepted",
+        "configuredRealization": "hybrid",
+        "placementValidation": "accepted",
+        "builtFlowValidation": "accepted"
+      },
+      "embedding": {
+        "kind": "depth_columns",
+        "id": "depth-columns.v1",
+        "faces": 0,
+        "targetFaces": 0,
+        "searchSteps": 0
+      },
+      "geometrySearch": {
+        "attempts": 1,
+        "spacingTier": 0,
+        "roomOrderAttempt": 0,
+        "portOrderAttempt": 0,
+        "routeOrderAttempt": 0,
+        "routedSections": 10,
+        "decisions": 10,
+        "backtracks": 0,
+        "pathAlternatives": 80,
+        "repairs": 0,
+        "gridExpansions": 0,
+        "pathExpansionExhaustions": 0,
+        "blockingOwners": [
+          "room:region.gate_boss_1",
+          "room:region.gate_locked_1",
+          "room:region.gate_locked_2",
+          "room:region.goal",
+          "room:region.key_deep_2",
+          "room:region.key_gate_1",
+          "room:region.resource_boss_prep_1",
+          "room:region.start"
+        ],
+        "budgetExhausted": null
+      },
+      "realizationSearch": {
+        "scaleTier": 2,
+        "attempts": 1,
+        "routeOrderAttempt": 0,
+        "routeAttempts": 1,
+        "decisions": 10,
+        "backtracks": 0,
+        "pathAlternatives": 10,
+        "repairs": 0,
+        "blockingOwners": [],
+        "budgetExhausted": null
+      },
+      "refs": {
+        "physicalPlan": "artifacts/samples/batch-v2/candidate-001/physical-connection-plan.json",
+        "geometry": "artifacts/samples/batch-v2/candidate-001/geometry-2d.json",
+        "geometryValidation": "artifacts/samples/batch-v2/candidate-001/geometry-2d.validation.json",
+        "placement": "artifacts/samples/batch-v2/candidate-001/piece-placement.json",
+        "placementValidation": "artifacts/samples/batch-v2/candidate-001/piece-placement.validation.json",
+        "builtFlowValidation": "artifacts/samples/batch-v2/candidate-001/built-flow.validation.json"
+      }
+    },
+    {
+      "profileSequence": "hazard-treasure-merge",
+      "candidateIndex": 2,
+      "candidateSeed": 5401,
+      "baselineGeometryOutcome": "rejected",
+      "normalizedPlanSha256": "e5417d78edf17912265af0a31620449b8b9be91865dc4815d8dc3ac48d25f9dc",
+      "currentOutcome": "accepted",
+      "stages": {
+        "feasibility": "rotation_witness",
+        "geometry": "accepted",
+        "configuredRealization": "hybrid",
+        "placementValidation": "accepted",
+        "builtFlowValidation": "accepted"
+      },
+      "embedding": {
+        "kind": "planar_rotation",
+        "id": "rotation.v1.fnv1a64:ff9783ae4de8add3",
+        "faces": 7,
+        "targetFaces": 7,
+        "searchSteps": 421
+      },
+      "geometrySearch": {
+        "attempts": 3,
+        "spacingTier": 0,
+        "roomOrderAttempt": 1,
+        "portOrderAttempt": 0,
+        "routeOrderAttempt": 0,
+        "routedSections": 14,
+        "decisions": 14,
+        "backtracks": 0,
+        "pathAlternatives": 112,
+        "repairs": 0,
+        "gridExpansions": 0,
+        "pathExpansionExhaustions": 0,
+        "blockingOwners": [
+          "room:region.gate_locked_1",
+          "room:region.goal",
+          "room:region.hazard_sluice_1",
+          "room:region.junction_merge_1",
+          "room:region.key_gate_1",
+          "room:region.key_treasure_1",
+          "room:region.resource_safety_1",
+          "room:region.start",
+          "room:region.treasure_gated_1"
+        ],
+        "budgetExhausted": null
+      },
+      "realizationSearch": {
+        "scaleTier": 2,
+        "attempts": 1,
+        "routeOrderAttempt": 0,
+        "routeAttempts": 1,
+        "decisions": 14,
+        "backtracks": 0,
+        "pathAlternatives": 14,
+        "repairs": 0,
+        "blockingOwners": [],
+        "budgetExhausted": null
+      },
+      "refs": {
+        "physicalPlan": "artifacts/samples/batch-v2/candidate-002/physical-connection-plan.json",
+        "geometry": "artifacts/samples/batch-v2/candidate-002/geometry-2d.json",
+        "geometryValidation": "artifacts/samples/batch-v2/candidate-002/geometry-2d.validation.json",
+        "placement": "artifacts/samples/batch-v2/candidate-002/piece-placement.json",
+        "placementValidation": "artifacts/samples/batch-v2/candidate-002/piece-placement.validation.json",
+        "builtFlowValidation": "artifacts/samples/batch-v2/candidate-002/built-flow.validation.json"
+      }
+    },
+    {
+      "profileSequence": "hub-hazard-boss",
+      "candidateIndex": 3,
+      "candidateSeed": 5501,
+      "baselineGeometryOutcome": "rejected",
+      "normalizedPlanSha256": "0e6430cfb7a915373fefab205d07ba7592e086a5dbc01540bab1867d314a917f",
+      "currentOutcome": "accepted",
+      "stages": {
+        "feasibility": "rotation_witness",
+        "geometry": "accepted",
+        "configuredRealization": "hybrid",
+        "placementValidation": "accepted",
+        "builtFlowValidation": "accepted"
+      },
+      "embedding": {
+        "kind": "planar_rotation",
+        "id": "rotation.v1.fnv1a64:3c4edee973b2b328",
+        "faces": 7,
+        "targetFaces": 7,
+        "searchSteps": 9
+      },
+      "geometrySearch": {
+        "attempts": 11,
+        "spacingTier": 0,
+        "roomOrderAttempt": 3,
+        "portOrderAttempt": 0,
+        "routeOrderAttempt": 0,
+        "routedSections": 17,
+        "decisions": 89,
+        "backtracks": 72,
+        "pathAlternatives": 280,
+        "repairs": 65,
+        "gridExpansions": 262144,
+        "pathExpansionExhaustions": 64,
+        "blockingOwners": [
+          "path_expansion_budget:4096",
+          "room:region.gate_boss_1",
+          "room:region.gate_locked_1",
+          "room:region.goal",
+          "room:region.hazard_sluice_1",
+          "room:region.hazard_watch_1",
+          "room:region.hub_central_1",
+          "room:region.key_gate_1",
+          "room:region.resource_boss_prep_1",
+          "room:region.resource_clue_1",
+          "room:region.resource_safety_1",
+          "room:region.start",
+          "section.region_hub_central_1.region_resource_clue_1.open",
+          "section.region_hub_central_1.region_start.open"
+        ],
+        "budgetExhausted": null
+      },
+      "realizationSearch": {
+        "scaleTier": 2,
+        "attempts": 1,
+        "routeOrderAttempt": 0,
+        "routeAttempts": 1,
+        "decisions": 17,
+        "backtracks": 0,
+        "pathAlternatives": 17,
+        "repairs": 0,
+        "blockingOwners": [],
+        "budgetExhausted": null
+      },
+      "refs": {
+        "physicalPlan": "artifacts/samples/batch-v2/candidate-003/physical-connection-plan.json",
+        "geometry": "artifacts/samples/batch-v2/candidate-003/geometry-2d.json",
+        "geometryValidation": "artifacts/samples/batch-v2/candidate-003/geometry-2d.validation.json",
+        "placement": "artifacts/samples/batch-v2/candidate-003/piece-placement.json",
+        "placementValidation": "artifacts/samples/batch-v2/candidate-003/piece-placement.validation.json",
+        "builtFlowValidation": "artifacts/samples/batch-v2/candidate-003/built-flow.validation.json"
+      }
+    },
+    {
+      "profileSequence": "nested-treasure-merge",
+      "candidateIndex": 4,
+      "candidateSeed": 5601,
+      "baselineGeometryOutcome": "rejected",
+      "normalizedPlanSha256": "cac9761a25e02322cfd05e8a65af84029c7c7b46450fdbbd4062d459a308fec8",
+      "currentOutcome": "accepted",
+      "stages": {
+        "feasibility": "rotation_witness",
+        "geometry": "accepted",
+        "configuredRealization": "hybrid",
+        "placementValidation": "accepted",
+        "builtFlowValidation": "accepted"
+      },
+      "embedding": {
+        "kind": "planar_rotation",
+        "id": "rotation.v1.fnv1a64:a27f0df487a14914",
+        "faces": 6,
+        "targetFaces": 6,
+        "searchSteps": 12
+      },
+      "geometrySearch": {
+        "attempts": 3,
+        "spacingTier": 0,
+        "roomOrderAttempt": 1,
+        "portOrderAttempt": 0,
+        "routeOrderAttempt": 0,
+        "routedSections": 13,
+        "decisions": 13,
+        "backtracks": 0,
+        "pathAlternatives": 104,
+        "repairs": 0,
+        "gridExpansions": 0,
+        "pathExpansionExhaustions": 0,
+        "blockingOwners": [
+          "room:region.gate_locked_1",
+          "room:region.gate_locked_2",
+          "room:region.goal",
+          "room:region.junction_merge_1",
+          "room:region.key_deep_2",
+          "room:region.key_gate_1",
+          "room:region.key_treasure_1",
+          "room:region.start",
+          "room:region.treasure_gated_1"
+        ],
+        "budgetExhausted": null
+      },
+      "realizationSearch": {
+        "scaleTier": 2,
+        "attempts": 1,
+        "routeOrderAttempt": 0,
+        "routeAttempts": 1,
+        "decisions": 13,
+        "backtracks": 0,
+        "pathAlternatives": 13,
+        "repairs": 0,
+        "blockingOwners": [],
+        "budgetExhausted": null
+      },
+      "refs": {
+        "physicalPlan": "artifacts/samples/batch-v2/candidate-004/physical-connection-plan.json",
+        "geometry": "artifacts/samples/batch-v2/candidate-004/geometry-2d.json",
+        "geometryValidation": "artifacts/samples/batch-v2/candidate-004/geometry-2d.validation.json",
+        "placement": "artifacts/samples/batch-v2/candidate-004/piece-placement.json",
+        "placementValidation": "artifacts/samples/batch-v2/candidate-004/piece-placement.validation.json",
+        "builtFlowValidation": "artifacts/samples/batch-v2/candidate-004/built-flow.validation.json"
+      }
+    },
+    {
+      "profileSequence": "full-v2-stack",
+      "candidateIndex": 5,
+      "candidateSeed": 5701,
+      "baselineGeometryOutcome": "rejected",
+      "normalizedPlanSha256": "aa5d0e43b549836b1d6118870fb8c449647dde92987aae9faaa2d41cccefb215",
+      "currentOutcome": "rejected",
+      "stages": {
+        "feasibility": "bounded_embedding_search_exhausted",
+        "geometry": "rejected",
+        "configuredRealization": "not_run",
+        "placementValidation": "not_run",
+        "builtFlowValidation": "not_run"
+      },
+      "embedding": {
+        "kind": "planar_rotation",
+        "id": "rotation.v1.fnv1a64:5e02548504fc3917"
+      },
+      "geometrySearch": {
+        "diagnosticCode": "selection_geometry_route_search_exhausted",
+        "detail": "Physical connection planning or exclusive placement failed: geometry search exhausted after 10 route attempt(s) across 5 spacing tier(s), 4 room order(s) per tier, 2 port allocation(s) per room order, and up to 2 route order(s) per port allocation; initial spacing margin/column/row=96/144/64, final spacing=288/432/224; last route failure: topology embedding rotation.v1.fnv1a64:5e02548504fc3917 drawing failed: topology embedding drawing search exhausted across 11 certified face(s): topology drawing overlaps regions region.key_deep_2 and region.key_treasure_1",
+        "budgetExhausted": "bounded_embedding_search"
+      },
+      "realizationSearch": null,
+      "refs": {
+        "physicalPlan": "artifacts/samples/batch-v2/candidate-005/physical-connection-plan.json",
+        "candidate": "artifacts/samples/batch-v2/candidate-005/accepted.json"
+      }
+    },
+    {
+      "profileSequence": "lock-key-baseline",
+      "candidateIndex": 6,
+      "candidateSeed": 5801,
+      "baselineGeometryOutcome": "accepted",
+      "normalizedPlanSha256": "5c56172e0fd5301c517d6b30caf9329f1bfe642444b4135eadba5606dbe257b2",
+      "currentOutcome": "accepted",
+      "stages": {
+        "feasibility": "rotation_witness",
+        "geometry": "accepted",
+        "configuredRealization": "hybrid",
+        "placementValidation": "accepted",
+        "builtFlowValidation": "accepted"
+      },
+      "embedding": {
+        "kind": "depth_columns",
+        "id": "depth-columns.v1",
+        "faces": 0,
+        "targetFaces": 0,
+        "searchSteps": 0
+      },
+      "geometrySearch": {
+        "attempts": 1,
+        "spacingTier": 0,
+        "roomOrderAttempt": 0,
+        "portOrderAttempt": 0,
+        "routeOrderAttempt": 0,
+        "routedSections": 4,
+        "decisions": 4,
+        "backtracks": 0,
+        "pathAlternatives": 32,
+        "repairs": 0,
+        "gridExpansions": 0,
+        "pathExpansionExhaustions": 0,
+        "blockingOwners": [
+          "room:region.gate_locked_1",
+          "room:region.goal",
+          "room:region.key_gate_1",
+          "room:region.start"
+        ],
+        "budgetExhausted": null
+      },
+      "realizationSearch": {
+        "scaleTier": 2,
+        "attempts": 1,
+        "routeOrderAttempt": 0,
+        "routeAttempts": 1,
+        "decisions": 4,
+        "backtracks": 0,
+        "pathAlternatives": 4,
+        "repairs": 0,
+        "blockingOwners": [],
+        "budgetExhausted": null
+      },
+      "refs": {
+        "physicalPlan": "artifacts/samples/batch-v2/candidate-006/physical-connection-plan.json",
+        "geometry": "artifacts/samples/batch-v2/candidate-006/geometry-2d.json",
+        "geometryValidation": "artifacts/samples/batch-v2/candidate-006/geometry-2d.validation.json",
+        "placement": "artifacts/samples/batch-v2/candidate-006/piece-placement.json",
+        "placementValidation": "artifacts/samples/batch-v2/candidate-006/piece-placement.validation.json",
+        "builtFlowValidation": "artifacts/samples/batch-v2/candidate-006/built-flow.validation.json"
+      }
+    }
+  ]
+}

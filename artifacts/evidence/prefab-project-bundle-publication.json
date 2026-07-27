@@ -36,19 +36,19 @@
         "path": "prefabs/registry.json",
         "class": "durable",
         "role": "prefabRegistry",
-        "contentHash": "5e4e83260109348d"
+        "contentHash": "3a68ed3377e98e73"
       },
       {
         "path": "prefabs/instances.json",
         "class": "durable",
         "role": "resource:prefab-instances",
-        "contentHash": "8ba6ddb1988b0f39"
+        "contentHash": "7c22b8743396eebd"
       },
       {
         "path": "scene/procgen-layout.scene.json",
         "class": "durable",
         "role": "sceneDocument",
-        "contentHash": "1a28b89b6068acd0"
+        "contentHash": "264f3d9e47f3e40d"
       },
       {
         "path": "voxel/prefabs/procgen-standard-room.voxel.json",
@@ -67,48 +67,6 @@
   "prefabRegistry": {
     "schemaVersion": 1,
     "definitions": [
-      {
-        "id": 1001,
-        "schemaVersion": 1,
-        "displayName": "Large flow-validation junction with nine distinct portals per side",
-        "parts": [
-          {
-            "id": 1,
-            "namespace": "procgen/geometry",
-            "displayName": "Large flow-validation junction with nine distinct portals per side source",
-            "parent": null,
-            "transform": {
-              "translation": [
-                0,
-                0,
-                0
-              ],
-              "rotation": [
-                0,
-                0,
-                0,
-                1
-              ],
-              "scale": [
-                1,
-                1,
-                1
-              ]
-            },
-            "source": {
-              "kind": "voxelObject",
-              "asset": "voxel-object/procgen-standard-room"
-            }
-          }
-        ],
-        "partRoles": [
-          {
-            "role": "geometry/root",
-            "part": 1
-          }
-        ],
-        "variant": null
-      },
       {
         "id": 1002,
         "schemaVersion": 1,
@@ -150,6 +108,48 @@
           }
         ],
         "variant": null
+      },
+      {
+        "id": 1003,
+        "schemaVersion": 1,
+        "displayName": "Compact flow junction with two clearance-spaced portals per side",
+        "parts": [
+          {
+            "id": 1,
+            "namespace": "procgen/geometry",
+            "displayName": "Compact flow junction with two clearance-spaced portals per side source",
+            "parent": null,
+            "transform": {
+              "translation": [
+                0,
+                0,
+                0
+              ],
+              "rotation": [
+                0,
+                0,
+                0,
+                1
+              ],
+              "scale": [
+                1,
+                1,
+                1
+              ]
+            },
+            "source": {
+              "kind": "voxelObject",
+              "asset": "voxel-object/procgen-standard-room"
+            }
+          }
+        ],
+        "partRoles": [
+          {
+            "role": "geometry/root",
+            "part": 1
+          }
+        ],
+        "variant": null
       }
     ]
   },
@@ -181,23 +181,23 @@
         "id": 2001,
         "parent": null,
         "childOrder": 0,
-        "label": "Large flow-validation junction with nine distinct portals per side",
+        "label": "Compact flow junction with two clearance-spaced portals per side",
         "tags": [
           "asha-procgen",
-          "prefab-1001",
+          "prefab-1003",
           "prefab-instance-2001"
         ],
         "transform": {
           "translation": [
-            16,
+            48,
             0,
-            16
+            48
           ],
           "rotation": [
             0,
+            -0.7071067811865476,
             0,
-            0,
-            1
+            0.7071067811865476
           ],
           "scale": [
             1,
@@ -228,9 +228,9 @@
         ],
         "transform": {
           "translation": [
-            104,
+            312,
             0,
-            16
+            48
           ],
           "rotation": [
             0,
@@ -264,19 +264,19 @@
     "prefabInstances": [
       {
         "instance": 2001,
-        "prefab": 1001,
+        "prefab": 1003,
         "seed": 14341,
         "transform": {
           "translation": [
-            16,
+            48,
             0,
-            16
+            48
           ],
           "rotation": [
             0,
+            -0.7071067811865476,
             0,
-            0,
-            1
+            0.7071067811865476
           ],
           "scale": [
             1,
@@ -292,9 +292,9 @@
         "seed": 14341,
         "transform": {
           "translation": [
-            104,
+            312,
             0,
-            16
+            48
           ],
           "rotation": [
             0,
@@ -354,9 +354,9 @@
         "procgenInstanceId": "instance.piece_room_room_region_start",
         "prefabInstanceId": 2001,
         "pieceId": "piece.room.room_region_start",
-        "shapeId": "shape.room.flow_junction.36_exit",
-        "prefabId": 1001,
-        "matchScore": 895,
+        "shapeId": "shape.room.flow_junction.spaced_8_exit",
+        "prefabId": 1003,
+        "matchScore": 1035,
         "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.5801.14310.hybrid;requirement:piece.room.room_region_start"
       },
       {

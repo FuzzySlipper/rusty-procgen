@@ -710,16 +710,35 @@ function requiredChunks(solids: readonly MutableVoxel[], chunkSize: number): Vox
 }
 
 function boundsFor(solids: readonly MutableVoxel[]): VoxelExtrusionPlan['buildBounds'] {
+  const first = solids[0];
+  if (first === undefined) {
+    throw new Error('voxel extrusion requires at least one solid');
+  }
+  let minX = first.x;
+  let minY = first.y;
+  let minZ = first.z;
+  let maxX = first.x;
+  let maxY = first.y;
+  let maxZ = first.z;
+  for (let index = 1; index < solids.length; index += 1) {
+    const voxel = solids[index]!;
+    minX = Math.min(minX, voxel.x);
+    minY = Math.min(minY, voxel.y);
+    minZ = Math.min(minZ, voxel.z);
+    maxX = Math.max(maxX, voxel.x);
+    maxY = Math.max(maxY, voxel.y);
+    maxZ = Math.max(maxZ, voxel.z);
+  }
   return {
     min: {
-      x: Math.min(...solids.map((voxel) => voxel.x)),
-      y: Math.min(...solids.map((voxel) => voxel.y)),
-      z: Math.min(...solids.map((voxel) => voxel.z)),
+      x: minX,
+      y: minY,
+      z: minZ,
     },
     maxExclusive: {
-      x: Math.max(...solids.map((voxel) => voxel.x)) + 1,
-      y: Math.max(...solids.map((voxel) => voxel.y)) + 1,
-      z: Math.max(...solids.map((voxel) => voxel.z)) + 1,
+      x: maxX + 1,
+      y: maxY + 1,
+      z: maxZ + 1,
     },
   };
 }

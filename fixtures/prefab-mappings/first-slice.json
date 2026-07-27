@@ -27,6 +27,17 @@
         "kind": "voxelObject",
         "asset": "voxel-object/procgen-locked-gate"
       }
+    },
+    {
+      "shapeId": "shape.room.flow_junction.spaced_8_exit",
+      "prefabId": 1003,
+      "partId": 1,
+      "partNamespace": "procgen/geometry",
+      "stableRole": "geometry/root",
+      "source": {
+        "kind": "voxelObject",
+        "asset": "voxel-object/procgen-standard-room"
+      }
     }
   ],
   "instanceIdentities": [

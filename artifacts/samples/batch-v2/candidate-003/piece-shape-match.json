@@ -73,50 +73,50 @@
     {
       "pieceId": "piece.room.room_region_hub_central_1",
       "requirementKind": "room",
-      "shapeId": "shape.room.flow_junction.36_exit",
-      "transform": "identity",
-      "score": 949,
+      "shapeId": "shape.room.flow_junction.spaced_8_exit",
+      "transform": "rotate90",
+      "score": 1089,
       "candidateRank": 0,
-      "candidateCount": 1,
+      "candidateCount": 4,
       "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.5501.14302.hybrid;requirement:piece.room.room_region_hub_central_1",
       "exitMap": [
         {
           "requirementExitId": "exit.corridor_section_region_goal_region_hub_central_1_open.east",
-          "catalogExitId": "exit.east.1",
+          "catalogExitId": "exit.north.1",
           "x": 9,
-          "y": 0,
+          "y": 2,
           "direction": "east",
           "width": 1
         },
         {
           "requirementExitId": "exit.corridor_section_region_hub_central_1_region_treasure_cache_1_open.north",
-          "catalogExitId": "exit.north.1",
-          "x": 0,
+          "catalogExitId": "exit.west.2",
+          "x": 2,
           "y": -1,
           "direction": "north",
           "width": 1
         },
         {
           "requirementExitId": "exit.corridor_section_region_hazard_watch_1_region_hub_central_1_open.south",
-          "catalogExitId": "exit.south.1",
-          "x": 0,
+          "catalogExitId": "exit.east.2",
+          "x": 2,
           "y": 9,
           "direction": "south",
           "width": 1
         },
         {
           "requirementExitId": "exit.corridor_section_region_hub_central_1_region_start_open.west",
-          "catalogExitId": "exit.west.1",
+          "catalogExitId": "exit.south.1",
           "x": -1,
-          "y": 0,
+          "y": 2,
           "direction": "west",
           "width": 1
         },
         {
           "requirementExitId": "exit.corridor_section_region_hub_central_1_region_resource_clue_1_open.west",
-          "catalogExitId": "exit.west.2",
+          "catalogExitId": "exit.south.2",
           "x": -1,
-          "y": 1,
+          "y": 6,
           "direction": "west",
           "width": 1
         }
@@ -161,42 +161,42 @@
     {
       "pieceId": "piece.room.room_region_gate_locked_1",
       "requirementKind": "threshold",
-      "shapeId": "shape.room.flow_junction.36_exit",
-      "transform": "identity",
-      "score": 945,
+      "shapeId": "shape.room.flow_junction.spaced_8_exit",
+      "transform": "rotate270",
+      "score": 1085,
       "candidateRank": 0,
-      "candidateCount": 1,
+      "candidateCount": 4,
       "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.5501.14302.hybrid;requirement:piece.room.room_region_gate_locked_1",
       "exitMap": [
         {
           "requirementExitId": "exit.corridor_section_region_gate_locked_1_region_resource_boss_prep_1_open.north",
-          "catalogExitId": "exit.north.1",
-          "x": 0,
+          "catalogExitId": "exit.east.1",
+          "x": 2,
           "y": -1,
           "direction": "north",
           "width": 1
         },
         {
           "requirementExitId": "exit.corridor_section_region_gate_boss_1_region_gate_locked_1_open.north",
-          "catalogExitId": "exit.north.2",
-          "x": 1,
+          "catalogExitId": "exit.east.2",
+          "x": 6,
           "y": -1,
           "direction": "north",
           "width": 1
         },
         {
           "requirementExitId": "exit.corridor_section_region_gate_locked_1_region_key_gate_1_open.west",
-          "catalogExitId": "exit.west.1",
+          "catalogExitId": "exit.north.2",
           "x": -1,
-          "y": 0,
+          "y": 2,
           "direction": "west",
           "width": 1
         },
         {
           "requirementExitId": "exit.corridor_section_region_gate_locked_1_region_start_open.west",
-          "catalogExitId": "exit.west.2",
+          "catalogExitId": "exit.north.1",
           "x": -1,
-          "y": 1,
+          "y": 6,
           "direction": "west",
           "width": 1
         }
@@ -860,6 +860,38 @@
     },
     {
       "pieceId": "piece.room.room_region_start",
+      "shapeId": "shape.room.flow_junction.spaced_8_exit",
+      "transform": "identity",
+      "reasons": [
+        "exit_compatibility_mismatch: shape shape.room.flow_junction.spaced_8_exit required [exit.corridor_section_region_gate_locked_1_region_start_open.east:east,exit.corridor_section_region_hazard_sluice_1_region_start_open.east:east,exit.corridor_section_region_hub_central_1_region_start_open.east:east,exit.corridor_section_region_key_gate_1_region_start_open.east:east,exit.corridor_section_region_resource_safety_1_region_start_open.east:east] available [exit.north.1:north,exit.north.2:north,exit.east.1:east,exit.east.2:east,exit.south.1:south,exit.south.2:south,exit.west.1:west,exit.west.2:west]"
+      ]
+    },
+    {
+      "pieceId": "piece.room.room_region_start",
+      "shapeId": "shape.room.flow_junction.spaced_8_exit",
+      "transform": "rotate90",
+      "reasons": [
+        "exit_compatibility_mismatch: shape shape.room.flow_junction.spaced_8_exit required [exit.corridor_section_region_gate_locked_1_region_start_open.east:east,exit.corridor_section_region_hazard_sluice_1_region_start_open.east:east,exit.corridor_section_region_hub_central_1_region_start_open.east:east,exit.corridor_section_region_key_gate_1_region_start_open.east:east,exit.corridor_section_region_resource_safety_1_region_start_open.east:east] available [exit.north.1:east,exit.north.2:east,exit.east.1:south,exit.east.2:south,exit.south.1:west,exit.south.2:west,exit.west.1:north,exit.west.2:north]"
+      ]
+    },
+    {
+      "pieceId": "piece.room.room_region_start",
+      "shapeId": "shape.room.flow_junction.spaced_8_exit",
+      "transform": "rotate180",
+      "reasons": [
+        "exit_compatibility_mismatch: shape shape.room.flow_junction.spaced_8_exit required [exit.corridor_section_region_gate_locked_1_region_start_open.east:east,exit.corridor_section_region_hazard_sluice_1_region_start_open.east:east,exit.corridor_section_region_hub_central_1_region_start_open.east:east,exit.corridor_section_region_key_gate_1_region_start_open.east:east,exit.corridor_section_region_resource_safety_1_region_start_open.east:east] available [exit.north.1:south,exit.north.2:south,exit.east.1:west,exit.east.2:west,exit.south.1:north,exit.south.2:north,exit.west.1:east,exit.west.2:east]"
+      ]
+    },
+    {
+      "pieceId": "piece.room.room_region_start",
+      "shapeId": "shape.room.flow_junction.spaced_8_exit",
+      "transform": "rotate270",
+      "reasons": [
+        "exit_compatibility_mismatch: shape shape.room.flow_junction.spaced_8_exit required [exit.corridor_section_region_gate_locked_1_region_start_open.east:east,exit.corridor_section_region_hazard_sluice_1_region_start_open.east:east,exit.corridor_section_region_hub_central_1_region_start_open.east:east,exit.corridor_section_region_key_gate_1_region_start_open.east:east,exit.corridor_section_region_resource_safety_1_region_start_open.east:east] available [exit.north.1:west,exit.north.2:west,exit.east.1:north,exit.east.2:north,exit.south.1:east,exit.south.2:east,exit.west.1:south,exit.west.2:south]"
+      ]
+    },
+    {
+      "pieceId": "piece.room.room_region_start",
       "shapeId": "shape.room.flow_junction.spaced_14_exit",
       "transform": "rotate90",
       "reasons": [
@@ -887,6 +919,7 @@
       "shapeId": "shape.room.standard.1_exit",
       "transform": null,
       "reasons": [
+        "missing_shape_tags: spaced_portals,spaced_portals_compact",
         "exit_count_mismatch: need at least 5 got 1"
       ]
     },
@@ -895,6 +928,7 @@
       "shapeId": "shape.room.standard.2_exit_opposed",
       "transform": null,
       "reasons": [
+        "missing_shape_tags: spaced_portals,spaced_portals_compact",
         "exit_count_mismatch: need at least 5 got 2"
       ]
     },
@@ -903,6 +937,7 @@
       "shapeId": "shape.room.standard.3_exit",
       "transform": null,
       "reasons": [
+        "missing_shape_tags: spaced_portals,spaced_portals_compact",
         "exit_count_mismatch: need at least 5 got 3"
       ]
     },
@@ -911,6 +946,7 @@
       "shapeId": "shape.room.hub.4_exit",
       "transform": null,
       "reasons": [
+        "missing_shape_tags: spaced_portals,spaced_portals_compact",
         "exit_count_mismatch: need at least 5 got 4"
       ]
     },
@@ -944,6 +980,7 @@
       "transform": null,
       "reasons": [
         "kind_mismatch: need room",
+        "missing_shape_tags: spaced_portals,spaced_portals_compact",
         "exit_count_mismatch: need at least 5 got 2"
       ]
     },
@@ -953,6 +990,7 @@
       "transform": null,
       "reasons": [
         "kind_mismatch: need room",
+        "missing_shape_tags: spaced_portals,spaced_portals_compact",
         "exit_count_mismatch: need at least 5 got 2"
       ]
     },
@@ -962,6 +1000,7 @@
       "transform": null,
       "reasons": [
         "kind_mismatch: need room",
+        "missing_shape_tags: spaced_portals,spaced_portals_compact",
         "exit_count_mismatch: need at least 5 got 2"
       ]
     },
@@ -979,6 +1018,7 @@
       "transform": null,
       "reasons": [
         "kind_mismatch: need room",
+        "missing_shape_tags: spaced_portals,spaced_portals_compact",
         "exit_count_mismatch: need at least 5 got 2"
       ]
     },
@@ -996,6 +1036,7 @@
       "transform": null,
       "reasons": [
         "kind_mismatch: need room",
+        "missing_shape_tags: spaced_portals,spaced_portals_compact",
         "exit_count_mismatch: need at least 5 got 2"
       ]
     },
@@ -1005,6 +1046,7 @@
       "transform": null,
       "reasons": [
         "kind_mismatch: need room",
+        "missing_shape_tags: spaced_portals,spaced_portals_compact",
         "exit_count_mismatch: need at least 5 got 3"
       ]
     },
@@ -1014,6 +1056,7 @@
       "transform": null,
       "reasons": [
         "kind_mismatch: need room",
+        "missing_shape_tags: spaced_portals,spaced_portals_compact",
         "exit_count_mismatch: need at least 5 got 4"
       ]
     },
@@ -1022,6 +1065,7 @@
       "shapeId": "shape.threshold.locked_gate",
       "transform": null,
       "reasons": [
+        "missing_shape_tags: spaced_portals,spaced_portals_compact",
         "exit_count_mismatch: need at least 5 got 2"
       ]
     },
@@ -1030,6 +1074,7 @@
       "shapeId": "shape.pocket.reward_cache",
       "transform": null,
       "reasons": [
+        "missing_shape_tags: spaced_portals,spaced_portals_compact",
         "exit_count_mismatch: need at least 5 got 2"
       ]
     },
@@ -1038,6 +1083,7 @@
       "shapeId": "shape.pocket.key_pickup",
       "transform": null,
       "reasons": [
+        "missing_shape_tags: spaced_portals,spaced_portals_compact",
         "exit_count_mismatch: need at least 5 got 2"
       ]
     },
@@ -1046,6 +1092,7 @@
       "shapeId": "shape.room.hazard_pressure",
       "transform": null,
       "reasons": [
+        "missing_shape_tags: spaced_portals,spaced_portals_compact",
         "exit_count_mismatch: need at least 5 got 2"
       ]
     },
@@ -1054,6 +1101,7 @@
       "shapeId": "shape.room.boss_arena",
       "transform": null,
       "reasons": [
+        "missing_shape_tags: spaced_portals,spaced_portals_compact",
         "exit_count_mismatch: need at least 5 got 2"
       ]
     },
@@ -1062,6 +1110,7 @@
       "shapeId": "shape.room.secret_bypass",
       "transform": null,
       "reasons": [
+        "missing_shape_tags: spaced_portals,spaced_portals_compact",
         "exit_count_mismatch: need at least 5 got 2"
       ]
     },
@@ -1071,6 +1120,7 @@
       "transform": null,
       "reasons": [
         "kind_mismatch: need room",
+        "missing_shape_tags: spaced_portals,spaced_portals_compact",
         "exit_count_mismatch: need at least 5 got 2"
       ]
     },
@@ -1079,6 +1129,7 @@
       "shapeId": "shape.room.resource_clue",
       "transform": null,
       "reasons": [
+        "missing_shape_tags: spaced_portals,spaced_portals_compact",
         "exit_count_mismatch: need at least 5 got 2"
       ]
     },
@@ -1087,7 +1138,15 @@
       "shapeId": "shape.room.flow_junction.spaced_14_exit",
       "transform": null,
       "reasons": [
-        "specialized_shape_not_required: spaced_portals"
+        "missing_shape_tags: spaced_portals_compact"
+      ]
+    },
+    {
+      "pieceId": "piece.room.room_region_hub_central_1",
+      "shapeId": "shape.room.flow_junction.36_exit",
+      "transform": null,
+      "reasons": [
+        "missing_shape_tags: spaced_portals,spaced_portals_compact"
       ]
     },
     {
@@ -1311,6 +1370,14 @@
     },
     {
       "pieceId": "piece.room.room_region_key_gate_1",
+      "shapeId": "shape.room.flow_junction.spaced_8_exit",
+      "transform": null,
+      "reasons": [
+        "specialized_shape_not_required: spaced_portals"
+      ]
+    },
+    {
+      "pieceId": "piece.room.room_region_key_gate_1",
       "shapeId": "shape.room.flow_junction.spaced_14_exit",
       "transform": null,
       "reasons": [
@@ -1324,6 +1391,7 @@
       "reasons": [
         "kind_mismatch: need threshold",
         "missing_sockets: gate_line",
+        "missing_shape_tags: spaced_portals,spaced_portals_compact",
         "exit_count_mismatch: need at least 4 got 1"
       ]
     },
@@ -1334,6 +1402,7 @@
       "reasons": [
         "kind_mismatch: need threshold",
         "missing_sockets: gate_line",
+        "missing_shape_tags: spaced_portals,spaced_portals_compact",
         "exit_count_mismatch: need at least 4 got 2"
       ]
     },
@@ -1344,6 +1413,7 @@
       "reasons": [
         "kind_mismatch: need threshold",
         "missing_sockets: gate_line",
+        "missing_shape_tags: spaced_portals,spaced_portals_compact",
         "exit_count_mismatch: need at least 4 got 3"
       ]
     },
@@ -1353,7 +1423,8 @@
       "transform": null,
       "reasons": [
         "kind_mismatch: need threshold",
-        "missing_sockets: gate_line"
+        "missing_sockets: gate_line",
+        "missing_shape_tags: spaced_portals,spaced_portals_compact"
       ]
     },
     {
@@ -1387,6 +1458,7 @@
       "reasons": [
         "kind_mismatch: need threshold",
         "missing_sockets: gate_line",
+        "missing_shape_tags: spaced_portals,spaced_portals_compact",
         "exit_count_mismatch: need at least 4 got 2"
       ]
     },
@@ -1397,6 +1469,7 @@
       "reasons": [
         "kind_mismatch: need threshold",
         "missing_sockets: gate_line",
+        "missing_shape_tags: spaced_portals,spaced_portals_compact",
         "exit_count_mismatch: need at least 4 got 2"
       ]
     },
@@ -1407,6 +1480,7 @@
       "reasons": [
         "kind_mismatch: need threshold",
         "missing_sockets: gate_line",
+        "missing_shape_tags: spaced_portals,spaced_portals_compact",
         "exit_count_mismatch: need at least 4 got 2"
       ]
     },
@@ -1425,6 +1499,7 @@
       "reasons": [
         "kind_mismatch: need threshold",
         "missing_sockets: gate_line",
+        "missing_shape_tags: spaced_portals,spaced_portals_compact",
         "exit_count_mismatch: need at least 4 got 2"
       ]
     },
@@ -1443,6 +1518,7 @@
       "reasons": [
         "kind_mismatch: need threshold",
         "missing_sockets: gate_line",
+        "missing_shape_tags: spaced_portals,spaced_portals_compact",
         "exit_count_mismatch: need at least 4 got 2"
       ]
     },
@@ -1453,6 +1529,7 @@
       "reasons": [
         "kind_mismatch: need threshold",
         "missing_sockets: gate_line",
+        "missing_shape_tags: spaced_portals,spaced_portals_compact",
         "exit_count_mismatch: need at least 4 got 3"
       ]
     },
@@ -1462,7 +1539,8 @@
       "transform": null,
       "reasons": [
         "kind_mismatch: need threshold",
-        "missing_sockets: gate_line"
+        "missing_sockets: gate_line",
+        "missing_shape_tags: spaced_portals,spaced_portals_compact"
       ]
     },
     {
@@ -1470,6 +1548,7 @@
       "shapeId": "shape.threshold.locked_gate",
       "transform": null,
       "reasons": [
+        "missing_shape_tags: spaced_portals,spaced_portals_compact",
         "exit_count_mismatch: need at least 4 got 2"
       ]
     },
@@ -1480,6 +1559,7 @@
       "reasons": [
         "kind_mismatch: need threshold",
         "missing_sockets: gate_line",
+        "missing_shape_tags: spaced_portals,spaced_portals_compact",
         "exit_count_mismatch: need at least 4 got 2"
       ]
     },
@@ -1490,6 +1570,7 @@
       "reasons": [
         "kind_mismatch: need threshold",
         "missing_sockets: gate_line",
+        "missing_shape_tags: spaced_portals,spaced_portals_compact",
         "exit_count_mismatch: need at least 4 got 2"
       ]
     },
@@ -1500,6 +1581,7 @@
       "reasons": [
         "kind_mismatch: need threshold",
         "missing_sockets: gate_line",
+        "missing_shape_tags: spaced_portals,spaced_portals_compact",
         "exit_count_mismatch: need at least 4 got 2"
       ]
     },
@@ -1510,6 +1592,7 @@
       "reasons": [
         "kind_mismatch: need threshold",
         "missing_sockets: gate_line",
+        "missing_shape_tags: spaced_portals,spaced_portals_compact",
         "exit_count_mismatch: need at least 4 got 2"
       ]
     },
@@ -1520,6 +1603,7 @@
       "reasons": [
         "kind_mismatch: need threshold",
         "missing_sockets: gate_line",
+        "missing_shape_tags: spaced_portals,spaced_portals_compact",
         "exit_count_mismatch: need at least 4 got 2"
       ]
     },
@@ -1530,6 +1614,7 @@
       "reasons": [
         "kind_mismatch: need threshold",
         "missing_sockets: gate_line",
+        "missing_shape_tags: spaced_portals,spaced_portals_compact",
         "exit_count_mismatch: need at least 4 got 2"
       ]
     },
@@ -1540,6 +1625,7 @@
       "reasons": [
         "kind_mismatch: need threshold",
         "missing_sockets: gate_line",
+        "missing_shape_tags: spaced_portals,spaced_portals_compact",
         "exit_count_mismatch: need at least 4 got 2"
       ]
     },
@@ -1548,7 +1634,15 @@
       "shapeId": "shape.room.flow_junction.spaced_14_exit",
       "transform": null,
       "reasons": [
-        "specialized_shape_not_required: spaced_portals"
+        "missing_shape_tags: spaced_portals_compact"
+      ]
+    },
+    {
+      "pieceId": "piece.room.room_region_gate_locked_1",
+      "shapeId": "shape.room.flow_junction.36_exit",
+      "transform": null,
+      "reasons": [
+        "missing_shape_tags: spaced_portals,spaced_portals_compact"
       ]
     },
     {
@@ -1788,6 +1882,14 @@
     },
     {
       "pieceId": "piece.room.room_region_resource_safety_1",
+      "shapeId": "shape.room.flow_junction.spaced_8_exit",
+      "transform": null,
+      "reasons": [
+        "specialized_shape_not_required: spaced_portals"
+      ]
+    },
+    {
+      "pieceId": "piece.room.room_region_resource_safety_1",
       "shapeId": "shape.room.flow_junction.spaced_14_exit",
       "transform": null,
       "reasons": [
@@ -2020,6 +2122,14 @@
     },
     {
       "pieceId": "piece.room.room_region_hazard_sluice_1",
+      "shapeId": "shape.room.flow_junction.spaced_8_exit",
+      "transform": null,
+      "reasons": [
+        "specialized_shape_not_required: spaced_portals"
+      ]
+    },
+    {
+      "pieceId": "piece.room.room_region_hazard_sluice_1",
       "shapeId": "shape.room.flow_junction.spaced_14_exit",
       "transform": null,
       "reasons": [
@@ -2242,6 +2352,14 @@
       "transform": "rotate270",
       "reasons": [
         "exit_compatibility_mismatch: shape shape.room.resource_clue required [exit.corridor_section_region_hub_central_1_region_resource_clue_1_open.east:east] available [exit.west:south,exit.east:north]"
+      ]
+    },
+    {
+      "pieceId": "piece.room.room_region_resource_clue_1",
+      "shapeId": "shape.room.flow_junction.spaced_8_exit",
+      "transform": null,
+      "reasons": [
+        "specialized_shape_not_required: spaced_portals"
       ]
     },
     {
@@ -2489,6 +2607,14 @@
     },
     {
       "pieceId": "piece.room.room_region_resource_boss_prep_1",
+      "shapeId": "shape.room.flow_junction.spaced_8_exit",
+      "transform": null,
+      "reasons": [
+        "specialized_shape_not_required: spaced_portals"
+      ]
+    },
+    {
+      "pieceId": "piece.room.room_region_resource_boss_prep_1",
       "shapeId": "shape.room.flow_junction.spaced_14_exit",
       "transform": null,
       "reasons": [
@@ -2726,6 +2852,38 @@
         "missing_sockets: marker",
         "missing_shape_tags: spaced_portals",
         "exit_count_mismatch: need at least 4 got 2"
+      ]
+    },
+    {
+      "pieceId": "piece.room.room_region_goal",
+      "shapeId": "shape.room.flow_junction.spaced_8_exit",
+      "transform": "identity",
+      "reasons": [
+        "exit_compatibility_mismatch: shape shape.room.flow_junction.spaced_8_exit required [exit.corridor_section_region_gate_boss_1_region_goal_connector_edge_boss_1_goal.west:west,exit.corridor_section_region_goal_region_hazard_sluice_1_open.west:west,exit.corridor_section_region_goal_region_hazard_watch_1_open.west:west,exit.corridor_section_region_goal_region_hub_central_1_open.west:west] available [exit.north.1:north,exit.north.2:north,exit.east.1:east,exit.east.2:east,exit.south.1:south,exit.south.2:south,exit.west.1:west,exit.west.2:west]"
+      ]
+    },
+    {
+      "pieceId": "piece.room.room_region_goal",
+      "shapeId": "shape.room.flow_junction.spaced_8_exit",
+      "transform": "rotate90",
+      "reasons": [
+        "exit_compatibility_mismatch: shape shape.room.flow_junction.spaced_8_exit required [exit.corridor_section_region_gate_boss_1_region_goal_connector_edge_boss_1_goal.west:west,exit.corridor_section_region_goal_region_hazard_sluice_1_open.west:west,exit.corridor_section_region_goal_region_hazard_watch_1_open.west:west,exit.corridor_section_region_goal_region_hub_central_1_open.west:west] available [exit.north.1:east,exit.north.2:east,exit.east.1:south,exit.east.2:south,exit.south.1:west,exit.south.2:west,exit.west.1:north,exit.west.2:north]"
+      ]
+    },
+    {
+      "pieceId": "piece.room.room_region_goal",
+      "shapeId": "shape.room.flow_junction.spaced_8_exit",
+      "transform": "rotate180",
+      "reasons": [
+        "exit_compatibility_mismatch: shape shape.room.flow_junction.spaced_8_exit required [exit.corridor_section_region_gate_boss_1_region_goal_connector_edge_boss_1_goal.west:west,exit.corridor_section_region_goal_region_hazard_sluice_1_open.west:west,exit.corridor_section_region_goal_region_hazard_watch_1_open.west:west,exit.corridor_section_region_goal_region_hub_central_1_open.west:west] available [exit.north.1:south,exit.north.2:south,exit.east.1:west,exit.east.2:west,exit.south.1:north,exit.south.2:north,exit.west.1:east,exit.west.2:east]"
+      ]
+    },
+    {
+      "pieceId": "piece.room.room_region_goal",
+      "shapeId": "shape.room.flow_junction.spaced_8_exit",
+      "transform": "rotate270",
+      "reasons": [
+        "exit_compatibility_mismatch: shape shape.room.flow_junction.spaced_8_exit required [exit.corridor_section_region_gate_boss_1_region_goal_connector_edge_boss_1_goal.west:west,exit.corridor_section_region_goal_region_hazard_sluice_1_open.west:west,exit.corridor_section_region_goal_region_hazard_watch_1_open.west:west,exit.corridor_section_region_goal_region_hub_central_1_open.west:west] available [exit.north.1:west,exit.north.2:west,exit.east.1:north,exit.east.2:north,exit.south.1:east,exit.south.2:east,exit.west.1:south,exit.west.2:south]"
       ]
     },
     {
@@ -2978,6 +3136,14 @@
     },
     {
       "pieceId": "piece.room.room_region_gate_boss_1",
+      "shapeId": "shape.room.flow_junction.spaced_8_exit",
+      "transform": null,
+      "reasons": [
+        "specialized_shape_not_required: spaced_portals"
+      ]
+    },
+    {
+      "pieceId": "piece.room.room_region_gate_boss_1",
       "shapeId": "shape.room.flow_junction.spaced_14_exit",
       "transform": null,
       "reasons": [
@@ -3221,6 +3387,14 @@
     },
     {
       "pieceId": "piece.room.room_region_hazard_watch_1",
+      "shapeId": "shape.room.flow_junction.spaced_8_exit",
+      "transform": null,
+      "reasons": [
+        "specialized_shape_not_required: spaced_portals"
+      ]
+    },
+    {
+      "pieceId": "piece.room.room_region_hazard_watch_1",
       "shapeId": "shape.room.flow_junction.spaced_14_exit",
       "transform": null,
       "reasons": [
@@ -3446,6 +3620,14 @@
     },
     {
       "pieceId": "piece.room.room_region_treasure_cache_1",
+      "shapeId": "shape.room.flow_junction.spaced_8_exit",
+      "transform": null,
+      "reasons": [
+        "specialized_shape_not_required: spaced_portals"
+      ]
+    },
+    {
+      "pieceId": "piece.room.room_region_treasure_cache_1",
       "shapeId": "shape.room.flow_junction.spaced_14_exit",
       "transform": null,
       "reasons": [
@@ -3656,6 +3838,16 @@
       "shapeId": "shape.room.resource_clue",
       "transform": null,
       "reasons": [
+        "kind_mismatch: need corridor",
+        "missing_shape_tags: corridor,straight,span_long"
+      ]
+    },
+    {
+      "pieceId": "piece.corridor.corridor_section_region_gate_boss_1_region_goal_connector_edge_boss_1_goal.segment_01.tile_01",
+      "shapeId": "shape.room.flow_junction.spaced_8_exit",
+      "transform": null,
+      "reasons": [
+        "specialized_shape_not_required: spaced_portals",
         "kind_mismatch: need corridor",
         "missing_shape_tags: corridor,straight,span_long"
       ]
@@ -3889,6 +4081,16 @@
     },
     {
       "pieceId": "piece.corridor.corridor_section_region_hub_central_1_region_treasure_cache_1_open.segment_01.tile_01",
+      "shapeId": "shape.room.flow_junction.spaced_8_exit",
+      "transform": null,
+      "reasons": [
+        "specialized_shape_not_required: spaced_portals",
+        "kind_mismatch: need corridor",
+        "missing_shape_tags: corridor,straight,span_long"
+      ]
+    },
+    {
+      "pieceId": "piece.corridor.corridor_section_region_hub_central_1_region_treasure_cache_1_open.segment_01.tile_01",
       "shapeId": "shape.room.flow_junction.spaced_14_exit",
       "transform": null,
       "reasons": [
@@ -4116,6 +4318,16 @@
     },
     {
       "pieceId": "piece.corridor.corridor_section_region_key_gate_1_region_start_open.segment_01.tile_01",
+      "shapeId": "shape.room.flow_junction.spaced_8_exit",
+      "transform": null,
+      "reasons": [
+        "specialized_shape_not_required: spaced_portals",
+        "kind_mismatch: need corridor",
+        "missing_shape_tags: corridor,straight,span_long"
+      ]
+    },
+    {
+      "pieceId": "piece.corridor.corridor_section_region_key_gate_1_region_start_open.segment_01.tile_01",
       "shapeId": "shape.room.flow_junction.spaced_14_exit",
       "transform": null,
       "reasons": [
@@ -4337,6 +4549,16 @@
       "shapeId": "shape.room.resource_clue",
       "transform": null,
       "reasons": [
+        "kind_mismatch: need corridor",
+        "missing_shape_tags: corridor,straight,span_long"
+      ]
+    },
+    {
+      "pieceId": "piece.corridor.corridor_section_region_resource_safety_1_region_start_open.segment_01.tile_01",
+      "shapeId": "shape.room.flow_junction.spaced_8_exit",
+      "transform": null,
+      "reasons": [
+        "specialized_shape_not_required: spaced_portals",
         "kind_mismatch: need corridor",
         "missing_shape_tags: corridor,straight,span_long"
       ]

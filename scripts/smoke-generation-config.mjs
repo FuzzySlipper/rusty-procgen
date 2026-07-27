@@ -34,7 +34,9 @@ server.stderr.on('data', (chunk) => {
 try {
   await waitForHealth();
   const batch = await fetchJson('/api/batches/v2');
-  const candidateId = batch.accepted?.[0]?.candidateId;
+  const candidateId = batch.accepted?.find(
+    (entry) => entry.profileSequence === 'lock-key-baseline',
+  )?.candidateId ?? batch.accepted?.[0]?.candidateId;
   if (typeof candidateId !== 'string') {
     throw new Error('generation config smoke requires one accepted batch candidate');
   }

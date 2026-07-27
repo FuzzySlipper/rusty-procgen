@@ -894,270 +894,14 @@
       "pieceId": "piece.room.room_region_hub_central_1",
       "requirementKind": "room",
       "role": "landmark_hub",
-      "shapeId": "shape.room.flow_junction.36_exit",
-      "transform": "identity",
+      "shapeId": "shape.room.flow_junction.spaced_8_exit",
+      "transform": "rotate90",
       "origin": {
         "x": 488,
         "y": 1804
       },
       "occupiedCells": [
         {
-          "x": 488,
-          "y": 1804
-        },
-        {
-          "x": 489,
-          "y": 1804
-        },
-        {
-          "x": 490,
-          "y": 1804
-        },
-        {
-          "x": 491,
-          "y": 1804
-        },
-        {
-          "x": 492,
-          "y": 1804
-        },
-        {
-          "x": 493,
-          "y": 1804
-        },
-        {
-          "x": 494,
-          "y": 1804
-        },
-        {
-          "x": 495,
-          "y": 1804
-        },
-        {
-          "x": 488,
-          "y": 1805
-        },
-        {
-          "x": 489,
-          "y": 1805
-        },
-        {
-          "x": 490,
-          "y": 1805
-        },
-        {
-          "x": 491,
-          "y": 1805
-        },
-        {
-          "x": 492,
-          "y": 1805
-        },
-        {
-          "x": 493,
-          "y": 1805
-        },
-        {
-          "x": 494,
-          "y": 1805
-        },
-        {
-          "x": 495,
-          "y": 1805
-        },
-        {
-          "x": 488,
-          "y": 1806
-        },
-        {
-          "x": 489,
-          "y": 1806
-        },
-        {
-          "x": 490,
-          "y": 1806
-        },
-        {
-          "x": 491,
-          "y": 1806
-        },
-        {
-          "x": 492,
-          "y": 1806
-        },
-        {
-          "x": 493,
-          "y": 1806
-        },
-        {
-          "x": 494,
-          "y": 1806
-        },
-        {
-          "x": 495,
-          "y": 1806
-        },
-        {
-          "x": 488,
-          "y": 1807
-        },
-        {
-          "x": 489,
-          "y": 1807
-        },
-        {
-          "x": 490,
-          "y": 1807
-        },
-        {
-          "x": 491,
-          "y": 1807
-        },
-        {
-          "x": 492,
-          "y": 1807
-        },
-        {
-          "x": 493,
-          "y": 1807
-        },
-        {
-          "x": 494,
-          "y": 1807
-        },
-        {
-          "x": 495,
-          "y": 1807
-        },
-        {
-          "x": 488,
-          "y": 1808
-        },
-        {
-          "x": 489,
-          "y": 1808
-        },
-        {
-          "x": 490,
-          "y": 1808
-        },
-        {
-          "x": 491,
-          "y": 1808
-        },
-        {
-          "x": 492,
-          "y": 1808
-        },
-        {
-          "x": 493,
-          "y": 1808
-        },
-        {
-          "x": 494,
-          "y": 1808
-        },
-        {
-          "x": 495,
-          "y": 1808
-        },
-        {
-          "x": 488,
-          "y": 1809
-        },
-        {
-          "x": 489,
-          "y": 1809
-        },
-        {
-          "x": 490,
-          "y": 1809
-        },
-        {
-          "x": 491,
-          "y": 1809
-        },
-        {
-          "x": 492,
-          "y": 1809
-        },
-        {
-          "x": 493,
-          "y": 1809
-        },
-        {
-          "x": 494,
-          "y": 1809
-        },
-        {
-          "x": 495,
-          "y": 1809
-        },
-        {
-          "x": 488,
-          "y": 1810
-        },
-        {
-          "x": 489,
-          "y": 1810
-        },
-        {
-          "x": 490,
-          "y": 1810
-        },
-        {
-          "x": 491,
-          "y": 1810
-        },
-        {
-          "x": 492,
-          "y": 1810
-        },
-        {
-          "x": 493,
-          "y": 1810
-        },
-        {
-          "x": 494,
-          "y": 1810
-        },
-        {
-          "x": 495,
-          "y": 1810
-        },
-        {
-          "x": 488,
-          "y": 1811
-        },
-        {
-          "x": 489,
-          "y": 1811
-        },
-        {
-          "x": 490,
-          "y": 1811
-        },
-        {
-          "x": 491,
-          "y": 1811
-        },
-        {
-          "x": 492,
-          "y": 1811
-        },
-        {
-          "x": 493,
-          "y": 1811
-        },
-        {
-          "x": 494,
-          "y": 1811
-        },
-        {
-          "x": 495,
-          "y": 1811
-        },
-        {
           "x": 496,
           "y": 1804
         },
@@ -1190,39 +934,151 @@
           "y": 1811
         },
         {
-          "x": 488,
+          "x": 496,
           "y": 1812
         },
         {
-          "x": 489,
-          "y": 1812
+          "x": 495,
+          "y": 1804
         },
         {
-          "x": 490,
-          "y": 1812
-        },
-        {
-          "x": 491,
-          "y": 1812
-        },
-        {
-          "x": 492,
-          "y": 1812
-        },
-        {
-          "x": 493,
-          "y": 1812
-        },
-        {
-          "x": 494,
-          "y": 1812
+          "x": 495,
+          "y": 1808
         },
         {
           "x": 495,
           "y": 1812
         },
         {
-          "x": 496,
+          "x": 494,
+          "y": 1804
+        },
+        {
+          "x": 494,
+          "y": 1808
+        },
+        {
+          "x": 494,
+          "y": 1812
+        },
+        {
+          "x": 493,
+          "y": 1804
+        },
+        {
+          "x": 493,
+          "y": 1808
+        },
+        {
+          "x": 493,
+          "y": 1812
+        },
+        {
+          "x": 492,
+          "y": 1804
+        },
+        {
+          "x": 492,
+          "y": 1805
+        },
+        {
+          "x": 492,
+          "y": 1806
+        },
+        {
+          "x": 492,
+          "y": 1807
+        },
+        {
+          "x": 492,
+          "y": 1808
+        },
+        {
+          "x": 492,
+          "y": 1809
+        },
+        {
+          "x": 492,
+          "y": 1810
+        },
+        {
+          "x": 492,
+          "y": 1811
+        },
+        {
+          "x": 492,
+          "y": 1812
+        },
+        {
+          "x": 491,
+          "y": 1804
+        },
+        {
+          "x": 491,
+          "y": 1808
+        },
+        {
+          "x": 491,
+          "y": 1812
+        },
+        {
+          "x": 490,
+          "y": 1804
+        },
+        {
+          "x": 490,
+          "y": 1808
+        },
+        {
+          "x": 490,
+          "y": 1812
+        },
+        {
+          "x": 489,
+          "y": 1804
+        },
+        {
+          "x": 489,
+          "y": 1808
+        },
+        {
+          "x": 489,
+          "y": 1812
+        },
+        {
+          "x": 488,
+          "y": 1804
+        },
+        {
+          "x": 488,
+          "y": 1805
+        },
+        {
+          "x": 488,
+          "y": 1806
+        },
+        {
+          "x": 488,
+          "y": 1807
+        },
+        {
+          "x": 488,
+          "y": 1808
+        },
+        {
+          "x": 488,
+          "y": 1809
+        },
+        {
+          "x": 488,
+          "y": 1810
+        },
+        {
+          "x": 488,
+          "y": 1811
+        },
+        {
+          "x": 488,
           "y": 1812
         }
       ],
@@ -1230,41 +1086,41 @@
       "exitMap": [
         {
           "requirementExitId": "exit.corridor_section_region_goal_region_hub_central_1_open.east",
-          "catalogExitId": "exit.east.1",
+          "catalogExitId": "exit.north.1",
           "x": 497,
-          "y": 1804,
+          "y": 1806,
           "direction": "east",
           "width": 1
         },
         {
           "requirementExitId": "exit.corridor_section_region_hub_central_1_region_treasure_cache_1_open.north",
-          "catalogExitId": "exit.north.1",
-          "x": 488,
+          "catalogExitId": "exit.west.2",
+          "x": 490,
           "y": 1803,
           "direction": "north",
           "width": 1
         },
         {
           "requirementExitId": "exit.corridor_section_region_hazard_watch_1_region_hub_central_1_open.south",
-          "catalogExitId": "exit.south.1",
-          "x": 488,
+          "catalogExitId": "exit.east.2",
+          "x": 490,
           "y": 1813,
           "direction": "south",
           "width": 1
         },
         {
           "requirementExitId": "exit.corridor_section_region_hub_central_1_region_start_open.west",
-          "catalogExitId": "exit.west.1",
+          "catalogExitId": "exit.south.1",
           "x": 487,
-          "y": 1804,
+          "y": 1806,
           "direction": "west",
           "width": 1
         },
         {
           "requirementExitId": "exit.corridor_section_region_hub_central_1_region_resource_clue_1_open.west",
-          "catalogExitId": "exit.west.2",
+          "catalogExitId": "exit.south.2",
           "x": 487,
-          "y": 1805,
+          "y": 1810,
           "direction": "west",
           "width": 1
         }
@@ -1361,8 +1217,8 @@
       "pieceId": "piece.room.room_region_gate_locked_1",
       "requirementKind": "threshold",
       "role": "gate",
-      "shapeId": "shape.room.flow_junction.36_exit",
-      "transform": "identity",
+      "shapeId": "shape.room.flow_junction.spaced_8_exit",
+      "transform": "rotate270",
       "origin": {
         "x": 572,
         "y": 532
@@ -1370,283 +1226,155 @@
       "occupiedCells": [
         {
           "x": 572,
-          "y": 532
-        },
-        {
-          "x": 573,
-          "y": 532
-        },
-        {
-          "x": 574,
-          "y": 532
-        },
-        {
-          "x": 575,
-          "y": 532
-        },
-        {
-          "x": 576,
-          "y": 532
-        },
-        {
-          "x": 577,
-          "y": 532
-        },
-        {
-          "x": 578,
-          "y": 532
-        },
-        {
-          "x": 579,
-          "y": 532
-        },
-        {
-          "x": 572,
-          "y": 533
-        },
-        {
-          "x": 573,
-          "y": 533
-        },
-        {
-          "x": 574,
-          "y": 533
-        },
-        {
-          "x": 575,
-          "y": 533
-        },
-        {
-          "x": 576,
-          "y": 533
-        },
-        {
-          "x": 577,
-          "y": 533
-        },
-        {
-          "x": 578,
-          "y": 533
-        },
-        {
-          "x": 579,
-          "y": 533
-        },
-        {
-          "x": 572,
-          "y": 534
-        },
-        {
-          "x": 573,
-          "y": 534
-        },
-        {
-          "x": 574,
-          "y": 534
-        },
-        {
-          "x": 575,
-          "y": 534
-        },
-        {
-          "x": 576,
-          "y": 534
-        },
-        {
-          "x": 577,
-          "y": 534
-        },
-        {
-          "x": 578,
-          "y": 534
-        },
-        {
-          "x": 579,
-          "y": 534
-        },
-        {
-          "x": 572,
-          "y": 535
-        },
-        {
-          "x": 573,
-          "y": 535
-        },
-        {
-          "x": 574,
-          "y": 535
-        },
-        {
-          "x": 575,
-          "y": 535
-        },
-        {
-          "x": 576,
-          "y": 535
-        },
-        {
-          "x": 577,
-          "y": 535
-        },
-        {
-          "x": 578,
-          "y": 535
-        },
-        {
-          "x": 579,
-          "y": 535
-        },
-        {
-          "x": 572,
-          "y": 536
-        },
-        {
-          "x": 573,
-          "y": 536
-        },
-        {
-          "x": 574,
-          "y": 536
-        },
-        {
-          "x": 575,
-          "y": 536
-        },
-        {
-          "x": 576,
-          "y": 536
-        },
-        {
-          "x": 577,
-          "y": 536
-        },
-        {
-          "x": 578,
-          "y": 536
-        },
-        {
-          "x": 579,
-          "y": 536
-        },
-        {
-          "x": 572,
-          "y": 537
-        },
-        {
-          "x": 573,
-          "y": 537
-        },
-        {
-          "x": 574,
-          "y": 537
-        },
-        {
-          "x": 575,
-          "y": 537
-        },
-        {
-          "x": 576,
-          "y": 537
-        },
-        {
-          "x": 577,
-          "y": 537
-        },
-        {
-          "x": 578,
-          "y": 537
-        },
-        {
-          "x": 579,
-          "y": 537
-        },
-        {
-          "x": 572,
-          "y": 538
-        },
-        {
-          "x": 573,
-          "y": 538
-        },
-        {
-          "x": 574,
-          "y": 538
-        },
-        {
-          "x": 575,
-          "y": 538
-        },
-        {
-          "x": 576,
-          "y": 538
-        },
-        {
-          "x": 577,
-          "y": 538
-        },
-        {
-          "x": 578,
-          "y": 538
-        },
-        {
-          "x": 579,
-          "y": 538
+          "y": 540
         },
         {
           "x": 572,
           "y": 539
         },
         {
+          "x": 572,
+          "y": 538
+        },
+        {
+          "x": 572,
+          "y": 537
+        },
+        {
+          "x": 572,
+          "y": 536
+        },
+        {
+          "x": 572,
+          "y": 535
+        },
+        {
+          "x": 572,
+          "y": 534
+        },
+        {
+          "x": 572,
+          "y": 533
+        },
+        {
+          "x": 572,
+          "y": 532
+        },
+        {
           "x": 573,
-          "y": 539
+          "y": 540
+        },
+        {
+          "x": 573,
+          "y": 536
+        },
+        {
+          "x": 573,
+          "y": 532
         },
         {
           "x": 574,
-          "y": 539
+          "y": 540
+        },
+        {
+          "x": 574,
+          "y": 536
+        },
+        {
+          "x": 574,
+          "y": 532
         },
         {
           "x": 575,
-          "y": 539
+          "y": 540
+        },
+        {
+          "x": 575,
+          "y": 536
+        },
+        {
+          "x": 575,
+          "y": 532
+        },
+        {
+          "x": 576,
+          "y": 540
         },
         {
           "x": 576,
           "y": 539
         },
         {
+          "x": 576,
+          "y": 538
+        },
+        {
+          "x": 576,
+          "y": 537
+        },
+        {
+          "x": 576,
+          "y": 536
+        },
+        {
+          "x": 576,
+          "y": 535
+        },
+        {
+          "x": 576,
+          "y": 534
+        },
+        {
+          "x": 576,
+          "y": 533
+        },
+        {
+          "x": 576,
+          "y": 532
+        },
+        {
           "x": 577,
-          "y": 539
+          "y": 540
+        },
+        {
+          "x": 577,
+          "y": 536
+        },
+        {
+          "x": 577,
+          "y": 532
         },
         {
           "x": 578,
-          "y": 539
+          "y": 540
+        },
+        {
+          "x": 578,
+          "y": 536
+        },
+        {
+          "x": 578,
+          "y": 532
         },
         {
           "x": 579,
-          "y": 539
+          "y": 540
         },
         {
-          "x": 580,
+          "x": 579,
+          "y": 536
+        },
+        {
+          "x": 579,
           "y": 532
         },
         {
           "x": 580,
-          "y": 533
+          "y": 540
         },
         {
           "x": 580,
-          "y": 534
-        },
-        {
-          "x": 580,
-          "y": 535
-        },
-        {
-          "x": 580,
-          "y": 536
-        },
-        {
-          "x": 580,
-          "y": 537
+          "y": 539
         },
         {
           "x": 580,
@@ -1654,76 +1382,60 @@
         },
         {
           "x": 580,
-          "y": 539
-        },
-        {
-          "x": 572,
-          "y": 540
-        },
-        {
-          "x": 573,
-          "y": 540
-        },
-        {
-          "x": 574,
-          "y": 540
-        },
-        {
-          "x": 575,
-          "y": 540
-        },
-        {
-          "x": 576,
-          "y": 540
-        },
-        {
-          "x": 577,
-          "y": 540
-        },
-        {
-          "x": 578,
-          "y": 540
-        },
-        {
-          "x": 579,
-          "y": 540
+          "y": 537
         },
         {
           "x": 580,
-          "y": 540
+          "y": 536
+        },
+        {
+          "x": 580,
+          "y": 535
+        },
+        {
+          "x": 580,
+          "y": 534
+        },
+        {
+          "x": 580,
+          "y": 533
+        },
+        {
+          "x": 580,
+          "y": 532
         }
       ],
       "reservedCells": [],
       "exitMap": [
         {
           "requirementExitId": "exit.corridor_section_region_gate_locked_1_region_resource_boss_prep_1_open.north",
-          "catalogExitId": "exit.north.1",
-          "x": 572,
+          "catalogExitId": "exit.east.1",
+          "x": 574,
           "y": 531,
           "direction": "north",
           "width": 1
         },
         {
           "requirementExitId": "exit.corridor_section_region_gate_boss_1_region_gate_locked_1_open.north",
-          "catalogExitId": "exit.north.2",
-          "x": 573,
+          "catalogExitId": "exit.east.2",
+          "x": 578,
           "y": 531,
           "direction": "north",
           "width": 1
         },
         {
           "requirementExitId": "exit.corridor_section_region_gate_locked_1_region_key_gate_1_open.west",
-          "catalogExitId": "exit.west.1",
+          "catalogExitId": "exit.north.2",
           "x": 571,
-          "y": 532,
+          "y": 534,
           "direction": "west",
           "width": 1
         },
         {
           "requirementExitId": "exit.corridor_section_region_gate_locked_1_region_start_open.west",
-          "catalogExitId": "exit.west.2",
+          "catalogExitId": "exit.north.1",
           "x": 571,
-          "y": 533,
+          "y": 538,
           "direction": "west",
           "width": 1
         }
@@ -4994,7 +4706,7 @@
       "toInstance": "instance.piece_room_room_region_gate_locked_1",
       "toExit": "exit.corridor_section_region_gate_boss_1_region_gate_locked_1_open.north",
       "toCell": {
-        "x": 573,
+        "x": 578,
         "y": 531
       },
       "toDirection": "north",
@@ -5166,7 +4878,7 @@
       "fromExit": "exit.corridor_section_region_gate_locked_1_region_key_gate_1_open.west",
       "fromCell": {
         "x": 571,
-        "y": 532
+        "y": 534
       },
       "fromDirection": "west",
       "fromWidth": 1,
@@ -5227,7 +4939,7 @@
       "fromInstance": "instance.piece_room_room_region_gate_locked_1",
       "fromExit": "exit.corridor_section_region_gate_locked_1_region_resource_boss_prep_1_open.north",
       "fromCell": {
-        "x": 572,
+        "x": 574,
         "y": 531
       },
       "fromDirection": "north",
@@ -5289,7 +5001,7 @@
       "fromExit": "exit.corridor_section_region_gate_locked_1_region_start_open.west",
       "fromCell": {
         "x": 571,
-        "y": 533
+        "y": 538
       },
       "fromDirection": "west",
       "fromWidth": 1,
@@ -5482,7 +5194,7 @@
       "toExit": "exit.corridor_section_region_goal_region_hub_central_1_open.east",
       "toCell": {
         "x": 497,
-        "y": 1804
+        "y": 1806
       },
       "toDirection": "east",
       "toWidth": 1,
@@ -5666,7 +5378,7 @@
       "toInstance": "instance.piece_room_room_region_hub_central_1",
       "toExit": "exit.corridor_section_region_hazard_watch_1_region_hub_central_1_open.south",
       "toCell": {
-        "x": 488,
+        "x": 490,
         "y": 1813
       },
       "toDirection": "south",
@@ -5721,7 +5433,7 @@
       "fromExit": "exit.corridor_section_region_hub_central_1_region_resource_clue_1_open.west",
       "fromCell": {
         "x": 487,
-        "y": 1805
+        "y": 1810
       },
       "fromDirection": "west",
       "fromWidth": 1,
@@ -5793,7 +5505,7 @@
       "fromExit": "exit.corridor_section_region_hub_central_1_region_start_open.west",
       "fromCell": {
         "x": 487,
-        "y": 1804
+        "y": 1806
       },
       "fromDirection": "west",
       "fromWidth": 1,
@@ -5861,7 +5573,7 @@
       "fromInstance": "instance.piece_room_room_region_hub_central_1",
       "fromExit": "exit.corridor_section_region_hub_central_1_region_treasure_cache_1_open.north",
       "fromCell": {
-        "x": 488,
+        "x": 490,
         "y": 1803
       },
       "fromDirection": "north",
@@ -6176,7 +5888,7 @@
       "cells": [
         {
           "x": 571,
-          "y": 532
+          "y": 534
         }
       ],
       "orientation": "west",
@@ -6216,7 +5928,7 @@
       "toInstance": "instance.piece_room_room_region_resource_boss_prep_1",
       "cells": [
         {
-          "x": 572,
+          "x": 574,
           "y": 531
         }
       ],
@@ -6258,7 +5970,7 @@
       "cells": [
         {
           "x": 571,
-          "y": 533
+          "y": 538
         }
       ],
       "orientation": "west",
@@ -6554,7 +6266,7 @@
       "cells": [
         {
           "x": 487,
-          "y": 1805
+          "y": 1810
         }
       ],
       "orientation": "west",
@@ -6595,7 +6307,7 @@
       "cells": [
         {
           "x": 487,
-          "y": 1804
+          "y": 1806
         }
       ],
       "orientation": "west",
@@ -6644,7 +6356,7 @@
       "toInstance": "instance.piece_room_room_region_treasure_cache_1",
       "cells": [
         {
-          "x": 488,
+          "x": 490,
           "y": 1803
         }
       ],
@@ -7721,326 +7433,6 @@
     },
     {
       "instanceId": "instance.piece_room_room_region_hub_central_1",
-      "x": 488,
-      "y": 1804
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_hub_central_1",
-      "x": 489,
-      "y": 1804
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_hub_central_1",
-      "x": 490,
-      "y": 1804
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_hub_central_1",
-      "x": 491,
-      "y": 1804
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_hub_central_1",
-      "x": 492,
-      "y": 1804
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_hub_central_1",
-      "x": 493,
-      "y": 1804
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_hub_central_1",
-      "x": 494,
-      "y": 1804
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_hub_central_1",
-      "x": 495,
-      "y": 1804
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_hub_central_1",
-      "x": 488,
-      "y": 1805
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_hub_central_1",
-      "x": 489,
-      "y": 1805
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_hub_central_1",
-      "x": 490,
-      "y": 1805
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_hub_central_1",
-      "x": 491,
-      "y": 1805
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_hub_central_1",
-      "x": 492,
-      "y": 1805
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_hub_central_1",
-      "x": 493,
-      "y": 1805
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_hub_central_1",
-      "x": 494,
-      "y": 1805
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_hub_central_1",
-      "x": 495,
-      "y": 1805
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_hub_central_1",
-      "x": 488,
-      "y": 1806
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_hub_central_1",
-      "x": 489,
-      "y": 1806
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_hub_central_1",
-      "x": 490,
-      "y": 1806
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_hub_central_1",
-      "x": 491,
-      "y": 1806
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_hub_central_1",
-      "x": 492,
-      "y": 1806
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_hub_central_1",
-      "x": 493,
-      "y": 1806
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_hub_central_1",
-      "x": 494,
-      "y": 1806
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_hub_central_1",
-      "x": 495,
-      "y": 1806
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_hub_central_1",
-      "x": 488,
-      "y": 1807
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_hub_central_1",
-      "x": 489,
-      "y": 1807
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_hub_central_1",
-      "x": 490,
-      "y": 1807
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_hub_central_1",
-      "x": 491,
-      "y": 1807
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_hub_central_1",
-      "x": 492,
-      "y": 1807
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_hub_central_1",
-      "x": 493,
-      "y": 1807
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_hub_central_1",
-      "x": 494,
-      "y": 1807
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_hub_central_1",
-      "x": 495,
-      "y": 1807
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_hub_central_1",
-      "x": 488,
-      "y": 1808
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_hub_central_1",
-      "x": 489,
-      "y": 1808
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_hub_central_1",
-      "x": 490,
-      "y": 1808
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_hub_central_1",
-      "x": 491,
-      "y": 1808
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_hub_central_1",
-      "x": 492,
-      "y": 1808
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_hub_central_1",
-      "x": 493,
-      "y": 1808
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_hub_central_1",
-      "x": 494,
-      "y": 1808
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_hub_central_1",
-      "x": 495,
-      "y": 1808
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_hub_central_1",
-      "x": 488,
-      "y": 1809
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_hub_central_1",
-      "x": 489,
-      "y": 1809
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_hub_central_1",
-      "x": 490,
-      "y": 1809
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_hub_central_1",
-      "x": 491,
-      "y": 1809
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_hub_central_1",
-      "x": 492,
-      "y": 1809
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_hub_central_1",
-      "x": 493,
-      "y": 1809
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_hub_central_1",
-      "x": 494,
-      "y": 1809
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_hub_central_1",
-      "x": 495,
-      "y": 1809
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_hub_central_1",
-      "x": 488,
-      "y": 1810
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_hub_central_1",
-      "x": 489,
-      "y": 1810
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_hub_central_1",
-      "x": 490,
-      "y": 1810
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_hub_central_1",
-      "x": 491,
-      "y": 1810
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_hub_central_1",
-      "x": 492,
-      "y": 1810
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_hub_central_1",
-      "x": 493,
-      "y": 1810
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_hub_central_1",
-      "x": 494,
-      "y": 1810
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_hub_central_1",
-      "x": 495,
-      "y": 1810
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_hub_central_1",
-      "x": 488,
-      "y": 1811
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_hub_central_1",
-      "x": 489,
-      "y": 1811
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_hub_central_1",
-      "x": 490,
-      "y": 1811
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_hub_central_1",
-      "x": 491,
-      "y": 1811
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_hub_central_1",
-      "x": 492,
-      "y": 1811
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_hub_central_1",
-      "x": 493,
-      "y": 1811
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_hub_central_1",
-      "x": 494,
-      "y": 1811
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_hub_central_1",
-      "x": 495,
-      "y": 1811
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_hub_central_1",
       "x": 496,
       "y": 1804
     },
@@ -8081,38 +7473,18 @@
     },
     {
       "instanceId": "instance.piece_room_room_region_hub_central_1",
-      "x": 488,
+      "x": 496,
       "y": 1812
     },
     {
       "instanceId": "instance.piece_room_room_region_hub_central_1",
-      "x": 489,
-      "y": 1812
+      "x": 495,
+      "y": 1804
     },
     {
       "instanceId": "instance.piece_room_room_region_hub_central_1",
-      "x": 490,
-      "y": 1812
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_hub_central_1",
-      "x": 491,
-      "y": 1812
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_hub_central_1",
-      "x": 492,
-      "y": 1812
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_hub_central_1",
-      "x": 493,
-      "y": 1812
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_hub_central_1",
-      "x": 494,
-      "y": 1812
+      "x": 495,
+      "y": 1808
     },
     {
       "instanceId": "instance.piece_room_room_region_hub_central_1",
@@ -8121,7 +7493,167 @@
     },
     {
       "instanceId": "instance.piece_room_room_region_hub_central_1",
-      "x": 496,
+      "x": 494,
+      "y": 1804
+    },
+    {
+      "instanceId": "instance.piece_room_room_region_hub_central_1",
+      "x": 494,
+      "y": 1808
+    },
+    {
+      "instanceId": "instance.piece_room_room_region_hub_central_1",
+      "x": 494,
+      "y": 1812
+    },
+    {
+      "instanceId": "instance.piece_room_room_region_hub_central_1",
+      "x": 493,
+      "y": 1804
+    },
+    {
+      "instanceId": "instance.piece_room_room_region_hub_central_1",
+      "x": 493,
+      "y": 1808
+    },
+    {
+      "instanceId": "instance.piece_room_room_region_hub_central_1",
+      "x": 493,
+      "y": 1812
+    },
+    {
+      "instanceId": "instance.piece_room_room_region_hub_central_1",
+      "x": 492,
+      "y": 1804
+    },
+    {
+      "instanceId": "instance.piece_room_room_region_hub_central_1",
+      "x": 492,
+      "y": 1805
+    },
+    {
+      "instanceId": "instance.piece_room_room_region_hub_central_1",
+      "x": 492,
+      "y": 1806
+    },
+    {
+      "instanceId": "instance.piece_room_room_region_hub_central_1",
+      "x": 492,
+      "y": 1807
+    },
+    {
+      "instanceId": "instance.piece_room_room_region_hub_central_1",
+      "x": 492,
+      "y": 1808
+    },
+    {
+      "instanceId": "instance.piece_room_room_region_hub_central_1",
+      "x": 492,
+      "y": 1809
+    },
+    {
+      "instanceId": "instance.piece_room_room_region_hub_central_1",
+      "x": 492,
+      "y": 1810
+    },
+    {
+      "instanceId": "instance.piece_room_room_region_hub_central_1",
+      "x": 492,
+      "y": 1811
+    },
+    {
+      "instanceId": "instance.piece_room_room_region_hub_central_1",
+      "x": 492,
+      "y": 1812
+    },
+    {
+      "instanceId": "instance.piece_room_room_region_hub_central_1",
+      "x": 491,
+      "y": 1804
+    },
+    {
+      "instanceId": "instance.piece_room_room_region_hub_central_1",
+      "x": 491,
+      "y": 1808
+    },
+    {
+      "instanceId": "instance.piece_room_room_region_hub_central_1",
+      "x": 491,
+      "y": 1812
+    },
+    {
+      "instanceId": "instance.piece_room_room_region_hub_central_1",
+      "x": 490,
+      "y": 1804
+    },
+    {
+      "instanceId": "instance.piece_room_room_region_hub_central_1",
+      "x": 490,
+      "y": 1808
+    },
+    {
+      "instanceId": "instance.piece_room_room_region_hub_central_1",
+      "x": 490,
+      "y": 1812
+    },
+    {
+      "instanceId": "instance.piece_room_room_region_hub_central_1",
+      "x": 489,
+      "y": 1804
+    },
+    {
+      "instanceId": "instance.piece_room_room_region_hub_central_1",
+      "x": 489,
+      "y": 1808
+    },
+    {
+      "instanceId": "instance.piece_room_room_region_hub_central_1",
+      "x": 489,
+      "y": 1812
+    },
+    {
+      "instanceId": "instance.piece_room_room_region_hub_central_1",
+      "x": 488,
+      "y": 1804
+    },
+    {
+      "instanceId": "instance.piece_room_room_region_hub_central_1",
+      "x": 488,
+      "y": 1805
+    },
+    {
+      "instanceId": "instance.piece_room_room_region_hub_central_1",
+      "x": 488,
+      "y": 1806
+    },
+    {
+      "instanceId": "instance.piece_room_room_region_hub_central_1",
+      "x": 488,
+      "y": 1807
+    },
+    {
+      "instanceId": "instance.piece_room_room_region_hub_central_1",
+      "x": 488,
+      "y": 1808
+    },
+    {
+      "instanceId": "instance.piece_room_room_region_hub_central_1",
+      "x": 488,
+      "y": 1809
+    },
+    {
+      "instanceId": "instance.piece_room_room_region_hub_central_1",
+      "x": 488,
+      "y": 1810
+    },
+    {
+      "instanceId": "instance.piece_room_room_region_hub_central_1",
+      "x": 488,
+      "y": 1811
+    },
+    {
+      "instanceId": "instance.piece_room_room_region_hub_central_1",
+      "x": 488,
       "y": 1812
     },
     {
@@ -8147,282 +7679,7 @@
     {
       "instanceId": "instance.piece_room_room_region_gate_locked_1",
       "x": 572,
-      "y": 532
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_gate_locked_1",
-      "x": 573,
-      "y": 532
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_gate_locked_1",
-      "x": 574,
-      "y": 532
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_gate_locked_1",
-      "x": 575,
-      "y": 532
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_gate_locked_1",
-      "x": 576,
-      "y": 532
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_gate_locked_1",
-      "x": 577,
-      "y": 532
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_gate_locked_1",
-      "x": 578,
-      "y": 532
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_gate_locked_1",
-      "x": 579,
-      "y": 532
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_gate_locked_1",
-      "x": 572,
-      "y": 533
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_gate_locked_1",
-      "x": 573,
-      "y": 533
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_gate_locked_1",
-      "x": 574,
-      "y": 533
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_gate_locked_1",
-      "x": 575,
-      "y": 533
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_gate_locked_1",
-      "x": 576,
-      "y": 533
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_gate_locked_1",
-      "x": 577,
-      "y": 533
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_gate_locked_1",
-      "x": 578,
-      "y": 533
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_gate_locked_1",
-      "x": 579,
-      "y": 533
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_gate_locked_1",
-      "x": 572,
-      "y": 534
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_gate_locked_1",
-      "x": 573,
-      "y": 534
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_gate_locked_1",
-      "x": 574,
-      "y": 534
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_gate_locked_1",
-      "x": 575,
-      "y": 534
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_gate_locked_1",
-      "x": 576,
-      "y": 534
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_gate_locked_1",
-      "x": 577,
-      "y": 534
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_gate_locked_1",
-      "x": 578,
-      "y": 534
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_gate_locked_1",
-      "x": 579,
-      "y": 534
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_gate_locked_1",
-      "x": 572,
-      "y": 535
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_gate_locked_1",
-      "x": 573,
-      "y": 535
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_gate_locked_1",
-      "x": 574,
-      "y": 535
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_gate_locked_1",
-      "x": 575,
-      "y": 535
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_gate_locked_1",
-      "x": 576,
-      "y": 535
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_gate_locked_1",
-      "x": 577,
-      "y": 535
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_gate_locked_1",
-      "x": 578,
-      "y": 535
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_gate_locked_1",
-      "x": 579,
-      "y": 535
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_gate_locked_1",
-      "x": 572,
-      "y": 536
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_gate_locked_1",
-      "x": 573,
-      "y": 536
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_gate_locked_1",
-      "x": 574,
-      "y": 536
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_gate_locked_1",
-      "x": 575,
-      "y": 536
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_gate_locked_1",
-      "x": 576,
-      "y": 536
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_gate_locked_1",
-      "x": 577,
-      "y": 536
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_gate_locked_1",
-      "x": 578,
-      "y": 536
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_gate_locked_1",
-      "x": 579,
-      "y": 536
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_gate_locked_1",
-      "x": 572,
-      "y": 537
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_gate_locked_1",
-      "x": 573,
-      "y": 537
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_gate_locked_1",
-      "x": 574,
-      "y": 537
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_gate_locked_1",
-      "x": 575,
-      "y": 537
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_gate_locked_1",
-      "x": 576,
-      "y": 537
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_gate_locked_1",
-      "x": 577,
-      "y": 537
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_gate_locked_1",
-      "x": 578,
-      "y": 537
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_gate_locked_1",
-      "x": 579,
-      "y": 537
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_gate_locked_1",
-      "x": 572,
-      "y": 538
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_gate_locked_1",
-      "x": 573,
-      "y": 538
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_gate_locked_1",
-      "x": 574,
-      "y": 538
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_gate_locked_1",
-      "x": 575,
-      "y": 538
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_gate_locked_1",
-      "x": 576,
-      "y": 538
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_gate_locked_1",
-      "x": 577,
-      "y": 538
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_gate_locked_1",
-      "x": 578,
-      "y": 538
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_gate_locked_1",
-      "x": 579,
-      "y": 538
+      "y": 540
     },
     {
       "instanceId": "instance.piece_room_room_region_gate_locked_1",
@@ -8431,18 +7688,88 @@
     },
     {
       "instanceId": "instance.piece_room_room_region_gate_locked_1",
+      "x": 572,
+      "y": 538
+    },
+    {
+      "instanceId": "instance.piece_room_room_region_gate_locked_1",
+      "x": 572,
+      "y": 537
+    },
+    {
+      "instanceId": "instance.piece_room_room_region_gate_locked_1",
+      "x": 572,
+      "y": 536
+    },
+    {
+      "instanceId": "instance.piece_room_room_region_gate_locked_1",
+      "x": 572,
+      "y": 535
+    },
+    {
+      "instanceId": "instance.piece_room_room_region_gate_locked_1",
+      "x": 572,
+      "y": 534
+    },
+    {
+      "instanceId": "instance.piece_room_room_region_gate_locked_1",
+      "x": 572,
+      "y": 533
+    },
+    {
+      "instanceId": "instance.piece_room_room_region_gate_locked_1",
+      "x": 572,
+      "y": 532
+    },
+    {
+      "instanceId": "instance.piece_room_room_region_gate_locked_1",
       "x": 573,
-      "y": 539
+      "y": 540
+    },
+    {
+      "instanceId": "instance.piece_room_room_region_gate_locked_1",
+      "x": 573,
+      "y": 536
+    },
+    {
+      "instanceId": "instance.piece_room_room_region_gate_locked_1",
+      "x": 573,
+      "y": 532
     },
     {
       "instanceId": "instance.piece_room_room_region_gate_locked_1",
       "x": 574,
-      "y": 539
+      "y": 540
+    },
+    {
+      "instanceId": "instance.piece_room_room_region_gate_locked_1",
+      "x": 574,
+      "y": 536
+    },
+    {
+      "instanceId": "instance.piece_room_room_region_gate_locked_1",
+      "x": 574,
+      "y": 532
     },
     {
       "instanceId": "instance.piece_room_room_region_gate_locked_1",
       "x": 575,
-      "y": 539
+      "y": 540
+    },
+    {
+      "instanceId": "instance.piece_room_room_region_gate_locked_1",
+      "x": 575,
+      "y": 536
+    },
+    {
+      "instanceId": "instance.piece_room_room_region_gate_locked_1",
+      "x": 575,
+      "y": 532
+    },
+    {
+      "instanceId": "instance.piece_room_room_region_gate_locked_1",
+      "x": 576,
+      "y": 540
     },
     {
       "instanceId": "instance.piece_room_room_region_gate_locked_1",
@@ -8451,48 +7778,93 @@
     },
     {
       "instanceId": "instance.piece_room_room_region_gate_locked_1",
+      "x": 576,
+      "y": 538
+    },
+    {
+      "instanceId": "instance.piece_room_room_region_gate_locked_1",
+      "x": 576,
+      "y": 537
+    },
+    {
+      "instanceId": "instance.piece_room_room_region_gate_locked_1",
+      "x": 576,
+      "y": 536
+    },
+    {
+      "instanceId": "instance.piece_room_room_region_gate_locked_1",
+      "x": 576,
+      "y": 535
+    },
+    {
+      "instanceId": "instance.piece_room_room_region_gate_locked_1",
+      "x": 576,
+      "y": 534
+    },
+    {
+      "instanceId": "instance.piece_room_room_region_gate_locked_1",
+      "x": 576,
+      "y": 533
+    },
+    {
+      "instanceId": "instance.piece_room_room_region_gate_locked_1",
+      "x": 576,
+      "y": 532
+    },
+    {
+      "instanceId": "instance.piece_room_room_region_gate_locked_1",
       "x": 577,
-      "y": 539
+      "y": 540
+    },
+    {
+      "instanceId": "instance.piece_room_room_region_gate_locked_1",
+      "x": 577,
+      "y": 536
+    },
+    {
+      "instanceId": "instance.piece_room_room_region_gate_locked_1",
+      "x": 577,
+      "y": 532
     },
     {
       "instanceId": "instance.piece_room_room_region_gate_locked_1",
       "x": 578,
-      "y": 539
+      "y": 540
+    },
+    {
+      "instanceId": "instance.piece_room_room_region_gate_locked_1",
+      "x": 578,
+      "y": 536
+    },
+    {
+      "instanceId": "instance.piece_room_room_region_gate_locked_1",
+      "x": 578,
+      "y": 532
     },
     {
       "instanceId": "instance.piece_room_room_region_gate_locked_1",
       "x": 579,
-      "y": 539
+      "y": 540
     },
     {
       "instanceId": "instance.piece_room_room_region_gate_locked_1",
-      "x": 580,
+      "x": 579,
+      "y": 536
+    },
+    {
+      "instanceId": "instance.piece_room_room_region_gate_locked_1",
+      "x": 579,
       "y": 532
     },
     {
       "instanceId": "instance.piece_room_room_region_gate_locked_1",
       "x": 580,
-      "y": 533
+      "y": 540
     },
     {
       "instanceId": "instance.piece_room_room_region_gate_locked_1",
       "x": 580,
-      "y": 534
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_gate_locked_1",
-      "x": 580,
-      "y": 535
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_gate_locked_1",
-      "x": 580,
-      "y": 536
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_gate_locked_1",
-      "x": 580,
-      "y": 537
+      "y": 539
     },
     {
       "instanceId": "instance.piece_room_room_region_gate_locked_1",
@@ -8502,52 +7874,32 @@
     {
       "instanceId": "instance.piece_room_room_region_gate_locked_1",
       "x": 580,
-      "y": 539
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_gate_locked_1",
-      "x": 572,
-      "y": 540
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_gate_locked_1",
-      "x": 573,
-      "y": 540
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_gate_locked_1",
-      "x": 574,
-      "y": 540
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_gate_locked_1",
-      "x": 575,
-      "y": 540
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_gate_locked_1",
-      "x": 576,
-      "y": 540
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_gate_locked_1",
-      "x": 577,
-      "y": 540
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_gate_locked_1",
-      "x": 578,
-      "y": 540
-    },
-    {
-      "instanceId": "instance.piece_room_room_region_gate_locked_1",
-      "x": 579,
-      "y": 540
+      "y": 537
     },
     {
       "instanceId": "instance.piece_room_room_region_gate_locked_1",
       "x": 580,
-      "y": 540
+      "y": 536
+    },
+    {
+      "instanceId": "instance.piece_room_room_region_gate_locked_1",
+      "x": 580,
+      "y": 535
+    },
+    {
+      "instanceId": "instance.piece_room_room_region_gate_locked_1",
+      "x": 580,
+      "y": 534
+    },
+    {
+      "instanceId": "instance.piece_room_room_region_gate_locked_1",
+      "x": 580,
+      "y": 533
+    },
+    {
+      "instanceId": "instance.piece_room_room_region_gate_locked_1",
+      "x": 580,
+      "y": 532
     },
     {
       "instanceId": "instance.piece_room_room_region_resource_safety_1",
@@ -14603,52 +13955,27 @@
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_gate_boss_1_region_gate_locked_1_open_catalog",
-      "x": 577,
-      "y": 526
-    },
-    {
-      "instanceId": "connection.glue_piece_link_corridor_section_region_gate_boss_1_region_gate_locked_1_open_catalog",
-      "x": 576,
-      "y": 526
-    },
-    {
-      "instanceId": "connection.glue_piece_link_corridor_section_region_gate_boss_1_region_gate_locked_1_open_catalog",
-      "x": 575,
-      "y": 526
-    },
-    {
-      "instanceId": "connection.glue_piece_link_corridor_section_region_gate_boss_1_region_gate_locked_1_open_catalog",
-      "x": 574,
-      "y": 526
-    },
-    {
-      "instanceId": "connection.glue_piece_link_corridor_section_region_gate_boss_1_region_gate_locked_1_open_catalog",
-      "x": 573,
-      "y": 526
-    },
-    {
-      "instanceId": "connection.glue_piece_link_corridor_section_region_gate_boss_1_region_gate_locked_1_open_catalog",
-      "x": 573,
+      "x": 578,
       "y": 527
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_gate_boss_1_region_gate_locked_1_open_catalog",
-      "x": 573,
+      "x": 578,
       "y": 528
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_gate_boss_1_region_gate_locked_1_open_catalog",
-      "x": 573,
+      "x": 578,
       "y": 529
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_gate_boss_1_region_gate_locked_1_open_catalog",
-      "x": 573,
+      "x": 578,
       "y": 530
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_gate_boss_1_region_gate_locked_1_open_catalog",
-      "x": 573,
+      "x": 578,
       "y": 531
     },
     {
@@ -18259,62 +17586,52 @@
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_gate_locked_1_region_key_gate_1_open_catalog",
       "x": 571,
-      "y": 532
+      "y": 534
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_gate_locked_1_region_key_gate_1_open_catalog",
       "x": 570,
-      "y": 532
+      "y": 534
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_gate_locked_1_region_key_gate_1_open_catalog",
       "x": 569,
-      "y": 532
+      "y": 534
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_gate_locked_1_region_key_gate_1_open_catalog",
       "x": 568,
-      "y": 532
+      "y": 534
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_gate_locked_1_region_key_gate_1_open_catalog",
       "x": 567,
-      "y": 532
+      "y": 534
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_gate_locked_1_region_key_gate_1_open_catalog",
       "x": 566,
-      "y": 532
+      "y": 534
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_gate_locked_1_region_key_gate_1_open_catalog",
       "x": 565,
-      "y": 532
+      "y": 534
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_gate_locked_1_region_key_gate_1_open_catalog",
       "x": 564,
-      "y": 532
+      "y": 534
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_gate_locked_1_region_key_gate_1_open_catalog",
       "x": 563,
-      "y": 532
+      "y": 534
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_gate_locked_1_region_key_gate_1_open_catalog",
       "x": 562,
-      "y": 532
-    },
-    {
-      "instanceId": "connection.glue_piece_link_corridor_section_region_gate_locked_1_region_key_gate_1_open_catalog",
-      "x": 561,
-      "y": 532
-    },
-    {
-      "instanceId": "connection.glue_piece_link_corridor_section_region_gate_locked_1_region_key_gate_1_open_catalog",
-      "x": 561,
-      "y": 533
+      "y": 534
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_gate_locked_1_region_key_gate_1_open_catalog",
@@ -20608,63 +19925,53 @@
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_gate_locked_1_region_resource_boss_prep_1_open_catalog",
-      "x": 572,
+      "x": 574,
       "y": 531
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_gate_locked_1_region_resource_boss_prep_1_open_catalog",
-      "x": 572,
+      "x": 574,
       "y": 530
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_gate_locked_1_region_resource_boss_prep_1_open_catalog",
-      "x": 572,
+      "x": 574,
       "y": 529
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_gate_locked_1_region_resource_boss_prep_1_open_catalog",
-      "x": 572,
+      "x": 574,
       "y": 528
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_gate_locked_1_region_resource_boss_prep_1_open_catalog",
-      "x": 572,
+      "x": 574,
       "y": 527
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_gate_locked_1_region_resource_boss_prep_1_open_catalog",
-      "x": 572,
+      "x": 574,
       "y": 526
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_gate_locked_1_region_resource_boss_prep_1_open_catalog",
-      "x": 572,
+      "x": 574,
       "y": 525
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_gate_locked_1_region_resource_boss_prep_1_open_catalog",
-      "x": 572,
+      "x": 574,
       "y": 524
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_gate_locked_1_region_resource_boss_prep_1_open_catalog",
-      "x": 572,
+      "x": 574,
       "y": 523
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_gate_locked_1_region_resource_boss_prep_1_open_catalog",
-      "x": 572,
+      "x": 574,
       "y": 522
-    },
-    {
-      "instanceId": "connection.glue_piece_link_corridor_section_region_gate_locked_1_region_resource_boss_prep_1_open_catalog",
-      "x": 572,
-      "y": 521
-    },
-    {
-      "instanceId": "connection.glue_piece_link_corridor_section_region_gate_locked_1_region_resource_boss_prep_1_open_catalog",
-      "x": 573,
-      "y": 521
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_gate_locked_1_region_resource_boss_prep_1_open_catalog",
@@ -23844,52 +23151,27 @@
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_gate_locked_1_region_start_open_catalog",
       "x": 571,
-      "y": 533
+      "y": 538
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_gate_locked_1_region_start_open_catalog",
       "x": 570,
-      "y": 533
+      "y": 538
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_gate_locked_1_region_start_open_catalog",
       "x": 569,
-      "y": 533
+      "y": 538
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_gate_locked_1_region_start_open_catalog",
       "x": 568,
-      "y": 533
+      "y": 538
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_gate_locked_1_region_start_open_catalog",
       "x": 567,
-      "y": 533
-    },
-    {
-      "instanceId": "connection.glue_piece_link_corridor_section_region_gate_locked_1_region_start_open_catalog",
-      "x": 566,
-      "y": 533
-    },
-    {
-      "instanceId": "connection.glue_piece_link_corridor_section_region_gate_locked_1_region_start_open_catalog",
-      "x": 566,
-      "y": 534
-    },
-    {
-      "instanceId": "connection.glue_piece_link_corridor_section_region_gate_locked_1_region_start_open_catalog",
-      "x": 566,
-      "y": 535
-    },
-    {
-      "instanceId": "connection.glue_piece_link_corridor_section_region_gate_locked_1_region_start_open_catalog",
-      "x": 566,
-      "y": 536
-    },
-    {
-      "instanceId": "connection.glue_piece_link_corridor_section_region_gate_locked_1_region_start_open_catalog",
-      "x": 566,
-      "y": 537
+      "y": 538
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_gate_locked_1_region_start_open_catalog",
@@ -54533,368 +53815,358 @@
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_goal_region_hub_central_1_open_catalog",
-      "x": 568,
-      "y": 1805
-    },
-    {
-      "instanceId": "connection.glue_piece_link_corridor_section_region_goal_region_hub_central_1_open_catalog",
-      "x": 568,
-      "y": 1804
-    },
-    {
-      "instanceId": "connection.glue_piece_link_corridor_section_region_goal_region_hub_central_1_open_catalog",
       "x": 567,
-      "y": 1804
+      "y": 1806
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_goal_region_hub_central_1_open_catalog",
       "x": 566,
-      "y": 1804
+      "y": 1806
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_goal_region_hub_central_1_open_catalog",
       "x": 565,
-      "y": 1804
+      "y": 1806
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_goal_region_hub_central_1_open_catalog",
       "x": 564,
-      "y": 1804
+      "y": 1806
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_goal_region_hub_central_1_open_catalog",
       "x": 563,
-      "y": 1804
+      "y": 1806
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_goal_region_hub_central_1_open_catalog",
       "x": 562,
-      "y": 1804
+      "y": 1806
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_goal_region_hub_central_1_open_catalog",
       "x": 561,
-      "y": 1804
+      "y": 1806
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_goal_region_hub_central_1_open_catalog",
       "x": 560,
-      "y": 1804
+      "y": 1806
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_goal_region_hub_central_1_open_catalog",
       "x": 559,
-      "y": 1804
+      "y": 1806
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_goal_region_hub_central_1_open_catalog",
       "x": 558,
-      "y": 1804
+      "y": 1806
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_goal_region_hub_central_1_open_catalog",
       "x": 557,
-      "y": 1804
+      "y": 1806
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_goal_region_hub_central_1_open_catalog",
       "x": 556,
-      "y": 1804
+      "y": 1806
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_goal_region_hub_central_1_open_catalog",
       "x": 555,
-      "y": 1804
+      "y": 1806
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_goal_region_hub_central_1_open_catalog",
       "x": 554,
-      "y": 1804
+      "y": 1806
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_goal_region_hub_central_1_open_catalog",
       "x": 553,
-      "y": 1804
+      "y": 1806
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_goal_region_hub_central_1_open_catalog",
       "x": 552,
-      "y": 1804
+      "y": 1806
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_goal_region_hub_central_1_open_catalog",
       "x": 551,
-      "y": 1804
+      "y": 1806
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_goal_region_hub_central_1_open_catalog",
       "x": 550,
-      "y": 1804
+      "y": 1806
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_goal_region_hub_central_1_open_catalog",
       "x": 549,
-      "y": 1804
+      "y": 1806
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_goal_region_hub_central_1_open_catalog",
       "x": 548,
-      "y": 1804
+      "y": 1806
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_goal_region_hub_central_1_open_catalog",
       "x": 547,
-      "y": 1804
+      "y": 1806
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_goal_region_hub_central_1_open_catalog",
       "x": 546,
-      "y": 1804
+      "y": 1806
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_goal_region_hub_central_1_open_catalog",
       "x": 545,
-      "y": 1804
+      "y": 1806
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_goal_region_hub_central_1_open_catalog",
       "x": 544,
-      "y": 1804
+      "y": 1806
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_goal_region_hub_central_1_open_catalog",
       "x": 543,
-      "y": 1804
+      "y": 1806
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_goal_region_hub_central_1_open_catalog",
       "x": 542,
-      "y": 1804
+      "y": 1806
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_goal_region_hub_central_1_open_catalog",
       "x": 541,
-      "y": 1804
+      "y": 1806
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_goal_region_hub_central_1_open_catalog",
       "x": 540,
-      "y": 1804
+      "y": 1806
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_goal_region_hub_central_1_open_catalog",
       "x": 539,
-      "y": 1804
+      "y": 1806
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_goal_region_hub_central_1_open_catalog",
       "x": 538,
-      "y": 1804
+      "y": 1806
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_goal_region_hub_central_1_open_catalog",
       "x": 537,
-      "y": 1804
+      "y": 1806
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_goal_region_hub_central_1_open_catalog",
       "x": 536,
-      "y": 1804
+      "y": 1806
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_goal_region_hub_central_1_open_catalog",
       "x": 535,
-      "y": 1804
+      "y": 1806
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_goal_region_hub_central_1_open_catalog",
       "x": 534,
-      "y": 1804
+      "y": 1806
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_goal_region_hub_central_1_open_catalog",
       "x": 533,
-      "y": 1804
+      "y": 1806
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_goal_region_hub_central_1_open_catalog",
       "x": 532,
-      "y": 1804
+      "y": 1806
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_goal_region_hub_central_1_open_catalog",
       "x": 531,
-      "y": 1804
+      "y": 1806
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_goal_region_hub_central_1_open_catalog",
       "x": 530,
-      "y": 1804
+      "y": 1806
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_goal_region_hub_central_1_open_catalog",
       "x": 529,
-      "y": 1804
+      "y": 1806
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_goal_region_hub_central_1_open_catalog",
       "x": 528,
-      "y": 1804
+      "y": 1806
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_goal_region_hub_central_1_open_catalog",
       "x": 527,
-      "y": 1804
+      "y": 1806
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_goal_region_hub_central_1_open_catalog",
       "x": 526,
-      "y": 1804
+      "y": 1806
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_goal_region_hub_central_1_open_catalog",
       "x": 525,
-      "y": 1804
+      "y": 1806
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_goal_region_hub_central_1_open_catalog",
       "x": 524,
-      "y": 1804
+      "y": 1806
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_goal_region_hub_central_1_open_catalog",
       "x": 523,
-      "y": 1804
+      "y": 1806
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_goal_region_hub_central_1_open_catalog",
       "x": 522,
-      "y": 1804
+      "y": 1806
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_goal_region_hub_central_1_open_catalog",
       "x": 521,
-      "y": 1804
+      "y": 1806
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_goal_region_hub_central_1_open_catalog",
       "x": 520,
-      "y": 1804
+      "y": 1806
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_goal_region_hub_central_1_open_catalog",
       "x": 519,
-      "y": 1804
+      "y": 1806
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_goal_region_hub_central_1_open_catalog",
       "x": 518,
-      "y": 1804
+      "y": 1806
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_goal_region_hub_central_1_open_catalog",
       "x": 517,
-      "y": 1804
+      "y": 1806
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_goal_region_hub_central_1_open_catalog",
       "x": 516,
-      "y": 1804
+      "y": 1806
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_goal_region_hub_central_1_open_catalog",
       "x": 515,
-      "y": 1804
+      "y": 1806
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_goal_region_hub_central_1_open_catalog",
       "x": 514,
-      "y": 1804
+      "y": 1806
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_goal_region_hub_central_1_open_catalog",
       "x": 513,
-      "y": 1804
+      "y": 1806
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_goal_region_hub_central_1_open_catalog",
       "x": 512,
-      "y": 1804
+      "y": 1806
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_goal_region_hub_central_1_open_catalog",
       "x": 511,
-      "y": 1804
+      "y": 1806
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_goal_region_hub_central_1_open_catalog",
       "x": 510,
-      "y": 1804
+      "y": 1806
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_goal_region_hub_central_1_open_catalog",
       "x": 509,
-      "y": 1804
+      "y": 1806
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_goal_region_hub_central_1_open_catalog",
       "x": 508,
-      "y": 1804
+      "y": 1806
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_goal_region_hub_central_1_open_catalog",
       "x": 507,
-      "y": 1804
+      "y": 1806
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_goal_region_hub_central_1_open_catalog",
       "x": 506,
-      "y": 1804
+      "y": 1806
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_goal_region_hub_central_1_open_catalog",
       "x": 505,
-      "y": 1804
+      "y": 1806
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_goal_region_hub_central_1_open_catalog",
       "x": 504,
-      "y": 1804
+      "y": 1806
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_goal_region_hub_central_1_open_catalog",
       "x": 503,
-      "y": 1804
+      "y": 1806
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_goal_region_hub_central_1_open_catalog",
       "x": 502,
-      "y": 1804
+      "y": 1806
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_goal_region_hub_central_1_open_catalog",
       "x": 501,
-      "y": 1804
+      "y": 1806
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_goal_region_hub_central_1_open_catalog",
       "x": 500,
-      "y": 1804
+      "y": 1806
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_goal_region_hub_central_1_open_catalog",
       "x": 499,
-      "y": 1804
+      "y": 1806
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_goal_region_hub_central_1_open_catalog",
       "x": 498,
-      "y": 1804
+      "y": 1806
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_goal_region_hub_central_1_open_catalog",
       "x": 497,
-      "y": 1804
+      "y": 1806
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_hazard_sluice_1_region_resource_safety_1_open_catalog",
@@ -66508,298 +65780,263 @@
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_hazard_watch_1_region_hub_central_1_open_catalog",
-      "x": 489,
-      "y": 1860
-    },
-    {
-      "instanceId": "connection.glue_piece_link_corridor_section_region_hazard_watch_1_region_hub_central_1_open_catalog",
-      "x": 488,
-      "y": 1860
-    },
-    {
-      "instanceId": "connection.glue_piece_link_corridor_section_region_hazard_watch_1_region_hub_central_1_open_catalog",
-      "x": 488,
+      "x": 490,
       "y": 1859
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_hazard_watch_1_region_hub_central_1_open_catalog",
-      "x": 488,
+      "x": 490,
       "y": 1858
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_hazard_watch_1_region_hub_central_1_open_catalog",
-      "x": 488,
+      "x": 490,
       "y": 1857
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_hazard_watch_1_region_hub_central_1_open_catalog",
-      "x": 488,
+      "x": 490,
       "y": 1856
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_hazard_watch_1_region_hub_central_1_open_catalog",
-      "x": 488,
+      "x": 490,
       "y": 1855
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_hazard_watch_1_region_hub_central_1_open_catalog",
-      "x": 488,
+      "x": 490,
       "y": 1854
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_hazard_watch_1_region_hub_central_1_open_catalog",
-      "x": 488,
+      "x": 490,
       "y": 1853
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_hazard_watch_1_region_hub_central_1_open_catalog",
-      "x": 488,
+      "x": 490,
       "y": 1852
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_hazard_watch_1_region_hub_central_1_open_catalog",
-      "x": 488,
+      "x": 490,
       "y": 1851
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_hazard_watch_1_region_hub_central_1_open_catalog",
-      "x": 488,
+      "x": 490,
       "y": 1850
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_hazard_watch_1_region_hub_central_1_open_catalog",
-      "x": 488,
+      "x": 490,
       "y": 1849
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_hazard_watch_1_region_hub_central_1_open_catalog",
-      "x": 488,
+      "x": 490,
       "y": 1848
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_hazard_watch_1_region_hub_central_1_open_catalog",
-      "x": 488,
+      "x": 490,
       "y": 1847
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_hazard_watch_1_region_hub_central_1_open_catalog",
-      "x": 488,
+      "x": 490,
       "y": 1846
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_hazard_watch_1_region_hub_central_1_open_catalog",
-      "x": 488,
+      "x": 490,
       "y": 1845
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_hazard_watch_1_region_hub_central_1_open_catalog",
-      "x": 488,
+      "x": 490,
       "y": 1844
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_hazard_watch_1_region_hub_central_1_open_catalog",
-      "x": 488,
+      "x": 490,
       "y": 1843
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_hazard_watch_1_region_hub_central_1_open_catalog",
-      "x": 488,
+      "x": 490,
       "y": 1842
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_hazard_watch_1_region_hub_central_1_open_catalog",
-      "x": 488,
+      "x": 490,
       "y": 1841
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_hazard_watch_1_region_hub_central_1_open_catalog",
-      "x": 488,
+      "x": 490,
       "y": 1840
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_hazard_watch_1_region_hub_central_1_open_catalog",
-      "x": 488,
+      "x": 490,
       "y": 1839
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_hazard_watch_1_region_hub_central_1_open_catalog",
-      "x": 488,
+      "x": 490,
       "y": 1838
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_hazard_watch_1_region_hub_central_1_open_catalog",
-      "x": 488,
+      "x": 490,
       "y": 1837
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_hazard_watch_1_region_hub_central_1_open_catalog",
-      "x": 488,
+      "x": 490,
       "y": 1836
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_hazard_watch_1_region_hub_central_1_open_catalog",
-      "x": 488,
+      "x": 490,
       "y": 1835
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_hazard_watch_1_region_hub_central_1_open_catalog",
-      "x": 488,
+      "x": 490,
       "y": 1834
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_hazard_watch_1_region_hub_central_1_open_catalog",
-      "x": 488,
+      "x": 490,
       "y": 1833
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_hazard_watch_1_region_hub_central_1_open_catalog",
-      "x": 488,
+      "x": 490,
       "y": 1832
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_hazard_watch_1_region_hub_central_1_open_catalog",
-      "x": 488,
+      "x": 490,
       "y": 1831
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_hazard_watch_1_region_hub_central_1_open_catalog",
-      "x": 488,
+      "x": 490,
       "y": 1830
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_hazard_watch_1_region_hub_central_1_open_catalog",
-      "x": 488,
+      "x": 490,
       "y": 1829
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_hazard_watch_1_region_hub_central_1_open_catalog",
-      "x": 488,
+      "x": 490,
       "y": 1828
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_hazard_watch_1_region_hub_central_1_open_catalog",
-      "x": 488,
+      "x": 490,
       "y": 1827
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_hazard_watch_1_region_hub_central_1_open_catalog",
-      "x": 488,
+      "x": 490,
       "y": 1826
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_hazard_watch_1_region_hub_central_1_open_catalog",
-      "x": 488,
+      "x": 490,
       "y": 1825
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_hazard_watch_1_region_hub_central_1_open_catalog",
-      "x": 488,
+      "x": 490,
       "y": 1824
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_hazard_watch_1_region_hub_central_1_open_catalog",
-      "x": 488,
+      "x": 490,
       "y": 1823
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_hazard_watch_1_region_hub_central_1_open_catalog",
-      "x": 488,
+      "x": 490,
       "y": 1822
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_hazard_watch_1_region_hub_central_1_open_catalog",
-      "x": 488,
+      "x": 490,
       "y": 1821
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_hazard_watch_1_region_hub_central_1_open_catalog",
-      "x": 488,
+      "x": 490,
       "y": 1820
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_hazard_watch_1_region_hub_central_1_open_catalog",
-      "x": 488,
+      "x": 490,
       "y": 1819
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_hazard_watch_1_region_hub_central_1_open_catalog",
-      "x": 488,
+      "x": 490,
       "y": 1818
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_hazard_watch_1_region_hub_central_1_open_catalog",
-      "x": 488,
+      "x": 490,
       "y": 1817
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_hazard_watch_1_region_hub_central_1_open_catalog",
-      "x": 488,
+      "x": 490,
       "y": 1816
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_hazard_watch_1_region_hub_central_1_open_catalog",
-      "x": 488,
+      "x": 490,
       "y": 1815
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_hazard_watch_1_region_hub_central_1_open_catalog",
-      "x": 488,
+      "x": 490,
       "y": 1814
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_hazard_watch_1_region_hub_central_1_open_catalog",
-      "x": 488,
+      "x": 490,
       "y": 1813
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_hub_central_1_region_resource_clue_1_open_catalog",
       "x": 487,
-      "y": 1805
+      "y": 1810
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_hub_central_1_region_resource_clue_1_open_catalog",
       "x": 486,
-      "y": 1805
+      "y": 1810
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_hub_central_1_region_resource_clue_1_open_catalog",
       "x": 485,
-      "y": 1805
+      "y": 1810
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_hub_central_1_region_resource_clue_1_open_catalog",
       "x": 484,
-      "y": 1805
+      "y": 1810
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_hub_central_1_region_resource_clue_1_open_catalog",
       "x": 483,
-      "y": 1805
-    },
-    {
-      "instanceId": "connection.glue_piece_link_corridor_section_region_hub_central_1_region_resource_clue_1_open_catalog",
-      "x": 482,
-      "y": 1805
-    },
-    {
-      "instanceId": "connection.glue_piece_link_corridor_section_region_hub_central_1_region_resource_clue_1_open_catalog",
-      "x": 482,
-      "y": 1806
-    },
-    {
-      "instanceId": "connection.glue_piece_link_corridor_section_region_hub_central_1_region_resource_clue_1_open_catalog",
-      "x": 482,
-      "y": 1807
-    },
-    {
-      "instanceId": "connection.glue_piece_link_corridor_section_region_hub_central_1_region_resource_clue_1_open_catalog",
-      "x": 482,
-      "y": 1808
-    },
-    {
-      "instanceId": "connection.glue_piece_link_corridor_section_region_hub_central_1_region_resource_clue_1_open_catalog",
-      "x": 482,
-      "y": 1809
+      "y": 1810
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_hub_central_1_region_resource_clue_1_open_catalog",
@@ -68654,62 +67891,52 @@
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_hub_central_1_region_start_open_catalog",
       "x": 487,
-      "y": 1804
+      "y": 1806
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_hub_central_1_region_start_open_catalog",
       "x": 486,
-      "y": 1804
+      "y": 1806
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_hub_central_1_region_start_open_catalog",
       "x": 485,
-      "y": 1804
+      "y": 1806
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_hub_central_1_region_start_open_catalog",
       "x": 484,
-      "y": 1804
+      "y": 1806
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_hub_central_1_region_start_open_catalog",
       "x": 483,
-      "y": 1804
+      "y": 1806
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_hub_central_1_region_start_open_catalog",
       "x": 482,
-      "y": 1804
+      "y": 1806
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_hub_central_1_region_start_open_catalog",
       "x": 481,
-      "y": 1804
+      "y": 1806
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_hub_central_1_region_start_open_catalog",
       "x": 480,
-      "y": 1804
+      "y": 1806
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_hub_central_1_region_start_open_catalog",
       "x": 479,
-      "y": 1804
+      "y": 1806
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_hub_central_1_region_start_open_catalog",
       "x": 478,
-      "y": 1804
-    },
-    {
-      "instanceId": "connection.glue_piece_link_corridor_section_region_hub_central_1_region_start_open_catalog",
-      "x": 477,
-      "y": 1804
-    },
-    {
-      "instanceId": "connection.glue_piece_link_corridor_section_region_hub_central_1_region_start_open_catalog",
-      "x": 477,
-      "y": 1805
+      "y": 1806
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_hub_central_1_region_start_open_catalog",
@@ -78463,38 +77690,28 @@
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_hub_central_1_region_treasure_cache_1_open_catalog",
-      "x": 488,
+      "x": 490,
       "y": 1803
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_hub_central_1_region_treasure_cache_1_open_catalog",
-      "x": 488,
+      "x": 490,
       "y": 1802
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_hub_central_1_region_treasure_cache_1_open_catalog",
-      "x": 488,
+      "x": 490,
       "y": 1801
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_hub_central_1_region_treasure_cache_1_open_catalog",
-      "x": 488,
+      "x": 490,
       "y": 1800
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_hub_central_1_region_treasure_cache_1_open_catalog",
-      "x": 488,
+      "x": 490,
       "y": 1799
-    },
-    {
-      "instanceId": "connection.glue_piece_link_corridor_section_region_hub_central_1_region_treasure_cache_1_open_catalog",
-      "x": 488,
-      "y": 1798
-    },
-    {
-      "instanceId": "connection.glue_piece_link_corridor_section_region_hub_central_1_region_treasure_cache_1_open_catalog",
-      "x": 489,
-      "y": 1798
     },
     {
       "instanceId": "connection.glue_piece_link_corridor_section_region_hub_central_1_region_treasure_cache_1_open_catalog",

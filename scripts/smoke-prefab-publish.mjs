@@ -48,7 +48,7 @@ assert.equal(publication.prefabRegistry.definitions.length, 2);
 assert.equal(publication.prefabInstancesArtifact.prefabInstances.length, 2);
 assert.deepEqual(
   publication.prefabInstancesArtifact.prefabInstances.map((instance) => [instance.instance, instance.prefab]),
-  [[2001, 1001], [2002, 1002]],
+  [[2001, 1003], [2002, 1002]],
 );
 assert.deepEqual(publication.prefabInstancesArtifact.prefabInstances[1].transform.rotation, [0, 1, 0, 0]);
 assert.equal(publication.sceneArtifact.nodes.length, 2);
@@ -62,8 +62,8 @@ assert.equal(
   publication.manifest.artifacts.filter((artifact) => artifact.role === 'resource:procgen-prefab-source').length,
   2,
 );
-assert.equal(publication.provenance.instances[0].shapeId, 'shape.room.flow_junction.36_exit');
-assert.equal(publication.provenance.instances[0].matchScore, 895);
+assert.equal(publication.provenance.instances[0].shapeId, 'shape.room.flow_junction.spaced_8_exit');
+assert.equal(publication.provenance.instances[0].matchScore, 1035);
 assert.match(serializeAshaPrefabRegistrySource(publication.prefabRegistry), /"schemaVersion": 1/);
 
 const runtimeSession = createRuntimeSessionFacade({
@@ -104,8 +104,8 @@ assert.deepEqual(
 const repeatedShapeConfiguration = {
   ...configuration,
   selectedInstanceIds: [
-    'instance.piece_room_room_region_start',
     'instance.piece_room_room_region_gate_locked_1',
+    'instance.piece_room_room_region_key_gate_1',
   ],
   mappings: [{
     ...configuration.mappings[0],
@@ -114,8 +114,8 @@ const repeatedShapeConfiguration = {
     source: { kind: 'voxelObject', asset: 'voxel-object/procgen-standard-room' },
   }],
   instanceIdentities: [
-    { procgenInstanceId: 'instance.piece_room_room_region_start', prefabInstanceId: 2010 },
-    { procgenInstanceId: 'instance.piece_room_room_region_gate_locked_1', prefabInstanceId: 2009 },
+    { procgenInstanceId: 'instance.piece_room_room_region_gate_locked_1', prefabInstanceId: 2010 },
+    { procgenInstanceId: 'instance.piece_room_room_region_key_gate_1', prefabInstanceId: 2009 },
   ],
 };
 const repeatedShapePublication = compile({ configuration: repeatedShapeConfiguration });
@@ -134,20 +134,27 @@ assert.deepEqual(
 );
 
 expectFailure('missingPrefabMapping', () => compile({
-  configuration: { ...configuration, mappings: configuration.mappings.slice(1) },
+  configuration: {
+    ...configuration,
+    mappings: configuration.mappings.filter(
+      (mapping) => mapping.shapeId !== 'shape.room.flow_junction.spaced_8_exit',
+    ),
+  },
 }));
 expectFailure('missingStableRole', () => compile({
   configuration: {
     ...configuration,
-    mappings: configuration.mappings.map((mapping, index) =>
-      index === 0 ? { ...mapping, stableRole: '' } : mapping),
+    mappings: configuration.mappings.map((mapping) =>
+      mapping.shapeId === 'shape.room.flow_junction.spaced_8_exit'
+        ? { ...mapping, stableRole: '' }
+        : mapping),
   },
 }));
 expectFailure('incompatibleSourceAsset', () => compile({
   configuration: {
     ...configuration,
-    mappings: configuration.mappings.map((mapping, index) =>
-      index === 0
+    mappings: configuration.mappings.map((mapping) =>
+      mapping.shapeId === 'shape.room.flow_junction.spaced_8_exit'
         ? { ...mapping, source: { kind: 'voxelObject', asset: 'scene/procgen-standard-room' } }
         : mapping),
   },

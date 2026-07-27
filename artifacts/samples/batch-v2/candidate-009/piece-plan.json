@@ -364,6 +364,10 @@
       "requiredSockets": [
         "gate_line"
       ],
+      "requiredShapeTags": [
+        "spaced_portals",
+        "spaced_portals_compact"
+      ],
       "tags": [
         "gate",
         "locked_gate",

@@ -1194,7 +1194,7 @@ function safeExperimentSourcePath(relativePath, allowedRelativeRoot) {
 
 async function runProcgen(args) {
   await execFileAsync('cargo', [
-    'run', '--quiet',
+    'run', '--quiet', '--release',
     '--manifest-path', join(repoRoot, 'procgen-rs/Cargo.toml'),
     '--bin', 'asha-procgen',
     '--',

@@ -161,6 +161,10 @@
         }
       ],
       "requiredSockets": [],
+      "requiredShapeTags": [
+        "spaced_portals",
+        "spaced_portals_compact"
+      ],
       "tags": [
         "choice_readability",
         "hub",
@@ -281,6 +285,10 @@
       ],
       "requiredSockets": [
         "gate_line"
+      ],
+      "requiredShapeTags": [
+        "spaced_portals",
+        "spaced_portals_compact"
       ],
       "tags": [
         "choice_readability",

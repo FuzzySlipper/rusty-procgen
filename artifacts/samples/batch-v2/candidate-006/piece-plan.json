@@ -43,6 +43,10 @@
       "requiredSockets": [
         "marker"
       ],
+      "requiredShapeTags": [
+        "spaced_portals",
+        "spaced_portals_compact"
+      ],
       "tags": [
         "choice_readability",
         "entry",

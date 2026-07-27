@@ -137,6 +137,10 @@
       "requiredSockets": [
         "gate_line"
       ],
+      "requiredShapeTags": [
+        "spaced_portals",
+        "spaced_portals_compact"
+      ],
       "tags": [
         "choice_readability",
         "gate",
@@ -420,6 +424,10 @@
       "requiredSockets": [
         "key_pickup"
       ],
+      "requiredShapeTags": [
+        "spaced_portals",
+        "spaced_portals_compact"
+      ],
       "tags": [
         "key_pickup",
         "key_pocket",
@@ -562,6 +570,9 @@
       ],
       "requiredSockets": [
         "marker"
+      ],
+      "requiredShapeTags": [
+        "spaced_portals"
       ],
       "tags": [
         "destination",

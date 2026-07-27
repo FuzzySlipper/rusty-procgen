@@ -56,8 +56,13 @@ fn emit_piece_build_plan(
             })
             .max()
             .unwrap_or(0);
-        let required_shape_tags = if maximum_same_side_exits >= 2 {
+        let required_shape_tags = if maximum_same_side_exits >= 3 {
             vec!["spaced_portals".to_owned()]
+        } else if maximum_same_side_exits == 2 {
+            vec![
+                "spaced_portals".to_owned(),
+                "spaced_portals_compact".to_owned(),
+            ]
         } else {
             Vec::new()
         };

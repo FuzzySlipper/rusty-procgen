@@ -400,6 +400,82 @@
       ]
     },
     {
+      "candidateId": "candidate.first_slice.5601",
+      "profileSequence": "nested-treasure-merge",
+      "topologyFingerprint": "topology:93f72844c48d0e47",
+      "duplicateOf": null,
+      "budgetChecks": [
+        {
+          "code": "min_optional_branches",
+          "ok": true,
+          "detail": "optional branches 4 >= budget 2"
+        },
+        {
+          "code": "max_dead_ends",
+          "ok": true,
+          "detail": "dead ends 0 <= budget 0"
+        }
+      ],
+      "budgetPenalty": 0.0,
+      "selectionScore": 0.5,
+      "artifactRef": "artifacts/samples/batch-v2/candidate-004/accepted.json",
+      "validationRef": "artifacts/samples/batch-v2/candidate-004/validation.graph.json",
+      "scoreRef": "artifacts/samples/batch-v2/candidate-004/score.graph.json",
+      "layoutRef": "artifacts/samples/batch-v2/candidate-004/layout-2d.json",
+      "analysisRef": "artifacts/samples/batch-v2/candidate-004/analysis.graph.json",
+      "compatibleRulesRef": "artifacts/samples/batch-v2/candidate-004/compatible-rules.json",
+      "spatialIntentRef": "artifacts/samples/batch-v2/candidate-004/spatial-intent.json",
+      "intermediateBreakdownRef": "artifacts/samples/batch-v2/candidate-004/intermediate-breakdown.json",
+      "intermediateValidationRef": "artifacts/samples/batch-v2/candidate-004/intermediate.validation.json",
+      "physicalConnectionPlanRef": "artifacts/samples/batch-v2/candidate-004/physical-connection-plan.json",
+      "geometryRef": "artifacts/samples/batch-v2/candidate-004/geometry-2d.json",
+      "geometryValidationRef": "artifacts/samples/batch-v2/candidate-004/geometry-2d.validation.json",
+      "htmlPreviewRef": "artifacts/samples/batch-v2/candidate-004/html-preview.json",
+      "htmlRef": "artifacts/samples/batch-v2/candidate-004/geometry-2d.preview.html",
+      "shapeCatalogRef": "fixtures/shape-catalogs/2d-basic.json",
+      "catalogInspectionRef": "artifacts/samples/batch-v2/candidate-004/shape-catalog.report.json",
+      "piecePlanRef": "artifacts/samples/batch-v2/candidate-004/piece-plan.json",
+      "shapeMatchRef": "artifacts/samples/batch-v2/candidate-004/piece-shape-match.json",
+      "piecePlacementRef": "artifacts/samples/batch-v2/candidate-004/piece-placement.json",
+      "piecePlacementValidationRef": "artifacts/samples/batch-v2/candidate-004/piece-placement.validation.json",
+      "builtFlowValidationRef": "artifacts/samples/batch-v2/candidate-004/built-flow.validation.json",
+      "overall": 0.5,
+      "metrics": {
+        "bossCount": 0.0,
+        "criticalPathLength": 2.0,
+        "deadEndCount": 0.0,
+        "edgeCount": 13.0,
+        "hazardCount": 0.0,
+        "hubCount": 0.0,
+        "lockedEdgeCount": 4.0,
+        "loopCount": 5.0,
+        "mergeCount": 1.0,
+        "nodeCount": 9.0,
+        "optionalBranchCount": 4.0,
+        "preparationCount": 1.0,
+        "pressureEdgeCount": 0.0,
+        "rejoinEdgeCount": 3.0,
+        "shortcutCount": 1.0,
+        "wayfindingAnchorCount": 1.0
+      },
+      "tags": [
+        "approach",
+        "branch",
+        "critical",
+        "key",
+        "lock",
+        "locked",
+        "merge",
+        "optional",
+        "preparation",
+        "rejoin",
+        "return",
+        "reward",
+        "shortcut",
+        "wayfinding_anchor"
+      ]
+    },
+    {
       "candidateId": "candidate.first_slice.5301",
       "profileSequence": "nested-boss",
       "topologyFingerprint": "topology:75da51af2e5b93b4",
@@ -624,22 +700,7 @@
           "severity": "fatal",
           "node": null,
           "edge": null,
-          "detail": "Physical connection planning or exclusive placement failed: geometry search exhausted after 10 route attempt(s) across 5 spacing tier(s), 4 room order(s) per tier, 2 port allocation(s) per room order, and up to 2 route order(s) per port allocation; initial spacing margin/column/row=96/144/64, final spacing=288/432/224; last route failure: topology embedding drawing search exhausted across 11 certified face(s): topology drawing overlaps regions region.key_deep_2 and region.key_treasure_1"
-        }
-      ]
-    },
-    {
-      "candidateId": "candidate.first_slice.5601",
-      "profileSequence": "nested-treasure-merge",
-      "candidateRef": "artifacts/samples/batch-v2/candidate-004/accepted.json",
-      "physicalConnectionPlanRef": "artifacts/samples/batch-v2/candidate-004/physical-connection-plan.json",
-      "diagnostics": [
-        {
-          "code": "selection_physical_embedding_validation_failed",
-          "severity": "fatal",
-          "node": null,
-          "edge": null,
-          "detail": "Physical connection planning or exclusive placement failed: selection candidate.first_slice.5601 built flow validation failed with 1 fatal diagnostic(s)"
+          "detail": "Physical connection planning or exclusive placement failed: geometry search exhausted after 10 route attempt(s) across 5 spacing tier(s), 4 room order(s) per tier, 2 port allocation(s) per room order, and up to 2 route order(s) per port allocation; initial spacing margin/column/row=96/144/64, final spacing=288/432/224; last route failure: topology embedding rotation.v1.fnv1a64:5e02548504fc3917 drawing failed: topology embedding drawing search exhausted across 11 certified face(s): topology drawing overlaps regions region.key_deep_2 and region.key_treasure_1"
         }
       ]
     }

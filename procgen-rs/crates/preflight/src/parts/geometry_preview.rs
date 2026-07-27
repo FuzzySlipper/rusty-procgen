@@ -1642,11 +1642,17 @@ fn find_topology_embedding(
             faces.len()
         ));
     }
+    let embedding_id = format!(
+        "rotation.v1.{}",
+        hash_json(&rotation)
+            .map_err(|error| format!("topology embedding witness hash failed: {error}"))?
+    );
     let (raw_positions, terminal_bars) = topology_embedding_positions(
         &rotation,
         &faces,
         seed ^ nonce,
-    )?;
+    )
+    .map_err(|error| format!("topology embedding {embedding_id} drawing failed: {error}"))?;
     let positions = improve_topology_drawing_clearance(
         &rotation,
         if terminal_bars {
@@ -1658,11 +1664,6 @@ fn find_topology_embedding(
     );
     validate_topology_drawing(&rotation, &positions)?;
     let minimum_clearance = topology_drawing_clearance(&rotation, &positions)?;
-    let embedding_id = format!(
-        "rotation.v1.{}",
-        hash_json(&rotation)
-            .map_err(|error| format!("topology embedding witness hash failed: {error}"))?
-    );
     Ok(TopologyEmbedding {
         positions,
         embedding_id,

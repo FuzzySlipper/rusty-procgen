@@ -63,6 +63,9 @@
       "requiredSockets": [
         "marker"
       ],
+      "requiredShapeTags": [
+        "spaced_portals"
+      ],
       "tags": [
         "choice_readability",
         "entry",
@@ -125,6 +128,10 @@
         }
       ],
       "requiredSockets": [],
+      "requiredShapeTags": [
+        "spaced_portals",
+        "spaced_portals_compact"
+      ],
       "tags": [
         "hub",
         "landmark_hub",
@@ -286,6 +293,10 @@
       "requiredSockets": [
         "gate_line"
       ],
+      "requiredShapeTags": [
+        "spaced_portals",
+        "spaced_portals_compact"
+      ],
       "tags": [
         "gate",
         "locked_gate",
@@ -413,6 +424,10 @@
       ],
       "requiredSockets": [
         "marker"
+      ],
+      "requiredShapeTags": [
+        "spaced_portals",
+        "spaced_portals_compact"
       ],
       "tags": [
         "destination",

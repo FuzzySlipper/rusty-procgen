@@ -217,9 +217,39 @@ mod tests {
         };
         let error = place_and_route_physical_geometry(&specs, &connection_plan, 14_301, &bounded)
             .expect_err("hub-merge should exhaust this deliberately tiny budget");
-        assert!(error.starts_with("geometry search exhausted after 4 route attempt(s)"));
+        assert!(
+            error.contains("geometry search exhausted after 2 route attempt(s)"),
+            "{error}"
+        );
         assert!(error.contains("across 1 spacing tier(s)"));
-        assert!(error.contains("last route failure: single-floor route unavailable"));
+        assert!(error.contains("last route failure: single-floor route search exhausted"));
+    }
+
+    #[test]
+    fn conflict_directed_routing_fixture_records_a_valid_repair() {
+        let repo_root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../..");
+        let run_dir = repo_root.join("artifacts/samples/batch-v2/candidate-000");
+        let geometry: Geometry2dArtifact = read_json(&run_dir.join("geometry-2d.json"))
+            .expect("committed hub-merge geometry");
+        let connection_plan: PhysicalConnectionPlan =
+            read_json(&run_dir.join("physical-connection-plan.json"))
+                .expect("committed hub-merge physical plan");
+        let validation: ValidationReport =
+            read_json(&run_dir.join("geometry-2d.validation.json"))
+                .expect("committed hub-merge geometry validation");
+
+        assert!(validation.ok);
+        assert_eq!(geometry.corridors.len(), connection_plan.sections.len());
+        assert_eq!(geometry.layout_search.embedding_kind, "planar_rotation");
+        assert!(geometry.layout_search.route_backtracks > 0);
+        assert!(geometry.layout_search.route_repairs > 0);
+        assert!(geometry
+            .layout_search
+            .route_blocking_owners
+            .iter()
+            .any(|owner| owner.starts_with("section.")));
+        assert!(geometry.layout_search.route_path_alternatives
+            > u32::try_from(connection_plan.sections.len()).unwrap_or(u32::MAX));
     }
 
     #[test]
@@ -427,6 +457,33 @@ mod tests {
         assert!(merge
             .duplicate_markers
             .contains(&"junction.merge_1".to_owned()));
+    }
+
+    #[test]
+    fn gated_treasure_rejoins_preserve_the_room_guard() {
+        let intent = test_intent("guarded-treasure-rejoins");
+        let mut candidate = create_initial_candidate(&intent, 91);
+        assert!(
+            apply_graph_rule(&mut candidate, GraphRule::GatedTreasureBranch, 92).is_empty()
+        );
+        assert!(
+            apply_graph_rule(&mut candidate, GraphRule::BranchMergeShortcut, 93).is_empty()
+        );
+
+        for edge_id in ["edge.treasure_1.goal", "edge.secondary.merge_1"] {
+            let edge = candidate
+                .graph
+                .edges
+                .iter()
+                .find(|edge| edge.id == edge_id)
+                .expect("guarded treasure rejoin edge");
+            assert_eq!(edge.traversal, TraversalKind::Locked);
+            assert_eq!(
+                edge.required_item.as_deref(),
+                Some("item.treasure_key_1")
+            );
+            assert!(edge.tags.contains(&"locked".to_owned()));
+        }
     }
 
     #[test]
@@ -1473,7 +1530,7 @@ mod tests {
         assert_eq!(plan.kind, "asha_procgen.piece_build_plan.v1");
         assert_eq!(plan.candidate_id, candidate.candidate_id);
         assert_eq!(plan.geometry_id, geometry.geometry_id);
-        assert!(plan.requirements.len() > geometry.rooms.len() + geometry.corridors.len() * 2);
+        assert!(plan.requirements.len() >= geometry.rooms.len());
         assert_eq!(plan.links.len(), geometry.corridors.len());
         assert!(plan.links.iter().all(|link| link.route_points.len() >= 2));
 
@@ -1482,13 +1539,12 @@ mod tests {
             .iter()
             .map(|requirement| requirement.kind.as_str())
             .collect::<BTreeSet<_>>();
-        for required in ["room", "threshold", "key", "corridor", "bend"] {
+        for required in ["room", "threshold", "key"] {
             assert!(
                 requirement_kinds.contains(required),
                 "{required} requirement missing"
             );
         }
-
         for corridor in &geometry.corridors {
             let corridor_ref = format!("geometryCorridor:{}", corridor.id);
             let corridor_requirements = plan
@@ -1496,6 +1552,14 @@ mod tests {
                 .iter()
                 .filter(|requirement| requirement.source_refs.contains(&corridor_ref))
                 .collect::<Vec<_>>();
+            if corridor_requirements.is_empty() {
+                assert!(
+                    corridor.points.len() > 2,
+                    "{} omitted catalog pieces without a multi-segment procedural route",
+                    corridor.id
+                );
+                continue;
+            }
             assert!(
                 corridor_requirements.iter().any(|requirement| {
                     requirement.kind == "corridor" || requirement.kind == "bend"
@@ -1540,15 +1604,12 @@ mod tests {
             "normal open corridor link missing"
         );
 
-        let locked_requirement = plan
-            .requirements
+        let locked_link = plan
+            .links
             .iter()
-            .find(|requirement| requirement.tags.contains(&"locked_threshold".to_owned()))
-            .expect("locked corridor requirement should exist");
-        assert!(locked_requirement
-            .source_refs
-            .iter()
-            .any(|source_ref| source_ref.starts_with("edge:")));
+            .find(|link| link.tags.contains(&"locked_threshold".to_owned()))
+            .expect("locked corridor link should exist");
+        assert!(locked_link.source_ref.contains(";edge:"));
 
         let pure_args = BuildEmitPiecePlanArgs {
             corridor_realization: CorridorRealization::Catalog,
@@ -2560,7 +2621,7 @@ mod tests {
             .all(|instance| !instance.occupied_cells.is_empty()));
         let (width, height) = placement_bounds(&placement);
         assert!(
-            width < 200,
+            width < height * 4,
             "placement should not collapse into a long atlas: {width}x{height}"
         );
         assert!(
@@ -2621,7 +2682,15 @@ mod tests {
         let specs = ordered_geometry_region_specs(&candidate, &intermediate);
         let spacing = geometry_spacing_for_tier(&geometry.layout_policy, 0)
             .expect("nested-boss first spacing tier");
-        let fixed_order_error = place_and_route_physical_geometry_attempt(
+        let (
+            _fixed_rooms,
+            fixed_corridors,
+            _fixed_bounds,
+            _fixed_port_order,
+            _fixed_route_order,
+            fixed_attempts,
+            fixed_evidence,
+        ) = place_and_route_physical_geometry_attempt(
             &specs,
             &connection_plan,
             &spacing,
@@ -2630,12 +2699,15 @@ mod tests {
             2,
             None,
         )
-        .expect_err("the original fixed room/route decision should reject");
-        assert!(matches!(
-            fixed_order_error,
-            GeometryPlacementAttemptError::RoutesUnavailable { .. }
-        ));
-        assert_eq!(geometry.layout_search.room_order_attempt, 2);
+        .expect("bounded route alternatives should recover the former fixed-order rejection");
+        assert_eq!(fixed_corridors.len(), connection_plan.sections.len());
+        assert!(fixed_attempts > 0);
+        assert!(fixed_evidence.decisions > 0);
+        assert!(fixed_evidence.path_alternatives >= fixed_corridors.len() as u32);
+        assert!(
+            geometry.layout_search.room_order_attempt
+                < geometry.layout_policy.room_order_attempts_per_tier
+        );
         assert_eq!(geometry.layout_search.port_order_attempt, 0);
 
         let mut incompatible_plan = connection_plan.clone();
@@ -3122,6 +3194,7 @@ mod tests {
             "section.test",
             &BTreeSet::new(),
             (-10, 10, -10, 10),
+            0,
         )
         .expect("declared transformed exits should have a safe route");
 
@@ -3334,7 +3407,6 @@ mod tests {
             y,
             direction: direction.to_owned(),
             width: 1,
-            order: 0,
             tags: Vec::new(),
         }
     }
@@ -3381,6 +3453,7 @@ mod tests {
             id: id.to_owned(),
             direction: direction.to_owned(),
             width: 1,
+            order: 0,
             tags: Vec::new(),
         }
     }

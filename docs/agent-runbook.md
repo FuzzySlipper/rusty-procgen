@@ -64,6 +64,29 @@ The sample command generates 10 candidates from:
 fixtures/batch-profiles/v2-sample.json
 ```
 
+### Geometry recovery corpus
+
+Run the versioned topology-embedding and exclusive-routing recovery corpus with:
+
+```bash
+npm run geometry:recovery
+```
+
+This regenerates the unchanged ten-candidate sample in release mode and writes
+`artifacts/evidence/geometry-recovery-v1.json`. The corpus manifest at
+`fixtures/geometry-recovery/v1.json` pins the seven unique physical topology
+families (the original five rejected and two accepted families) by profile,
+candidate seed, and normalized physical-plan SHA-256. The report records each
+pipeline stage, rotation witness or bounded rejection evidence, configured
+realization result, routed-section count, blocking owners, alternatives,
+decisions, repairs, backtracks, and exhausted budget.
+
+After regeneration, verify that the committed report is byte-identical with:
+
+```bash
+npm run geometry:recovery:check
+```
+
 The selection report records the profile id/ref, the profile sequence used for
 each candidate, topology fingerprints, budget checks, and sorts accepted entries
 by deterministic selection score. Accepted entries also carry refs to graph
