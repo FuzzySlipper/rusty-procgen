@@ -590,6 +590,18 @@ struct GeometryLayoutSearchEvidence {
     route_last_failed_section: String,
     #[serde(default)]
     route_blocking_owners: Vec<String>,
+    #[serde(default)]
+    valid_layout_candidates: u32,
+    #[serde(default)]
+    compactness_portal_capacity_penalty: u32,
+    #[serde(default)]
+    compactness_envelope_area: i64,
+    #[serde(default)]
+    compactness_corridor_centerline_length: i64,
+    #[serde(default)]
+    compactness_routed_shell_cost: i64,
+    #[serde(default)]
+    compactness_bend_count: u32,
 }
 
 fn default_geometry_embedding_kind() -> String {

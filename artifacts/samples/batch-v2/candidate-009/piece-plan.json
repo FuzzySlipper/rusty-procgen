@@ -23,7 +23,7 @@
           "id": "exit.corridor_section_region_gate_locked_1_region_start_open.east",
           "direction": "east",
           "width": 12,
-          "order": 280,
+          "order": 584,
           "tags": [
             "corridor",
             "open"
@@ -33,7 +33,7 @@
           "id": "exit.corridor_section_region_hazard_sluice_1_region_start_open.east",
           "direction": "east",
           "width": 20,
-          "order": 2320,
+          "order": 2352,
           "tags": [
             "open",
             "pressure_path",
@@ -44,7 +44,7 @@
           "id": "exit.corridor_section_region_junction_merge_1_region_start_open.east",
           "direction": "east",
           "width": 12,
-          "order": 3072,
+          "order": 2952,
           "tags": [
             "corridor",
             "open"
@@ -64,7 +64,7 @@
           "id": "exit.corridor_section_region_key_treasure_1_region_start_open.east",
           "direction": "east",
           "width": 12,
-          "order": 3400,
+          "order": 3272,
           "tags": [
             "corridor",
             "open"
@@ -74,7 +74,7 @@
           "id": "exit.corridor_section_region_resource_safety_1_region_start_open.east",
           "direction": "east",
           "width": 12,
-          "order": 1768,
+          "order": 2016,
           "tags": [
             "corridor",
             "open"
@@ -99,8 +99,60 @@
       "placementHints": [
         "anchorQuality:explicit",
         "footprintClass:marker_room",
-        "geometryRect:184:216:128:3216",
+        "geometryRect:184:216:128:3088",
         "scaleBand:medium"
+      ]
+    },
+    {
+      "pieceId": "piece.room.room_region_key_treasure_1",
+      "kind": "key",
+      "role": "standard",
+      "sourceRefs": [
+        "geometryRoom:room.region_key_treasure_1",
+        "region:region.key_treasure_1",
+        "node:key.treasure_1"
+      ],
+      "requiredExits": [
+        {
+          "id": "exit.corridor_section_region_key_treasure_1_region_start_open.west",
+          "direction": "west",
+          "width": 12,
+          "order": 3272,
+          "tags": [
+            "corridor",
+            "open"
+          ]
+        },
+        {
+          "id": "exit.corridor_section_region_key_treasure_1_region_treasure_gated_1_connector_edge_treasure_key_1_treasure_1.east",
+          "direction": "east",
+          "width": 18,
+          "order": 3272,
+          "tags": [
+            "gated_connector",
+            "locked",
+            "locked_threshold",
+            "preview_line",
+            "visible_before_reachable"
+          ]
+        }
+      ],
+      "requiredSockets": [
+        "key_pickup"
+      ],
+      "tags": [
+        "key_pickup",
+        "key_pocket",
+        "pickup_pocket",
+        "small",
+        "small_pocket",
+        "standard"
+      ],
+      "placementHints": [
+        "anchorQuality:derived",
+        "footprintClass:small_pocket",
+        "geometryRect:672:3232:96:80",
+        "scaleBand:small"
       ]
     },
     {
@@ -117,7 +169,7 @@
           "id": "exit.corridor_section_region_goal_region_hazard_sluice_1_open.east",
           "direction": "east",
           "width": 12,
-          "order": 2320,
+          "order": 2352,
           "tags": [
             "merge_rejoin_clarity",
             "open",
@@ -128,7 +180,7 @@
           "id": "exit.corridor_section_region_hazard_sluice_1_region_resource_safety_1_open.north",
           "direction": "north",
           "width": 12,
-          "order": 960,
+          "order": 1032,
           "tags": [
             "corridor",
             "open"
@@ -138,7 +190,7 @@
           "id": "exit.corridor_section_region_hazard_sluice_1_region_start_open.west",
           "direction": "west",
           "width": 20,
-          "order": 2320,
+          "order": 2352,
           "tags": [
             "open",
             "pressure_path",
@@ -161,57 +213,8 @@
       "placementHints": [
         "anchorQuality:derived",
         "footprintClass:pressure_lane",
-        "geometryRect:888:2280:144:80",
+        "geometryRect:960:2312:144:80",
         "scaleBand:medium"
-      ]
-    },
-    {
-      "pieceId": "piece.room.room_region_resource_safety_1",
-      "kind": "resource",
-      "role": "standard",
-      "sourceRefs": [
-        "geometryRoom:room.region_resource_safety_1",
-        "region:region.resource_safety_1",
-        "node:resource.safety_1"
-      ],
-      "requiredExits": [
-        {
-          "id": "exit.corridor_section_region_hazard_sluice_1_region_resource_safety_1_open.south",
-          "direction": "south",
-          "width": 12,
-          "order": 1168,
-          "tags": [
-            "corridor",
-            "open"
-          ]
-        },
-        {
-          "id": "exit.corridor_section_region_resource_safety_1_region_start_open.west",
-          "direction": "west",
-          "width": 12,
-          "order": 1768,
-          "tags": [
-            "corridor",
-            "open"
-          ]
-        }
-      ],
-      "requiredSockets": [
-        "resource_clue"
-      ],
-      "tags": [
-        "chamber",
-        "pickup_pocket",
-        "resource_clue",
-        "small",
-        "small_pocket",
-        "standard"
-      ],
-      "placementHints": [
-        "anchorQuality:derived",
-        "footprintClass:small_pocket",
-        "geometryRect:1120:1728:96:80",
-        "scaleBand:small"
       ]
     },
     {
@@ -225,10 +228,10 @@
       ],
       "requiredExits": [
         {
-          "id": "exit.corridor_section_region_gate_locked_1_region_key_gate_1_open.east",
-          "direction": "east",
+          "id": "exit.corridor_section_region_gate_locked_1_region_key_gate_1_open.south",
+          "direction": "south",
           "width": 12,
-          "order": 248,
+          "order": 720,
           "tags": [
             "merge_rejoin_clarity",
             "open",
@@ -260,51 +263,48 @@
       "placementHints": [
         "anchorQuality:derived",
         "footprintClass:small_pocket",
-        "geometryRect:568:208:96:80",
+        "geometryRect:672:208:96:80",
         "scaleBand:small"
       ]
     },
     {
-      "pieceId": "piece.room.room_region_key_treasure_1",
-      "kind": "key",
+      "pieceId": "piece.room.room_region_resource_safety_1",
+      "kind": "resource",
       "role": "standard",
       "sourceRefs": [
-        "geometryRoom:room.region_key_treasure_1",
-        "region:region.key_treasure_1",
-        "node:key.treasure_1"
+        "geometryRoom:room.region_resource_safety_1",
+        "region:region.resource_safety_1",
+        "node:resource.safety_1"
       ],
       "requiredExits": [
         {
-          "id": "exit.corridor_section_region_key_treasure_1_region_start_open.west",
-          "direction": "west",
+          "id": "exit.corridor_section_region_hazard_sluice_1_region_resource_safety_1_open.south",
+          "direction": "south",
           "width": 12,
-          "order": 3400,
+          "order": 720,
           "tags": [
             "corridor",
             "open"
           ]
         },
         {
-          "id": "exit.corridor_section_region_key_treasure_1_region_treasure_gated_1_connector_edge_treasure_key_1_treasure_1.east",
-          "direction": "east",
-          "width": 18,
-          "order": 3400,
+          "id": "exit.corridor_section_region_resource_safety_1_region_start_open.west",
+          "direction": "west",
+          "width": 12,
+          "order": 2016,
           "tags": [
-            "gated_connector",
-            "locked",
-            "locked_threshold",
-            "preview_line",
-            "visible_before_reachable"
+            "corridor",
+            "open"
           ]
         }
       ],
       "requiredSockets": [
-        "key_pickup"
+        "resource_clue"
       ],
       "tags": [
-        "key_pickup",
-        "key_pocket",
+        "chamber",
         "pickup_pocket",
+        "resource_clue",
         "small",
         "small_pocket",
         "standard"
@@ -312,7 +312,7 @@
       "placementHints": [
         "anchorQuality:derived",
         "footprintClass:small_pocket",
-        "geometryRect:672:3360:96:80",
+        "geometryRect:672:1976:96:80",
         "scaleBand:small"
       ]
     },
@@ -330,7 +330,7 @@
           "id": "exit.corridor_section_region_gate_locked_1_region_goal_connector_edge_gate_1_goal.east",
           "direction": "east",
           "width": 18,
-          "order": 280,
+          "order": 584,
           "tags": [
             "gated_connector",
             "locked",
@@ -340,10 +340,10 @@
           ]
         },
         {
-          "id": "exit.corridor_section_region_gate_locked_1_region_key_gate_1_open.west",
-          "direction": "west",
+          "id": "exit.corridor_section_region_gate_locked_1_region_key_gate_1_open.north",
+          "direction": "north",
           "width": 12,
-          "order": 256,
+          "order": 976,
           "tags": [
             "merge_rejoin_clarity",
             "open",
@@ -354,7 +354,7 @@
           "id": "exit.corridor_section_region_gate_locked_1_region_start_open.west",
           "direction": "west",
           "width": 12,
-          "order": 304,
+          "order": 584,
           "tags": [
             "corridor",
             "open"
@@ -363,10 +363,6 @@
       ],
       "requiredSockets": [
         "gate_line"
-      ],
-      "requiredShapeTags": [
-        "spaced_portals",
-        "spaced_portals_compact"
       ],
       "tags": [
         "gate",
@@ -380,7 +376,7 @@
       "placementHints": [
         "anchorQuality:derived",
         "footprintClass:threshold",
-        "geometryRect:904:224:112:112",
+        "geometryRect:920:544:112:80",
         "scaleBand:medium"
       ]
     },
@@ -398,7 +394,7 @@
           "id": "exit.corridor_section_region_goal_region_junction_merge_1_open.east",
           "direction": "east",
           "width": 14,
-          "order": 3080,
+          "order": 2952,
           "tags": [
             "merge_rejoin_clarity",
             "open",
@@ -411,7 +407,7 @@
           "id": "exit.corridor_section_region_junction_merge_1_region_start_open.west",
           "direction": "west",
           "width": 12,
-          "order": 3080,
+          "order": 2952,
           "tags": [
             "corridor",
             "open"
@@ -445,7 +441,7 @@
       "placementHints": [
         "anchorQuality:explicit",
         "footprintClass:hub",
-        "geometryRect:880:3024:160:112",
+        "geometryRect:880:2896:160:112",
         "scaleBand:large"
       ]
     },
@@ -463,7 +459,7 @@
           "id": "exit.corridor_section_region_gate_locked_1_region_goal_connector_edge_gate_1_goal.west",
           "direction": "west",
           "width": 18,
-          "order": 280,
+          "order": 584,
           "tags": [
             "gated_connector",
             "locked",
@@ -476,7 +472,7 @@
           "id": "exit.corridor_section_region_goal_region_hazard_sluice_1_open.west",
           "direction": "west",
           "width": 12,
-          "order": 2320,
+          "order": 2352,
           "tags": [
             "merge_rejoin_clarity",
             "open",
@@ -487,7 +483,7 @@
           "id": "exit.corridor_section_region_goal_region_junction_merge_1_open.west",
           "direction": "west",
           "width": 14,
-          "order": 3080,
+          "order": 2952,
           "tags": [
             "merge_rejoin_clarity",
             "open",
@@ -500,7 +496,7 @@
           "id": "exit.corridor_section_region_goal_region_treasure_gated_1_connector_edge_treasure_1_goal.west",
           "direction": "west",
           "width": 18,
-          "order": 3384,
+          "order": 3256,
           "tags": [
             "gated_connector",
             "locked",
@@ -530,7 +526,7 @@
       "placementHints": [
         "anchorQuality:explicit",
         "footprintClass:marker_room",
-        "geometryRect:1600:248:128:3168",
+        "geometryRect:1600:552:128:2736",
         "scaleBand:medium"
       ]
     },
@@ -548,7 +544,7 @@
           "id": "exit.corridor_section_region_goal_region_treasure_gated_1_connector_edge_treasure_1_goal.east",
           "direction": "east",
           "width": 18,
-          "order": 3384,
+          "order": 3256,
           "tags": [
             "gated_connector",
             "locked",
@@ -578,7 +574,7 @@
           "id": "exit.corridor_section_region_key_treasure_1_region_treasure_gated_1_connector_edge_treasure_key_1_treasure_1.west",
           "direction": "west",
           "width": 18,
-          "order": 3384,
+          "order": 3256,
           "tags": [
             "gated_connector",
             "locked",
@@ -603,7 +599,7 @@
       "placementHints": [
         "anchorQuality:derived",
         "footprintClass:pocket",
-        "geometryRect:1144:3344:96:80",
+        "geometryRect:1144:3216:96:80",
         "scaleBand:small"
       ]
     },
@@ -678,8 +674,69 @@
         "visible_before_reachable"
       ],
       "placementHints": [
-        "point:1308:280",
-        "segment:1016:280:1600:280"
+        "point:1316:584",
+        "segment:1032:584:1600:584"
+      ]
+    },
+    {
+      "pieceId": "piece.corridor.corridor_section_region_gate_locked_1_region_start_open.segment_01.tile_01",
+      "kind": "corridor",
+      "role": "corridor_segment",
+      "sourceRefs": [
+        "connector:connector.edge_start_gate_1",
+        "edge:edge.start.gate_1",
+        "geometryCorridor:corridor.section_region_gate_locked_1_region_start_open",
+        "graphEdge:start:gate.locked_1",
+        "physicalSection:section.region_gate_locked_1.region_start.open",
+        "room:room.region_gate_locked_1",
+        "room:room.region_start"
+      ],
+      "requiredExits": [
+        {
+          "id": "exit.segment_01.tile_01.in",
+          "direction": "east",
+          "width": 12,
+          "order": 0,
+          "tags": [
+            "approach",
+            "corridor",
+            "critical_path",
+            "explicit_corridor_piece",
+            "open"
+          ]
+        },
+        {
+          "id": "exit.segment_01.tile_01.out",
+          "direction": "west",
+          "width": 12,
+          "order": 0,
+          "tags": [
+            "approach",
+            "corridor",
+            "critical_path",
+            "explicit_corridor_piece",
+            "open"
+          ]
+        }
+      ],
+      "requiredSockets": [],
+      "requiredShapeTags": [
+        "corridor",
+        "straight",
+        "span_long"
+      ],
+      "tags": [
+        "approach",
+        "corridor",
+        "critical_path",
+        "explicit_corridor_piece",
+        "open",
+        "span_long",
+        "straight"
+      ],
+      "placementHints": [
+        "point:616:584",
+        "segment:920:584:312:584"
       ]
     },
     {
@@ -743,8 +800,8 @@
         "straight"
       ],
       "placementHints": [
-        "point:1316:2320",
-        "segment:1600:2320:1032:2320"
+        "point:1352:2352",
+        "segment:1600:2352:1104:2352"
       ]
     },
     {
@@ -815,8 +872,8 @@
         "straight"
       ],
       "placementHints": [
-        "point:1320:3080",
-        "segment:1600:3080:1040:3080"
+        "point:1320:2952",
+        "segment:1600:2952:1040:2952"
       ]
     },
     {
@@ -897,8 +954,8 @@
         "visible_before_reachable"
       ],
       "placementHints": [
-        "point:1420:3384",
-        "segment:1600:3384:1240:3384"
+        "point:1420:3256",
+        "segment:1600:3256:1240:3256"
       ]
     },
     {
@@ -965,8 +1022,69 @@
         "straight"
       ],
       "placementHints": [
-        "point:600:2320",
-        "segment:888:2320:312:2320"
+        "point:636:2352",
+        "segment:960:2352:312:2352"
+      ]
+    },
+    {
+      "pieceId": "piece.corridor.corridor_section_region_junction_merge_1_region_start_open.segment_01.tile_01",
+      "kind": "corridor",
+      "role": "corridor_segment",
+      "sourceRefs": [
+        "connector:connector.edge_start_merge_1",
+        "edge:edge.start.merge_1",
+        "geometryCorridor:corridor.section_region_junction_merge_1_region_start_open",
+        "graphEdge:start:junction.merge_1",
+        "physicalSection:section.region_junction_merge_1.region_start.open",
+        "room:room.region_junction_merge_1",
+        "room:room.region_start"
+      ],
+      "requiredExits": [
+        {
+          "id": "exit.segment_01.tile_01.in",
+          "direction": "east",
+          "width": 12,
+          "order": 0,
+          "tags": [
+            "branch",
+            "corridor",
+            "explicit_corridor_piece",
+            "open",
+            "optional_branch"
+          ]
+        },
+        {
+          "id": "exit.segment_01.tile_01.out",
+          "direction": "west",
+          "width": 12,
+          "order": 0,
+          "tags": [
+            "branch",
+            "corridor",
+            "explicit_corridor_piece",
+            "open",
+            "optional_branch"
+          ]
+        }
+      ],
+      "requiredSockets": [],
+      "requiredShapeTags": [
+        "corridor",
+        "straight",
+        "span_long"
+      ],
+      "tags": [
+        "branch",
+        "corridor",
+        "explicit_corridor_piece",
+        "open",
+        "optional_branch",
+        "span_long",
+        "straight"
+      ],
+      "placementHints": [
+        "point:596:2952",
+        "segment:880:2952:312:2952"
       ]
     },
     {
@@ -1026,8 +1144,8 @@
         "straight"
       ],
       "placementHints": [
-        "point:440:248",
-        "segment:568:248:312:248"
+        "point:492:248",
+        "segment:672:248:312:248"
       ]
     },
     {
@@ -1087,8 +1205,8 @@
         "straight"
       ],
       "placementHints": [
-        "point:492:3400",
-        "segment:672:3400:312:3400"
+        "point:492:3272",
+        "segment:672:3272:312:3272"
       ]
     },
     {
@@ -1148,8 +1266,8 @@
         "straight"
       ],
       "placementHints": [
-        "point:716:1768",
-        "segment:1120:1768:312:1768"
+        "point:492:2016",
+        "segment:672:2016:312:2016"
       ]
     }
   ],
@@ -1188,21 +1306,21 @@
       ],
       "routePoints": [
         {
-          "x": 1016,
-          "y": 280
+          "x": 1032,
+          "y": 584
         },
         {
           "x": 1600,
-          "y": 280
+          "y": 584
         }
       ]
     },
     {
       "id": "piece_link.corridor_section_region_gate_locked_1_region_key_gate_1_open.catalog",
       "fromPiece": "piece.room.room_region_gate_locked_1",
-      "fromExit": "exit.corridor_section_region_gate_locked_1_region_key_gate_1_open.west",
+      "fromExit": "exit.corridor_section_region_gate_locked_1_region_key_gate_1_open.north",
       "toPiece": "piece.room.room_region_key_gate_1",
-      "toExit": "exit.corridor_section_region_gate_locked_1_region_key_gate_1_open.east",
+      "toExit": "exit.corridor_section_region_gate_locked_1_region_key_gate_1_open.south",
       "sourceSection": "section.region_gate_locked_1.region_key_gate_1.open",
       "sourceCorridor": "corridor.section_region_gate_locked_1_region_key_gate_1_open",
       "sourceEdge": "edge.key_1.gate_1",
@@ -1229,20 +1347,20 @@
       ],
       "routePoints": [
         {
-          "x": 904,
-          "y": 256
+          "x": 976,
+          "y": 544
         },
         {
-          "x": 784,
-          "y": 256
+          "x": 976,
+          "y": 416
         },
         {
-          "x": 784,
-          "y": 248
+          "x": 720,
+          "y": 416
         },
         {
-          "x": 664,
-          "y": 248
+          "x": 720,
+          "y": 288
         }
       ]
     },
@@ -1277,20 +1395,12 @@
       ],
       "routePoints": [
         {
-          "x": 904,
-          "y": 304
-        },
-        {
-          "x": 544,
-          "y": 304
-        },
-        {
-          "x": 544,
-          "y": 280
+          "x": 920,
+          "y": 584
         },
         {
           "x": 312,
-          "y": 280
+          "y": 584
         }
       ]
     },
@@ -1327,11 +1437,11 @@
       "routePoints": [
         {
           "x": 1600,
-          "y": 2320
+          "y": 2352
         },
         {
-          "x": 1032,
-          "y": 2320
+          "x": 1104,
+          "y": 2352
         }
       ]
     },
@@ -1370,11 +1480,11 @@
       "routePoints": [
         {
           "x": 1600,
-          "y": 3080
+          "y": 2952
         },
         {
           "x": 1040,
-          "y": 3080
+          "y": 2952
         }
       ]
     },
@@ -1415,11 +1525,11 @@
       "routePoints": [
         {
           "x": 1600,
-          "y": 3384
+          "y": 3256
         },
         {
           "x": 1240,
-          "y": 3384
+          "y": 3256
         }
       ]
     },
@@ -1454,20 +1564,20 @@
       ],
       "routePoints": [
         {
-          "x": 960,
-          "y": 2280
+          "x": 1032,
+          "y": 2312
         },
         {
-          "x": 960,
-          "y": 2048
+          "x": 1032,
+          "y": 2184
         },
         {
-          "x": 1168,
-          "y": 2048
+          "x": 720,
+          "y": 2184
         },
         {
-          "x": 1168,
-          "y": 1808
+          "x": 720,
+          "y": 2056
         }
       ]
     },
@@ -1503,12 +1613,12 @@
       ],
       "routePoints": [
         {
-          "x": 888,
-          "y": 2320
+          "x": 960,
+          "y": 2352
         },
         {
           "x": 312,
-          "y": 2320
+          "y": 2352
         }
       ]
     },
@@ -1544,19 +1654,11 @@
       "routePoints": [
         {
           "x": 880,
-          "y": 3080
-        },
-        {
-          "x": 600,
-          "y": 3080
-        },
-        {
-          "x": 600,
-          "y": 3072
+          "y": 2952
         },
         {
           "x": 312,
-          "y": 3072
+          "y": 2952
         }
       ]
     },
@@ -1597,19 +1699,19 @@
       "routePoints": [
         {
           "x": 960,
-          "y": 3136
+          "y": 3008
         },
         {
           "x": 960,
-          "y": 3240
+          "y": 3112
         },
         {
           "x": 1192,
-          "y": 3240
+          "y": 3112
         },
         {
           "x": 1192,
-          "y": 3344
+          "y": 3216
         }
       ]
     },
@@ -1644,7 +1746,7 @@
       ],
       "routePoints": [
         {
-          "x": 568,
+          "x": 672,
           "y": 248
         },
         {
@@ -1685,11 +1787,11 @@
       "routePoints": [
         {
           "x": 672,
-          "y": 3400
+          "y": 3272
         },
         {
           "x": 312,
-          "y": 3400
+          "y": 3272
         }
       ]
     },
@@ -1728,19 +1830,19 @@
       "routePoints": [
         {
           "x": 768,
-          "y": 3400
+          "y": 3272
         },
         {
           "x": 960,
-          "y": 3400
+          "y": 3272
         },
         {
           "x": 960,
-          "y": 3384
+          "y": 3256
         },
         {
           "x": 1144,
-          "y": 3384
+          "y": 3256
         }
       ]
     },
@@ -1775,12 +1877,12 @@
       ],
       "routePoints": [
         {
-          "x": 1120,
-          "y": 1768
+          "x": 672,
+          "y": 2016
         },
         {
           "x": 312,
-          "y": 1768
+          "y": 2016
         }
       ]
     }
@@ -1804,6 +1906,23 @@
       ]
     },
     {
+      "id": "piece_content.piece_room_room_region_key_treasure_1.key_pickup",
+      "pieceId": "piece.room.room_region_key_treasure_1",
+      "sourceRef": "node:key.treasure_1;region:region.key_treasure_1",
+      "kind": "key_pickup",
+      "label": "Key Pickup",
+      "requiredSocket": "key_pickup",
+      "tags": [
+        "key",
+        "key_pickup",
+        "key_pocket",
+        "optional",
+        "pickup_pocket",
+        "small",
+        "standard"
+      ]
+    },
+    {
       "id": "piece_content.piece_room_room_region_hazard_sluice_1.hazard",
       "pieceId": "piece.room.room_region_hazard_sluice_1",
       "sourceRef": "node:hazard.sluice_1;region:region.hazard_sluice_1",
@@ -1818,24 +1937,6 @@
         "optional",
         "pressure",
         "readable_hazard_approach"
-      ]
-    },
-    {
-      "id": "piece_content.piece_room_room_region_resource_safety_1.resource_clue",
-      "pieceId": "piece.room.room_region_resource_safety_1",
-      "sourceRef": "node:resource.safety_1;region:region.resource_safety_1",
-      "kind": "resource_clue",
-      "label": "Resource Clue",
-      "requiredSocket": "resource_clue",
-      "tags": [
-        "chamber",
-        "optional",
-        "pickup_pocket",
-        "preparation",
-        "resource",
-        "resource_clue",
-        "small",
-        "standard"
       ]
     },
     {
@@ -1856,18 +1957,19 @@
       ]
     },
     {
-      "id": "piece_content.piece_room_room_region_key_treasure_1.key_pickup",
-      "pieceId": "piece.room.room_region_key_treasure_1",
-      "sourceRef": "node:key.treasure_1;region:region.key_treasure_1",
-      "kind": "key_pickup",
-      "label": "Key Pickup",
-      "requiredSocket": "key_pickup",
+      "id": "piece_content.piece_room_room_region_resource_safety_1.resource_clue",
+      "pieceId": "piece.room.room_region_resource_safety_1",
+      "sourceRef": "node:resource.safety_1;region:region.resource_safety_1",
+      "kind": "resource_clue",
+      "label": "Resource Clue",
+      "requiredSocket": "resource_clue",
       "tags": [
-        "key",
-        "key_pickup",
-        "key_pocket",
+        "chamber",
         "optional",
         "pickup_pocket",
+        "preparation",
+        "resource",
+        "resource_clue",
         "small",
         "standard"
       ]

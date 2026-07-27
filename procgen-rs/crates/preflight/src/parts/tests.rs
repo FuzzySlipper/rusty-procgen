@@ -164,6 +164,13 @@ mod tests {
                 row_gap: 96,
             }
         );
+        assert!(first.search.valid_layout_candidates >= 1);
+        assert_eq!(
+            first.search.compactness_envelope_area,
+            i64::from(first.bounds.width) * i64::from(first.bounds.height)
+        );
+        assert!(first.search.compactness_corridor_centerline_length > 0);
+        assert!(first.search.compactness_routed_shell_cost > 0);
         assert_eq!(first.search, repeated.search);
         assert_eq!(
             serde_json::to_value(&first.rooms).expect("serialize first rooms"),
@@ -173,6 +180,73 @@ mod tests {
             serde_json::to_value(&first.corridors).expect("serialize first corridors"),
             serde_json::to_value(&repeated.corridors).expect("serialize repeated corridors")
         );
+    }
+
+    #[test]
+    fn compactness_score_prefers_tight_realizable_portal_layouts() {
+        let room_with_sides = |sides: &[&str]| GeometryRoom {
+            id: "room.test".to_owned(),
+            source_region: "region.test".to_owned(),
+            source_nodes: vec!["node.test".to_owned()],
+            role: "standard".to_owned(),
+            geometry_role: "chamber".to_owned(),
+            footprint_class: "medium".to_owned(),
+            rect: GeometryRect {
+                x: 0,
+                y: 0,
+                width: 128,
+                height: 128,
+            },
+            ports: sides
+                .iter()
+                .enumerate()
+                .map(|(index, side)| GeometryRoomPort {
+                    id: format!("port.{index}"),
+                    section_id: format!("section.{index}"),
+                    side: (*side).to_owned(),
+                    point: GeometryPoint { x: 0, y: 0 },
+                    width: 12,
+                })
+                .collect(),
+            style_tags: Vec::new(),
+        };
+        let feasible_room =
+            room_with_sides(&["east", "east", "east", "east", "east", "east"]);
+        let split_high_degree_room =
+            room_with_sides(&["east", "east", "east", "east", "south", "south"]);
+        let spacious_feasible = geometry_compactness_score(
+            &GeometryBounds {
+                width: 1_000,
+                height: 1_000,
+                grid: 8,
+            },
+            std::slice::from_ref(&feasible_room),
+            &[],
+            "feasible",
+        );
+        let compact_but_unrealizable = geometry_compactness_score(
+            &GeometryBounds {
+                width: 500,
+                height: 500,
+                grid: 8,
+            },
+            std::slice::from_ref(&split_high_degree_room),
+            &[],
+            "split",
+        );
+        let compact_feasible = geometry_compactness_score(
+            &GeometryBounds {
+                width: 400,
+                height: 400,
+                grid: 8,
+            },
+            std::slice::from_ref(&feasible_room),
+            &[],
+            "compact",
+        );
+
+        assert!(spacious_feasible < compact_but_unrealizable);
+        assert!(compact_feasible < spacious_feasible);
     }
 
     #[test]
@@ -294,6 +368,12 @@ mod tests {
                 route_path_expansion_exhaustions: 0,
                 route_last_failed_section: String::new(),
                 route_blocking_owners: Vec::new(),
+                valid_layout_candidates: 1,
+                compactness_portal_capacity_penalty: 0,
+                compactness_envelope_area: 153_600,
+                compactness_corridor_centerline_length: 0,
+                compactness_routed_shell_cost: 0,
+                compactness_bend_count: 0,
             },
             bounds: GeometryBounds {
                 width: 480,
@@ -1437,6 +1517,19 @@ mod tests {
             .diagnostics
             .iter()
             .any(|diagnostic| { diagnostic.code == "geometry_layout_search_spacing_mismatch" }));
+
+        let mut bad_compactness_evidence = geometry.clone();
+        bad_compactness_evidence
+            .layout_search
+            .compactness_envelope_area += i64::from(GEOMETRY_ROUTE_GRID);
+        let report = validate_geometry_2d(&bad_compactness_evidence);
+        assert!(report
+            .diagnostics
+            .iter()
+            .any(|diagnostic| diagnostic.code == "geometry_compactness_evidence_invalid"));
+        refresh_geometry_compactness_evidence(&mut bad_compactness_evidence);
+        let report = validate_geometry_2d(&bad_compactness_evidence);
+        assert!(report.ok, "{:?}", report.diagnostics);
 
         let mut bad_content_anchor = geometry.clone();
         bad_content_anchor

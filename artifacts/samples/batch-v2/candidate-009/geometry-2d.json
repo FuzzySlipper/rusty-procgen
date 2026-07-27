@@ -23,20 +23,20 @@
   },
   "layoutSearch": {
     "spacingTier": 0,
-    "roomOrderAttempt": 1,
+    "roomOrderAttempt": 2,
     "portOrderAttempt": 0,
     "routeOrderAttempt": 0,
-    "searchAttempts": 3,
+    "searchAttempts": 5,
     "effectiveSpacing": {
       "roomMargin": 96,
       "columnGap": 144,
       "rowGap": 64
     },
     "embeddingKind": "planar_rotation",
-    "embeddingId": "rotation.v1.fnv1a64:edcb4138307c973f",
+    "embeddingId": "rotation.v1.fnv1a64:026677036b82d145",
     "embeddingFaces": 7,
     "embeddingTargetFaces": 7,
-    "embeddingSearchSteps": 298,
+    "embeddingSearchSteps": 129,
     "routeDecisions": 14,
     "routeBacktracks": 0,
     "routePathAlternatives": 112,
@@ -54,11 +54,17 @@
       "room:region.resource_safety_1",
       "room:region.start",
       "room:region.treasure_gated_1"
-    ]
+    ],
+    "validLayoutCandidates": 3,
+    "compactnessPortalCapacityPenalty": 0,
+    "compactnessEnvelopeArea": 6216192,
+    "compactnessCorridorCenterlineLength": 6800,
+    "compactnessRoutedShellCost": 98464,
+    "compactnessBendCount": 8
   },
   "bounds": {
     "width": 1824,
-    "height": 3536,
+    "height": 3408,
     "grid": 8
   },
   "rooms": [
@@ -75,7 +81,7 @@
         "x": 184,
         "y": 216,
         "width": 128,
-        "height": 3216
+        "height": 3088
       },
       "ports": [
         {
@@ -94,7 +100,7 @@
           "side": "east",
           "point": {
             "x": 312,
-            "y": 280
+            "y": 584
           },
           "width": 12
         },
@@ -104,7 +110,7 @@
           "side": "east",
           "point": {
             "x": 312,
-            "y": 1768
+            "y": 2016
           },
           "width": 12
         },
@@ -114,7 +120,7 @@
           "side": "east",
           "point": {
             "x": 312,
-            "y": 2320
+            "y": 2352
           },
           "width": 20
         },
@@ -124,7 +130,7 @@
           "side": "east",
           "point": {
             "x": 312,
-            "y": 3072
+            "y": 2952
           },
           "width": 12
         },
@@ -134,7 +140,7 @@
           "side": "east",
           "point": {
             "x": 312,
-            "y": 3400
+            "y": 3272
           },
           "width": 12
         }
@@ -148,6 +154,50 @@
       ]
     },
     {
+      "id": "room.region_key_treasure_1",
+      "sourceRegion": "region.key_treasure_1",
+      "sourceNodes": [
+        "key.treasure_1"
+      ],
+      "role": "standard",
+      "geometryRole": "key_pocket",
+      "footprintClass": "small_pocket",
+      "rect": {
+        "x": 672,
+        "y": 3232,
+        "width": 96,
+        "height": 80
+      },
+      "ports": [
+        {
+          "id": "port.room_region_key_treasure_1.section_region_key_treasure_1_region_treasure_gated_1_connector_edge_treasure_key_1_treasure_1",
+          "sectionId": "section.region_key_treasure_1.region_treasure_gated_1.connector_edge_treasure_key_1_treasure_1",
+          "side": "east",
+          "point": {
+            "x": 768,
+            "y": 3272
+          },
+          "width": 18
+        },
+        {
+          "id": "port.room_region_key_treasure_1.section_region_key_treasure_1_region_start_open",
+          "sectionId": "section.region_key_treasure_1.region_start.open",
+          "side": "west",
+          "point": {
+            "x": 672,
+            "y": 3272
+          },
+          "width": 12
+        }
+      ],
+      "styleTags": [
+        "key_pocket",
+        "pickup_pocket",
+        "small",
+        "standard"
+      ]
+    },
+    {
       "id": "room.region_hazard_sluice_1",
       "sourceRegion": "region.hazard_sluice_1",
       "sourceNodes": [
@@ -157,8 +207,8 @@
       "geometryRole": "hazard_route",
       "footprintClass": "pressure_lane",
       "rect": {
-        "x": 888,
-        "y": 2280,
+        "x": 960,
+        "y": 2312,
         "width": 144,
         "height": 80
       },
@@ -168,8 +218,8 @@
           "sectionId": "section.region_hazard_sluice_1.region_resource_safety_1.open",
           "side": "north",
           "point": {
-            "x": 960,
-            "y": 2280
+            "x": 1032,
+            "y": 2312
           },
           "width": 12
         },
@@ -178,8 +228,8 @@
           "sectionId": "section.region_goal.region_hazard_sluice_1.open",
           "side": "east",
           "point": {
-            "x": 1032,
-            "y": 2320
+            "x": 1104,
+            "y": 2352
           },
           "width": 12
         },
@@ -188,8 +238,8 @@
           "sectionId": "section.region_hazard_sluice_1.region_start.open",
           "side": "west",
           "point": {
-            "x": 888,
-            "y": 2320
+            "x": 960,
+            "y": 2352
           },
           "width": 20
         }
@@ -203,50 +253,6 @@
       ]
     },
     {
-      "id": "room.region_resource_safety_1",
-      "sourceRegion": "region.resource_safety_1",
-      "sourceNodes": [
-        "resource.safety_1"
-      ],
-      "role": "standard",
-      "geometryRole": "chamber",
-      "footprintClass": "small_pocket",
-      "rect": {
-        "x": 1120,
-        "y": 1728,
-        "width": 96,
-        "height": 80
-      },
-      "ports": [
-        {
-          "id": "port.room_region_resource_safety_1.section_region_hazard_sluice_1_region_resource_safety_1_open",
-          "sectionId": "section.region_hazard_sluice_1.region_resource_safety_1.open",
-          "side": "south",
-          "point": {
-            "x": 1168,
-            "y": 1808
-          },
-          "width": 12
-        },
-        {
-          "id": "port.room_region_resource_safety_1.section_region_resource_safety_1_region_start_open",
-          "sectionId": "section.region_resource_safety_1.region_start.open",
-          "side": "west",
-          "point": {
-            "x": 1120,
-            "y": 1768
-          },
-          "width": 12
-        }
-      ],
-      "styleTags": [
-        "chamber",
-        "pickup_pocket",
-        "small",
-        "standard"
-      ]
-    },
-    {
       "id": "room.region_key_gate_1",
       "sourceRegion": "region.key_gate_1",
       "sourceNodes": [
@@ -256,7 +262,7 @@
       "geometryRole": "key_pocket",
       "footprintClass": "small_pocket",
       "rect": {
-        "x": 568,
+        "x": 672,
         "y": 208,
         "width": 96,
         "height": 80
@@ -265,10 +271,10 @@
         {
           "id": "port.room_region_key_gate_1.section_region_gate_locked_1_region_key_gate_1_open",
           "sectionId": "section.region_gate_locked_1.region_key_gate_1.open",
-          "side": "east",
+          "side": "south",
           "point": {
-            "x": 664,
-            "y": 248
+            "x": 720,
+            "y": 288
           },
           "width": 12
         },
@@ -277,7 +283,7 @@
           "sectionId": "section.region_key_gate_1.region_start.open",
           "side": "west",
           "point": {
-            "x": 568,
+            "x": 672,
             "y": 248
           },
           "width": 12
@@ -291,44 +297,44 @@
       ]
     },
     {
-      "id": "room.region_key_treasure_1",
-      "sourceRegion": "region.key_treasure_1",
+      "id": "room.region_resource_safety_1",
+      "sourceRegion": "region.resource_safety_1",
       "sourceNodes": [
-        "key.treasure_1"
+        "resource.safety_1"
       ],
       "role": "standard",
-      "geometryRole": "key_pocket",
+      "geometryRole": "chamber",
       "footprintClass": "small_pocket",
       "rect": {
         "x": 672,
-        "y": 3360,
+        "y": 1976,
         "width": 96,
         "height": 80
       },
       "ports": [
         {
-          "id": "port.room_region_key_treasure_1.section_region_key_treasure_1_region_treasure_gated_1_connector_edge_treasure_key_1_treasure_1",
-          "sectionId": "section.region_key_treasure_1.region_treasure_gated_1.connector_edge_treasure_key_1_treasure_1",
-          "side": "east",
+          "id": "port.room_region_resource_safety_1.section_region_hazard_sluice_1_region_resource_safety_1_open",
+          "sectionId": "section.region_hazard_sluice_1.region_resource_safety_1.open",
+          "side": "south",
           "point": {
-            "x": 768,
-            "y": 3400
+            "x": 720,
+            "y": 2056
           },
-          "width": 18
+          "width": 12
         },
         {
-          "id": "port.room_region_key_treasure_1.section_region_key_treasure_1_region_start_open",
-          "sectionId": "section.region_key_treasure_1.region_start.open",
+          "id": "port.room_region_resource_safety_1.section_region_resource_safety_1_region_start_open",
+          "sectionId": "section.region_resource_safety_1.region_start.open",
           "side": "west",
           "point": {
             "x": 672,
-            "y": 3400
+            "y": 2016
           },
           "width": 12
         }
       ],
       "styleTags": [
-        "key_pocket",
+        "chamber",
         "pickup_pocket",
         "small",
         "standard"
@@ -344,39 +350,39 @@
       "geometryRole": "threshold",
       "footprintClass": "threshold",
       "rect": {
-        "x": 904,
-        "y": 224,
+        "x": 920,
+        "y": 544,
         "width": 112,
-        "height": 112
+        "height": 80
       },
       "ports": [
+        {
+          "id": "port.room_region_gate_locked_1.section_region_gate_locked_1_region_key_gate_1_open",
+          "sectionId": "section.region_gate_locked_1.region_key_gate_1.open",
+          "side": "north",
+          "point": {
+            "x": 976,
+            "y": 544
+          },
+          "width": 12
+        },
         {
           "id": "port.room_region_gate_locked_1.section_region_gate_locked_1_region_goal_connector_edge_gate_1_goal",
           "sectionId": "section.region_gate_locked_1.region_goal.connector_edge_gate_1_goal",
           "side": "east",
           "point": {
-            "x": 1016,
-            "y": 280
+            "x": 1032,
+            "y": 584
           },
           "width": 18
-        },
-        {
-          "id": "port.room_region_gate_locked_1.section_region_gate_locked_1_region_key_gate_1_open",
-          "sectionId": "section.region_gate_locked_1.region_key_gate_1.open",
-          "side": "west",
-          "point": {
-            "x": 904,
-            "y": 256
-          },
-          "width": 12
         },
         {
           "id": "port.room_region_gate_locked_1.section_region_gate_locked_1_region_start_open",
           "sectionId": "section.region_gate_locked_1.region_start.open",
           "side": "west",
           "point": {
-            "x": 904,
-            "y": 304
+            "x": 920,
+            "y": 584
           },
           "width": 12
         }
@@ -401,7 +407,7 @@
       "footprintClass": "hub",
       "rect": {
         "x": 880,
-        "y": 3024,
+        "y": 2896,
         "width": 160,
         "height": 112
       },
@@ -412,7 +418,7 @@
           "side": "east",
           "point": {
             "x": 1040,
-            "y": 3080
+            "y": 2952
           },
           "width": 14
         },
@@ -422,7 +428,7 @@
           "side": "south",
           "point": {
             "x": 960,
-            "y": 3136
+            "y": 3008
           },
           "width": 18
         },
@@ -432,7 +438,7 @@
           "side": "west",
           "point": {
             "x": 880,
-            "y": 3080
+            "y": 2952
           },
           "width": 12
         }
@@ -456,9 +462,9 @@
       "footprintClass": "marker_room",
       "rect": {
         "x": 1600,
-        "y": 248,
+        "y": 552,
         "width": 128,
-        "height": 3168
+        "height": 2736
       },
       "ports": [
         {
@@ -467,7 +473,7 @@
           "side": "west",
           "point": {
             "x": 1600,
-            "y": 280
+            "y": 584
           },
           "width": 18
         },
@@ -477,7 +483,7 @@
           "side": "west",
           "point": {
             "x": 1600,
-            "y": 2320
+            "y": 2352
           },
           "width": 12
         },
@@ -487,7 +493,7 @@
           "side": "west",
           "point": {
             "x": 1600,
-            "y": 3080
+            "y": 2952
           },
           "width": 14
         },
@@ -497,7 +503,7 @@
           "side": "west",
           "point": {
             "x": 1600,
-            "y": 3384
+            "y": 3256
           },
           "width": 18
         }
@@ -521,7 +527,7 @@
       "footprintClass": "pocket",
       "rect": {
         "x": 1144,
-        "y": 3344,
+        "y": 3216,
         "width": 96,
         "height": 80
       },
@@ -532,7 +538,7 @@
           "side": "north",
           "point": {
             "x": 1192,
-            "y": 3344
+            "y": 3216
           },
           "width": 18
         },
@@ -542,7 +548,7 @@
           "side": "east",
           "point": {
             "x": 1240,
-            "y": 3384
+            "y": 3256
           },
           "width": 18
         },
@@ -552,7 +558,7 @@
           "side": "west",
           "point": {
             "x": 1144,
-            "y": 3384
+            "y": 3256
           },
           "width": 18
         }
@@ -603,12 +609,12 @@
       "toPort": "port.room_region_goal.section_region_gate_locked_1_region_goal_connector_edge_gate_1_goal",
       "points": [
         {
-          "x": 1016,
-          "y": 280
+          "x": 1032,
+          "y": 584
         },
         {
           "x": 1600,
-          "y": 280
+          "y": 584
         }
       ]
     },
@@ -646,20 +652,20 @@
       "toPort": "port.room_region_key_gate_1.section_region_gate_locked_1_region_key_gate_1_open",
       "points": [
         {
-          "x": 904,
-          "y": 256
+          "x": 976,
+          "y": 544
         },
         {
-          "x": 784,
-          "y": 256
+          "x": 976,
+          "y": 416
         },
         {
-          "x": 784,
-          "y": 248
+          "x": 720,
+          "y": 416
         },
         {
-          "x": 664,
-          "y": 248
+          "x": 720,
+          "y": 288
         }
       ]
     },
@@ -696,20 +702,12 @@
       "toPort": "port.room_region_start.section_region_gate_locked_1_region_start_open",
       "points": [
         {
-          "x": 904,
-          "y": 304
-        },
-        {
-          "x": 544,
-          "y": 304
-        },
-        {
-          "x": 544,
-          "y": 280
+          "x": 920,
+          "y": 584
         },
         {
           "x": 312,
-          "y": 280
+          "y": 584
         }
       ]
     },
@@ -748,11 +746,11 @@
       "points": [
         {
           "x": 1600,
-          "y": 2320
+          "y": 2352
         },
         {
-          "x": 1032,
-          "y": 2320
+          "x": 1104,
+          "y": 2352
         }
       ]
     },
@@ -793,11 +791,11 @@
       "points": [
         {
           "x": 1600,
-          "y": 3080
+          "y": 2952
         },
         {
           "x": 1040,
-          "y": 3080
+          "y": 2952
         }
       ]
     },
@@ -840,11 +838,11 @@
       "points": [
         {
           "x": 1600,
-          "y": 3384
+          "y": 3256
         },
         {
           "x": 1240,
-          "y": 3384
+          "y": 3256
         }
       ]
     },
@@ -881,20 +879,20 @@
       "toPort": "port.room_region_resource_safety_1.section_region_hazard_sluice_1_region_resource_safety_1_open",
       "points": [
         {
-          "x": 960,
-          "y": 2280
+          "x": 1032,
+          "y": 2312
         },
         {
-          "x": 960,
-          "y": 2048
+          "x": 1032,
+          "y": 2184
         },
         {
-          "x": 1168,
-          "y": 2048
+          "x": 720,
+          "y": 2184
         },
         {
-          "x": 1168,
-          "y": 1808
+          "x": 720,
+          "y": 2056
         }
       ]
     },
@@ -932,12 +930,12 @@
       "toPort": "port.room_region_start.section_region_hazard_sluice_1_region_start_open",
       "points": [
         {
-          "x": 888,
-          "y": 2320
+          "x": 960,
+          "y": 2352
         },
         {
           "x": 312,
-          "y": 2320
+          "y": 2352
         }
       ]
     },
@@ -975,19 +973,11 @@
       "points": [
         {
           "x": 880,
-          "y": 3080
-        },
-        {
-          "x": 600,
-          "y": 3080
-        },
-        {
-          "x": 600,
-          "y": 3072
+          "y": 2952
         },
         {
           "x": 312,
-          "y": 3072
+          "y": 2952
         }
       ]
     },
@@ -1030,19 +1020,19 @@
       "points": [
         {
           "x": 960,
-          "y": 3136
+          "y": 3008
         },
         {
           "x": 960,
-          "y": 3240
+          "y": 3112
         },
         {
           "x": 1192,
-          "y": 3240
+          "y": 3112
         },
         {
           "x": 1192,
-          "y": 3344
+          "y": 3216
         }
       ]
     },
@@ -1079,7 +1069,7 @@
       "toPort": "port.room_region_start.section_region_key_gate_1_region_start_open",
       "points": [
         {
-          "x": 568,
+          "x": 672,
           "y": 248
         },
         {
@@ -1122,11 +1112,11 @@
       "points": [
         {
           "x": 672,
-          "y": 3400
+          "y": 3272
         },
         {
           "x": 312,
-          "y": 3400
+          "y": 3272
         }
       ]
     },
@@ -1167,19 +1157,19 @@
       "points": [
         {
           "x": 768,
-          "y": 3400
+          "y": 3272
         },
         {
           "x": 960,
-          "y": 3400
+          "y": 3272
         },
         {
           "x": 960,
-          "y": 3384
+          "y": 3256
         },
         {
           "x": 1144,
-          "y": 3384
+          "y": 3256
         }
       ]
     },
@@ -1216,12 +1206,12 @@
       "toPort": "port.room_region_start.section_region_resource_safety_1_region_start_open",
       "points": [
         {
-          "x": 1120,
-          "y": 1768
+          "x": 672,
+          "y": 2016
         },
         {
           "x": 312,
-          "y": 1768
+          "y": 2016
         }
       ]
     }
@@ -1244,6 +1234,22 @@
       ]
     },
     {
+      "id": "content.room_region_key_treasure_1.key_pickup",
+      "roomId": "room.region_key_treasure_1",
+      "sourceRef": "node:key.treasure_1;region:region.key_treasure_1",
+      "kind": "key_pickup",
+      "label": "Key Pickup",
+      "tags": [
+        "key",
+        "key_pickup",
+        "key_pocket",
+        "optional",
+        "pickup_pocket",
+        "small",
+        "standard"
+      ]
+    },
+    {
       "id": "content.room_region_hazard_sluice_1.hazard",
       "roomId": "room.region_hazard_sluice_1",
       "sourceRef": "node:hazard.sluice_1;region:region.hazard_sluice_1",
@@ -1257,23 +1263,6 @@
         "optional",
         "pressure",
         "readable_hazard_approach"
-      ]
-    },
-    {
-      "id": "content.room_region_resource_safety_1.resource_clue",
-      "roomId": "room.region_resource_safety_1",
-      "sourceRef": "node:resource.safety_1;region:region.resource_safety_1",
-      "kind": "resource_clue",
-      "label": "Resource Clue",
-      "tags": [
-        "chamber",
-        "optional",
-        "pickup_pocket",
-        "preparation",
-        "resource",
-        "resource_clue",
-        "small",
-        "standard"
       ]
     },
     {
@@ -1293,17 +1282,18 @@
       ]
     },
     {
-      "id": "content.room_region_key_treasure_1.key_pickup",
-      "roomId": "room.region_key_treasure_1",
-      "sourceRef": "node:key.treasure_1;region:region.key_treasure_1",
-      "kind": "key_pickup",
-      "label": "Key Pickup",
+      "id": "content.room_region_resource_safety_1.resource_clue",
+      "roomId": "room.region_resource_safety_1",
+      "sourceRef": "node:resource.safety_1;region:region.resource_safety_1",
+      "kind": "resource_clue",
+      "label": "Resource Clue",
       "tags": [
-        "key",
-        "key_pickup",
-        "key_pocket",
+        "chamber",
         "optional",
         "pickup_pocket",
+        "preparation",
+        "resource",
+        "resource_clue",
         "small",
         "standard"
       ]

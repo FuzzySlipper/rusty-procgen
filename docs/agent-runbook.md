@@ -79,7 +79,25 @@ families (the original five rejected and two accepted families) by profile,
 candidate seed, and normalized physical-plan SHA-256. The report records each
 pipeline stage, rotation witness or bounded rejection evidence, configured
 realization result, routed-section count, blocking owners, alternatives,
-decisions, repairs, backtracks, and exhausted budget.
+decisions, repairs, backtracks, and exhausted budget. It also compares every
+accepted layout with the exact `75ed65f` baseline using room-envelope area,
+corridor centerline length, routed-shell/connection-cell count, and occupied
+piece cells. Regeneration fails if the median compactness target, per-layout
+regression limit, 9/10 acceptance floor, or physical validators regress.
+
+Geometry search evaluates every valid alternative that fits within the current
+bounded spacing tier, rejects portal distributions the generic catalog cannot
+realize, and chooses the lowest envelope/routed-shell score before escalating.
+Planar room scaling uses room-center separation only; the exclusive router
+independently proves corridor-to-room and corridor-to-corridor clearance. This
+avoids allowing a near edge in the abstract planar witness to magnify the whole
+level.
+
+In the viewer, outer margin affects both embedding kinds. Column/row gap and
+growth values tune depth-column layouts; planar-rotation layouts derive their
+safe room separation from room envelopes and compare bounded compact
+alternatives automatically. Maximum tiers and route attempts remain hard
+escalation bounds for both.
 
 After regeneration, verify that the committed report is byte-identical with:
 

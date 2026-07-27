@@ -35,14 +35,15 @@
             <fieldset class="generation-config-group">
               <legend>Geometry distribution</legend>
               <label><span>Initial outer margin</span><input id="generation-config-initial-margin" type="number" min="32" max="1024" step="8" required></label>
-              <label><span>Initial column gap</span><input id="generation-config-initial-column-gap" type="number" min="32" max="1024" step="8" required></label>
-              <label><span>Initial row gap</span><input id="generation-config-initial-row-gap" type="number" min="32" max="1024" step="8" required></label>
+              <label><span>Depth-column gap</span><input id="generation-config-initial-column-gap" type="number" min="32" max="1024" step="8" required></label>
+              <label><span>Depth-row gap</span><input id="generation-config-initial-row-gap" type="number" min="32" max="1024" step="8" required></label>
               <label><span>Margin growth/tier</span><input id="generation-config-margin-growth" type="number" min="0" max="512" step="8" required></label>
               <label><span>Column growth/tier</span><input id="generation-config-column-growth" type="number" min="0" max="512" step="8" required></label>
               <label><span>Row growth/tier</span><input id="generation-config-row-growth" type="number" min="0" max="512" step="8" required></label>
               <label><span>Maximum tiers</span><input id="generation-config-max-tiers" type="number" min="1" max="8" step="1" required></label>
               <label><span>Room orders/tier</span><input id="generation-config-room-attempts" type="number" min="1" max="32" step="1" required></label>
               <label><span>Maximum route attempts</span><input id="generation-config-max-attempts" type="number" min="1" max="1024" step="1" required></label>
+              <small>Column and row gaps tune depth-column layouts. Planar layouts automatically compare bounded valid embeddings at the tightest successful tier; outer margin and tier escalation still apply.</small>
             </fieldset>
             <fieldset class="generation-config-group">
               <legend>Placement and corridors</legend>

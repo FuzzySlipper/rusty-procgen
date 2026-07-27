@@ -441,6 +441,7 @@ fn realize_catalog_aware_attempt(
         args,
     )?;
     normalize_catalog_geometry_bounds(&mut geometry);
+    refresh_geometry_compactness_evidence(&mut geometry);
     validate_catalog_geometry_segments(&geometry).map_err(|detail| {
         catalog_generation_failure(
             "geometry_materialization",

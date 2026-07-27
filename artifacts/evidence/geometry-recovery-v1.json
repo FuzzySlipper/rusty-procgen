@@ -8,6 +8,311 @@
   "acceptedCount": 9,
   "rejectedCount": 1,
   "minimumAccepted": 8,
+  "compactness": {
+    "baselineCommit": "75ed65f378f5062b8b46590c914cd04ceb8d8eaf",
+    "targets": {
+      "minimumMedianReductionBasisPoints": 2000,
+      "maximumPerLayoutRegressionBasisPoints": 1000
+    },
+    "aggregate": {
+      "baselineMedianRoomEnvelopeArea": 4990208,
+      "currentMedianRoomEnvelopeArea": 794880,
+      "baselineMedianRoutedShellCount": 11169,
+      "currentMedianRoutedShellCount": 3590,
+      "roomEnvelopeReductionBasisPoints": 8407,
+      "routedShellReductionBasisPoints": 6785
+    },
+    "layouts": [
+      {
+        "candidateId": "candidate.first_slice.5201",
+        "candidateIndex": 0,
+        "candidateSeed": 5201,
+        "baseline": {
+          "roomEnvelopeArea": 10954944,
+          "corridorCenterlineLength": 26256,
+          "routedShellCount": 14537,
+          "occupiedCellCount": 554
+        },
+        "current": {
+          "roomEnvelopeArea": 794880,
+          "corridorCenterlineLength": 4464,
+          "routedShellCount": 3590,
+          "occupiedCellCount": 413
+        },
+        "reductions": {
+          "roomEnvelopeAreaBasisPoints": 9274,
+          "corridorCenterlineLengthBasisPoints": 8299,
+          "routedShellCountBasisPoints": 7530,
+          "occupiedCellCountBasisPoints": 2545
+        },
+        "search": {
+          "validLayoutCandidates": 1,
+          "selectedEmbedding": "rotation.v1.fnv1a64:2d6154821dcc2528",
+          "spacingTier": 0
+        },
+        "refs": {
+          "geometry": "artifacts/samples/batch-v2/candidate-000/geometry-2d.json",
+          "placement": "artifacts/samples/batch-v2/candidate-000/piece-placement.json"
+        }
+      },
+      {
+        "candidateId": "candidate.first_slice.5301",
+        "candidateIndex": 1,
+        "candidateSeed": 5301,
+        "baseline": {
+          "roomEnvelopeArea": 307200,
+          "corridorCenterlineLength": 1728,
+          "routedShellCount": 1861,
+          "occupiedCellCount": 468
+        },
+        "current": {
+          "roomEnvelopeArea": 307200,
+          "corridorCenterlineLength": 1728,
+          "routedShellCount": 1861,
+          "occupiedCellCount": 468
+        },
+        "reductions": {
+          "roomEnvelopeAreaBasisPoints": 0,
+          "corridorCenterlineLengthBasisPoints": 0,
+          "routedShellCountBasisPoints": 0,
+          "occupiedCellCountBasisPoints": 0
+        },
+        "search": {
+          "validLayoutCandidates": 1,
+          "selectedEmbedding": "depth-columns.v1",
+          "spacingTier": 0
+        },
+        "refs": {
+          "geometry": "artifacts/samples/batch-v2/candidate-001/geometry-2d.json",
+          "placement": "artifacts/samples/batch-v2/candidate-001/piece-placement.json"
+        }
+      },
+      {
+        "candidateId": "candidate.first_slice.5401",
+        "candidateIndex": 2,
+        "candidateSeed": 5401,
+        "baseline": {
+          "roomEnvelopeArea": 11672064,
+          "corridorCenterlineLength": 11792,
+          "routedShellCount": 20330,
+          "occupiedCellCount": 880
+        },
+        "current": {
+          "roomEnvelopeArea": 4792576,
+          "corridorCenterlineLength": 6800,
+          "routedShellCount": 12864,
+          "occupiedCellCount": 894
+        },
+        "reductions": {
+          "roomEnvelopeAreaBasisPoints": 5893,
+          "corridorCenterlineLengthBasisPoints": 4233,
+          "routedShellCountBasisPoints": 3672,
+          "occupiedCellCountBasisPoints": -160
+        },
+        "search": {
+          "validLayoutCandidates": 2,
+          "selectedEmbedding": "rotation.v1.fnv1a64:ff9783ae4de8add3",
+          "spacingTier": 0
+        },
+        "refs": {
+          "geometry": "artifacts/samples/batch-v2/candidate-002/geometry-2d.json",
+          "placement": "artifacts/samples/batch-v2/candidate-002/piece-placement.json"
+        }
+      },
+      {
+        "candidateId": "candidate.first_slice.5501",
+        "candidateIndex": 3,
+        "candidateSeed": 5501,
+        "baseline": {
+          "roomEnvelopeArea": 6952960,
+          "corridorCenterlineLength": 11688,
+          "routedShellCount": 14860,
+          "occupiedCellCount": 927
+        },
+        "current": {
+          "roomEnvelopeArea": 3652608,
+          "corridorCenterlineLength": 7736,
+          "routedShellCount": 14392,
+          "occupiedCellCount": 937
+        },
+        "reductions": {
+          "roomEnvelopeAreaBasisPoints": 4746,
+          "corridorCenterlineLengthBasisPoints": 3381,
+          "routedShellCountBasisPoints": 314,
+          "occupiedCellCountBasisPoints": -108
+        },
+        "search": {
+          "validLayoutCandidates": 1,
+          "selectedEmbedding": "rotation.v1.fnv1a64:3c4edee973b2b328",
+          "spacingTier": 0
+        },
+        "refs": {
+          "geometry": "artifacts/samples/batch-v2/candidate-003/geometry-2d.json",
+          "placement": "artifacts/samples/batch-v2/candidate-003/piece-placement.json"
+        }
+      },
+      {
+        "candidateId": "candidate.first_slice.5601",
+        "candidateIndex": 4,
+        "candidateSeed": 5601,
+        "baseline": {
+          "roomEnvelopeArea": 3399424,
+          "corridorCenterlineLength": 6272,
+          "routedShellCount": 7282,
+          "occupiedCellCount": 801
+        },
+        "current": {
+          "roomEnvelopeArea": 1089536,
+          "corridorCenterlineLength": 5264,
+          "routedShellCount": 3834,
+          "occupiedCellCount": 387
+        },
+        "reductions": {
+          "roomEnvelopeAreaBasisPoints": 6794,
+          "corridorCenterlineLengthBasisPoints": 1607,
+          "routedShellCountBasisPoints": 4734,
+          "occupiedCellCountBasisPoints": 5168
+        },
+        "search": {
+          "validLayoutCandidates": 3,
+          "selectedEmbedding": "rotation.v1.fnv1a64:e1ea877c80da15c0",
+          "spacingTier": 0
+        },
+        "refs": {
+          "geometry": "artifacts/samples/batch-v2/candidate-004/geometry-2d.json",
+          "placement": "artifacts/samples/batch-v2/candidate-004/piece-placement.json"
+        }
+      },
+      {
+        "candidateId": "candidate.first_slice.5801",
+        "candidateIndex": 6,
+        "candidateSeed": 5801,
+        "baseline": {
+          "roomEnvelopeArea": 146944,
+          "corridorCenterlineLength": 624,
+          "routedShellCount": 683,
+          "occupiedCellCount": 216
+        },
+        "current": {
+          "roomEnvelopeArea": 146944,
+          "corridorCenterlineLength": 624,
+          "routedShellCount": 683,
+          "occupiedCellCount": 216
+        },
+        "reductions": {
+          "roomEnvelopeAreaBasisPoints": 0,
+          "corridorCenterlineLengthBasisPoints": 0,
+          "routedShellCountBasisPoints": 0,
+          "occupiedCellCountBasisPoints": 0
+        },
+        "search": {
+          "validLayoutCandidates": 1,
+          "selectedEmbedding": "depth-columns.v1",
+          "spacingTier": 0
+        },
+        "refs": {
+          "geometry": "artifacts/samples/batch-v2/candidate-006/geometry-2d.json",
+          "placement": "artifacts/samples/batch-v2/candidate-006/piece-placement.json"
+        }
+      },
+      {
+        "candidateId": "candidate.first_slice.5901",
+        "candidateIndex": 7,
+        "candidateSeed": 5901,
+        "baseline": {
+          "roomEnvelopeArea": 9336832,
+          "corridorCenterlineLength": 19528,
+          "routedShellCount": 11169,
+          "occupiedCellCount": 740
+        },
+        "current": {
+          "roomEnvelopeArea": 794880,
+          "corridorCenterlineLength": 4464,
+          "routedShellCount": 3590,
+          "occupiedCellCount": 413
+        },
+        "reductions": {
+          "roomEnvelopeAreaBasisPoints": 9148,
+          "corridorCenterlineLengthBasisPoints": 7714,
+          "routedShellCountBasisPoints": 6785,
+          "occupiedCellCountBasisPoints": 4418
+        },
+        "search": {
+          "validLayoutCandidates": 1,
+          "selectedEmbedding": "rotation.v1.fnv1a64:ad74edbdc5510798",
+          "spacingTier": 0
+        },
+        "refs": {
+          "geometry": "artifacts/samples/batch-v2/candidate-007/geometry-2d.json",
+          "placement": "artifacts/samples/batch-v2/candidate-007/piece-placement.json"
+        }
+      },
+      {
+        "candidateId": "candidate.first_slice.6001",
+        "candidateIndex": 8,
+        "candidateSeed": 6001,
+        "baseline": {
+          "roomEnvelopeArea": 307200,
+          "corridorCenterlineLength": 1728,
+          "routedShellCount": 1861,
+          "occupiedCellCount": 468
+        },
+        "current": {
+          "roomEnvelopeArea": 307200,
+          "corridorCenterlineLength": 1728,
+          "routedShellCount": 1861,
+          "occupiedCellCount": 468
+        },
+        "reductions": {
+          "roomEnvelopeAreaBasisPoints": 0,
+          "corridorCenterlineLengthBasisPoints": 0,
+          "routedShellCountBasisPoints": 0,
+          "occupiedCellCountBasisPoints": 0
+        },
+        "search": {
+          "validLayoutCandidates": 1,
+          "selectedEmbedding": "depth-columns.v1",
+          "spacingTier": 0
+        },
+        "refs": {
+          "geometry": "artifacts/samples/batch-v2/candidate-008/geometry-2d.json",
+          "placement": "artifacts/samples/batch-v2/candidate-008/piece-placement.json"
+        }
+      },
+      {
+        "candidateId": "candidate.first_slice.6101",
+        "candidateIndex": 9,
+        "candidateSeed": 6101,
+        "baseline": {
+          "roomEnvelopeArea": 4990208,
+          "corridorCenterlineLength": 7024,
+          "routedShellCount": 13409,
+          "occupiedCellCount": 767
+        },
+        "current": {
+          "roomEnvelopeArea": 4792576,
+          "corridorCenterlineLength": 6800,
+          "routedShellCount": 12866,
+          "occupiedCellCount": 894
+        },
+        "reductions": {
+          "roomEnvelopeAreaBasisPoints": 396,
+          "corridorCenterlineLengthBasisPoints": 318,
+          "routedShellCountBasisPoints": 404,
+          "occupiedCellCountBasisPoints": -1656
+        },
+        "search": {
+          "validLayoutCandidates": 3,
+          "selectedEmbedding": "rotation.v1.fnv1a64:026677036b82d145",
+          "spacingTier": 0
+        },
+        "refs": {
+          "geometry": "artifacts/samples/batch-v2/candidate-009/geometry-2d.json",
+          "placement": "artifacts/samples/batch-v2/candidate-009/piece-placement.json"
+        }
+      }
+    ]
+  },
   "families": [
     {
       "profileSequence": "hub-merge",
@@ -25,24 +330,24 @@
       },
       "embedding": {
         "kind": "planar_rotation",
-        "id": "rotation.v1.fnv1a64:51894d8f02f4c8f4",
+        "id": "rotation.v1.fnv1a64:2d6154821dcc2528",
         "faces": 6,
         "targetFaces": 6,
-        "searchSteps": 17
+        "searchSteps": 47
       },
       "geometrySearch": {
-        "attempts": 17,
-        "spacingTier": 1,
-        "roomOrderAttempt": 1,
+        "attempts": 11,
+        "spacingTier": 0,
+        "roomOrderAttempt": 3,
         "portOrderAttempt": 0,
         "routeOrderAttempt": 0,
         "routedSections": 13,
-        "decisions": 17,
-        "backtracks": 4,
-        "pathAlternatives": 104,
-        "repairs": 3,
-        "gridExpansions": 12289,
-        "pathExpansionExhaustions": 3,
+        "decisions": 149,
+        "backtracks": 131,
+        "pathAlternatives": 224,
+        "repairs": 120,
+        "gridExpansions": 304459,
+        "pathExpansionExhaustions": 68,
         "blockingOwners": [
           "path_expansion_budget:4096",
           "room:region.gate_locked_1",
@@ -54,9 +359,21 @@
           "room:region.resource_clue_1",
           "room:region.start",
           "room:region.treasure_cache_1",
-          "section.region_hub_central_1.region_junction_merge_1.open"
+          "section.region_gate_locked_1.region_start.open",
+          "section.region_goal.region_hub_central_1.open",
+          "section.region_goal.region_junction_merge_1.open",
+          "section.region_junction_merge_1.region_start.open"
         ],
         "budgetExhausted": null
+      },
+      "compactness": {
+        "validLayoutCandidates": 1,
+        "portalCapacityPenalty": 0,
+        "buildEnvelopeArea": 1243008,
+        "corridorCenterlineLength": 4464,
+        "routedShellCost": 59648,
+        "bendCount": 30,
+        "routedShellCount": 3590
       },
       "realizationSearch": {
         "scaleTier": 2,
@@ -101,7 +418,7 @@
         "searchSteps": 0
       },
       "geometrySearch": {
-        "attempts": 1,
+        "attempts": 13,
         "spacingTier": 0,
         "roomOrderAttempt": 0,
         "portOrderAttempt": 0,
@@ -124,6 +441,15 @@
           "room:region.start"
         ],
         "budgetExhausted": null
+      },
+      "compactness": {
+        "validLayoutCandidates": 1,
+        "portalCapacityPenalty": 0,
+        "buildEnvelopeArea": 668160,
+        "corridorCenterlineLength": 1728,
+        "routedShellCost": 21648,
+        "bendCount": 20,
+        "routedShellCount": 1861
       },
       "realizationSearch": {
         "scaleTier": 2,
@@ -168,7 +494,7 @@
         "searchSteps": 421
       },
       "geometrySearch": {
-        "attempts": 3,
+        "attempts": 8,
         "spacingTier": 0,
         "roomOrderAttempt": 1,
         "portOrderAttempt": 0,
@@ -192,6 +518,15 @@
           "room:region.treasure_gated_1"
         ],
         "budgetExhausted": null
+      },
+      "compactness": {
+        "validLayoutCandidates": 2,
+        "portalCapacityPenalty": 0,
+        "buildEnvelopeArea": 6216192,
+        "corridorCenterlineLength": 6800,
+        "routedShellCost": 98464,
+        "bendCount": 8,
+        "routedShellCount": 12864
       },
       "realizationSearch": {
         "scaleTier": 2,
@@ -242,14 +577,13 @@
         "portOrderAttempt": 0,
         "routeOrderAttempt": 0,
         "routedSections": 17,
-        "decisions": 89,
-        "backtracks": 72,
-        "pathAlternatives": 280,
-        "repairs": 65,
-        "gridExpansions": 262144,
-        "pathExpansionExhaustions": 64,
+        "decisions": 19,
+        "backtracks": 2,
+        "pathAlternatives": 136,
+        "repairs": 1,
+        "gridExpansions": 4,
+        "pathExpansionExhaustions": 0,
         "blockingOwners": [
-          "path_expansion_budget:4096",
           "room:region.gate_boss_1",
           "room:region.gate_locked_1",
           "room:region.goal",
@@ -261,14 +595,22 @@
           "room:region.resource_clue_1",
           "room:region.resource_safety_1",
           "room:region.start",
-          "section.region_hub_central_1.region_resource_clue_1.open",
           "section.region_hub_central_1.region_start.open"
         ],
         "budgetExhausted": null
       },
+      "compactness": {
+        "validLayoutCandidates": 1,
+        "portalCapacityPenalty": 0,
+        "buildEnvelopeArea": 4804352,
+        "corridorCenterlineLength": 7736,
+        "routedShellCost": 100656,
+        "bendCount": 24,
+        "routedShellCount": 14392
+      },
       "realizationSearch": {
-        "scaleTier": 2,
-        "attempts": 1,
+        "scaleTier": 3,
+        "attempts": 2,
         "routeOrderAttempt": 0,
         "routeAttempts": 1,
         "decisions": 17,
@@ -303,15 +645,15 @@
       },
       "embedding": {
         "kind": "planar_rotation",
-        "id": "rotation.v1.fnv1a64:a27f0df487a14914",
+        "id": "rotation.v1.fnv1a64:e1ea877c80da15c0",
         "faces": 6,
         "targetFaces": 6,
-        "searchSteps": 12
+        "searchSteps": 24
       },
       "geometrySearch": {
-        "attempts": 3,
+        "attempts": 5,
         "spacingTier": 0,
-        "roomOrderAttempt": 1,
+        "roomOrderAttempt": 2,
         "portOrderAttempt": 0,
         "routeOrderAttempt": 0,
         "routedSections": 13,
@@ -333,6 +675,15 @@
           "room:region.treasure_gated_1"
         ],
         "budgetExhausted": null
+      },
+      "compactness": {
+        "validLayoutCandidates": 3,
+        "portalCapacityPenalty": 0,
+        "buildEnvelopeArea": 1607424,
+        "corridorCenterlineLength": 5264,
+        "routedShellCost": 72400,
+        "bendCount": 24,
+        "routedShellCount": 3834
       },
       "realizationSearch": {
         "scaleTier": 2,
@@ -406,7 +757,7 @@
         "searchSteps": 0
       },
       "geometrySearch": {
-        "attempts": 1,
+        "attempts": 13,
         "spacingTier": 0,
         "roomOrderAttempt": 0,
         "portOrderAttempt": 0,
@@ -425,6 +776,15 @@
           "room:region.start"
         ],
         "budgetExhausted": null
+      },
+      "compactness": {
+        "validLayoutCandidates": 1,
+        "portalCapacityPenalty": 0,
+        "buildEnvelopeArea": 407040,
+        "corridorCenterlineLength": 624,
+        "routedShellCost": 8400,
+        "bendCount": 8,
+        "routedShellCount": 683
       },
       "realizationSearch": {
         "scaleTier": 2,

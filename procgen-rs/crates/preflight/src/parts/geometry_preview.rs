@@ -812,6 +812,33 @@ fn validate_geometry_2d(geometry: &Geometry2dArtifact) -> ValidationReport {
 
     validate_geometry_content_anchors(geometry, &rooms_by_id, &mut diagnostics);
     validate_geometry_reachability(geometry, &adjacency, &mut diagnostics);
+    let compactness = geometry_compactness_score(
+        &geometry.bounds,
+        &geometry.rooms,
+        &geometry.corridors,
+        geometry.layout_search.embedding_id.as_str(),
+    );
+    if geometry.layout_search.valid_layout_candidates == 0
+        || geometry
+            .layout_search
+            .compactness_portal_capacity_penalty
+            != compactness.portal_capacity_penalty
+        || geometry.layout_search.compactness_envelope_area != compactness.envelope_area
+        || geometry
+            .layout_search
+            .compactness_corridor_centerline_length
+            != compactness.corridor_centerline_length
+        || geometry.layout_search.compactness_routed_shell_cost != compactness.routed_shell_cost
+        || geometry.layout_search.compactness_bend_count
+            != u32::try_from(compactness.bend_count).unwrap_or(u32::MAX)
+    {
+        diagnostics.push(fatal(
+            "geometry_compactness_evidence_invalid",
+            None,
+            None,
+            "Geometry compactness evidence must match the selected valid layout.",
+        ));
+    }
 
     let fatal_count = diagnostics
         .iter()
@@ -1059,7 +1086,7 @@ struct PhysicalPortDemand {
     opposite_order: i32,
 }
 
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, Eq, Ord, PartialEq, PartialOrd)]
 struct TopologyPoint {
     x: i32,
     y: i32,
@@ -1072,7 +1099,6 @@ struct TopologyEmbedding {
     faces: u32,
     target_faces: u32,
     search_steps: u32,
-    minimum_clearance: f64,
     terminal_bars: bool,
 }
 
@@ -1082,6 +1108,17 @@ struct GeometryPlacementResult {
     corridors: Vec<GeometryCorridor>,
     bounds: GeometryBounds,
     search: GeometryLayoutSearchEvidence,
+}
+
+#[derive(Clone, Debug, Eq, Ord, PartialEq, PartialOrd)]
+struct GeometryCompactnessScore {
+    portal_capacity_penalty: u32,
+    envelope_area: i64,
+    routed_shell_cost: i64,
+    corridor_centerline_length: i64,
+    bend_count: usize,
+    envelope_span: i32,
+    embedding_id: String,
 }
 
 #[derive(Clone, Debug, Default)]
@@ -1316,6 +1353,107 @@ fn geometry_spacing_for_tier(
     Ok(spacing)
 }
 
+fn geometry_compactness_score(
+    bounds: &GeometryBounds,
+    rooms: &[GeometryRoom],
+    corridors: &[GeometryCorridor],
+    embedding_id: &str,
+) -> GeometryCompactnessScore {
+    let corridor_centerline_length = corridors
+        .iter()
+        .flat_map(|corridor| corridor.points.windows(2))
+        .map(|pair| {
+            i64::from((pair[1].x - pair[0].x).abs())
+                .saturating_add(i64::from((pair[1].y - pair[0].y).abs()))
+        })
+        .fold(0_i64, i64::saturating_add);
+    let routed_shell_cost = corridors
+        .iter()
+        .map(|corridor| {
+            let length = corridor
+                .points
+                .windows(2)
+                .map(|pair| {
+                    i64::from((pair[1].x - pair[0].x).abs())
+                        .saturating_add(i64::from((pair[1].y - pair[0].y).abs()))
+                })
+                .fold(0_i64, i64::saturating_add);
+            length.saturating_mul(i64::from(corridor.width.max(1)))
+        })
+        .fold(0_i64, i64::saturating_add);
+    let bend_count = corridors
+        .iter()
+        .map(|corridor| corridor.points.len().saturating_sub(2))
+        .sum();
+    GeometryCompactnessScore {
+        portal_capacity_penalty: geometry_portal_capacity_penalty(rooms),
+        envelope_area: i64::from(bounds.width).saturating_mul(i64::from(bounds.height)),
+        routed_shell_cost,
+        corridor_centerline_length,
+        bend_count,
+        envelope_span: bounds.width.max(bounds.height),
+        embedding_id: embedding_id.to_owned(),
+    }
+}
+
+fn refresh_geometry_compactness_evidence(geometry: &mut Geometry2dArtifact) {
+    let compactness = geometry_compactness_score(
+        &geometry.bounds,
+        &geometry.rooms,
+        &geometry.corridors,
+        geometry.layout_search.embedding_id.as_str(),
+    );
+    geometry.layout_search.compactness_portal_capacity_penalty =
+        compactness.portal_capacity_penalty;
+    geometry.layout_search.compactness_envelope_area = compactness.envelope_area;
+    geometry
+        .layout_search
+        .compactness_corridor_centerline_length = compactness.corridor_centerline_length;
+    geometry.layout_search.compactness_routed_shell_cost = compactness.routed_shell_cost;
+    geometry.layout_search.compactness_bend_count =
+        u32::try_from(compactness.bend_count).unwrap_or(u32::MAX);
+}
+
+fn geometry_portal_capacity_penalty(rooms: &[GeometryRoom]) -> u32 {
+    rooms
+        .iter()
+        .map(|room| {
+            let mut counts = BTreeMap::<&str, usize>::new();
+            for port in &room.ports {
+                *counts.entry(port.side.as_str()).or_default() += 1;
+            }
+            portal_capacity_penalty_for_counts(&counts)
+        })
+        .fold(0_u32, u32::saturating_add)
+}
+
+fn portal_capacity_penalty_for_counts(counts: &BTreeMap<&str, usize>) -> u32 {
+    if counts.values().copied().max().unwrap_or(0) < 3 {
+        return 0;
+    }
+    let multi_sides = counts
+        .iter()
+        .filter(|(_, count)| **count >= 2)
+        .map(|(side, _)| *side)
+        .collect::<Vec<_>>();
+    let mut penalty = 0_u32;
+    for (index, left) in multi_sides.iter().enumerate() {
+        for right in multi_sides.iter().skip(index + 1) {
+            let opposite = matches!(
+                (*left, *right),
+                ("north", "south")
+                    | ("south", "north")
+                    | ("east", "west")
+                    | ("west", "east")
+            );
+            if !opposite {
+                penalty = penalty.saturating_add(1);
+            }
+        }
+    }
+    penalty
+}
+
 fn place_and_route_physical_geometry(
     base_specs: &[(usize, String, String, &IntermediateRegion)],
     connection_plan: &PhysicalConnectionPlan,
@@ -1333,6 +1471,8 @@ fn place_and_route_physical_geometry(
         let spacing = geometry_spacing_for_tier(policy, spacing_tier)?;
         last_spacing = spacing.clone();
         spacing_tiers_attempted += 1;
+        let mut best_valid = None::<(GeometryCompactnessScore, GeometryPlacementResult)>;
+        let mut valid_layout_candidates = 0_u32;
         for embedding_phase in 0..2_u32 {
             for room_order_attempt in 0..policy.room_order_attempts_per_tier {
                 if search_attempts >= policy.max_search_attempts {
@@ -1408,7 +1548,23 @@ fn place_and_route_physical_geometry(
                     route_evidence,
                 )) => {
                     search_attempts += attempted_orders;
-                    return Ok(GeometryPlacementResult {
+                    valid_layout_candidates = valid_layout_candidates.saturating_add(1);
+                    let embedding_kind = topology_embedding
+                        .as_ref()
+                        .map(|_| "planar_rotation")
+                        .unwrap_or("depth_columns")
+                        .to_owned();
+                    let embedding_id = topology_embedding
+                        .as_ref()
+                        .map(|embedding| embedding.embedding_id.clone())
+                        .unwrap_or_else(|| "depth-columns.v1".to_owned());
+                    let score = geometry_compactness_score(
+                        &bounds,
+                        &rooms,
+                        &corridors,
+                        embedding_id.as_str(),
+                    );
+                    let result = GeometryPlacementResult {
                         rooms,
                         corridors,
                         bounds,
@@ -1418,16 +1574,9 @@ fn place_and_route_physical_geometry(
                             port_order_attempt,
                             route_order_attempt,
                             search_attempts,
-                            effective_spacing: spacing,
-                            embedding_kind: topology_embedding
-                                .as_ref()
-                                .map(|_| "planar_rotation")
-                                .unwrap_or("depth_columns")
-                                .to_owned(),
-                            embedding_id: topology_embedding
-                                .as_ref()
-                                .map(|embedding| embedding.embedding_id.clone())
-                                .unwrap_or_else(|| "depth-columns.v1".to_owned()),
+                            effective_spacing: spacing.clone(),
+                            embedding_kind,
+                            embedding_id,
                             embedding_faces: topology_embedding
                                 .as_ref()
                                 .map(|embedding| embedding.faces)
@@ -1453,8 +1602,23 @@ fn place_and_route_physical_geometry(
                                 .iter()
                                 .cloned()
                                 .collect(),
+                            valid_layout_candidates: 0,
+                            compactness_portal_capacity_penalty: score
+                                .portal_capacity_penalty,
+                            compactness_envelope_area: score.envelope_area,
+                            compactness_corridor_centerline_length: score
+                                .corridor_centerline_length,
+                            compactness_routed_shell_cost: score.routed_shell_cost,
+                            compactness_bend_count: u32::try_from(score.bend_count)
+                                .unwrap_or(u32::MAX),
                         },
-                    });
+                    };
+                    if best_valid
+                        .as_ref()
+                        .is_none_or(|(best_score, _)| score < *best_score)
+                    {
+                        best_valid = Some((score, result));
+                    }
                 }
                     Err(GeometryPlacementAttemptError::Invalid(error)) => {
                         return Err(format!("invalid physical geometry plan: {error}"));
@@ -1468,6 +1632,11 @@ fn place_and_route_physical_geometry(
                     }
                 }
             }
+        }
+        if let Some((_score, mut result)) = best_valid {
+            result.search.search_attempts = search_attempts;
+            result.search.valid_layout_candidates = valid_layout_candidates;
+            return Ok(result);
         }
     }
     Err(format!(
@@ -1663,14 +1832,12 @@ fn find_topology_embedding(
         seed ^ nonce ^ 0x84B9_3F2D_571A_CE60,
     );
     validate_topology_drawing(&rotation, &positions)?;
-    let minimum_clearance = topology_drawing_clearance(&rotation, &positions)?;
     Ok(TopologyEmbedding {
         positions,
         embedding_id,
         faces: target_faces,
         target_faces,
         search_steps,
-        minimum_clearance,
         terminal_bars,
     })
 }
@@ -1811,9 +1978,10 @@ fn topology_embedding_positions(
     faces: &[Vec<String>],
     seed: u64,
 ) -> Result<(BTreeMap<String, TopologyPoint>, bool), String> {
+    let mut candidates = Vec::<(BTreeMap<String, TopologyPoint>, bool)>::new();
     if let Some(separator_positions) = topology_separator_band_positions(rotation) {
         if validate_topology_drawing(rotation, &separator_positions).is_ok() {
-            return Ok((separator_positions, true));
+            candidates.push((separator_positions, true));
         }
     }
     let mut active = rotation.keys().cloned().collect::<BTreeSet<_>>();
@@ -1899,22 +2067,60 @@ fn topology_embedding_positions(
                     seed ^ face_index as u64,
                 );
                 match validate_topology_drawing(rotation, &quantized) {
-                    Ok(()) => return Ok((quantized, false)),
+                    Ok(()) => candidates.push((quantized, false)),
                     Err(error) => last_error = error,
                 }
             }
             Err(error) => last_error = error,
         }
     }
-    Err(format!(
-        "topology embedding drawing search exhausted across {} certified face(s): {last_error}",
-        faces.len()
-    ))
+    candidates.sort_by(|(left, left_terminal_bars), (right, right_terminal_bars)| {
+        let scored_left = if *left_terminal_bars {
+            orient_topology_terminals(left.clone())
+        } else {
+            left.clone()
+        };
+        let scored_right = if *right_terminal_bars {
+            orient_topology_terminals(right.clone())
+        } else {
+            right.clone()
+        };
+        let left_ratio = topology_drawing_clearance(rotation, &scored_left).unwrap_or(0.0)
+            / topology_drawing_span(&scored_left);
+        let right_ratio = topology_drawing_clearance(rotation, &scored_right).unwrap_or(0.0)
+            / topology_drawing_span(&scored_right);
+        topology_portal_capacity_penalty(rotation, &scored_left, *left_terminal_bars)
+            .cmp(&topology_portal_capacity_penalty(
+                rotation,
+                &scored_right,
+                *right_terminal_bars,
+            ))
+            .then_with(|| {
+                right_ratio
+            .total_cmp(&left_ratio)
+            })
+            .then_with(|| {
+                topology_drawing_span(&scored_left)
+                    .total_cmp(&topology_drawing_span(&scored_right))
+            })
+            .then_with(|| left.cmp(right))
+            .then_with(|| left_terminal_bars.cmp(right_terminal_bars))
+    });
+    candidates.into_iter().next().ok_or_else(|| {
+        format!(
+            "topology embedding drawing search exhausted across {} certified face(s): {last_error}",
+            faces.len()
+        )
+    })
 }
 
 fn topology_separator_band_positions(
     rotation: &BTreeMap<String, Vec<String>>,
 ) -> Option<BTreeMap<String, TopologyPoint>> {
+    const BAND_STEP: i32 = 1_000;
+    const BAND_HALF_STEP: i32 = BAND_STEP / 2;
+    const IN_BAND_STEP: i32 = 75;
+    const JITTER_RADIUS: i32 = 400;
     let left_terminal = "region.start";
     let right_terminal = "region.goal";
     if !rotation.contains_key(left_terminal) || !rotation.contains_key(right_terminal) {
@@ -1950,7 +2156,7 @@ fn topology_separator_band_positions(
     let right_distances = topology_graph_distances(right_terminal, rotation);
     let terminal_y = i32::try_from(components.len().saturating_sub(1))
         .ok()?
-        .saturating_mul(500);
+        .saturating_mul(BAND_HALF_STEP);
     let mut positions = BTreeMap::from([
         (
             left_terminal.to_owned(),
@@ -1987,8 +2193,8 @@ fn topology_separator_band_positions(
                 - i32::try_from(component.len().saturating_sub(1)).ok()?;
             let y = i32::try_from(component_index)
                 .ok()?
-                .saturating_mul(1_000)
-                .saturating_add(centered_order.saturating_mul(75));
+                .saturating_mul(BAND_STEP)
+                .saturating_add(centered_order.saturating_mul(IN_BAND_STEP));
             positions.insert(region.clone(), TopologyPoint { x, y });
         }
     }
@@ -2003,10 +2209,16 @@ fn topology_separator_band_positions(
     for _ in 0..4_096 {
         let mut candidate = positions.clone();
         for (component_index, component) in components.iter().enumerate() {
-            let band_y = i32::try_from(component_index).ok()?.saturating_mul(1_000);
+            let band_y = i32::try_from(component_index)
+                .ok()?
+                .saturating_mul(BAND_STEP);
             for region in component {
                 let point = candidate.get_mut(region.as_str())?;
-                let jitter = i32::try_from(rng.index(801)).ok()?.saturating_sub(400);
+                let jitter = i32::try_from(rng.index(
+                    usize::try_from(JITTER_RADIUS.saturating_mul(2).saturating_add(1)).ok()?,
+                ))
+                .ok()?
+                .saturating_sub(JITTER_RADIUS);
                 point.y = band_y.saturating_add(jitter);
             }
         }
@@ -2273,6 +2485,41 @@ fn topology_drawing_span(positions: &BTreeMap<String, TopologyPoint>) -> f64 {
     f64::from((maximum_x - minimum_x).max(maximum_y - minimum_y).max(1))
 }
 
+fn topology_portal_capacity_penalty(
+    rotation: &BTreeMap<String, Vec<String>>,
+    positions: &BTreeMap<String, TopologyPoint>,
+    terminal_bars: bool,
+) -> u32 {
+    rotation
+        .iter()
+        .map(|(region, neighbors)| {
+            if terminal_bars && matches!(region.as_str(), "region.start" | "region.goal") {
+                return 0;
+            }
+            let Some(point) = positions.get(region) else {
+                return u32::MAX;
+            };
+            let mut counts = BTreeMap::<&str, usize>::new();
+            for neighbor in neighbors {
+                let Some(other) = positions.get(neighbor) else {
+                    return u32::MAX;
+                };
+                let dx = other.x - point.x;
+                let dy = other.y - point.y;
+                let side = if dx.abs() >= dy.abs() {
+                    if dx >= 0 { "east" } else { "west" }
+                } else if dy >= 0 {
+                    "south"
+                } else {
+                    "north"
+                };
+                *counts.entry(side).or_default() += 1;
+            }
+            portal_capacity_penalty_for_counts(&counts)
+        })
+        .fold(0_u32, u32::saturating_add)
+}
+
 fn improve_topology_drawing_clearance(
     rotation: &BTreeMap<String, Vec<String>>,
     positions: BTreeMap<String, TopologyPoint>,
@@ -2490,7 +2737,6 @@ fn place_and_route_physical_geometry_attempt(
             spacing,
             &port_demands,
             topology_embedding.map(|embedding| &embedding.positions),
-            topology_embedding.map(|embedding| embedding.minimum_clearance),
             topology_embedding.is_some_and(|embedding| embedding.terminal_bars),
         )?;
         match route_physical_sections(
@@ -2538,7 +2784,6 @@ fn place_geometry_rooms(
     spacing: &GeometrySpacing,
     port_demands: &BTreeMap<String, Vec<PhysicalPortDemand>>,
     topology_positions: Option<&BTreeMap<String, TopologyPoint>>,
-    topology_clearance: Option<f64>,
     topology_terminal_bars: bool,
 ) -> Result<(Vec<GeometryRoom>, GeometryBounds), GeometryPlacementAttemptError> {
     if let Some(positions) = topology_positions {
@@ -2547,7 +2792,6 @@ fn place_geometry_rooms(
             spacing,
             port_demands,
             positions,
-            topology_clearance.unwrap_or(f64::INFINITY),
             topology_terminal_bars,
         );
     }
@@ -2616,7 +2860,6 @@ fn place_geometry_rooms_from_topology(
     spacing: &GeometrySpacing,
     port_demands: &BTreeMap<String, Vec<PhysicalPortDemand>>,
     positions: &BTreeMap<String, TopologyPoint>,
-    topology_clearance: f64,
     topology_terminal_bars: bool,
 ) -> Result<(Vec<GeometryRoom>, GeometryBounds), GeometryPlacementAttemptError> {
     let mut sizes = BTreeMap::new();
@@ -2648,13 +2891,13 @@ fn place_geometry_rooms_from_topology(
                 "topology embedding has no distinct room positions".to_owned(),
             )
         })? as f64;
-    // The embedding clearance is measured between every non-incident feature,
-    // so scaling that clearance to a full legacy column gap needlessly turns
-    // sparse planar drawings into multi-thousand-cell corridors. Reserve the
-    // actual maximum room envelope instead.
+    // Room placement only needs center separation sufficient for the room
+    // envelopes. The exclusive router separately proves corridor-to-room and
+    // corridor-to-corridor clearance; using the drawing's smallest node-to-edge
+    // distance as a global room scale turns one near abstract edge into
+    // multi-thousand-cell corridors everywhere.
     let target_separation = f64::from(maximum_dimension);
-    let minimum_feature_distance = minimum_axis_distance.min(topology_clearance).max(1.0);
-    let scale = target_separation / minimum_feature_distance;
+    let scale = target_separation / minimum_axis_distance.max(1.0);
     let minimum_x = points
         .iter()
         .map(|point| point.x)

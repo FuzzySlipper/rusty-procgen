@@ -23,7 +23,7 @@
           "id": "exit.corridor_section_region_gate_locked_1_region_start_open.east",
           "direction": "east",
           "width": 12,
-          "order": 784,
+          "order": 584,
           "tags": [
             "corridor",
             "open"
@@ -33,7 +33,7 @@
           "id": "exit.corridor_section_region_hazard_sluice_1_region_start_open.east",
           "direction": "east",
           "width": 20,
-          "order": 3592,
+          "order": 2352,
           "tags": [
             "open",
             "pressure_path",
@@ -44,7 +44,7 @@
           "id": "exit.corridor_section_region_junction_merge_1_region_start_open.east",
           "direction": "east",
           "width": 12,
-          "order": 4552,
+          "order": 2952,
           "tags": [
             "corridor",
             "open"
@@ -64,7 +64,7 @@
           "id": "exit.corridor_section_region_key_treasure_1_region_start_open.east",
           "direction": "east",
           "width": 12,
-          "order": 5064,
+          "order": 3272,
           "tags": [
             "corridor",
             "open"
@@ -74,7 +74,7 @@
           "id": "exit.corridor_section_region_resource_safety_1_region_start_open.east",
           "direction": "east",
           "width": 12,
-          "order": 3064,
+          "order": 2016,
           "tags": [
             "corridor",
             "open"
@@ -99,7 +99,7 @@
       "placementHints": [
         "anchorQuality:explicit",
         "footprintClass:marker_room",
-        "geometryRect:184:216:128:4880",
+        "geometryRect:184:216:128:3088",
         "scaleBand:medium"
       ]
     },
@@ -117,7 +117,7 @@
           "id": "exit.corridor_section_region_goal_region_hazard_sluice_1_open.east",
           "direction": "east",
           "width": 12,
-          "order": 3600,
+          "order": 2352,
           "tags": [
             "merge_rejoin_clarity",
             "open",
@@ -128,7 +128,7 @@
           "id": "exit.corridor_section_region_hazard_sluice_1_region_resource_safety_1_open.north",
           "direction": "north",
           "width": 12,
-          "order": 1488,
+          "order": 1032,
           "tags": [
             "corridor",
             "open"
@@ -138,7 +138,7 @@
           "id": "exit.corridor_section_region_hazard_sluice_1_region_start_open.west",
           "direction": "west",
           "width": 20,
-          "order": 3600,
+          "order": 2352,
           "tags": [
             "open",
             "pressure_path",
@@ -161,7 +161,7 @@
       "placementHints": [
         "anchorQuality:derived",
         "footprintClass:pressure_lane",
-        "geometryRect:1416:3560:144:80",
+        "geometryRect:960:2312:144:80",
         "scaleBand:medium"
       ]
     },
@@ -179,7 +179,7 @@
           "id": "exit.corridor_section_region_hazard_sluice_1_region_resource_safety_1_open.south",
           "direction": "south",
           "width": 12,
-          "order": 1000,
+          "order": 720,
           "tags": [
             "corridor",
             "open"
@@ -189,7 +189,7 @@
           "id": "exit.corridor_section_region_resource_safety_1_region_start_open.west",
           "direction": "west",
           "width": 12,
-          "order": 3072,
+          "order": 2016,
           "tags": [
             "corridor",
             "open"
@@ -210,7 +210,7 @@
       "placementHints": [
         "anchorQuality:derived",
         "footprintClass:small_pocket",
-        "geometryRect:952:3032:96:80",
+        "geometryRect:672:1976:96:80",
         "scaleBand:small"
       ]
     },
@@ -228,7 +228,7 @@
           "id": "exit.corridor_section_region_gate_locked_1_region_goal_connector_edge_gate_1_goal.east",
           "direction": "east",
           "width": 18,
-          "order": 784,
+          "order": 584,
           "tags": [
             "gated_connector",
             "locked",
@@ -241,7 +241,7 @@
           "id": "exit.corridor_section_region_gate_locked_1_region_key_gate_1_open.north",
           "direction": "north",
           "width": 12,
-          "order": 1408,
+          "order": 976,
           "tags": [
             "merge_rejoin_clarity",
             "open",
@@ -252,7 +252,7 @@
           "id": "exit.corridor_section_region_gate_locked_1_region_start_open.west",
           "direction": "west",
           "width": 12,
-          "order": 784,
+          "order": 584,
           "tags": [
             "corridor",
             "open"
@@ -274,7 +274,7 @@
       "placementHints": [
         "anchorQuality:derived",
         "footprintClass:threshold",
-        "geometryRect:1352:744:112:80",
+        "geometryRect:920:544:112:80",
         "scaleBand:medium"
       ]
     },
@@ -292,7 +292,7 @@
           "id": "exit.corridor_section_region_goal_region_junction_merge_1_open.east",
           "direction": "east",
           "width": 14,
-          "order": 4552,
+          "order": 2952,
           "tags": [
             "merge_rejoin_clarity",
             "open",
@@ -305,7 +305,7 @@
           "id": "exit.corridor_section_region_junction_merge_1_region_start_open.west",
           "direction": "west",
           "width": 12,
-          "order": 4552,
+          "order": 2952,
           "tags": [
             "corridor",
             "open"
@@ -315,7 +315,7 @@
           "id": "exit.corridor_section_region_junction_merge_1_region_treasure_gated_1_connector_edge_secondary_merge_1.south",
           "direction": "south",
           "width": 18,
-          "order": 1376,
+          "order": 960,
           "tags": [
             "gated_connector",
             "locked",
@@ -339,7 +339,7 @@
       "placementHints": [
         "anchorQuality:explicit",
         "footprintClass:hub",
-        "geometryRect:1296:4496:160:112",
+        "geometryRect:880:2896:160:112",
         "scaleBand:large"
       ]
     },
@@ -357,7 +357,7 @@
           "id": "exit.corridor_section_region_key_treasure_1_region_start_open.west",
           "direction": "west",
           "width": 12,
-          "order": 5064,
+          "order": 3272,
           "tags": [
             "corridor",
             "open"
@@ -367,7 +367,7 @@
           "id": "exit.corridor_section_region_key_treasure_1_region_treasure_gated_1_connector_edge_treasure_key_1_treasure_1.east",
           "direction": "east",
           "width": 18,
-          "order": 5064,
+          "order": 3272,
           "tags": [
             "gated_connector",
             "locked",
@@ -391,7 +391,7 @@
       "placementHints": [
         "anchorQuality:derived",
         "footprintClass:small_pocket",
-        "geometryRect:952:5024:96:80",
+        "geometryRect:672:3232:96:80",
         "scaleBand:small"
       ]
     },
@@ -409,7 +409,7 @@
           "id": "exit.corridor_section_region_gate_locked_1_region_key_gate_1_open.south",
           "direction": "south",
           "width": 12,
-          "order": 1000,
+          "order": 720,
           "tags": [
             "merge_rejoin_clarity",
             "open",
@@ -441,7 +441,7 @@
       "placementHints": [
         "anchorQuality:derived",
         "footprintClass:small_pocket",
-        "geometryRect:952:208:96:80",
+        "geometryRect:672:208:96:80",
         "scaleBand:small"
       ]
     },
@@ -459,7 +459,7 @@
           "id": "exit.corridor_section_region_goal_region_treasure_gated_1_connector_edge_treasure_1_goal.east",
           "direction": "east",
           "width": 18,
-          "order": 5040,
+          "order": 3256,
           "tags": [
             "gated_connector",
             "locked",
@@ -474,7 +474,7 @@
           "id": "exit.corridor_section_region_junction_merge_1_region_treasure_gated_1_connector_edge_secondary_merge_1.north",
           "direction": "north",
           "width": 18,
-          "order": 1752,
+          "order": 1192,
           "tags": [
             "gated_connector",
             "locked",
@@ -489,7 +489,7 @@
           "id": "exit.corridor_section_region_key_treasure_1_region_treasure_gated_1_connector_edge_treasure_key_1_treasure_1.west",
           "direction": "west",
           "width": 18,
-          "order": 5040,
+          "order": 3256,
           "tags": [
             "gated_connector",
             "locked",
@@ -514,7 +514,7 @@
       "placementHints": [
         "anchorQuality:derived",
         "footprintClass:pocket",
-        "geometryRect:1704:5000:96:80",
+        "geometryRect:1144:3216:96:80",
         "scaleBand:small"
       ]
     },
@@ -532,7 +532,7 @@
           "id": "exit.corridor_section_region_gate_locked_1_region_goal_connector_edge_gate_1_goal.west",
           "direction": "west",
           "width": 18,
-          "order": 784,
+          "order": 584,
           "tags": [
             "gated_connector",
             "locked",
@@ -545,7 +545,7 @@
           "id": "exit.corridor_section_region_goal_region_hazard_sluice_1_open.west",
           "direction": "west",
           "width": 12,
-          "order": 3600,
+          "order": 2352,
           "tags": [
             "merge_rejoin_clarity",
             "open",
@@ -556,7 +556,7 @@
           "id": "exit.corridor_section_region_goal_region_junction_merge_1_open.west",
           "direction": "west",
           "width": 14,
-          "order": 4552,
+          "order": 2952,
           "tags": [
             "merge_rejoin_clarity",
             "open",
@@ -569,7 +569,7 @@
           "id": "exit.corridor_section_region_goal_region_treasure_gated_1_connector_edge_treasure_1_goal.west",
           "direction": "west",
           "width": 18,
-          "order": 5040,
+          "order": 3256,
           "tags": [
             "gated_connector",
             "locked",
@@ -599,7 +599,7 @@
       "placementHints": [
         "anchorQuality:explicit",
         "footprintClass:marker_room",
-        "geometryRect:2440:752:128:4320",
+        "geometryRect:1600:552:128:2736",
         "scaleBand:medium"
       ]
     },
@@ -674,8 +674,8 @@
         "visible_before_reachable"
       ],
       "placementHints": [
-        "point:1952:784",
-        "segment:1464:784:2440:784"
+        "point:1316:584",
+        "segment:1032:584:1600:584"
       ]
     },
     {
@@ -735,8 +735,8 @@
         "straight"
       ],
       "placementHints": [
-        "point:832:784",
-        "segment:1352:784:312:784"
+        "point:616:584",
+        "segment:920:584:312:584"
       ]
     },
     {
@@ -800,8 +800,8 @@
         "straight"
       ],
       "placementHints": [
-        "point:2000:3600",
-        "segment:2440:3600:1560:3600"
+        "point:1352:2352",
+        "segment:1600:2352:1104:2352"
       ]
     },
     {
@@ -872,8 +872,8 @@
         "straight"
       ],
       "placementHints": [
-        "point:1948:4552",
-        "segment:2440:4552:1456:4552"
+        "point:1320:2952",
+        "segment:1600:2952:1040:2952"
       ]
     },
     {
@@ -954,8 +954,76 @@
         "visible_before_reachable"
       ],
       "placementHints": [
-        "point:2120:5040",
-        "segment:2440:5040:1800:5040"
+        "point:1420:3256",
+        "segment:1600:3256:1240:3256"
+      ]
+    },
+    {
+      "pieceId": "piece.corridor.corridor_section_region_hazard_sluice_1_region_start_open.segment_01.tile_01",
+      "kind": "corridor",
+      "role": "corridor_segment",
+      "sourceRefs": [
+        "connector:connector.edge_start_sluice_1",
+        "constraint:preserve_pressure_read:edge.start.sluice_1",
+        "edge:edge.start.sluice_1",
+        "geometryCorridor:corridor.section_region_hazard_sluice_1_region_start_open",
+        "graphEdge:start:hazard.sluice_1",
+        "physicalSection:section.region_hazard_sluice_1.region_start.open",
+        "room:room.region_hazard_sluice_1",
+        "room:room.region_start"
+      ],
+      "requiredExits": [
+        {
+          "id": "exit.segment_01.tile_01.in",
+          "direction": "east",
+          "width": 20,
+          "order": 0,
+          "tags": [
+            "branch",
+            "explicit_corridor_piece",
+            "open",
+            "optional_branch",
+            "pressure",
+            "pressure_path",
+            "pressure_route"
+          ]
+        },
+        {
+          "id": "exit.segment_01.tile_01.out",
+          "direction": "west",
+          "width": 20,
+          "order": 0,
+          "tags": [
+            "branch",
+            "explicit_corridor_piece",
+            "open",
+            "optional_branch",
+            "pressure",
+            "pressure_path",
+            "pressure_route"
+          ]
+        }
+      ],
+      "requiredSockets": [],
+      "requiredShapeTags": [
+        "corridor",
+        "straight",
+        "span_long"
+      ],
+      "tags": [
+        "branch",
+        "explicit_corridor_piece",
+        "open",
+        "optional_branch",
+        "pressure",
+        "pressure_path",
+        "pressure_route",
+        "span_long",
+        "straight"
+      ],
+      "placementHints": [
+        "point:636:2352",
+        "segment:960:2352:312:2352"
       ]
     },
     {
@@ -1015,8 +1083,8 @@
         "straight"
       ],
       "placementHints": [
-        "point:804:4552",
-        "segment:1296:4552:312:4552"
+        "point:596:2952",
+        "segment:880:2952:312:2952"
       ]
     },
     {
@@ -1076,8 +1144,8 @@
         "straight"
       ],
       "placementHints": [
-        "point:632:248",
-        "segment:952:248:312:248"
+        "point:492:248",
+        "segment:672:248:312:248"
       ]
     },
     {
@@ -1137,8 +1205,69 @@
         "straight"
       ],
       "placementHints": [
-        "point:632:5064",
-        "segment:952:5064:312:5064"
+        "point:492:3272",
+        "segment:672:3272:312:3272"
+      ]
+    },
+    {
+      "pieceId": "piece.corridor.corridor_section_region_resource_safety_1_region_start_open.segment_01.tile_01",
+      "kind": "corridor",
+      "role": "corridor_segment",
+      "sourceRefs": [
+        "connector:connector.edge_start_safety_1",
+        "edge:edge.start.safety_1",
+        "geometryCorridor:corridor.section_region_resource_safety_1_region_start_open",
+        "graphEdge:start:resource.safety_1",
+        "physicalSection:section.region_resource_safety_1.region_start.open",
+        "room:room.region_resource_safety_1",
+        "room:room.region_start"
+      ],
+      "requiredExits": [
+        {
+          "id": "exit.segment_01.tile_01.in",
+          "direction": "east",
+          "width": 12,
+          "order": 0,
+          "tags": [
+            "branch",
+            "corridor",
+            "explicit_corridor_piece",
+            "open",
+            "optional_branch"
+          ]
+        },
+        {
+          "id": "exit.segment_01.tile_01.out",
+          "direction": "west",
+          "width": 12,
+          "order": 0,
+          "tags": [
+            "branch",
+            "corridor",
+            "explicit_corridor_piece",
+            "open",
+            "optional_branch"
+          ]
+        }
+      ],
+      "requiredSockets": [],
+      "requiredShapeTags": [
+        "corridor",
+        "straight",
+        "span_long"
+      ],
+      "tags": [
+        "branch",
+        "corridor",
+        "explicit_corridor_piece",
+        "open",
+        "optional_branch",
+        "span_long",
+        "straight"
+      ],
+      "placementHints": [
+        "point:492:2016",
+        "segment:672:2016:312:2016"
       ]
     }
   ],
@@ -1177,12 +1306,12 @@
       ],
       "routePoints": [
         {
-          "x": 1464,
-          "y": 784
+          "x": 1032,
+          "y": 584
         },
         {
-          "x": 2440,
-          "y": 784
+          "x": 1600,
+          "y": 584
         }
       ]
     },
@@ -1218,19 +1347,19 @@
       ],
       "routePoints": [
         {
-          "x": 1408,
-          "y": 744
+          "x": 976,
+          "y": 544
         },
         {
-          "x": 1408,
-          "y": 520
+          "x": 976,
+          "y": 416
         },
         {
-          "x": 1000,
-          "y": 520
+          "x": 720,
+          "y": 416
         },
         {
-          "x": 1000,
+          "x": 720,
           "y": 288
         }
       ]
@@ -1266,12 +1395,12 @@
       ],
       "routePoints": [
         {
-          "x": 1352,
-          "y": 784
+          "x": 920,
+          "y": 584
         },
         {
           "x": 312,
-          "y": 784
+          "y": 584
         }
       ]
     },
@@ -1307,12 +1436,12 @@
       ],
       "routePoints": [
         {
-          "x": 2440,
-          "y": 3600
+          "x": 1600,
+          "y": 2352
         },
         {
-          "x": 1560,
-          "y": 3600
+          "x": 1104,
+          "y": 2352
         }
       ]
     },
@@ -1350,12 +1479,12 @@
       ],
       "routePoints": [
         {
-          "x": 2440,
-          "y": 4552
+          "x": 1600,
+          "y": 2952
         },
         {
-          "x": 1456,
-          "y": 4552
+          "x": 1040,
+          "y": 2952
         }
       ]
     },
@@ -1395,12 +1524,12 @@
       ],
       "routePoints": [
         {
-          "x": 2440,
-          "y": 5040
+          "x": 1600,
+          "y": 3256
         },
         {
-          "x": 1800,
-          "y": 5040
+          "x": 1240,
+          "y": 3256
         }
       ]
     },
@@ -1435,20 +1564,20 @@
       ],
       "routePoints": [
         {
-          "x": 1488,
-          "y": 3560
+          "x": 1032,
+          "y": 2312
         },
         {
-          "x": 1488,
-          "y": 3336
+          "x": 1032,
+          "y": 2184
         },
         {
-          "x": 1000,
-          "y": 3336
+          "x": 720,
+          "y": 2184
         },
         {
-          "x": 1000,
-          "y": 3112
+          "x": 720,
+          "y": 2056
         }
       ]
     },
@@ -1484,20 +1613,12 @@
       ],
       "routePoints": [
         {
-          "x": 1416,
-          "y": 3600
-        },
-        {
-          "x": 864,
-          "y": 3600
-        },
-        {
-          "x": 864,
-          "y": 3592
+          "x": 960,
+          "y": 2352
         },
         {
           "x": 312,
-          "y": 3592
+          "y": 2352
         }
       ]
     },
@@ -1532,12 +1653,12 @@
       ],
       "routePoints": [
         {
-          "x": 1296,
-          "y": 4552
+          "x": 880,
+          "y": 2952
         },
         {
           "x": 312,
-          "y": 4552
+          "y": 2952
         }
       ]
     },
@@ -1577,20 +1698,20 @@
       ],
       "routePoints": [
         {
-          "x": 1376,
-          "y": 4608
+          "x": 960,
+          "y": 3008
         },
         {
-          "x": 1376,
-          "y": 4808
+          "x": 960,
+          "y": 3112
         },
         {
-          "x": 1752,
-          "y": 4808
+          "x": 1192,
+          "y": 3112
         },
         {
-          "x": 1752,
-          "y": 5000
+          "x": 1192,
+          "y": 3216
         }
       ]
     },
@@ -1625,7 +1746,7 @@
       ],
       "routePoints": [
         {
-          "x": 952,
+          "x": 672,
           "y": 248
         },
         {
@@ -1665,12 +1786,12 @@
       ],
       "routePoints": [
         {
-          "x": 952,
-          "y": 5064
+          "x": 672,
+          "y": 3272
         },
         {
           "x": 312,
-          "y": 5064
+          "y": 3272
         }
       ]
     },
@@ -1708,20 +1829,20 @@
       ],
       "routePoints": [
         {
-          "x": 1048,
-          "y": 5064
+          "x": 768,
+          "y": 3272
         },
         {
-          "x": 1376,
-          "y": 5064
+          "x": 960,
+          "y": 3272
         },
         {
-          "x": 1376,
-          "y": 5040
+          "x": 960,
+          "y": 3256
         },
         {
-          "x": 1704,
-          "y": 5040
+          "x": 1144,
+          "y": 3256
         }
       ]
     },
@@ -1756,20 +1877,12 @@
       ],
       "routePoints": [
         {
-          "x": 952,
-          "y": 3072
-        },
-        {
-          "x": 632,
-          "y": 3072
-        },
-        {
-          "x": 632,
-          "y": 3064
+          "x": 672,
+          "y": 2016
         },
         {
           "x": 312,
-          "y": 3064
+          "y": 2016
         }
       ]
     }

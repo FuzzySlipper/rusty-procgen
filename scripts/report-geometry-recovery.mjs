@@ -40,6 +40,43 @@ const normalizedPlanHash = (plan) => {
     .digest('hex');
 };
 
+const corridorCenterlineLength = (geometry) =>
+  geometry.corridors.reduce(
+    (total, corridor) =>
+      total
+      + corridor.points.slice(1).reduce(
+        (length, point, index) =>
+          length
+          + Math.abs(point.x - corridor.points[index].x)
+          + Math.abs(point.y - corridor.points[index].y),
+        0,
+      ),
+    0,
+  );
+
+const roomEnvelopeArea = (geometry) => {
+  const minX = Math.min(...geometry.rooms.map((room) => room.rect.x));
+  const minY = Math.min(...geometry.rooms.map((room) => room.rect.y));
+  const maxX = Math.max(
+    ...geometry.rooms.map((room) => room.rect.x + room.rect.width),
+  );
+  const maxY = Math.max(
+    ...geometry.rooms.map((room) => room.rect.y + room.rect.height),
+  );
+  return (maxX - minX) * (maxY - minY);
+};
+
+const median = (values) => {
+  const sorted = [...values].sort((left, right) => left - right);
+  const middle = Math.floor(sorted.length / 2);
+  return sorted.length % 2 === 0
+    ? Math.floor((sorted[middle - 1] + sorted[middle]) / 2)
+    : sorted[middle];
+};
+
+const reductionBasisPoints = (baseline, current) =>
+  Math.floor(((baseline - current) * 10_000) / baseline);
+
 const fixture = await readJson(fixtureRef);
 const selection = await readJson(selectionRef);
 const acceptedById = new Map(
@@ -62,6 +99,112 @@ if (selection.requestedCount !== fixture.batchCount) {
 if (selection.accepted.length < fixture.minimumAccepted) {
   throw new Error(
     `recovery corpus accepted ${selection.accepted.length}/${fixture.batchCount}; expected at least ${fixture.minimumAccepted}`,
+  );
+}
+
+const compactnessLayouts = [];
+for (const baseline of fixture.compactnessBaseline) {
+  const candidateId = `candidate.first_slice.${baseline.candidateSeed}`;
+  const accepted = acceptedById.get(candidateId);
+  if (!accepted) {
+    throw new Error(
+      `${candidateId} was accepted at compactness baseline ${fixture.compactnessBaselineCommit} but is not accepted now`,
+    );
+  }
+  const geometry = await readJson(accepted.geometryRef);
+  const placement = await readJson(accepted.piecePlacementRef);
+  const current = {
+    roomEnvelopeArea: roomEnvelopeArea(geometry),
+    corridorCenterlineLength: corridorCenterlineLength(geometry),
+    routedShellCount: placement.connectionCells.length,
+    occupiedCellCount: placement.occupiedCells.length,
+  };
+  const reductions = {
+    roomEnvelopeAreaBasisPoints: reductionBasisPoints(
+      baseline.roomEnvelopeArea,
+      current.roomEnvelopeArea,
+    ),
+    corridorCenterlineLengthBasisPoints: reductionBasisPoints(
+      baseline.corridorCenterlineLength,
+      current.corridorCenterlineLength,
+    ),
+    routedShellCountBasisPoints: reductionBasisPoints(
+      baseline.routedShellCount,
+      current.routedShellCount,
+    ),
+    occupiedCellCountBasisPoints: reductionBasisPoints(
+      baseline.occupiedCellCount,
+      current.occupiedCellCount,
+    ),
+  };
+  for (const metric of [
+    'roomEnvelopeAreaBasisPoints',
+    'corridorCenterlineLengthBasisPoints',
+    'routedShellCountBasisPoints',
+  ]) {
+    if (
+      reductions[metric]
+      < -fixture.compactnessTargets.maximumPerLayoutRegressionBasisPoints
+    ) {
+      throw new Error(
+        `${candidateId} compactness ${metric} regressed by ${-reductions[metric]} basis points`,
+      );
+    }
+  }
+  compactnessLayouts.push({
+    candidateId,
+    candidateIndex: baseline.candidateIndex,
+    candidateSeed: baseline.candidateSeed,
+    baseline: {
+      roomEnvelopeArea: baseline.roomEnvelopeArea,
+      corridorCenterlineLength: baseline.corridorCenterlineLength,
+      routedShellCount: baseline.routedShellCount,
+      occupiedCellCount: baseline.occupiedCellCount,
+    },
+    current,
+    reductions,
+    search: {
+      validLayoutCandidates: geometry.layoutSearch.validLayoutCandidates,
+      selectedEmbedding: geometry.layoutSearch.embeddingId,
+      spacingTier: geometry.layoutSearch.spacingTier,
+    },
+    refs: {
+      geometry: accepted.geometryRef,
+      placement: accepted.piecePlacementRef,
+    },
+  });
+}
+
+const compactnessAggregate = {
+  baselineMedianRoomEnvelopeArea: median(
+    compactnessLayouts.map((layout) => layout.baseline.roomEnvelopeArea),
+  ),
+  currentMedianRoomEnvelopeArea: median(
+    compactnessLayouts.map((layout) => layout.current.roomEnvelopeArea),
+  ),
+  baselineMedianRoutedShellCount: median(
+    compactnessLayouts.map((layout) => layout.baseline.routedShellCount),
+  ),
+  currentMedianRoutedShellCount: median(
+    compactnessLayouts.map((layout) => layout.current.routedShellCount),
+  ),
+};
+compactnessAggregate.roomEnvelopeReductionBasisPoints = reductionBasisPoints(
+  compactnessAggregate.baselineMedianRoomEnvelopeArea,
+  compactnessAggregate.currentMedianRoomEnvelopeArea,
+);
+compactnessAggregate.routedShellReductionBasisPoints = reductionBasisPoints(
+  compactnessAggregate.baselineMedianRoutedShellCount,
+  compactnessAggregate.currentMedianRoutedShellCount,
+);
+if (
+  compactnessAggregate.roomEnvelopeReductionBasisPoints
+    < fixture.compactnessTargets.minimumMedianReductionBasisPoints
+  && compactnessAggregate.routedShellReductionBasisPoints
+    < fixture.compactnessTargets.minimumMedianReductionBasisPoints
+) {
+  throw new Error(
+    `compactness median reductions ${compactnessAggregate.roomEnvelopeReductionBasisPoints}/${compactnessAggregate.routedShellReductionBasisPoints} basis points miss target ${fixture.compactnessTargets.minimumMedianReductionBasisPoints}`,
   );
 }
 
@@ -141,6 +284,17 @@ for (const family of fixture.families) {
           geometry.layoutSearch.routePathExpansionExhaustions,
         blockingOwners: geometry.layoutSearch.routeBlockingOwners,
         budgetExhausted: null,
+      },
+      compactness: {
+        validLayoutCandidates: geometry.layoutSearch.validLayoutCandidates,
+        portalCapacityPenalty:
+          geometry.layoutSearch.compactnessPortalCapacityPenalty,
+        buildEnvelopeArea: geometry.layoutSearch.compactnessEnvelopeArea,
+        corridorCenterlineLength:
+          geometry.layoutSearch.compactnessCorridorCenterlineLength,
+        routedShellCost: geometry.layoutSearch.compactnessRoutedShellCost,
+        bendCount: geometry.layoutSearch.compactnessBendCount,
+        routedShellCount: placement.connectionCells.length,
       },
       realizationSearch: {
         scaleTier: placement.realizationSearch.realizationScaleTier,
@@ -230,6 +384,12 @@ const report = {
   acceptedCount: selection.accepted.length,
   rejectedCount: selection.rejected.length,
   minimumAccepted: fixture.minimumAccepted,
+  compactness: {
+    baselineCommit: fixture.compactnessBaselineCommit,
+    targets: fixture.compactnessTargets,
+    aggregate: compactnessAggregate,
+    layouts: compactnessLayouts,
+  },
   families,
 };
 const encoded = `${JSON.stringify(report, null, 2)}\n`;

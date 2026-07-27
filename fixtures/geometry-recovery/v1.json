@@ -5,6 +5,85 @@
   "batchSeed": 5201,
   "batchCount": 10,
   "minimumAccepted": 8,
+  "compactnessBaselineCommit": "75ed65f378f5062b8b46590c914cd04ceb8d8eaf",
+  "compactnessTargets": {
+    "minimumMedianReductionBasisPoints": 2000,
+    "maximumPerLayoutRegressionBasisPoints": 1000
+  },
+  "compactnessBaseline": [
+    {
+      "candidateIndex": 0,
+      "candidateSeed": 5201,
+      "roomEnvelopeArea": 10954944,
+      "corridorCenterlineLength": 26256,
+      "routedShellCount": 14537,
+      "occupiedCellCount": 554
+    },
+    {
+      "candidateIndex": 1,
+      "candidateSeed": 5301,
+      "roomEnvelopeArea": 307200,
+      "corridorCenterlineLength": 1728,
+      "routedShellCount": 1861,
+      "occupiedCellCount": 468
+    },
+    {
+      "candidateIndex": 2,
+      "candidateSeed": 5401,
+      "roomEnvelopeArea": 11672064,
+      "corridorCenterlineLength": 11792,
+      "routedShellCount": 20330,
+      "occupiedCellCount": 880
+    },
+    {
+      "candidateIndex": 3,
+      "candidateSeed": 5501,
+      "roomEnvelopeArea": 6952960,
+      "corridorCenterlineLength": 11688,
+      "routedShellCount": 14860,
+      "occupiedCellCount": 927
+    },
+    {
+      "candidateIndex": 4,
+      "candidateSeed": 5601,
+      "roomEnvelopeArea": 3399424,
+      "corridorCenterlineLength": 6272,
+      "routedShellCount": 7282,
+      "occupiedCellCount": 801
+    },
+    {
+      "candidateIndex": 6,
+      "candidateSeed": 5801,
+      "roomEnvelopeArea": 146944,
+      "corridorCenterlineLength": 624,
+      "routedShellCount": 683,
+      "occupiedCellCount": 216
+    },
+    {
+      "candidateIndex": 7,
+      "candidateSeed": 5901,
+      "roomEnvelopeArea": 9336832,
+      "corridorCenterlineLength": 19528,
+      "routedShellCount": 11169,
+      "occupiedCellCount": 740
+    },
+    {
+      "candidateIndex": 8,
+      "candidateSeed": 6001,
+      "roomEnvelopeArea": 307200,
+      "corridorCenterlineLength": 1728,
+      "routedShellCount": 1861,
+      "occupiedCellCount": 468
+    },
+    {
+      "candidateIndex": 9,
+      "candidateSeed": 6101,
+      "roomEnvelopeArea": 4990208,
+      "corridorCenterlineLength": 7024,
+      "routedShellCount": 13409,
+      "occupiedCellCount": 767
+    }
+  ],
   "families": [
     {
       "candidateIndex": 0,

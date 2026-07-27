@@ -26,7 +26,7 @@
     "roomOrderAttempt": 0,
     "portOrderAttempt": 0,
     "routeOrderAttempt": 0,
-    "searchAttempts": 1,
+    "searchAttempts": 9,
     "effectiveSpacing": {
       "roomMargin": 96,
       "columnGap": 144,
@@ -53,7 +53,13 @@
       "room:region.key_gate_1",
       "room:region.resource_boss_prep_1",
       "room:region.start"
-    ]
+    ],
+    "validLayoutCandidates": 1,
+    "compactnessPortalCapacityPenalty": 0,
+    "compactnessEnvelopeArea": 668160,
+    "compactnessCorridorCenterlineLength": 1728,
+    "compactnessRoutedShellCost": 21648,
+    "compactnessBendCount": 20
   },
   "bounds": {
     "width": 1392,

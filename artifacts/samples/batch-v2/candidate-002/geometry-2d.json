@@ -26,7 +26,7 @@
     "roomOrderAttempt": 1,
     "portOrderAttempt": 0,
     "routeOrderAttempt": 0,
-    "searchAttempts": 3,
+    "searchAttempts": 8,
     "effectiveSpacing": {
       "roomMargin": 96,
       "columnGap": 144,
@@ -54,11 +54,17 @@
       "room:region.resource_safety_1",
       "room:region.start",
       "room:region.treasure_gated_1"
-    ]
+    ],
+    "validLayoutCandidates": 2,
+    "compactnessPortalCapacityPenalty": 0,
+    "compactnessEnvelopeArea": 6216192,
+    "compactnessCorridorCenterlineLength": 6800,
+    "compactnessRoutedShellCost": 98464,
+    "compactnessBendCount": 8
   },
   "bounds": {
-    "width": 2664,
-    "height": 5200,
+    "width": 1824,
+    "height": 3408,
     "grid": 8
   },
   "rooms": [
@@ -75,7 +81,7 @@
         "x": 184,
         "y": 216,
         "width": 128,
-        "height": 4880
+        "height": 3088
       },
       "ports": [
         {
@@ -94,7 +100,7 @@
           "side": "east",
           "point": {
             "x": 312,
-            "y": 784
+            "y": 584
           },
           "width": 12
         },
@@ -104,7 +110,7 @@
           "side": "east",
           "point": {
             "x": 312,
-            "y": 3064
+            "y": 2016
           },
           "width": 12
         },
@@ -114,7 +120,7 @@
           "side": "east",
           "point": {
             "x": 312,
-            "y": 3592
+            "y": 2352
           },
           "width": 20
         },
@@ -124,7 +130,7 @@
           "side": "east",
           "point": {
             "x": 312,
-            "y": 4552
+            "y": 2952
           },
           "width": 12
         },
@@ -134,7 +140,7 @@
           "side": "east",
           "point": {
             "x": 312,
-            "y": 5064
+            "y": 3272
           },
           "width": 12
         }
@@ -157,8 +163,8 @@
       "geometryRole": "hazard_route",
       "footprintClass": "pressure_lane",
       "rect": {
-        "x": 1416,
-        "y": 3560,
+        "x": 960,
+        "y": 2312,
         "width": 144,
         "height": 80
       },
@@ -168,8 +174,8 @@
           "sectionId": "section.region_hazard_sluice_1.region_resource_safety_1.open",
           "side": "north",
           "point": {
-            "x": 1488,
-            "y": 3560
+            "x": 1032,
+            "y": 2312
           },
           "width": 12
         },
@@ -178,8 +184,8 @@
           "sectionId": "section.region_goal.region_hazard_sluice_1.open",
           "side": "east",
           "point": {
-            "x": 1560,
-            "y": 3600
+            "x": 1104,
+            "y": 2352
           },
           "width": 12
         },
@@ -188,8 +194,8 @@
           "sectionId": "section.region_hazard_sluice_1.region_start.open",
           "side": "west",
           "point": {
-            "x": 1416,
-            "y": 3600
+            "x": 960,
+            "y": 2352
           },
           "width": 20
         }
@@ -212,8 +218,8 @@
       "geometryRole": "chamber",
       "footprintClass": "small_pocket",
       "rect": {
-        "x": 952,
-        "y": 3032,
+        "x": 672,
+        "y": 1976,
         "width": 96,
         "height": 80
       },
@@ -223,8 +229,8 @@
           "sectionId": "section.region_hazard_sluice_1.region_resource_safety_1.open",
           "side": "south",
           "point": {
-            "x": 1000,
-            "y": 3112
+            "x": 720,
+            "y": 2056
           },
           "width": 12
         },
@@ -233,8 +239,8 @@
           "sectionId": "section.region_resource_safety_1.region_start.open",
           "side": "west",
           "point": {
-            "x": 952,
-            "y": 3072
+            "x": 672,
+            "y": 2016
           },
           "width": 12
         }
@@ -256,8 +262,8 @@
       "geometryRole": "threshold",
       "footprintClass": "threshold",
       "rect": {
-        "x": 1352,
-        "y": 744,
+        "x": 920,
+        "y": 544,
         "width": 112,
         "height": 80
       },
@@ -267,8 +273,8 @@
           "sectionId": "section.region_gate_locked_1.region_key_gate_1.open",
           "side": "north",
           "point": {
-            "x": 1408,
-            "y": 744
+            "x": 976,
+            "y": 544
           },
           "width": 12
         },
@@ -277,8 +283,8 @@
           "sectionId": "section.region_gate_locked_1.region_goal.connector_edge_gate_1_goal",
           "side": "east",
           "point": {
-            "x": 1464,
-            "y": 784
+            "x": 1032,
+            "y": 584
           },
           "width": 18
         },
@@ -287,8 +293,8 @@
           "sectionId": "section.region_gate_locked_1.region_start.open",
           "side": "west",
           "point": {
-            "x": 1352,
-            "y": 784
+            "x": 920,
+            "y": 584
           },
           "width": 12
         }
@@ -312,8 +318,8 @@
       "geometryRole": "landmark_junction",
       "footprintClass": "hub",
       "rect": {
-        "x": 1296,
-        "y": 4496,
+        "x": 880,
+        "y": 2896,
         "width": 160,
         "height": 112
       },
@@ -323,8 +329,8 @@
           "sectionId": "section.region_goal.region_junction_merge_1.open",
           "side": "east",
           "point": {
-            "x": 1456,
-            "y": 4552
+            "x": 1040,
+            "y": 2952
           },
           "width": 14
         },
@@ -333,8 +339,8 @@
           "sectionId": "section.region_junction_merge_1.region_treasure_gated_1.connector_edge_secondary_merge_1",
           "side": "south",
           "point": {
-            "x": 1376,
-            "y": 4608
+            "x": 960,
+            "y": 3008
           },
           "width": 18
         },
@@ -343,8 +349,8 @@
           "sectionId": "section.region_junction_merge_1.region_start.open",
           "side": "west",
           "point": {
-            "x": 1296,
-            "y": 4552
+            "x": 880,
+            "y": 2952
           },
           "width": 12
         }
@@ -367,8 +373,8 @@
       "geometryRole": "key_pocket",
       "footprintClass": "small_pocket",
       "rect": {
-        "x": 952,
-        "y": 5024,
+        "x": 672,
+        "y": 3232,
         "width": 96,
         "height": 80
       },
@@ -378,8 +384,8 @@
           "sectionId": "section.region_key_treasure_1.region_treasure_gated_1.connector_edge_treasure_key_1_treasure_1",
           "side": "east",
           "point": {
-            "x": 1048,
-            "y": 5064
+            "x": 768,
+            "y": 3272
           },
           "width": 18
         },
@@ -388,8 +394,8 @@
           "sectionId": "section.region_key_treasure_1.region_start.open",
           "side": "west",
           "point": {
-            "x": 952,
-            "y": 5064
+            "x": 672,
+            "y": 3272
           },
           "width": 12
         }
@@ -411,7 +417,7 @@
       "geometryRole": "key_pocket",
       "footprintClass": "small_pocket",
       "rect": {
-        "x": 952,
+        "x": 672,
         "y": 208,
         "width": 96,
         "height": 80
@@ -422,7 +428,7 @@
           "sectionId": "section.region_gate_locked_1.region_key_gate_1.open",
           "side": "south",
           "point": {
-            "x": 1000,
+            "x": 720,
             "y": 288
           },
           "width": 12
@@ -432,7 +438,7 @@
           "sectionId": "section.region_key_gate_1.region_start.open",
           "side": "west",
           "point": {
-            "x": 952,
+            "x": 672,
             "y": 248
           },
           "width": 12
@@ -455,8 +461,8 @@
       "geometryRole": "reward_pocket",
       "footprintClass": "pocket",
       "rect": {
-        "x": 1704,
-        "y": 5000,
+        "x": 1144,
+        "y": 3216,
         "width": 96,
         "height": 80
       },
@@ -466,8 +472,8 @@
           "sectionId": "section.region_junction_merge_1.region_treasure_gated_1.connector_edge_secondary_merge_1",
           "side": "north",
           "point": {
-            "x": 1752,
-            "y": 5000
+            "x": 1192,
+            "y": 3216
           },
           "width": 18
         },
@@ -476,8 +482,8 @@
           "sectionId": "section.region_goal.region_treasure_gated_1.connector_edge_treasure_1_goal",
           "side": "east",
           "point": {
-            "x": 1800,
-            "y": 5040
+            "x": 1240,
+            "y": 3256
           },
           "width": 18
         },
@@ -486,8 +492,8 @@
           "sectionId": "section.region_key_treasure_1.region_treasure_gated_1.connector_edge_treasure_key_1_treasure_1",
           "side": "west",
           "point": {
-            "x": 1704,
-            "y": 5040
+            "x": 1144,
+            "y": 3256
           },
           "width": 18
         }
@@ -510,10 +516,10 @@
       "geometryRole": "destination",
       "footprintClass": "marker_room",
       "rect": {
-        "x": 2440,
-        "y": 752,
+        "x": 1600,
+        "y": 552,
         "width": 128,
-        "height": 4320
+        "height": 2736
       },
       "ports": [
         {
@@ -521,8 +527,8 @@
           "sectionId": "section.region_gate_locked_1.region_goal.connector_edge_gate_1_goal",
           "side": "west",
           "point": {
-            "x": 2440,
-            "y": 784
+            "x": 1600,
+            "y": 584
           },
           "width": 18
         },
@@ -531,8 +537,8 @@
           "sectionId": "section.region_goal.region_hazard_sluice_1.open",
           "side": "west",
           "point": {
-            "x": 2440,
-            "y": 3600
+            "x": 1600,
+            "y": 2352
           },
           "width": 12
         },
@@ -541,8 +547,8 @@
           "sectionId": "section.region_goal.region_junction_merge_1.open",
           "side": "west",
           "point": {
-            "x": 2440,
-            "y": 4552
+            "x": 1600,
+            "y": 2952
           },
           "width": 14
         },
@@ -551,8 +557,8 @@
           "sectionId": "section.region_goal.region_treasure_gated_1.connector_edge_treasure_1_goal",
           "side": "west",
           "point": {
-            "x": 2440,
-            "y": 5040
+            "x": 1600,
+            "y": 3256
           },
           "width": 18
         }
@@ -603,12 +609,12 @@
       "toPort": "port.room_region_goal.section_region_gate_locked_1_region_goal_connector_edge_gate_1_goal",
       "points": [
         {
-          "x": 1464,
-          "y": 784
+          "x": 1032,
+          "y": 584
         },
         {
-          "x": 2440,
-          "y": 784
+          "x": 1600,
+          "y": 584
         }
       ]
     },
@@ -646,19 +652,19 @@
       "toPort": "port.room_region_key_gate_1.section_region_gate_locked_1_region_key_gate_1_open",
       "points": [
         {
-          "x": 1408,
-          "y": 744
+          "x": 976,
+          "y": 544
         },
         {
-          "x": 1408,
-          "y": 520
+          "x": 976,
+          "y": 416
         },
         {
-          "x": 1000,
-          "y": 520
+          "x": 720,
+          "y": 416
         },
         {
-          "x": 1000,
+          "x": 720,
           "y": 288
         }
       ]
@@ -696,12 +702,12 @@
       "toPort": "port.room_region_start.section_region_gate_locked_1_region_start_open",
       "points": [
         {
-          "x": 1352,
-          "y": 784
+          "x": 920,
+          "y": 584
         },
         {
           "x": 312,
-          "y": 784
+          "y": 584
         }
       ]
     },
@@ -739,12 +745,12 @@
       "toPort": "port.room_region_hazard_sluice_1.section_region_goal_region_hazard_sluice_1_open",
       "points": [
         {
-          "x": 2440,
-          "y": 3600
+          "x": 1600,
+          "y": 2352
         },
         {
-          "x": 1560,
-          "y": 3600
+          "x": 1104,
+          "y": 2352
         }
       ]
     },
@@ -784,12 +790,12 @@
       "toPort": "port.room_region_junction_merge_1.section_region_goal_region_junction_merge_1_open",
       "points": [
         {
-          "x": 2440,
-          "y": 4552
+          "x": 1600,
+          "y": 2952
         },
         {
-          "x": 1456,
-          "y": 4552
+          "x": 1040,
+          "y": 2952
         }
       ]
     },
@@ -831,12 +837,12 @@
       "toPort": "port.room_region_treasure_gated_1.section_region_goal_region_treasure_gated_1_connector_edge_treasure_1_goal",
       "points": [
         {
-          "x": 2440,
-          "y": 5040
+          "x": 1600,
+          "y": 3256
         },
         {
-          "x": 1800,
-          "y": 5040
+          "x": 1240,
+          "y": 3256
         }
       ]
     },
@@ -873,20 +879,20 @@
       "toPort": "port.room_region_resource_safety_1.section_region_hazard_sluice_1_region_resource_safety_1_open",
       "points": [
         {
-          "x": 1488,
-          "y": 3560
+          "x": 1032,
+          "y": 2312
         },
         {
-          "x": 1488,
-          "y": 3336
+          "x": 1032,
+          "y": 2184
         },
         {
-          "x": 1000,
-          "y": 3336
+          "x": 720,
+          "y": 2184
         },
         {
-          "x": 1000,
-          "y": 3112
+          "x": 720,
+          "y": 2056
         }
       ]
     },
@@ -924,20 +930,12 @@
       "toPort": "port.room_region_start.section_region_hazard_sluice_1_region_start_open",
       "points": [
         {
-          "x": 1416,
-          "y": 3600
-        },
-        {
-          "x": 864,
-          "y": 3600
-        },
-        {
-          "x": 864,
-          "y": 3592
+          "x": 960,
+          "y": 2352
         },
         {
           "x": 312,
-          "y": 3592
+          "y": 2352
         }
       ]
     },
@@ -974,12 +972,12 @@
       "toPort": "port.room_region_start.section_region_junction_merge_1_region_start_open",
       "points": [
         {
-          "x": 1296,
-          "y": 4552
+          "x": 880,
+          "y": 2952
         },
         {
           "x": 312,
-          "y": 4552
+          "y": 2952
         }
       ]
     },
@@ -1021,20 +1019,20 @@
       "toPort": "port.room_region_treasure_gated_1.section_region_junction_merge_1_region_treasure_gated_1_connector_edge_secondary_merge_1",
       "points": [
         {
-          "x": 1376,
-          "y": 4608
+          "x": 960,
+          "y": 3008
         },
         {
-          "x": 1376,
-          "y": 4808
+          "x": 960,
+          "y": 3112
         },
         {
-          "x": 1752,
-          "y": 4808
+          "x": 1192,
+          "y": 3112
         },
         {
-          "x": 1752,
-          "y": 5000
+          "x": 1192,
+          "y": 3216
         }
       ]
     },
@@ -1071,7 +1069,7 @@
       "toPort": "port.room_region_start.section_region_key_gate_1_region_start_open",
       "points": [
         {
-          "x": 952,
+          "x": 672,
           "y": 248
         },
         {
@@ -1113,12 +1111,12 @@
       "toPort": "port.room_region_start.section_region_key_treasure_1_region_start_open",
       "points": [
         {
-          "x": 952,
-          "y": 5064
+          "x": 672,
+          "y": 3272
         },
         {
           "x": 312,
-          "y": 5064
+          "y": 3272
         }
       ]
     },
@@ -1158,20 +1156,20 @@
       "toPort": "port.room_region_treasure_gated_1.section_region_key_treasure_1_region_treasure_gated_1_connector_edge_treasure_key_1_treasure_1",
       "points": [
         {
-          "x": 1048,
-          "y": 5064
+          "x": 768,
+          "y": 3272
         },
         {
-          "x": 1376,
-          "y": 5064
+          "x": 960,
+          "y": 3272
         },
         {
-          "x": 1376,
-          "y": 5040
+          "x": 960,
+          "y": 3256
         },
         {
-          "x": 1704,
-          "y": 5040
+          "x": 1144,
+          "y": 3256
         }
       ]
     },
@@ -1208,20 +1206,12 @@
       "toPort": "port.room_region_start.section_region_resource_safety_1_region_start_open",
       "points": [
         {
-          "x": 952,
-          "y": 3072
-        },
-        {
-          "x": 632,
-          "y": 3072
-        },
-        {
-          "x": 632,
-          "y": 3064
+          "x": 672,
+          "y": 2016
         },
         {
           "x": 312,
-          "y": 3064
+          "y": 2016
         }
       ]
     }

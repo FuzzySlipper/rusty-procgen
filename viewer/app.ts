@@ -227,6 +227,11 @@ interface GeometryLayoutSearchEvidence {
   readonly roomOrderAttempt: number;
   readonly routeOrderAttempt: number;
   readonly searchAttempts: number;
+  readonly embeddingKind?: string;
+  readonly validLayoutCandidates?: number;
+  readonly compactnessEnvelopeArea?: number;
+  readonly compactnessCorridorCenterlineLength?: number;
+  readonly compactnessRoutedShellCost?: number;
   readonly effectiveSpacing: {
     readonly roomMargin: number;
     readonly columnGap: number;
@@ -1428,7 +1433,8 @@ async function applyGenerationConfig(): Promise<void> {
     currentPolicyExperimentId = null;
     currentCorridorExperimentId = null;
     populateGenerationConfigControls(result.config);
-    generationConfigImpact.textContent = `Configured build: ${result.metrics.footprintWidth} × ${result.metrics.footprintHeight} footprint; ${result.metrics.corridorPrefabInstances} corridor prefabs; ${result.metrics.routedCorridorCells.toLocaleString()} routed cells.`;
+    const compactness = result.geometry.layoutSearch;
+    generationConfigImpact.textContent = `Configured build: ${result.metrics.footprintWidth} × ${result.metrics.footprintHeight} footprint; ${result.metrics.corridorPrefabInstances} corridor prefabs; ${result.metrics.routedCorridorCells.toLocaleString()} routed cells. Geometry selected ${compactness.embeddingKind ?? 'legacy'} from ${(compactness.validLayoutCandidates ?? 1).toLocaleString()} valid bounded candidate(s) with ${(compactness.compactnessEnvelopeArea ?? 0).toLocaleString()} envelope area and ${(compactness.compactnessCorridorCenterlineLength ?? 0).toLocaleString()} centerline units.`;
     syncVoxelDoorStateControls();
     syncGenerationConfigControls();
     setGenerationConfigStatus(
