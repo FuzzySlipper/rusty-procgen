@@ -60,6 +60,9 @@ The procedural CA workload API is owned by
 `procgen-rs/crates/preflight/src/cellular_automata.rs`; its boundary and fixture
 workflow are documented in
 [`docs/cellular-automata-workloads.md`](docs/cellular-automata-workloads.md).
+The direct exact-pinned Engine authority composition is isolated in
+`integrations/rusty-engine-ca-benchmark/` and documented in
+[`docs/rusty-engine-ca-benchmark.md`](docs/rusty-engine-ca-benchmark.md).
 
 `config/viewer-generation.json` may contain intentional local user
 experiments. Preserve unrelated value changes and never stage them as
@@ -111,6 +114,8 @@ pnpm run engine:publication:test
 pnpm run publish:rusty-engine-smoke
 pnpm run engine:spatial:test
 pnpm run voxel:rusty-engine-smoke
+pnpm run engine:ca:test
+pnpm run engine:ca:benchmark
 ```
 
 Focused workflows:
@@ -125,7 +130,7 @@ pnpm run catalog:coverage
 pnpm run catalog-aware:coverage
 ```
 
-The publication and spatial adapters are isolated Rust workspaces under
+The publication, spatial, and CA benchmark adapters are isolated Rust workspaces under
 `integrations/`. They select one exact public Engine commit through
 `engine-source.json`. The root package manager resolves the renderer contract,
 projection, host, and Three backend packages from that same exact public

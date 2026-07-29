@@ -50,6 +50,8 @@ pnpm run voxel:rusty-engine-smoke
 pnpm run viewer:smoke
 pnpm run catalog:coverage
 pnpm run ca:fixtures:check
+pnpm run engine:ca:test
+pnpm run engine:ca:benchmark
 ```
 
 The exact conversion boundary, clean-checkout proof commands, and scope are in
@@ -60,6 +62,29 @@ nonclaims are kept in
 The filesystem-free cellular-automata workload contract and checked scenario
 suite are documented in
 [`docs/cellular-automata-workloads.md`](docs/cellular-automata-workloads.md).
+Their direct exact-pinned Engine spatial benchmark, authority trace, limits,
+and non-gating phase timings are documented in
+[`docs/rusty-engine-ca-benchmark.md`](docs/rusty-engine-ca-benchmark.md).
+
+## Rusty Engine cellular-automata benchmark
+
+The isolated downstream workspace at
+`integrations/rusty-engine-ca-benchmark/` evolves the checked CA workloads
+off-side, translates only their ordered deltas into public Engine voxel edits,
+and publishes the CA state only after `VoxelEditService` commits one coherent
+collision/navigation/mesh authority. Its checked evidence includes actual
+public Engine mesh buffers and changed-chunk operations for later playback.
+
+```bash
+pnpm run engine:ca:test
+pnpm run engine:ca:benchmark
+```
+
+The 64×16×64 resident workload admits 65,536 real Engine voxels once and keeps
+subsequent requests delta-sized. Scripted-clock regressions prove deterministic
+structural repetition and fail-atomic stale, oversized, malformed, dropped, and
+superseded operations. Release timings record exact host/tool/revision
+provenance but are observations, not pass thresholds.
 
 ## Rust library
 

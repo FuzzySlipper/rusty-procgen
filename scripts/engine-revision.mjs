@@ -25,6 +25,10 @@ const workspaces = [
     manifest: 'integrations/rusty-engine-spatial/Cargo.toml',
     lock: 'integrations/rusty-engine-spatial/Cargo.lock',
   },
+  {
+    manifest: 'integrations/rusty-engine-ca-benchmark/Cargo.toml',
+    lock: 'integrations/rusty-engine-ca-benchmark/Cargo.lock',
+  },
 ];
 const rendererPackages = [
   'render-contracts',

@@ -17,9 +17,11 @@ not a complete game runtime.
 - Downstream games remain responsible for full gameplay execution, persistence,
   encounter meaning, and presentation policy.
 - Cellular-automata workloads are a separate post-conversion campaign. The
-  current Rust API promises only deterministic bounded procedural deltas; it
-  does not yet prove Engine spatial execution, retained-trace playback, a scale
-  matrix, or gameplay/simulation semantics.
+  current proof covers deterministic bounded deltas plus exact-pinned Engine
+  spatial execution, coherent collision/navigation/mesh readback, public mesh
+  authority traces, and same-host phase observations. It does not yet prove
+  retained-trace browser playback, a broader scale matrix, performance
+  thresholds, or gameplay/simulation semantics.
 
 These limits should narrow claims, not create compatibility shims or duplicate
 Rusty Engine authority.
