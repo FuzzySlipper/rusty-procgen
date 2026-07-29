@@ -137,10 +137,14 @@ try {
   if (directCatalog.catalogId !== catalog.catalogId) {
     throw new Error('direct fixture catalog route did not match artifact catalog route');
   }
-  const voxelEvidence = await fetchJson('/api/evidence/native-voxel-extrusion');
+  const voxelEvidence = await fetchJson('/api/evidence/engine-spatial-extrusion');
   const voxelEntry = batch.accepted.find((entry) => entry.piecePlacementRef === voxelEvidence.sourcePlacement);
-  if (voxelEntry === undefined || voxelEvidence.authority?.deterministic !== true) {
-    throw new Error('native voxel evidence has no matching batch placement');
+  if (
+    voxelEntry === undefined
+    || voxelEvidence.authority?.deterministic !== true
+    || voxelEvidence.authority?.readout?.projectionRevisionsCoherent !== true
+  ) {
+    throw new Error('Rusty Engine spatial evidence has no matching coherent batch placement');
   }
   const alternateVoxelEntries = await Promise.all(batch.accepted
     .filter((entry) => (
@@ -215,11 +219,11 @@ try {
   const voxelUrl = `${baseUrl}/?candidate=${encodeURIComponent(voxelEntry.candidateId)}#voxel`;
   const voxelDom = await dumpDom(chromium, voxelUrl);
   const voxelFaceCount = countOccurrences(voxelDom, 'class="voxel-face');
-  if (!voxelDom.includes('Native Voxel Extrusion Cutaway')) {
+  if (!voxelDom.includes('Rusty Engine Voxel Extrusion Cutaway')) {
     throw new Error('voxel tab did not render the extrusion cutaway');
   }
-  if (!voxelDom.includes(voxelEvidence.authority.voxelStateHash)) {
-    throw new Error('voxel tab did not show matching native authority evidence');
+  if (!voxelDom.includes(voxelEvidence.authority.readout.authorityHash)) {
+    throw new Error('voxel tab did not show matching Engine spatial authority evidence');
   }
   if (voxelFaceCount < 500) {
     throw new Error(`voxel tab rendered too few exposed faces: ${voxelFaceCount}`);

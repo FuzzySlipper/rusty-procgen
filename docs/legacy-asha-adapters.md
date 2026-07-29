@@ -1,43 +1,40 @@
-# Temporary legacy Asha adapters
+# Temporary legacy Asha adapter
 
-This document describes the two bounded predecessor lanes that remain
-executable during the in-place conversion. It is not the target Rusty
-architecture and does not create a compatibility promise. The exact
-package/import/script allowance is machine-owned by
+Only retained inspection and viewer hosting still use predecessor packages
+during the in-place conversion. This is not the target Rusty architecture and
+does not create a compatibility promise. The exact package, transitive-package,
+import, and script allowances are machine-owned by
 [`../migration/asha-disposition.json`](../migration/asha-disposition.json).
-Den #6398 and #6399 replace those lanes; #6400 removes the residual coupling.
-Generated-content publication already uses Rusty Engine public authored owners;
-its contract and proof are in
-[`rusty-engine-publication.md`](rusty-engine-publication.md).
+Den #6399 replaces the renderer lane; #6400 proves clean closeout.
 
-## Consumer role and distribution
+Generated-content publication and voxel authority already use exact-pinned
+public Rusty Engine Rust owners. Their contracts and evidence are documented in
+[`rusty-engine-publication.md`](rusty-engine-publication.md) and
+[`rusty-engine-spatial.md`](rusty-engine-spatial.md).
 
-Sibling-checkout development currently declares three direct Asha packages with
-`file:` dependencies from `../asha-engine`; their linked metadata identifies
-the exact remaining transitive closure. That is a temporary conversion
-convenience, not a distribution contract. The repository-local ledger lists
-each direct dependency, transitive package, and importing file exactly; the
-boundary check fails closed on additions or drift. `@asha/runtime-session` was
-unused directly and remains only in the temporary runtime-bridge closure.
+## Retained inspection lane
 
-## Voxel command lane
+`src/voxel-inspection-projection.ts`,
+`scripts/legacy-asha-voxel-inspection-frame-smoke.mjs`, and `viewer/app.ts`
+remain a bounded presentation-only consumer of the predecessor renderer host.
+They do not own placement, accepted voxels, collision, navigation, mesh truth,
+or publication. The TypeScript extrusion projection remains an explicitly
+unverified convenience for temporary viewer experiments; committed spatial
+evidence comes from the Rust host.
 
-`src/voxel-extrusion.ts` and `npm run voxel:legacy-asha-smoke` remain a focused proof
-that bounded `VoxelCommand` batches are accepted by native Rust authority,
-repeat deterministically, reject an unknown material with the exact generated
-tagged DTO, and do not mutate state on rejection. They are not the canonical
-generated-level publication format. The maintained 2D-extrusion and
-non-mesh-fidelity limits remain documented in Den's `known-limitations` entry.
+The remaining Asha dependencies are sibling-checkout conversion conveniences,
+not a distribution contract. The migration boundary check fails closed on any
+new package, import, adapter script, or predecessor artifact identity.
 
 ## Crate and code disposition
 
-No current Procgen crate should move upstream wholesale:
+No Procgen crate moves upstream wholesale:
 
-- `rusty-procgen-preflight` remains downstream authoring/generation tooling;
+- `rusty-procgen-preflight` remains downstream generation tooling;
 - graph grammar, scoring, repair, embedding, shape matching, placement, and
-  HTML/viewer generation remain Procgen policy;
-- `src/voxel-extrusion.ts` remains a dungeon-specific realization adapter.
+  viewer orchestration remain Procgen policy; and
+- `rusty-procgen-engine-spatial` remains the downstream composition that maps
+  dungeon cells and doorway provenance into generic Engine spatial authority.
 
-Only a concrete missing reusable mechanism proven at this publishing border
-should become an upstream Rusty Engine task. Determinism or potential reuse
-alone is not a reason to promote a local algorithm into engine authority.
+Only a concrete missing reusable mechanism proven at an Engine border should
+become an upstream Rusty Engine task.

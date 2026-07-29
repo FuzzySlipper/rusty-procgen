@@ -1,0 +1,78 @@
+{
+  "kind": "rusty_procgen.evidence.engine_spatial_extrusion.v1",
+  "schemaVersion": 1,
+  "sourcePlacement": "artifacts/samples/batch-v2/candidate-006/piece-placement.json",
+  "placementId": "piece_placement.piece_shape_match.piece_plan.geometry.candidate.first_slice.5801.14310.hybrid.14341.alternative_0",
+  "engineCommit": "db5641fc4e9d033112bc2b374a35933c3838e39c",
+  "coordinateMapping": "placement_x_y_to_voxel_x_z",
+  "enclosure": {
+    "floorY": 0,
+    "wallMinY": 1,
+    "wallMaxY": 3,
+    "ceilingY": 4,
+    "floorMaterial": 2,
+    "wallMaterial": 1,
+    "ceilingMaterial": 3
+  },
+  "counts": {
+    "walkableCells": 540,
+    "declaredOpeningCells": 324,
+    "boundaryCells": 772,
+    "solidVoxels": 3396,
+    "residentChunks": 1053
+  },
+  "authority": {
+    "mutationPath": "engine_spatial::VoxelEditService",
+    "acceptedRevision": 1,
+    "changedVoxels": 3396,
+    "transactionCount": 1,
+    "maxEditsPerTransaction": 4096,
+    "deterministic": true,
+    "deterministicRepeatHash": "fnv1a64:6ad4ab04cb087dab",
+    "reopenedExactly": true,
+    "deterministicContinuation": true,
+    "continuationAuthorityHash": "fnv1a64:ccf047e1f53378c8",
+    "readout": {
+      "sourceRevision": 1,
+      "authorityHash": "fnv1a64:6ad4ab04cb087dab",
+      "projectionRevisionsCoherent": true,
+      "solidVoxelCount": 3396,
+      "residentChunkCount": 1053,
+      "colliderChunkCount": 1053,
+      "navigationCellCount": 5028,
+      "navigationHash": "fnv1a64:1f930718d26ae191",
+      "meshChunkCount": 1053,
+      "meshVertexCount": 40288,
+      "meshQuadCount": 10072,
+      "meshProjectionHash": "fnv1a64:a5c5d90ae8d24b98",
+      "materialCounts": [
+        {
+          "material": 1,
+          "voxels": 2316
+        },
+        {
+          "material": 2,
+          "voxels": 540
+        },
+        {
+          "material": 3,
+          "voxels": 540
+        }
+      ]
+    }
+  },
+  "failures": {
+    "rejectedUnknownMaterialWithoutMutation": true,
+    "rejectedStaleRevisionWithoutMutation": true,
+    "rejectedMalformedPlacementWithoutMutation": true,
+    "rejectedOversizedPlanWithoutMutation": true
+  },
+  "nonClaims": [
+    "not_renderer_proof",
+    "not_browser_proof",
+    "not_gameplay_proof",
+    "not_navigation_quality_proof",
+    "not_performance_proof",
+    "not_persistence_policy"
+  ]
+}

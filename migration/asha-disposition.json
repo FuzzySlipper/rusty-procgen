@@ -15,32 +15,16 @@
       "section": "dependencies",
       "package": "@asha/contracts",
       "specifier": "file:../asha-engine/ts/packages/contracts",
-      "removalTasks": [6398, 6399]
+      "removalTasks": [6399]
     },
     {
       "section": "dependencies",
       "package": "@asha/renderer-host",
       "specifier": "file:../asha-engine/ts/packages/renderer-host",
       "removalTasks": [6399]
-    },
-    {
-      "section": "dependencies",
-      "package": "@asha/runtime-bridge",
-      "specifier": "file:../asha-engine/ts/packages/runtime-bridge",
-      "removalTasks": [6398]
     }
   ],
   "transitiveAshaPackages": [
-    {
-      "package": "@asha/game-workspace",
-      "via": ["@asha/runtime-bridge"],
-      "removalTasks": [6398]
-    },
-    {
-      "package": "@asha/native-bridge",
-      "via": ["@asha/runtime-bridge"],
-      "removalTasks": [6398]
-    },
     {
       "package": "@asha/render-projection",
       "via": ["@asha/renderer-host"],
@@ -52,29 +36,17 @@
       "removalTasks": [6399]
     },
     {
-      "package": "@asha/runtime-session",
-      "via": ["@asha/runtime-bridge"],
-      "removalTasks": [6397, 6398]
+      "package": "@asha/runtime-bridge",
+      "via": ["@asha/renderer-host"],
+      "removalTasks": [6399]
     }
   ],
   "activeAshaImports": [
-    {
-      "file": "scripts/legacy-asha-voxel-build-smoke.mjs",
-      "specifier": "@asha/runtime-bridge",
-      "occurrences": 1,
-      "removalTask": 6398
-    },
     {
       "file": "scripts/legacy-asha-voxel-inspection-frame-smoke.mjs",
       "specifier": "@asha/renderer-host",
       "occurrences": 1,
       "removalTask": 6399
-    },
-    {
-      "file": "src/voxel-extrusion.ts",
-      "specifier": "@asha/contracts",
-      "occurrences": 1,
-      "removalTask": 6398
     },
     {
       "file": "src/voxel-inspection-projection.ts",
@@ -91,12 +63,6 @@
   ],
   "integrationScripts": [
     {
-      "path": "scripts/legacy-asha-voxel-build-smoke.mjs",
-      "lane": "voxel-authority",
-      "disposition": "replace_with_direct_rusty_spatial_composition",
-      "removalTask": 6398
-    },
-    {
       "path": "scripts/legacy-asha-voxel-inspection-frame-smoke.mjs",
       "lane": "retained-inspection",
       "disposition": "replace_with_rusty_renderer_packages",
@@ -106,7 +72,11 @@
   "removedDependencies": [
     {
       "package": "@asha/runtime-session",
-      "reason": "removed as an unused direct declaration; remains ledgered only in the temporary runtime-bridge transitive closure"
+      "reason": "removed as an unused direct declaration"
+    },
+    {
+      "package": "@asha/runtime-bridge",
+      "reason": "removed as the voxel-authority integration; it remains only as renderer-host package metadata until Den #6399 replaces that package"
     }
   ],
   "schemaFamilies": [
@@ -120,7 +90,7 @@
     "catalog_inspection.v1",
     "corridor_realization_experiment.v1",
     "evidence.catalog_aware_generation_coverage.v1",
-    "evidence.native_voxel_extrusion.v1",
+    "evidence.engine_spatial_extrusion.v1",
     "evidence.pure_catalog_coverage.v1",
     "geometry_2d.v1",
     "geometry_layout_policy.v1",
@@ -198,9 +168,9 @@
       "disposition": "published_through_exact_pinned_rusty_engine_authored_owners"
     },
     {
-      "path": "artifacts/evidence/native-voxel-extrusion.json",
-      "ownerCommand": "npm run voxel:legacy-asha-smoke",
-      "disposition": "regenerated_with_rusty_identity_pending_adapter_replacement"
+      "path": "artifacts/evidence/engine-spatial-extrusion.json",
+      "ownerCommand": "npm run voxel:rusty-engine-smoke",
+      "disposition": "admitted_through_exact_pinned_rusty_engine_spatial_authority"
     }
   ],
   "fixtureRoots": [

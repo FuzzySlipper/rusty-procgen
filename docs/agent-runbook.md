@@ -457,7 +457,7 @@ Viewer API routes:
 - `/api/artifacts/first-run`
 - `/api/batches/v2`
 - `/api/artifacts/by-path?path=<artifact-ref-from-selection-report>`
-- `/api/evidence/native-voxel-extrusion`
+- `/api/evidence/engine-spatial-extrusion`
 
 The batch viewer shows candidate scores, profile sequence, artifact refs,
 validation status, provenance steps, and any diagnostics/repair hints for the
@@ -466,13 +466,13 @@ selected artifact. Its Build tab renders catalog piece placements when
 cells, glued exits, piece labels, and socket/content markers.
 Its Catalog tab renders the active build-piece shape catalog when
 `shapeCatalogRef` is present.
-Its Voxel tab uses the same deterministic extrusion compiler as
-`npm run voxel:legacy-asha-smoke` to render an isometric floor/wall/ceiling cutaway.
+Its Voxel tab uses the same downstream placement policy as
+`npm run voxel:rusty-engine-smoke` to render an isometric floor/wall/ceiling cutaway.
 The compiler consumes the placement's versioned clearance/wall/doorway policy,
 keeps piece ownership through validation, and turns only glued-exit-owned
 connection routes into openings.
-When the selected placement matches the committed native evidence, the tab also
-shows the Rust authority voxel-state hash and engine pin. Other candidates are
+When the selected placement matches the committed Engine spatial evidence, the
+tab also shows the canonical authority hash and Engine pin. Other candidates are
 clearly labelled as unverified voxel proposals.
 Its separate Voxel 3D tab sends a ceiling-free floor/wall projection through
 the public engine-owned inspection renderer and procedural grid. Drag with the
@@ -508,7 +508,7 @@ built-flow validation in one temporary workspace. It atomically replaces the
 config file only after every stage passes. Any validation, geometry search,
 assembly, or flow failure returns JSON and preserves the prior config and active
 result. The endpoint accepts no browser filesystem paths and does not mutate
-fixtures, samples, RuntimeSession, or native voxel evidence.
+fixtures, samples, Engine spatial authority, or checked voxel evidence.
 
 Reset to defaults copies every `defaultValue` into `value` and submits the same
 complete rebuild. Candidate switching reloads the persisted configuration; it

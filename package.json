@@ -26,17 +26,18 @@
     "engine:publication:test": "cargo test --quiet --manifest-path integrations/rusty-engine-publication/Cargo.toml --locked",
     "engine:publication:clippy": "cargo clippy --quiet --manifest-path integrations/rusty-engine-publication/Cargo.toml --all-targets --locked -- -D warnings",
     "publish:rusty-engine-smoke": "cargo run --quiet --manifest-path integrations/rusty-engine-publication/Cargo.toml --locked --bin rusty-procgen-publish-smoke -- .",
-    "voxel:legacy-asha-smoke": "npm run build:viewer && node scripts/legacy-asha-voxel-build-smoke.mjs",
+    "engine:spatial:test": "cargo test --quiet --manifest-path integrations/rusty-engine-spatial/Cargo.toml --locked",
+    "engine:spatial:clippy": "cargo clippy --quiet --manifest-path integrations/rusty-engine-spatial/Cargo.toml --all-targets --locked -- -D warnings",
+    "voxel:rusty-engine-smoke": "cargo run --quiet --manifest-path integrations/rusty-engine-spatial/Cargo.toml --locked --bin rusty-procgen-spatial-smoke -- .",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "rust:check": "cargo check --manifest-path procgen-rs/Cargo.toml",
     "rust:test": "cargo test --manifest-path procgen-rs/Cargo.toml",
-    "test": "npm run check:migration-boundary && npm run check:corpus-identity && npm run engine:revision && npm run typecheck && npm run engine:publication:test && npm run rust:test",
-    "verify": "npm run check:migration-boundary && npm run check:corpus-identity && npm run engine:revision && npm run typecheck && npm run engine:publication:test && npm run engine:publication:clippy && npm run publish:rusty-engine-smoke && node scripts/smoke-voxel-boundaries.mjs && node scripts/smoke-generation-config.mjs && npm run rust:check && npm run rust:test"
+    "test": "npm run check:migration-boundary && npm run check:corpus-identity && npm run engine:revision && npm run typecheck && npm run engine:publication:test && npm run engine:spatial:test && npm run rust:test",
+    "verify": "npm run check:migration-boundary && npm run check:corpus-identity && npm run engine:revision && npm run typecheck && npm run engine:publication:test && npm run engine:publication:clippy && npm run publish:rusty-engine-smoke && npm run engine:spatial:test && npm run engine:spatial:clippy && npm run voxel:rusty-engine-smoke && node scripts/smoke-voxel-boundaries.mjs && node scripts/smoke-generation-config.mjs && npm run rust:check && npm run rust:test"
   },
   "dependencies": {
     "@asha/contracts": "file:../asha-engine/ts/packages/contracts",
-    "@asha/renderer-host": "file:../asha-engine/ts/packages/renderer-host",
-    "@asha/runtime-bridge": "file:../asha-engine/ts/packages/runtime-bridge"
+    "@asha/renderer-host": "file:../asha-engine/ts/packages/renderer-host"
   },
   "devDependencies": {
     "esbuild": "^0.25.0",

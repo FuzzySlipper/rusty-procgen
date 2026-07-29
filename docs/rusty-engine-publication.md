@@ -67,7 +67,7 @@ All selected Engine crates move together:
 ```
 
 The updater proves the exact public commit, works in a disposable checkout,
-regenerates the isolated Cargo lock, runs the revision checker and focused
-compile, and copies only the three active revision carriers after rechecking
-the caller. It never edits historical evidence or unrelated local
-configuration.
+regenerates both isolated Cargo locks, runs the revision checker and focused
+compiles, and copies only `engine-source.json` plus the two manifests and locks
+after rechecking the caller. It never edits historical evidence or unrelated
+local configuration.

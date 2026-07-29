@@ -1,4 +1,8 @@
-import type { VoxelCommand, VoxelCoord } from '@asha/contracts';
+export interface VoxelCoord {
+  readonly x: number;
+  readonly y: number;
+  readonly z: number;
+}
 
 export interface PlacementCell {
   readonly x: number;
@@ -69,7 +73,6 @@ export interface PiecePlacementForExtrusion {
 }
 
 export interface VoxelExtrusionOptions {
-  readonly grid: number;
   readonly chunkSize: number;
   readonly floorY: number;
   readonly wallMinY: number;
@@ -78,14 +81,11 @@ export interface VoxelExtrusionOptions {
   readonly floorMaterial: number;
   readonly wallMaterial: number;
   readonly ceilingMaterial: number;
-  readonly generatorSeed: number;
-  readonly generatorVersion: number;
 }
 
 export interface VoxelExtrusionPlan {
   readonly placementId: string;
   readonly coordinateMapping: 'placement_x_y_to_voxel_x_z';
-  readonly commands: readonly VoxelCommand[];
   readonly solidVoxels: readonly {
     readonly coord: VoxelCoord;
     readonly material: number;
@@ -112,7 +112,6 @@ export interface VoxelExtrusionPlan {
 }
 
 const DEFAULT_OPTIONS: VoxelExtrusionOptions = {
-  grid: 1,
   chunkSize: 2,
   floorY: 0,
   wallMinY: 1,
@@ -121,8 +120,6 @@ const DEFAULT_OPTIONS: VoxelExtrusionOptions = {
   floorMaterial: 2,
   wallMaterial: 1,
   ceilingMaterial: 3,
-  generatorSeed: 0,
-  generatorVersion: 1,
 };
 
 interface MutableVoxel {
@@ -184,47 +181,10 @@ export function compilePlacementExtrusion(
 
   const sortedSolids = [...solids.values()].sort(compareVoxel);
   const chunks = requiredChunks(sortedSolids, options.chunkSize);
-  const commands: VoxelCommand[] = [];
-  for (const chunk of chunks) {
-    commands.push({
-      op: 'generateChunk',
-      grid: options.grid,
-      chunk,
-      seed: options.generatorSeed,
-      generatorVersion: options.generatorVersion,
-    });
-  }
-  for (const chunk of chunks) {
-    const min = {
-      x: chunk.x * options.chunkSize,
-      y: chunk.y * options.chunkSize,
-      z: chunk.z * options.chunkSize,
-    };
-    commands.push({
-      op: 'fillRegion',
-      grid: options.grid,
-      min,
-      max: {
-        x: min.x + options.chunkSize,
-        y: min.y + options.chunkSize,
-        z: min.z + options.chunkSize,
-      },
-      value: { kind: 'empty' },
-    });
-  }
-  for (const voxel of sortedSolids) {
-    commands.push({
-      op: 'setVoxel',
-      grid: options.grid,
-      coord: { x: voxel.x, y: voxel.y, z: voxel.z },
-      value: { kind: 'solid', material: voxel.material },
-    });
-  }
 
   return {
     placementId: placement.placementId,
     coordinateMapping: 'placement_x_y_to_voxel_x_z',
-    commands,
     solidVoxels: sortedSolids.map((voxel) => ({
       coord: { x: voxel.x, y: voxel.y, z: voxel.z },
       material: voxel.material,

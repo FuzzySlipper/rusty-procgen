@@ -10,9 +10,9 @@ spatial, mesh, render, component, and service mechanisms belong in
 [`rusty-engine`](https://github.com/FuzzySlipper/rusty-engine).
 
 The repository is being converted in place from its historical Asha donor.
-Two explicitly named legacy adapter lanes remain executable while their Rusty
-Engine replacements land. Their exact packages, imports, scripts, and removal
-tasks are recorded in
+One explicitly named legacy renderer adapter remains executable while its
+Rusty Engine replacement lands. Its exact packages, imports, script, and
+removal task are recorded in
 [`migration/asha-disposition.json`](migration/asha-disposition.json); the
 default gate rejects any unledgered addition. Predecessor artifact kinds are
 not supported.
@@ -29,10 +29,10 @@ cd rusty-procgen
 npm install
 ```
 
-Until the bounded adapter migration closes in Den #6400, the legacy
-voxel-authority and retained-renderer smokes also require the historical
-`asha-engine` checkout at `/home/dev/asha-engine`. Generated-content
-publication and the generator algorithms do not depend on Asha.
+Until the bounded adapter migration closes in Den #6400, the retained-renderer
+smoke requires the historical `asha-engine` checkout at
+`/home/dev/asha-engine`. Generation, content publication, and spatial authority
+do not depend on Asha.
 
 ## Verification
 
@@ -51,6 +51,8 @@ npm run rust:check
 npm run rust:test
 npm run engine:publication:test
 npm run publish:rusty-engine-smoke
+npm run engine:spatial:test
+npm run voxel:rusty-engine-smoke
 npm run viewer:smoke
 npm run catalog:coverage
 ```
@@ -83,14 +85,15 @@ roles, incompatible assets, duplicate identities, invalid transforms, stale
 pins, quotas, and late owner validation. See
 [`docs/rusty-engine-publication.md`](docs/rusty-engine-publication.md).
 
-## Temporary legacy voxel-authority proof
+## Rusty Engine spatial extrusion
 
-The separate engine-backed authority smoke extrudes a validated 2D piece placement into
-a simple enclosed voxel volume. Placement `x/y` maps to voxel `x/z`; the proof
-adds a floor, three-voxel walls, and a ceiling, then submits bounded command
-batches through the predecessor Rust-backed authority. Den #6398 replaces this
-lane with direct Rusty Engine spatial composition; no RuntimeSession-style
-facade is part of the target design.
+The isolated downstream Rust adapter at `integrations/rusty-engine-spatial/`
+extrudes a validated 2D piece placement into a simple enclosed voxel volume.
+Placement `x/y` maps to voxel `x/z`; Procgen adds a floor, three-voxel walls,
+and a ceiling, then composes the exact-pinned
+`engine-spatial::VoxelCollisionScene` and `VoxelEditService` public surfaces.
+It contains no RuntimeSession-style facade, command tunnel, Asha package,
+renderer, or sibling Engine checkout.
 
 The source placement carries a versioned policy for minimum inter-piece
 clearance, wall thickness, and doorway width (schema v1 supports width one).
@@ -99,6 +102,21 @@ owners through extrusion; walls surround the separated footprints and only
 connection routes anchored to exact transformed glued exits become openings.
 The compiler rejects unsafe policy combinations, wider unsupported openings,
 and routes that would open a non-exit boundary or unrelated piece.
+
+```bash
+npm run engine:spatial:test
+npm run voxel:rusty-engine-smoke
+```
+
+The smoke regenerates
+`artifacts/evidence/engine-spatial-extrusion.json`. Large placements are applied
+to an off-side Engine scene in deterministic transactions bounded by Engine's
+public edit quota; the live authority is replaced only after every collision,
+navigation, and mesh projection succeeds. Focused regressions prove
+deterministic repetition, concrete-authority reopen, exact material and portal
+provenance, and non-mutation on malformed placement, unknown material,
+oversized plan, stale revision, and late Engine rejection. See
+[`docs/rusty-engine-spatial.md`](docs/rusty-engine-spatial.md).
 
 ## Built Flow Validation
 
@@ -139,22 +157,6 @@ that exhaust the bounded compact-first search are kept as
 with accidental junctions. This diagnostic means the configured search did not
 find an embedding; it is not a proof that no single-floor embedding exists.
 
-```bash
-npm run voxel:legacy-asha-smoke
-```
-
-The command regenerates
-`artifacts/evidence/native-voxel-extrusion.json` with deterministic authority
-voxel-state hashes, command-phase receipts, and bounded comparison readbacks.
-
-This temporary smoke requires the sibling `asha-engine` checkout and its built
-native addon. It proves native command acceptance, deterministic authority
-voxel-state hashes, and fail-closed unknown-material rejection while the Rusty
-host replaces it. A separate voxel-conversion comparison preserves bounded
-model/material readback coverage, but it is not the mutation path under test.
-The proof does not claim 3D piece placement, exit-socket alignment, rendering,
-navigation, or performance evidence.
-
 ## Engine Voxel Inspection
 
 The LAN viewer keeps the existing isometric `Voxel` evidence tab and adds a
@@ -162,8 +164,8 @@ separate `Voxel 3D` inspection tab. The 3D view compiles the same placement
 extrusion, omits only its ceiling from the presentation frame, and mounts the
 public `@asha/renderer-host` inspection surface with its procedural grid, mouse
 or arrow-key orbit, focused W/A/S/D movement, and keyboard/wheel zoom. It is
-projection-only visual evidence, not RuntimeSession,
-collision, navigation, native-render, or performance authority.
+projection-only visual evidence, not collision, navigation, native-render, or
+performance authority.
 
 Before submission, the presentation projection deterministically partitions
 same-material voxels into lossless maximal cuboids. The projection smoke

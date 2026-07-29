@@ -490,14 +490,18 @@ interface MatchedSocket {
   readonly kind: string;
 }
 
-interface NativeVoxelEvidence {
+interface EngineSpatialEvidence {
   readonly placementId: string;
-  readonly ashaEngineCommit: string;
+  readonly engineCommit: string;
   readonly authority: {
-    readonly voxelStateHash: string;
     readonly deterministic: boolean;
-    readonly acceptedCommands: number;
-    readonly rejectedCommands: number;
+    readonly transactionCount: number;
+    readonly maxEditsPerTransaction: number;
+    readonly readout: {
+      readonly authorityHash: string;
+      readonly projectionRevisionsCoherent: boolean;
+      readonly meshProjectionHash: string;
+    };
   };
 }
 
@@ -2320,12 +2324,12 @@ async function readJsonResponse<T>(response: Response): Promise<T> {
   }
 }
 
-async function fetchVoxelEvidence(): Promise<NativeVoxelEvidence | null> {
-  const response = await fetch('/api/evidence/native-voxel-extrusion');
+async function fetchVoxelEvidence(): Promise<EngineSpatialEvidence | null> {
+  const response = await fetch('/api/evidence/engine-spatial-extrusion');
   if (!response.ok) {
     return null;
   }
-  return (await response.json()) as NativeVoxelEvidence;
+  return (await response.json()) as EngineSpatialEvidence;
 }
 
 async function fetchArtifact(url: string): Promise<AcceptedArtifact> {
@@ -2992,7 +2996,7 @@ interface ProjectedPoint {
 function renderVoxelBuild(
   target: SVGSVGElement,
   placement: PiecePlacement | null,
-  evidence: NativeVoxelEvidence | null,
+  evidence: EngineSpatialEvidence | null,
   mode: 'committed' | 'temporary' | 'configured',
 ): void {
   target.replaceChildren();
@@ -3027,7 +3031,7 @@ function renderVoxelBuild(
   title.setAttribute('class', 'voxel-title');
   title.setAttribute('x', String(margin));
   title.setAttribute('y', '30');
-  title.textContent = 'Native Voxel Extrusion Cutaway';
+  title.textContent = 'Rusty Engine Voxel Extrusion Cutaway';
   target.append(title);
 
   const verified = mode === 'committed' && evidence?.placementId === placement.placementId;
@@ -3036,7 +3040,7 @@ function renderVoxelBuild(
   detail.setAttribute('x', String(margin));
   detail.setAttribute('y', '53');
   detail.textContent = verified && evidence !== null
-    ? `${plan.solidVoxelCount} voxels / ${evidence.authority.acceptedCommands} native commands / ${evidence.authority.voxelStateHash}`
+    ? `${plan.solidVoxelCount} voxels / ${evidence.authority.transactionCount} bounded Engine transaction(s) / ${evidence.authority.readout.authorityHash}`
     : mode === 'temporary'
       ? `${plan.solidVoxelCount} voxel experiment / temporary Rust placement / no native authority receipt`
       : mode === 'configured'
@@ -3049,7 +3053,7 @@ function renderVoxelBuild(
   source.setAttribute('x', String(margin));
   source.setAttribute('y', '75');
   source.textContent = verified && evidence !== null
-    ? `ASHA ${evidence.ashaEngineCommit.slice(0, 12)} / deterministic ${evidence.authority.deterministic ? 'yes' : 'no'} / XZ floor plan with ghosted ceiling`
+    ? `Rusty Engine ${evidence.engineCommit.slice(0, 12)} / deterministic ${evidence.authority.deterministic ? 'yes' : 'no'} / coherent projections ${evidence.authority.readout.projectionRevisionsCoherent ? 'yes' : 'no'}`
     : `${mode === 'temporary' ? 'temporary policy experiment / ' : mode === 'configured' ? 'persisted generation config / ' : ''}${placement.placementId} / XZ floor plan with ghosted ceiling`;
   target.append(source);
 

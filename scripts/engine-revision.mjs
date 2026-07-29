@@ -16,9 +16,20 @@ const publicRepository = 'https://github.com/FuzzySlipper/rusty-engine';
 const fullCommit = /^[0-9a-f]{40}$/;
 const scriptPath = fileURLToPath(import.meta.url);
 const repoRoot = resolve(dirname(scriptPath), '..');
-const manifestRelative = 'integrations/rusty-engine-publication/Cargo.toml';
-const lockRelative = 'integrations/rusty-engine-publication/Cargo.lock';
-const carrierPaths = ['engine-source.json', manifestRelative, lockRelative];
+const workspaces = [
+  {
+    manifest: 'integrations/rusty-engine-publication/Cargo.toml',
+    lock: 'integrations/rusty-engine-publication/Cargo.lock',
+  },
+  {
+    manifest: 'integrations/rusty-engine-spatial/Cargo.toml',
+    lock: 'integrations/rusty-engine-spatial/Cargo.lock',
+  },
+];
+const carrierPaths = [
+  'engine-source.json',
+  ...workspaces.flatMap(({ manifest, lock }) => [manifest, lock]),
+];
 const command = process.argv[2];
 
 if (command === 'check' && process.argv.length === 3) {
@@ -44,43 +55,49 @@ function usage() {
 
 function check(root) {
   const source = strictSource(root);
-  const manifestPath = join(root, manifestRelative);
-  const manifest = readFileSync(manifestPath, 'utf8');
   const dependencyPattern = /\{[^}\n]*git\s*=\s*"([^"]+)"[^}\n]*rev\s*=\s*"([^"]+)"[^}\n]*\}/g;
-  const observed = [...manifest.matchAll(dependencyPattern)];
-  if (observed.length === 0) {
-    fail(`${manifestRelative} has no explicit Engine Git dependencies`);
-  }
-  for (const match of observed) {
-    if (match[1] !== source.publicRepository || match[2] !== source.commit) {
-      fail(
-        `${manifestRelative} expected ${source.publicRepository}@${source.commit}, `
-          + `observed ${match[1]}@${match[2]}; run ./scripts/engine-revision update ${source.commit}`,
-      );
+  let manifestDependencies = 0;
+  let lockedPackages = 0;
+  for (const workspace of workspaces) {
+    const manifest = readFileSync(join(root, workspace.manifest), 'utf8');
+    const observed = [...manifest.matchAll(dependencyPattern)];
+    if (observed.length === 0) {
+      fail(`${workspace.manifest} has no explicit Engine Git dependencies`);
     }
-  }
-  if (/rusty-engine[^}\n]*path\s*=|path\s*=[^}\n]*rusty-engine/.test(manifest)) {
-    fail(`${manifestRelative} contains a forbidden local Rusty Engine path dependency`);
-  }
+    for (const match of observed) {
+      if (match[1] !== source.publicRepository || match[2] !== source.commit) {
+        fail(
+          `${workspace.manifest} expected ${source.publicRepository}@${source.commit}, `
+            + `observed ${match[1]}@${match[2]}; run ./scripts/engine-revision update ${source.commit}`,
+        );
+      }
+    }
+    if (/rusty-engine[^}\n]*path\s*=|path\s*=[^}\n]*rusty-engine/.test(manifest)) {
+      fail(`${workspace.manifest} contains a forbidden local Rusty Engine path dependency`);
+    }
+    manifestDependencies += observed.length;
 
-  const lock = readFileSync(join(root, lockRelative), 'utf8');
-  const engineSources = [...lock.matchAll(/^source = "git\+([^"]*rusty-engine[^"]*)"$/gm)]
-    .map((match) => match[1]);
-  if (engineSources.length === 0) {
-    fail(`${lockRelative} has no locked Rusty Engine packages`);
-  }
-  const expectedSource = `${source.publicRepository}?rev=${source.commit}#${source.commit}`;
-  for (const observedSource of engineSources) {
-    if (observedSource !== expectedSource) {
-      fail(
-        `${lockRelative} expected ${expectedSource}, observed ${observedSource}; `
-          + `run ./scripts/engine-revision update ${source.commit}`,
-      );
+    const lock = readFileSync(join(root, workspace.lock), 'utf8');
+    const engineSources = [...lock.matchAll(/^source = "git\+([^"]*rusty-engine[^"]*)"$/gm)]
+      .map((match) => match[1]);
+    if (engineSources.length === 0) {
+      fail(`${workspace.lock} has no locked Rusty Engine packages`);
     }
+    const expectedSource = `${source.publicRepository}?rev=${source.commit}#${source.commit}`;
+    for (const observedSource of engineSources) {
+      if (observedSource !== expectedSource) {
+        fail(
+          `${workspace.lock} expected ${expectedSource}, observed ${observedSource}; `
+            + `run ./scripts/engine-revision update ${source.commit}`,
+        );
+      }
+    }
+    lockedPackages += engineSources.length;
   }
   console.log(
     `Rusty Engine revision check passed (${source.commit}, `
-      + `${observed.length} manifest dependencies, ${engineSources.length} locked packages).`,
+      + `${manifestDependencies} manifest dependencies, ${lockedPackages} locked packages `
+      + `across ${workspaces.length} workspaces).`,
   );
 }
 
@@ -119,17 +136,21 @@ function update(commit, dryRun) {
     run('git', ['worktree', 'add', '--detach', candidate, 'HEAD'], repoRoot);
     worktreeAdded = true;
     rewriteCandidate(candidate, commit);
-    run(
-      'cargo',
-      ['generate-lockfile', '--manifest-path', manifestRelative],
-      candidate,
-    );
+    for (const workspace of workspaces) {
+      run(
+        'cargo',
+        ['generate-lockfile', '--manifest-path', workspace.manifest],
+        candidate,
+      );
+    }
     run('./scripts/engine-revision', ['check'], candidate);
-    run(
-      'cargo',
-      ['check', '--manifest-path', manifestRelative, '--locked'],
-      candidate,
-    );
+    for (const workspace of workspaces) {
+      run(
+        'cargo',
+        ['check', '--manifest-path', workspace.manifest, '--locked'],
+        candidate,
+      );
+    }
     const diff = capture('git', ['diff', '--', ...carrierPaths], candidate);
     if (diff.length === 0) {
       console.log(`Rusty Engine is already pinned to ${commit}; no changes.`);
@@ -179,18 +200,20 @@ function rewriteCandidate(root, commit) {
   const source = strictSource(root);
   source.commit = commit;
   writeFileSync(join(root, 'engine-source.json'), `${JSON.stringify(source, null, 2)}\n`);
-  const manifestPath = join(root, manifestRelative);
-  const before = readFileSync(manifestPath, 'utf8');
   const carrierPattern =
     /(\bgit\s*=\s*"https:\/\/github\.com\/FuzzySlipper\/rusty-engine"[^}\n]*\brev\s*=\s*")[0-9a-f]{40}(")/g;
-  if (![...before.matchAll(carrierPattern)].length) {
-    fail(`${manifestRelative} had no Engine revision carriers to update`);
+  for (const workspace of workspaces) {
+    const manifestPath = join(root, workspace.manifest);
+    const before = readFileSync(manifestPath, 'utf8');
+    if (![...before.matchAll(carrierPattern)].length) {
+      fail(`${workspace.manifest} had no Engine revision carriers to update`);
+    }
+    const after = before.replace(
+      carrierPattern,
+      `$1${commit}$2`,
+    );
+    writeFileSync(manifestPath, after);
   }
-  const after = before.replace(
-    carrierPattern,
-    `$1${commit}$2`,
-  );
-  writeFileSync(manifestPath, after);
 }
 
 function run(program, args, cwd, fatal = true) {
