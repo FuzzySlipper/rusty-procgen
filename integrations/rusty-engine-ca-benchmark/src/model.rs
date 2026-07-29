@@ -181,6 +181,7 @@ pub struct CaMeshChunkSummary {
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 #[serde(deny_unknown_fields, rename_all = "camelCase")]
 pub struct CaInitialAuthority {
+    pub initial_ca_state_hash: String,
     pub readout: CaAuthorityReadout,
     pub projection_chunks: Vec<CaMeshChunkFact>,
     pub projection_state_hash: String,

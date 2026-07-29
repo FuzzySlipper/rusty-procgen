@@ -6,8 +6,8 @@ use rusty_procgen_engine_ca_benchmark::{
     CaSpatialError, CaSpatialHost, CaSpatialOptions,
 };
 use rusty_procgen_preflight::cellular_automata::{
-    CaBoundaryPolicy, CaBounds, CaCellState, CaCoord, CaNeighborhood, CaRule, CaScenario,
-    CaScenarioSuite, CaSeedCell, CaWorkloadClass,
+    CaAutomaton, CaBoundaryPolicy, CaBounds, CaCellState, CaCoord, CaNeighborhood, CaRule,
+    CaScenario, CaScenarioSuite, CaSeedCell, CaWorkloadClass,
 };
 
 const REPOSITORY_COMMIT: &str = "1111111111111111111111111111111111111111";
@@ -58,6 +58,17 @@ fn checked_suite_is_deterministic_through_real_engine_authority() {
             .step_timings
             .iter()
             .all(|timing| timing.ca_step_ns == 10)));
+        let authored = suite
+            .scenarios
+            .iter()
+            .find(|authored| authored.id == scenario.scenario_id)
+            .expect("authored scenario");
+        assert_eq!(
+            scenario.trace.initial.initial_ca_state_hash,
+            CaAutomaton::new(authored.clone())
+                .expect("accepted automaton")
+                .initial_state_hash()
+        );
         assert_projection_trace_is_self_consistent(&scenario.trace);
     }
 

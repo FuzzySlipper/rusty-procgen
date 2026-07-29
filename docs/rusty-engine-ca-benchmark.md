@@ -38,7 +38,8 @@ requests contain only changed CA cells. Other workloads omit empty cells.
 
 - the complete authored scenario, rule, seed, bounds, boundary, and material
   posture;
-- initial Engine authority and full public mesh chunks;
+- the initial CA state hash, initial Engine authority, and full public mesh
+  chunks, allowing consumers to recompute the initial trace-chain link;
 - every CA delta, Engine revision/fact, coherent collision/navigation/mesh
   readout, changed public mesh chunk upsert/delete, and cumulative trace hash;
 - complete public vertex/index/group buffers for changed chunks so a later
