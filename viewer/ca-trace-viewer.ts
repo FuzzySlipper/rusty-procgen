@@ -57,7 +57,13 @@ export function createCaTraceViewer(
   let playbackTimer: number | null = null;
   let readoutFrame: number | null = null;
   let replacementCount = 0;
+  let presentationGeneration = 0;
+  let presentationSample = 0;
 
+  elements.panel.dataset.rendererApplicationMs = '0.000';
+  elements.panel.dataset.renderSubmissionMs = '0.000';
+  elements.panel.dataset.browserPresentationMs = '0.000';
+  elements.panel.dataset.presentationSample = '0';
   setControlsEnabled(false);
   elements.canvas.addEventListener('pointerdown', () => elements.canvas.focus());
   elements.scenario.addEventListener('change', () => {
@@ -180,7 +186,9 @@ export function createCaTraceViewer(
     const revision = ++loadRevision;
     setDiagnostic('loading', `Mounting ${scenario.evidence.scenarioId} captured projection…`);
     try {
+      const phaseStart = performance.now();
       if (surface === null) {
+        const mountStart = performance.now();
         mount ??= mountRendererInspectionSurface(elements.canvas, {
           autoStart: false,
           clearColor: 0x0c1219,
@@ -194,13 +202,16 @@ export function createCaTraceViewer(
           },
         });
         surface = await mount;
+        elements.panel.dataset.rendererApplicationMs = elapsedMs(mountStart);
       } else {
+        const replacementStart = performance.now();
         requireApplied(
           surface.replaceFrame(scenario.initialFrame),
           'captured initial projection',
         );
         requireApplied(surface.setGrid(scenario.grid), 'captured grid');
         surface.focusTarget(scenario.camera.target);
+        elements.panel.dataset.rendererApplicationMs = elapsedMs(replacementStart);
         replacementCount += 1;
       }
       if (
@@ -213,7 +224,10 @@ export function createCaTraceViewer(
         return;
       }
       surface.resizeToCanvas();
+      const renderStart = performance.now();
       surface.renderOnce();
+      elements.panel.dataset.renderSubmissionMs = elapsedMs(renderStart);
+      schedulePresentationTiming(phaseStart);
       if (!options.renderOnce) {
         surface.start();
       }
@@ -274,13 +288,19 @@ export function createCaTraceViewer(
     }
     try {
       const frame = scenario.stepFrames[stepIndex];
+      const phaseStart = performance.now();
+      const applicationStart = performance.now();
       requireApplied(
         surface.applyAuthoredFrame(frame),
         `captured step ${stepIndex + 1}`,
       );
+      elements.panel.dataset.rendererApplicationMs = elapsedMs(applicationStart);
       stepIndex += 1;
       elements.seek.value = String(stepIndex);
+      const renderStart = performance.now();
       surface.renderOnce();
+      elements.panel.dataset.renderSubmissionMs = elapsedMs(renderStart);
+      schedulePresentationTiming(phaseStart);
       syncReadout(surface);
       renderEvidence();
       return true;
@@ -298,6 +318,8 @@ export function createCaTraceViewer(
     }
     const bounded = Math.max(0, Math.min(scenario.stepFrames.length, Math.trunc(target)));
     try {
+      const phaseStart = performance.now();
+      const applicationStart = performance.now();
       if (bounded < stepIndex) {
         requireApplied(
           surface.replaceFrame(scenario.initialFrame),
@@ -312,8 +334,12 @@ export function createCaTraceViewer(
         requireApplied(surface.applyAuthoredFrame(frame), `captured step ${stepIndex + 1}`);
         stepIndex += 1;
       }
+      elements.panel.dataset.rendererApplicationMs = elapsedMs(applicationStart);
       elements.seek.value = String(stepIndex);
+      const renderStart = performance.now();
       surface.renderOnce();
+      elements.panel.dataset.renderSubmissionMs = elapsedMs(renderStart);
+      schedulePresentationTiming(phaseStart);
       syncReadout(surface);
       renderEvidence();
       setDiagnostic(
@@ -427,6 +453,20 @@ export function createCaTraceViewer(
     }
   }
 
+  function schedulePresentationTiming(start: number): void {
+    const generation = ++presentationGeneration;
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        if (generation !== presentationGeneration || disposed) {
+          return;
+        }
+        presentationSample += 1;
+        elements.panel.dataset.browserPresentationMs = elapsedMs(start);
+        elements.panel.dataset.presentationSample = String(presentationSample);
+      });
+    });
+  }
+
   function setControlsEnabled(enabled: boolean): void {
     elements.scenario.disabled = !enabled;
     elements.run.disabled = !enabled;
@@ -518,6 +558,10 @@ function formatNanoseconds(value: number): string {
     return `${(value / 1_000).toFixed(3)} µs`;
   }
   return `${value} ns`;
+}
+
+function elapsedMs(start: number): string {
+  return (performance.now() - start).toFixed(3);
 }
 
 function formatBounds(bounds: CaScenarioEvidence['trace']['bounds']): string {

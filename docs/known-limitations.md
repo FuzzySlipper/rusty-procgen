@@ -19,9 +19,10 @@ not a complete game runtime.
 - Cellular-automata workloads are a separate post-conversion campaign. The
   current proof covers deterministic bounded deltas plus exact-pinned Engine
   spatial execution, coherent collision/navigation/mesh readback, public mesh
-  authority traces, and same-host phase observations. It does not yet prove
-  retained-trace browser playback, a broader scale matrix, performance
-  thresholds, or gameplay/simulation semantics.
+  authority traces, retained-trace browser playback, and one bounded same-host
+  scale matrix. It does not prove performance thresholds, single-factor
+  causality, memory/GPU behavior, visual smoothness, or gameplay/simulation
+  semantics.
 
 These limits should narrow claims, not create compatibility shims or duplicate
 Rusty Engine authority.

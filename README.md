@@ -53,6 +53,7 @@ pnpm run ca:fixtures:check
 pnpm run engine:ca:test
 pnpm run engine:ca:benchmark
 pnpm run ca:trace:smoke
+pnpm run engine:ca:scale:check
 ```
 
 The exact conversion boundary, clean-checkout proof commands, and scope are in
@@ -65,7 +66,9 @@ suite are documented in
 [`docs/cellular-automata-workloads.md`](docs/cellular-automata-workloads.md).
 Their direct exact-pinned Engine spatial benchmark, authority trace, limits,
 and non-gating phase timings are documented in
-[`docs/rusty-engine-ca-benchmark.md`](docs/rusty-engine-ca-benchmark.md).
+[`docs/rusty-engine-ca-benchmark.md`](docs/rusty-engine-ca-benchmark.md). The
+checked bounded matrix and its explicit nonclaims are summarized in
+[`docs/rusty-engine-ca-scale-baseline.md`](docs/rusty-engine-ca-scale-baseline.md).
 
 ## Rusty Engine cellular-automata benchmark
 

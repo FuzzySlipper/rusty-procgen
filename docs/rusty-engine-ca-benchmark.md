@@ -110,3 +110,19 @@ deterministic reset, structural readout equality, and disposal.
 pnpm run ca:trace:smoke
 pnpm run viewer:smoke
 ```
+
+## Bounded scale baseline
+
+The checked scale artifact derives deterministic workload, spatial, mesh, and
+transfer counters from this benchmark and adds three descriptive real-Chromium
+first-step observations per scenario. It reports distributions rather than
+using timing thresholds and explicitly leaves memory, GPU completion,
+frame-pacing, and single-factor causality unmeasured.
+
+```bash
+pnpm run engine:ca:scale
+pnpm run engine:ca:scale:check
+```
+
+The report is
+[`rusty-engine-ca-scale-baseline.md`](rusty-engine-ca-scale-baseline.md).

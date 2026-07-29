@@ -36,11 +36,13 @@
     "engine:ca:clippy": "cargo clippy --quiet --manifest-path integrations/rusty-engine-ca-benchmark/Cargo.toml --all-targets --locked -- -D warnings",
     "engine:ca:benchmark": "node scripts/run-engine-ca-benchmark.mjs",
     "ca:trace:smoke": "pnpm run build:viewer && node scripts/smoke-ca-authority-trace.mjs",
+    "engine:ca:scale": "pnpm run engine:ca:benchmark && pnpm run viewer:smoke && node scripts/report-engine-ca-scale-matrix.mjs",
+    "engine:ca:scale:check": "pnpm run build:viewer && node scripts/report-engine-ca-scale-matrix.mjs --check",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "rust:check": "cargo check --manifest-path procgen-rs/Cargo.toml",
     "rust:test": "cargo test --manifest-path procgen-rs/Cargo.toml",
     "test": "pnpm run check:migration-boundary && pnpm run check:corpus-identity && pnpm run engine:revision && pnpm run typecheck && pnpm run engine:publication:test && pnpm run engine:spatial:test && pnpm run engine:ca:test && pnpm run rust:test",
-    "verify": "pnpm run check:migration-boundary && pnpm run check:corpus-identity && pnpm run engine:revision && pnpm run ca:fixtures:check && pnpm run typecheck && pnpm run engine:publication:test && pnpm run engine:publication:clippy && pnpm run publish:rusty-engine-smoke && pnpm run engine:spatial:test && pnpm run engine:spatial:clippy && pnpm run voxel:rusty-engine-smoke && pnpm run engine:ca:test && pnpm run engine:ca:clippy && pnpm run build:viewer && node scripts/smoke-voxel-boundaries.mjs && node scripts/smoke-ca-authority-trace.mjs && node scripts/smoke-generation-config.mjs && pnpm run rust:check && pnpm run rust:test"
+    "verify": "pnpm run check:migration-boundary && pnpm run check:corpus-identity && pnpm run engine:revision && pnpm run ca:fixtures:check && pnpm run typecheck && pnpm run engine:publication:test && pnpm run engine:publication:clippy && pnpm run publish:rusty-engine-smoke && pnpm run engine:spatial:test && pnpm run engine:spatial:clippy && pnpm run voxel:rusty-engine-smoke && pnpm run engine:ca:test && pnpm run engine:ca:clippy && pnpm run build:viewer && node scripts/smoke-voxel-boundaries.mjs && node scripts/smoke-ca-authority-trace.mjs && node scripts/smoke-generation-config.mjs && pnpm run engine:ca:scale:check && pnpm run rust:check && pnpm run rust:test"
   },
   "dependencies": {
     "@rusty-engine/render-contracts": "github:FuzzySlipper/rusty-engine#db5641fc4e9d033112bc2b374a35933c3838e39c&path:render/packages/render-contracts",
