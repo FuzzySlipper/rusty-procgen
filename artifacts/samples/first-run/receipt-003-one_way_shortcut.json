@@ -1,11 +1,11 @@
 {
-  "kind": "asha_procgen.receipt.v1",
+  "kind": "rusty_procgen.receipt.v1",
   "schemaVersion": 1,
   "command": "graph apply-rule one_way_shortcut",
   "status": "ok",
   "seed": 4106,
-  "inputHash": "fnv1a64:adf32676691444fd",
-  "outputHash": "fnv1a64:6fd004993869d88e",
+  "inputHash": "fnv1a64:ae4052216162845b",
+  "outputHash": "fnv1a64:3398c5eeaa539230",
   "outputRef": "artifacts/samples/first-run/candidate-003-one_way_shortcut.json",
   "diagnostics": []
 }

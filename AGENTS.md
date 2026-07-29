@@ -1,155 +1,145 @@
-# AGENTS.md
+# Rusty Procgen agent guidance
 
-## Project Role
+## Project role
 
-`asha-procgen` is an ASHA downstream project.
+Rusty Procgen is a downstream game-tooling product built around deterministic
+dungeon generation. It owns dungeon vocabulary, intent grammar, graph
+construction, scoring, repair, geometry, catalog matching, placement policy,
+validation, generated artifacts, and its inspection workbench.
 
-Dungeon procgen incubator for richer ASHA generated-level experiments.
+Rusty Engine owns reusable host-neutral mechanisms. Procgen may compose its
+public crates and packages, but it does not own generic scene, asset, voxel,
+spatial, mesh, render, component, or service authority. Missing generic
+mechanisms should be reproduced for the `rusty-engine` project instead of being
+copied or reimplemented here.
 
-It consumes ASHA through public package roots, generated contracts, documented
-runtime/session surfaces, and reproducible evidence. It does **not** own generic
-ASHA engine authority, generated contracts, runtime bridge internals, native
-transports, renderer backends, or upstream Rust authority crates.
+> Rusty Procgen owns dungeon meaning and orchestration. Rusty Engine owns
+> reusable mechanisms exposed through direct named services.
 
-Preferred sibling checkout shape:
+## Source of truth
+
+Use this order when sources disagree:
+
+1. The user's current scope and any supplied Den task.
+2. Current code, tests, fixtures, configuration, and generated evidence.
+3. This file, the README, and the owning contract under `docs/`.
+4. The machine-readable migration ledger in
+   `migration/asha-disposition.json`.
+5. Historical notes and predecessor documentation.
+
+The repository is self-contained for agents without Den access. Den owns
+current task and review state, not the committed product contract.
+
+## Repository structure
 
 ```text
-/home/dev/
-  asha-engine/      # upstream engine authority and public ASHA packages
-  asha-procgen/    # this downstream project
+procgen-rs/     deterministic generator and validation implementation
+src/            TypeScript publication and projection adapters
+viewer/         local inspection workbench
+fixtures/       authored inputs, policies, catalogs, and invalid cases
+artifacts/      checked deterministic samples and evidence
+config/         local workbench generation configuration
+migration/      predecessor dispositions and identity-equivalence proof
+scripts/        generators, checks, reports, smokes, and local host
+docs/           artifact, algorithm, workflow, and boundary contracts
 ```
 
-Do not silently edit `../asha-engine` as part of normal work in this repo.
+`config/viewer-generation.json` may contain intentional local user
+experiments. Preserve unrelated value changes and never stage them as
+collateral.
 
-## Source Of Truth
+## Architecture boundaries
 
-Use this priority order when facts conflict:
+- Keep generation deterministic from explicit inputs, policies, catalogs, and
+  seeds.
+- Make bounded search, rejection reasons, provenance, and validation evidence
+  explicit.
+- Keep dungeon semantics downstream. Do not promote a universal Procgen
+  runtime, gameplay AST, scheduler, behavior graph, or ambient event bus.
+- Call Rusty Engine public named services directly. Do not recreate Asha-style
+  RuntimeSession, command tunnels, hidden service location, or duplicate
+  spatial/render authority.
+- TypeScript may author, translate, project, and orchestrate product behavior;
+  it must not silently become a second copy of reusable Engine authority.
+- Renderer output is observational. It does not own placement, voxel, door,
+  navigation, or gameplay truth.
+- Durable artifacts use only the current `rusty_procgen.*` kinds. Predecessor
+  artifact kinds are not accepted or decoded.
 
-1. Current code, tests, fixtures, and generated evidence in this repo.
-2. Current README/docs in this repo.
-3. `asha-engine` public docs and package metadata.
-4. Historical notes, stale plans, TODO prose, and scratch files.
+## Temporary predecessor adapters
 
-## ASHA Architecture Contract
+Asha is historical donor evidence, not a compatibility target. The in-place
+conversion temporarily retains a small number of explicit Asha adapters so
+each working lane stays executable until its Rusty replacement lands.
 
-> Rust owns authority. TypeScript owns expression and projection. Generated
-> contracts define the border.
+`migration/asha-disposition.json` is the exact allowlist for every remaining
+package, import, and integration script. `npm run check:migration-boundary`
+fails on additions, missing ledger entries, hidden adapter names, or retired
+artifact kinds. Do not add another Asha dependency or wrapper; route the need
+to the owning conversion task.
 
-- Generic ASHA authority lives upstream in `asha-engine`.
-- Downstream TypeScript may author content, collect inputs, project readouts,
-  and submit typed proposals.
-- Downstream TypeScript must not mutate authoritative runtime state.
-- Generated ASHA files are never hand-edited.
-- Missing public ASHA capability is an upstream gap, not permission to import
-  internals or recreate engine authority locally.
+The remaining lanes are:
 
-## Allowed ASHA Usage
+- generated-content publication — Den #6397;
+- voxel authority — Den #6398;
+- retained inspection and viewer hosting — Den #6399;
+- removal and clean closeout — Den #6400.
 
-Prefer package roots and documented public subpaths, for example:
+## Local commands
 
-```ts
-import type { ProjectBundle } from '@asha/contracts';
-import { createRuntimeSessionFacade } from '@asha/runtime-bridge';
-```
-
-Common public roots include:
-
-- `@asha/contracts`
-- `@asha/runtime-bridge`
-- `@asha/runtime-session`
-- `@asha/game-workspace`
-- `@asha/catalog-core`
-- `@asha/render-projection`
-- `@asha/renderer-host`
-- `@asha/command-registry`
-- `@asha/ui-dom`
-
-Use `../asha-engine/harness/public-surface/ts-packages.json` as the live policy
-source when adding ASHA package dependencies.
-
-## Forbidden Shortcuts
-
-Do not import or depend on:
-
-- ASHA package `src/*` paths.
-- ASHA package `dist/generated/*` paths.
-- Rust crate internals from `../asha-engine/engine-rs`.
-- Private generated files or copied DTO forks.
-- Raw native/WASM transports as product shortcuts.
-- Arbitrary JSON command tunnels.
-- Renderer buffers, DOM state, or local UI state as substitutes for runtime
-  authority.
-
-## Local Rust Lane
-
-`procgen-rs/` is for downstream preflight tooling, fixtures, and prototype
-experiments. It may produce evidence that helps decide what should move
-upstream.
-
-Keep generic ASHA authority upstream:
-
-- RuntimeSession lifecycle and canonical state application.
-- Collision, pathfinding, spatial queries, and render projection formats.
-- Protocol/codegen and generated TypeScript contracts.
-- Native/wasm/runtime bridge provider contracts.
-- Replay and deterministic session hashes.
-
-If local Rust work proves broadly useful, extract the generic part into an
-upstream `asha-engine` task/PR and keep this repo on public surfaces.
-
-## Local Commands
+Run from the repository root.
 
 ```bash
 npm install
 npm run verify
-npm run check:asha-boundary
+npm run check:migration-boundary
+npm run check:corpus-identity
 npm run typecheck
 npm run rust:check
 npm run rust:test
 ```
 
-Relevant upstream gates, from `/home/dev/asha-engine`, include:
+Focused workflows:
 
 ```bash
-./harness/ci/check-all.sh
-./harness/ci/check-rust.sh
-./harness/ci/check-ts.sh
-./harness/ci/check-depgraph.sh
-./harness/ci/check-contracts.sh
-./harness/ci/check-bridge.sh
-./harness/ci/check-vocabulary.sh
+npm run baseline
+npm run batch:sample
+npm run piece:smoke
+npm run policy:smoke
+npm run viewer:smoke
+npm run catalog:coverage
+npm run catalog-aware:coverage
 ```
 
-Use upstream gates when changing upstream work. They do not replace this repo's
-own checks.
+Commands containing `legacy-asha` are temporary conversion evidence, not
+approved architecture. Their exact removal tasks are recorded in the ledger.
 
-## Evidence Posture
+## Change and verification posture
 
-- Run the narrowest relevant check first, then `npm run verify` before handoff
-  when practical.
-- Keep fixtures and generated proof artifacts reproducible.
-- Prefer one command that rebuilds/checks evidence over manual screenshots or
-  cached files.
-- Record exact commands and results in handoffs.
-- Do not claim native runtime, GPU, browser, deployment, or performance proof
-  unless the command actually exercised that surface.
+- Run the narrowest relevant check first, then `npm run verify`.
+- Regenerate checked artifacts through their owning commands.
+- Artifact/schema changes require deterministic regeneration, namespace checks,
+  and corpus diff review.
+- Algorithm changes require focused accepted/rejected topology and placement
+  regressions; do not hide them in migration churn.
+- Spatial authority claims require a real Rust host. Viewer claims require a
+  real browser. Synthetic fixtures prove mechanisms, not full product behavior.
+- Keep failure paths fail-closed and preserve structured diagnostics.
+- Report exactly which commands ran and which live checks were skipped.
 
-## Coding Style
+## Shared workspace and git
 
-- Prefer explicit, deterministic code over clever abstractions.
-- Make boundaries visible in imports, function names, and tests.
-- Keep mutation local and obvious.
-- Avoid hidden global registries, ambient state, generic event buses, and broad
-  manager classes.
-- Use named intermediate values for meaningful decisions.
-- Add tests for behavior and fail-closed boundary cases.
+- Treat a dirty worktree as normal and preserve unrelated changes.
+- Do not reset, restore, clean, delete, or reformat another agent's work.
+- Inspect the task-scoped diff before staging.
+- Commit and push completed task work directly to the current appropriate ref.
+- Record exact SHAs and verification evidence in Den when work is Den-managed.
 
-## Review Checklist
+## Review checklist
 
-- [ ] Imports use approved public ASHA package roots or documented subpaths.
-- [ ] No ASHA internals, generated-path imports, raw transports, or JSON command
-      tunnels were added.
-- [ ] Missing public ASHA surfaces were recorded as upstream gaps.
-- [ ] Project checks ran with real output.
-- [ ] Generated evidence, if any, was regenerated by documented commands.
-- [ ] Docs changed when setup, commands, public surfaces, or limitations changed.
+- [ ] Dungeon meaning remains local and reusable authority remains upstream.
+- [ ] No new predecessor package, import, wrapper, or old artifact kind exists.
+- [ ] Deterministic artifacts were regenerated by owning commands.
+- [ ] Corpus behavior changes, if any, are intentional and separately proved.
+- [ ] Local configuration experiments were preserved.
+- [ ] Focused checks and the owning gate passed.

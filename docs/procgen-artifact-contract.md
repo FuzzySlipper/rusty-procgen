@@ -19,7 +19,7 @@ operations return non-zero.
 
 ## Candidate
 
-Kind: `asha_procgen.candidate.v1`
+Kind: `rusty_procgen.candidate.v1`
 
 The candidate is dimension-agnostic at the graph layer. The first implementation
 uses `dimensionModel: "topology_graph"` and later commands may add 2D or 3D
@@ -66,7 +66,7 @@ Locked edges use `requiredItem`. Key nodes use `grantsItem`.
 
 ## Rule Catalog
 
-Kind: `asha_procgen.rule_catalog.v1`
+Kind: `rusty_procgen.rule_catalog.v1`
 
 The v2 graph grammar catalog lives at:
 
@@ -95,14 +95,14 @@ Implemented v2 rule ids:
 
 ## Receipt
 
-Kind: `asha_procgen.receipt.v1`
+Kind: `rusty_procgen.receipt.v1`
 
 Receipts record command status, seed, input/output hashes, output file refs, and
 diagnostics. Receipts are the primary tool-call evidence for agent transcripts.
 
 ## Validation Report
 
-Kind: `asha_procgen.validation.graph.v1`
+Kind: `rusty_procgen.validation.graph.v1`
 
 Validation reports contain:
 
@@ -139,7 +139,7 @@ Fatal diagnostics block acceptance. Warnings are advisory.
 
 ## Graph Analysis Report
 
-Kind: `asha_procgen.graph_analysis.v1`
+Kind: `rusty_procgen.graph_analysis.v1`
 
 Graph analysis reports contain:
 
@@ -154,7 +154,7 @@ They are intended as agent planning context, not as validation authority.
 
 ## Rule Compatibility Report
 
-Kind: `asha_procgen.rule_compatibility.v1`
+Kind: `rusty_procgen.rule_compatibility.v1`
 
 Compatibility reports list every known graph rule with one of:
 
@@ -167,7 +167,7 @@ Each entry may include reasons and recommended actions.
 
 ## Spatial Intent Report
 
-Kind: `asha_procgen.spatial_intent.v1`
+Kind: `rusty_procgen.spatial_intent.v1`
 
 Spatial intent reports annotate graph nodes and edges with pre-geometry hints
 such as `landmark_hub`, `visible_before_reachable`, `pressure_path`,
@@ -175,7 +175,7 @@ such as `landmark_hub`, `visible_before_reachable`, `pressure_path`,
 
 ## Intermediate Breakdown
 
-Kind: `asha_procgen.intermediate_breakdown.v1`
+Kind: `rusty_procgen.intermediate_breakdown.v1`
 
 Intermediate breakdowns contain:
 
@@ -183,13 +183,13 @@ Intermediate breakdowns contain:
 - `connectors`: graph-edge-derived connector intents
 - `constraints`: named constraints that later geometry passes should preserve
 
-Validation uses kind `asha_procgen.validation.intermediate.v1`. This schema is
+Validation uses kind `rusty_procgen.validation.intermediate.v1`. This schema is
 intentionally not a 2D room layout, 3D prefab graph, mesh, voxel grid, or tile
 map. See `docs/intermediate-layout-contract.md`.
 
 ## Score Report
 
-Kind: `asha_procgen.score.graph.v1`
+Kind: `rusty_procgen.score.graph.v1`
 
 First-slice metrics:
 
@@ -214,7 +214,7 @@ First-slice metrics:
 
 ## Selection Report
 
-Kind: `asha_procgen.selection_report.v1`
+Kind: `rusty_procgen.selection_report.v1`
 
 Batch generation writes:
 
@@ -250,7 +250,7 @@ for stable tie-breaking.
 
 ## Layout Artifact
 
-Kind: `asha_procgen.layout_2d.v1`
+Kind: `rusty_procgen.layout_2d.v1`
 
 The first layout artifact is an inspectable 2D embedding. It preserves graph
 node and edge IDs so diagnostics and viewer labels map back to intent. It is
@@ -258,7 +258,7 @@ not a renderer or final tile map.
 
 ## Geometry 2D Artifact
 
-Kind: `asha_procgen.geometry_2d.v1`
+Kind: `rusty_procgen.geometry_2d.v1`
 
 Geometry artifacts are the next layer after intermediate breakdowns. They hold
 variable room rectangles, routed corridor polylines, bounds, source refs,
@@ -282,7 +282,7 @@ See `docs/geometry-html-preview-contract.md`.
 
 ## Physical Connection Plan
 
-Kind: `asha_procgen.physical_connection_plan.v1`
+Kind: `rusty_procgen.physical_connection_plan.v1`
 
 This versioned artifact sits between `intermediate_breakdown` and
 `geometry_2d`. Each section declares an explicit physical topology, terminal
@@ -295,7 +295,7 @@ an undeclared junction.
 
 ## HTML Preview Artifact
 
-Kind: `asha_procgen.html_preview.v1`
+Kind: `rusty_procgen.html_preview.v1`
 
 Preview metadata records geometry, validation, and standalone HTML refs. The
 HTML file itself should open from disk and render the generated 2D dungeon as
@@ -303,7 +303,7 @@ dark-mode SVG with labels and annotations.
 
 ## Shape Catalog Artifact
 
-Kind: `asha_procgen.shape_catalog.v1`
+Kind: `rusty_procgen.shape_catalog.v1`
 
 Shape catalogs describe reusable prefab metadata: occupied cells, reserved
 cells, exits, allowed transforms, tags, and feature sockets. Catalog shapes are
@@ -318,7 +318,7 @@ preserve walls and open only declared routed connections. Schema v1 supports
 only `doorwayWidthCells: 1`; wider values fail closed until the placement
 artifact can carry an authoritative oriented opening footprint.
 
-Catalog inspection uses kind `asha_procgen.catalog_inspection.v1` and reports
+Catalog inspection uses kind `rusty_procgen.catalog_inspection.v1` and reports
 shape counts, piece kinds, feature socket kinds, exit directions, transforms,
 per-shape summaries, and catalog diagnostics.
 
@@ -326,7 +326,7 @@ For modular pack structure, see `docs/build-piece-library-structure.md`.
 
 ## Piece Build Plan Artifact
 
-Kind: `asha_procgen.piece_build_plan.v1`
+Kind: `rusty_procgen.piece_build_plan.v1`
 
 Piece build plans expand geometry/intermediate intent into explicit piece
 requirements before catalog matching. Rooms, corridors, bends, thresholds,
@@ -340,7 +340,7 @@ compatible catalog family rather than a soft tag score.
 
 ## Piece Shape Match Artifact
 
-Kind: `asha_procgen.piece_shape_match.v1`
+Kind: `rusty_procgen.piece_shape_match.v1`
 
 Piece shape match reports select catalog shape ids and transforms for each
 piece-plan requirement before occupancy placement. Each match records the
@@ -350,7 +350,7 @@ for incompatible shapes.
 
 ## Piece Placement Artifact
 
-Kind: `asha_procgen.piece_placement.v1`
+Kind: `rusty_procgen.piece_placement.v1`
 
 Piece placements record selected catalog shapes, transforms, occupied cells,
 reserved cells, glued exits, generated connection cells, dangling exits, and
@@ -371,13 +371,13 @@ Unrelated routes may not cross
 occupied/reserved cells, enter a non-exit wall, or omit their exact transformed
 catalog exit endpoints.
 
-Validation uses kind `asha_procgen.validation.piece_placement.v1`.
+Validation uses kind `rusty_procgen.validation.piece_placement.v1`.
 
 See `docs/piece-assembly-contract.md`.
 
 ## Accepted Artifact
 
-Kind: `asha_procgen.accepted_artifact.v1`
+Kind: `rusty_procgen.accepted_artifact.v1`
 
 Accepted artifacts bundle the candidate, layout, score summary, hashes, and
 validation/score refs. They are suitable for later catalog and shuffle-bag work.

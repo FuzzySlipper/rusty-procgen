@@ -30,7 +30,7 @@ try {
     corridorRealization: 'procedural',
   }, 200);
   if (
-    procedural.kind !== 'asha_procgen.corridor_realization_experiment.v1'
+    procedural.kind !== 'rusty_procgen.corridor_realization_experiment.v1'
     || procedural.experimentId !== repeatedProcedural.experimentId
     || JSON.stringify(procedural.placement) !== JSON.stringify(repeatedProcedural.placement)
     || JSON.stringify(procedural.builtFlowValidation)
@@ -241,7 +241,7 @@ function assertPureCatalogExhaustionEvidence(evidence, candidateId) {
   const failure = evidence?.failure;
   const budgets = evidence?.budgets;
   if (
-    evidence?.kind !== 'asha_procgen.pure_catalog_exhaustion.v1'
+    evidence?.kind !== 'rusty_procgen.pure_catalog_exhaustion.v1'
     || evidence.schemaVersion !== 1
     || typeof failure?.reason !== 'string'
     || typeof failure?.pieceId !== 'string'

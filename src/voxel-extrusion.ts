@@ -249,7 +249,7 @@ export function compilePlacementExtrusion(
 }
 
 function validatePlacement(placement: PiecePlacementForExtrusion): void {
-  if (placement.kind !== 'asha_procgen.piece_placement.v1') {
+  if (placement.kind !== 'rusty_procgen.piece_placement.v1') {
     throw new Error(`unsupported placement kind: ${placement.kind}`);
   }
   if (

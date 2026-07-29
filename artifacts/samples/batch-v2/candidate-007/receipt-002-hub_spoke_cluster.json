@@ -1,11 +1,11 @@
 {
-  "kind": "asha_procgen.receipt.v1",
+  "kind": "rusty_procgen.receipt.v1",
   "schemaVersion": 1,
   "command": "graph apply-rule hub_spoke_cluster",
   "status": "ok",
   "seed": 5903,
-  "inputHash": "fnv1a64:273e5711a73bb960",
-  "outputHash": "fnv1a64:388ebd16c05255b9",
+  "inputHash": "fnv1a64:595eea394eea28de",
+  "outputHash": "fnv1a64:164c97c2d663ea83",
   "outputRef": "artifacts/samples/batch-v2/candidate-007/candidate-002-hub_spoke_cluster.json",
   "diagnostics": []
 }

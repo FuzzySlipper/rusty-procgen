@@ -1,13 +1,13 @@
 {
-  "kind": "asha_procgen.accepted_artifact.v1",
+  "kind": "rusty_procgen.accepted_artifact.v1",
   "schemaVersion": 1,
   "artifactId": "accepted.candidate.first_slice.5501",
-  "candidateHash": "fnv1a64:cdd1c6e3e8314b15",
-  "layoutHash": "fnv1a64:cd1e8dd8538f302e",
+  "candidateHash": "fnv1a64:3a1761f5f6b197d3",
+  "layoutHash": "fnv1a64:e47c62712736defc",
   "validationRef": "artifacts/samples/batch-v2/candidate-003/validation.graph.json",
   "scoreRef": "artifacts/samples/batch-v2/candidate-003/score.graph.json",
   "candidate": {
-    "kind": "asha_procgen.candidate.v1",
+    "kind": "rusty_procgen.candidate.v1",
     "schemaVersion": 1,
     "candidateId": "candidate.first_slice.5501",
     "seed": 5501,
@@ -385,7 +385,7 @@
     }
   },
   "layout": {
-    "kind": "asha_procgen.layout_2d.v1",
+    "kind": "rusty_procgen.layout_2d.v1",
     "schemaVersion": 1,
     "layoutId": "layout.candidate.first_slice.5501.5591",
     "candidateId": "candidate.first_slice.5501",
@@ -656,9 +656,9 @@
     ]
   },
   "scoreSummary": {
-    "kind": "asha_procgen.score.graph.v1",
+    "kind": "rusty_procgen.score.graph.v1",
     "schemaVersion": 1,
-    "stateHash": "fnv1a64:cdd1c6e3e8314b15",
+    "stateHash": "fnv1a64:3a1761f5f6b197d3",
     "overall": 0.67,
     "metrics": {
       "bossCount": 1.0,

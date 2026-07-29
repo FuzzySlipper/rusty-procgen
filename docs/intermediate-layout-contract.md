@@ -72,17 +72,17 @@ npm run procgen -- breakdown validate \
 
 ## Artifact Kinds
 
-- `asha_procgen.graph_analysis.v1`: critical path, dominators, optional branch
+- `rusty_procgen.graph_analysis.v1`: critical path, dominators, optional branch
   classifications, lock/key order checks, loop signals, and shortcut risk
   hints.
-- `asha_procgen.rule_compatibility.v1`: per-rule `applicable`, `blocked`,
+- `rusty_procgen.rule_compatibility.v1`: per-rule `applicable`, `blocked`,
   `duplicate`, or `risky` status with reasons and recommended actions.
-- `asha_procgen.spatial_intent.v1`: node/edge annotations such as
+- `rusty_procgen.spatial_intent.v1`: node/edge annotations such as
   `landmark_hub`, `visible_before_reachable`, `pressure_path`,
   `shortcut_connector`, `one_way_drop`, and `hidden_route`.
-- `asha_procgen.intermediate_breakdown.v1`: graph-derived regions,
+- `rusty_procgen.intermediate_breakdown.v1`: graph-derived regions,
   connectors, constraints, and geometry-prep hints for a later geometry pass.
-- `asha_procgen.validation.intermediate.v1`: fatal diagnostics for invalid
+- `rusty_procgen.validation.intermediate.v1`: fatal diagnostics for invalid
   intermediate breakdowns.
 
 Stable intermediate validation diagnostic codes:
@@ -106,7 +106,7 @@ Stable intermediate validation diagnostic codes:
 
 ## Intermediate Schema Versioning
 
-The intermediate breakdown keeps kind `asha_procgen.intermediate_breakdown.v1`
+The intermediate breakdown keeps kind `rusty_procgen.intermediate_breakdown.v1`
 while the pre-geometry handoff is still evolving additively. The enriched
 geometry-prep shape uses `schemaVersion: 2`.
 

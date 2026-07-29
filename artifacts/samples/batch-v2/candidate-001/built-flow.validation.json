@@ -1,5 +1,5 @@
 {
-  "kind": "asha_procgen.validation.built_flow.v1",
+  "kind": "rusty_procgen.validation.built_flow.v1",
   "schemaVersion": 1,
   "validationId": "built_flow_validation.piece_placement.piece_shape_match.piece_plan.geometry.candidate.first_slice.5301.14308.hybrid.14339.alternative_0",
   "candidateId": "candidate.first_slice.5301",

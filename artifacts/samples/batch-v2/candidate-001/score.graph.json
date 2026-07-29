@@ -1,7 +1,7 @@
 {
-  "kind": "asha_procgen.score.graph.v1",
+  "kind": "rusty_procgen.score.graph.v1",
   "schemaVersion": 1,
-  "stateHash": "fnv1a64:27a2fe49c77da678",
+  "stateHash": "fnv1a64:976823e50a25d306",
   "overall": 0.37,
   "metrics": {
     "bossCount": 1.0,

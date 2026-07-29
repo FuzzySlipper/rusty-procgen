@@ -1,5 +1,5 @@
 {
-  "kind": "asha_procgen.physical_connection_plan.v1",
+  "kind": "rusty_procgen.physical_connection_plan.v1",
   "schemaVersion": 1,
   "planId": "physical_connections.candidate.first_slice.5201",
   "candidateId": "candidate.first_slice.5201",

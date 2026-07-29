@@ -71,7 +71,7 @@ npm run procgen -- graph rules --out artifacts/manual/rules.json
 Artifact kind:
 
 ```text
-asha_procgen.rule_metadata.v1
+rusty_procgen.rule_metadata.v1
 ```
 
 The artifact includes rule id, intent, emitted node/edge tags, required existing
@@ -89,7 +89,7 @@ npm run procgen -- graph summarize --state <candidate.json> --json --out <summar
 Artifact kind:
 
 ```text
-asha_procgen.graph_summary.v1
+rusty_procgen.graph_summary.v1
 ```
 
 The summary includes node/edge counts, tags, locked items, dead ends, score
@@ -120,7 +120,7 @@ npm run procgen -- repair suggest --state <candidate.json> --out <repair.json>
 Artifact kind:
 
 ```text
-asha_procgen.repair_report.v1
+rusty_procgen.repair_report.v1
 ```
 
 The report sorts validation diagnostics by severity, preserves `repairHint`,
@@ -167,7 +167,7 @@ npm run procgen -- batch generate --profile fixtures/batch-profiles/v2-sample.js
 Artifact kind:
 
 ```text
-asha_procgen.batch_profile.v1
+rusty_procgen.batch_profile.v1
 ```
 
 Profiles move rule sequences and selection labels into JSON so external agents

@@ -56,7 +56,7 @@ fn repair_apply_command(args: RepairApplyArgs) -> Result<(), String> {
         None
     };
     let receipt = Receipt {
-        kind: "asha_procgen.receipt.v1".to_owned(),
+        kind: "rusty_procgen.receipt.v1".to_owned(),
         schema_version: 1,
         command: format!("repair apply {}", args.action.as_str()),
         status: status.to_owned(),
@@ -206,7 +206,7 @@ fn repair_report(candidate: &Candidate) -> Result<RepairReport, String> {
             .then_with(|| left.edge.cmp(&right.edge))
     });
     Ok(RepairReport {
-        kind: "asha_procgen.repair_report.v1".to_owned(),
+        kind: "rusty_procgen.repair_report.v1".to_owned(),
         schema_version: 1,
         candidate_id: candidate.candidate_id.clone(),
         state_hash: hash_json(candidate)?,
@@ -449,7 +449,7 @@ fn validate_graph(candidate: &Candidate) -> ValidationReport {
         .filter(|diagnostic| diagnostic.severity == Severity::Fatal)
         .count();
     ValidationReport {
-        kind: "asha_procgen.validation.graph.v1".to_owned(),
+        kind: "rusty_procgen.validation.graph.v1".to_owned(),
         schema_version: 1,
         state_hash: hash_json(candidate).unwrap_or_else(|_| "hash_error".to_owned()),
         ok: fatal_count == 0,

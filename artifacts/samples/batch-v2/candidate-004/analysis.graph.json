@@ -1,8 +1,8 @@
 {
-  "kind": "asha_procgen.graph_analysis.v1",
+  "kind": "rusty_procgen.graph_analysis.v1",
   "schemaVersion": 1,
   "candidateId": "candidate.first_slice.5601",
-  "stateHash": "fnv1a64:d69408e09216a8ef",
+  "stateHash": "fnv1a64:02cfce8c2ba148f5",
   "criticalPath": [
     "start",
     "junction.merge_1",

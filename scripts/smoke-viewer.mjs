@@ -9,7 +9,7 @@ const execFileAsync = promisify(execFile);
 const host = '127.0.0.1';
 const port = Number(process.env.VIEWER_SMOKE_PORT ?? 5194);
 const baseUrl = `http://${host}:${port}`;
-const outDir = process.env.VIEWER_SMOKE_OUT ?? join(tmpdir(), 'asha-procgen-viewer-smoke');
+const outDir = process.env.VIEWER_SMOKE_OUT ?? join(tmpdir(), 'rusty-procgen-viewer-smoke');
 
 await mkdir(outDir, { recursive: true });
 const generationConfigPath = join(outDir, 'viewer-generation-config.json');
@@ -36,7 +36,7 @@ const server = spawn(process.execPath, ['scripts/serve-viewer.mjs', '--host', ho
   cwd: process.cwd(),
   env: {
     ...process.env,
-    ASHA_PROCGEN_GENERATION_CONFIG_PATH: generationConfigPath,
+    RUSTY_PROCGEN_GENERATION_CONFIG_PATH: generationConfigPath,
   },
   stdio: ['ignore', 'pipe', 'pipe'],
 });
@@ -78,7 +78,7 @@ try {
     throw new Error('top selection is missing shapeCatalogRef');
   }
   const breakdown = await fetchArtifact(top.intermediateBreakdownRef);
-  if (breakdown.kind !== 'asha_procgen.intermediate_breakdown.v1') {
+  if (breakdown.kind !== 'rusty_procgen.intermediate_breakdown.v1') {
     throw new Error(`unexpected intermediate kind: ${breakdown.kind}`);
   }
   if (!Array.isArray(breakdown.regions) || breakdown.regions.length === 0) {
@@ -89,7 +89,7 @@ try {
   }
   const connectionPlan = await fetchArtifact(top.physicalConnectionPlanRef);
   if (
-    connectionPlan.kind !== 'asha_procgen.physical_connection_plan.v1'
+    connectionPlan.kind !== 'rusty_procgen.physical_connection_plan.v1'
     || !Array.isArray(connectionPlan.sections)
     || connectionPlan.sections.length === 0
     || !Array.isArray(connectionPlan.edgeMappings)
@@ -98,7 +98,7 @@ try {
     throw new Error('physical connection plan does not cover the selected intermediate connectors');
   }
   const placement = await fetchArtifact(top.piecePlacementRef);
-  if (placement.kind !== 'asha_procgen.piece_placement.v1') {
+  if (placement.kind !== 'rusty_procgen.piece_placement.v1') {
     throw new Error(`unexpected placement kind: ${placement.kind}`);
   }
   if (!Array.isArray(placement.instances) || placement.instances.length < 10) {
@@ -114,12 +114,12 @@ try {
     throw new Error('piece placement has too few connection cells');
   }
   const placementValidation = await fetchArtifact(top.piecePlacementValidationRef);
-  if (placementValidation.kind !== 'asha_procgen.validation.piece_placement.v1' || !placementValidation.ok) {
+  if (placementValidation.kind !== 'rusty_procgen.validation.piece_placement.v1' || !placementValidation.ok) {
     throw new Error('piece placement validation is not ok');
   }
   const builtFlowValidation = await fetchArtifact(top.builtFlowValidationRef);
   if (
-    builtFlowValidation.kind !== 'asha_procgen.validation.built_flow.v1'
+    builtFlowValidation.kind !== 'rusty_procgen.validation.built_flow.v1'
     || !builtFlowValidation.ok
     || builtFlowValidation.placementId !== placement.placementId
     || builtFlowValidation.portalCount !== placement.gatePortals.length
@@ -127,7 +127,7 @@ try {
     throw new Error('built flow validation does not verify the selected placement portals');
   }
   const catalog = await fetchArtifact(top.shapeCatalogRef);
-  if (catalog.kind !== 'asha_procgen.shape_catalog.v1') {
+  if (catalog.kind !== 'rusty_procgen.shape_catalog.v1') {
     throw new Error(`unexpected shape catalog kind: ${catalog.kind}`);
   }
   if (!Array.isArray(catalog.shapes) || catalog.shapes.length < 10) {

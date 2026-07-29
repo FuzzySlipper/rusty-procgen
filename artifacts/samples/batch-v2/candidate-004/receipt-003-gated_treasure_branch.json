@@ -1,11 +1,11 @@
 {
-  "kind": "asha_procgen.receipt.v1",
+  "kind": "rusty_procgen.receipt.v1",
   "schemaVersion": 1,
   "command": "graph apply-rule gated_treasure_branch",
   "status": "ok",
   "seed": 5604,
-  "inputHash": "fnv1a64:1d6a12dae2377c33",
-  "outputHash": "fnv1a64:4581f5fa61a3abd1",
+  "inputHash": "fnv1a64:9f190365a7213da1",
+  "outputHash": "fnv1a64:e0a4f2502a5cc413",
   "outputRef": "artifacts/samples/batch-v2/candidate-004/candidate-003-gated_treasure_branch.json",
   "diagnostics": []
 }

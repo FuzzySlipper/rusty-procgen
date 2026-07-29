@@ -11,9 +11,9 @@ import { fileURLToPath } from 'node:url';
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const execFileAsync = promisify(execFile);
 const selectionReportPath = join(repoRoot, 'artifacts/samples/batch-v2/selection-report.json');
-const generationConfigPath = process.env.ASHA_PROCGEN_GENERATION_CONFIG_PATH === undefined
+const generationConfigPath = process.env.RUSTY_PROCGEN_GENERATION_CONFIG_PATH === undefined
   ? join(repoRoot, 'config/viewer-generation.json')
-  : resolve(process.env.ASHA_PROCGEN_GENERATION_CONFIG_PATH);
+  : resolve(process.env.RUSTY_PROCGEN_GENERATION_CONFIG_PATH);
 const args = parseArgs(process.argv.slice(2));
 const host = args.host ?? process.env.HOST ?? process.env.npm_config_host ?? '0.0.0.0';
 const port = Number(args.port ?? process.env.PORT ?? process.env.npm_config_port ?? 5183);
@@ -31,10 +31,10 @@ const routes = new Map([
 ]);
 
 const server = createServer(async (request, response) => {
-  response.setHeader('X-Den-Project', 'asha-procgen');
+  response.setHeader('X-Den-Project', 'rusty-procgen');
   const url = new URL(request.url ?? '/', `http://${request.headers.host ?? 'localhost'}`);
   if (url.pathname === '/health') {
-    sendJson(response, 200, { ok: true, project: 'asha-procgen' });
+    sendJson(response, 200, { ok: true, project: 'rusty-procgen' });
     return;
   }
 
@@ -187,8 +187,8 @@ const server = createServer(async (request, response) => {
 server.listen(port, host, () => {
   const address = server.address();
   const selectedPort = typeof address === 'object' && address !== null ? address.port : port;
-  console.log(`asha-procgen viewer listening at http://${host}:${selectedPort}`);
-  console.log('"project": "asha-procgen"');
+  console.log(`rusty-procgen viewer listening at http://${host}:${selectedPort}`);
+  console.log('"project": "rusty-procgen"');
 });
 
 process.on('SIGTERM', () => server.close(() => process.exit(0)));
@@ -238,7 +238,7 @@ function pureCatalogExhaustionEvidence(detail) {
   try {
     const evidence = JSON.parse(detail.slice(markerIndex + marker.length).trim());
     if (
-      evidence?.kind !== 'asha_procgen.pure_catalog_exhaustion.v1'
+      evidence?.kind !== 'rusty_procgen.pure_catalog_exhaustion.v1'
       || evidence.schemaVersion !== 1
       || typeof evidence.failure !== 'object'
       || typeof evidence.budgets !== 'object'
@@ -343,7 +343,7 @@ async function runGenerationConfigRebuild(payload) {
     throw new ExperimentError(422, 'candidate_missing_seeds', 'Committed geometry or shape match has no deterministic seed.');
   }
 
-  const buildDir = await mkdtemp(join(tmpdir(), 'asha-procgen-generation-config-'));
+  const buildDir = await mkdtemp(join(tmpdir(), 'rusty-procgen-generation-config-'));
   const candidatePath = join(buildDir, 'candidate.json');
   const geometryPolicyPath = join(buildDir, 'geometry-layout-policy.json');
   const catalogAwarePolicyPath = join(buildDir, 'catalog-aware-generation-policy.json');
@@ -404,7 +404,7 @@ async function runGenerationConfigRebuild(payload) {
           `catalog_aware_${classification}`,
           finalAttempt?.detail ?? 'Catalog-aware generation exhausted without a successful attempt.',
           {
-            kind: 'asha_procgen.catalog_aware_generation_exhaustion.v1',
+            kind: 'rusty_procgen.catalog_aware_generation_exhaustion.v1',
             schemaVersion: 1,
             classification,
             attempts: catalogAwareResult.attempts ?? [],
@@ -501,7 +501,7 @@ async function runGenerationConfigRebuild(payload) {
       .digest('hex');
     await persistGenerationConfig(config);
     return {
-      kind: 'asha_procgen.viewer_generation_rebuild.v1',
+      kind: 'rusty_procgen.viewer_generation_rebuild.v1',
       buildId,
       candidateId: payload.candidateId,
       config,
@@ -559,7 +559,7 @@ async function runPlacementPolicyExperiment(payload) {
   const catalog = JSON.parse(await readFile(catalogPath, 'utf8'));
   catalog.placementPolicy = policy;
 
-  const experimentDir = await mkdtemp(join(tmpdir(), 'asha-procgen-policy-'));
+  const experimentDir = await mkdtemp(join(tmpdir(), 'rusty-procgen-policy-'));
   const experimentCatalogPath = join(experimentDir, 'shape-catalog.json');
   const placementPath = join(experimentDir, 'piece-placement.json');
   const validationPath = join(experimentDir, 'piece-placement.validation.json');
@@ -598,7 +598,7 @@ async function runPlacementPolicyExperiment(payload) {
       .update(JSON.stringify({ candidateId: payload.candidateId, policy, placement }))
       .digest('hex');
     return {
-      kind: 'asha_procgen.placement_policy_experiment.v1',
+      kind: 'rusty_procgen.placement_policy_experiment.v1',
       experimentId,
       candidateId: payload.candidateId,
       placementPolicy: policy,
@@ -658,7 +658,7 @@ async function runGeometryLayoutPolicyExperiment(payload) {
     throw new ExperimentError(422, 'candidate_missing_seeds', 'Committed geometry or shape match has no deterministic seed.');
   }
 
-  const experimentDir = await mkdtemp(join(tmpdir(), 'asha-procgen-geometry-policy-'));
+  const experimentDir = await mkdtemp(join(tmpdir(), 'rusty-procgen-geometry-policy-'));
   const candidatePath = join(experimentDir, 'candidate.json');
   const policyPath = join(experimentDir, 'geometry-layout-policy.json');
   const geometryPath = join(experimentDir, 'geometry-2d.json');
@@ -739,7 +739,7 @@ async function runGeometryLayoutPolicyExperiment(payload) {
       .update(JSON.stringify({ candidateId: payload.candidateId, policy, geometry, placement }))
       .digest('hex');
     return {
-      kind: 'asha_procgen.geometry_layout_policy_experiment.v1',
+      kind: 'rusty_procgen.geometry_layout_policy_experiment.v1',
       experimentId,
       candidateId: payload.candidateId,
       geometryLayoutPolicy: policy,
@@ -807,7 +807,7 @@ async function runCorridorRealizationExperiment(payload) {
     throw new ExperimentError(422, 'candidate_missing_seed', 'Committed shape match has no deterministic seed.');
   }
 
-  const experimentDir = await mkdtemp(join(tmpdir(), 'asha-procgen-corridor-realization-'));
+  const experimentDir = await mkdtemp(join(tmpdir(), 'rusty-procgen-corridor-realization-'));
   const candidatePath = join(experimentDir, 'candidate.json');
   const piecePlanPath = join(experimentDir, 'piece-plan.json');
   const shapeMatchPath = join(experimentDir, 'piece-shape-match.json');
@@ -888,7 +888,7 @@ async function runCorridorRealizationExperiment(payload) {
       }))
       .digest('hex');
     return {
-      kind: 'asha_procgen.corridor_realization_experiment.v1',
+      kind: 'rusty_procgen.corridor_realization_experiment.v1',
       experimentId,
       candidateId: payload.candidateId,
       corridorRealization: payload.corridorRealization,
@@ -963,7 +963,7 @@ function validateGenerationConfig(value) {
     ],
     'generationConfig',
   );
-  if (value.kind !== 'asha_procgen.viewer_generation_config.v1' || value.schemaVersion !== 1) {
+  if (value.kind !== 'rusty_procgen.viewer_generation_config.v1' || value.schemaVersion !== 1) {
     throw new ExperimentError(
       400,
       'unsupported_generation_config_schema',
@@ -1030,7 +1030,7 @@ function validateGenerationConfig(value) {
 
 function materializeGeometryLayoutPolicy(config, field) {
   return {
-    kind: 'asha_procgen.geometry_layout_policy.v1',
+    kind: 'rusty_procgen.geometry_layout_policy.v1',
     schemaVersion: 1,
     initialRoomMargin: config.geometryLayoutPolicy.initialRoomMargin[field],
     initialColumnGap: config.geometryLayoutPolicy.initialColumnGap[field],
@@ -1057,7 +1057,7 @@ function materializePlacementPolicy(config, field) {
 
 function materializeCatalogAwareGenerationPolicy(config, field) {
   return {
-    kind: 'asha_procgen.catalog_aware_generation_policy.v1',
+    kind: 'rusty_procgen.catalog_aware_generation_policy.v1',
     schemaVersion: 1,
     maxGenerationAttempts: config.catalogAwareGenerationPolicy.maxGenerationAttempts[field],
     initialRoomSlackCells: config.catalogAwareGenerationPolicy.initialRoomSlackCells[field],
@@ -1133,7 +1133,7 @@ function validateGeometryLayoutPolicy(value) {
     ],
     'geometryLayoutPolicy',
   );
-  if (value.kind !== 'asha_procgen.geometry_layout_policy.v1' || value.schemaVersion !== 1) {
+  if (value.kind !== 'rusty_procgen.geometry_layout_policy.v1' || value.schemaVersion !== 1) {
     throw new ExperimentError(400, 'unsupported_geometry_policy_schema', 'Only geometry-layout-policy schemaVersion 1 is supported.');
   }
   for (const [label, minimum, maximum] of [
@@ -1196,7 +1196,7 @@ async function runProcgen(args) {
   await execFileAsync('cargo', [
     'run', '--quiet', '--release',
     '--manifest-path', join(repoRoot, 'procgen-rs/Cargo.toml'),
-    '--bin', 'asha-procgen',
+    '--bin', 'rusty-procgen',
     '--',
     ...args,
   ], {

@@ -108,7 +108,7 @@ fn plan_physical_connections(
     sections.sort_by(|left, right| left.id.cmp(&right.id));
     edge_mappings.sort_by(|left, right| left.edge_id.cmp(&right.edge_id));
     Ok(PhysicalConnectionPlan {
-        kind: "asha_procgen.physical_connection_plan.v1".to_owned(),
+        kind: "rusty_procgen.physical_connection_plan.v1".to_owned(),
         schema_version: 1,
         plan_id: format!("physical_connections.{}", candidate.candidate_id),
         candidate_id: candidate.candidate_id.clone(),
@@ -160,9 +160,9 @@ fn validate_preview_inputs(
     validation: &ValidationReport,
     allow_invalid: bool,
 ) -> Result<(), String> {
-    if validation.kind != "asha_procgen.validation.geometry_2d.v1" {
+    if validation.kind != "rusty_procgen.validation.geometry_2d.v1" {
         return Err(format!(
-            "preview html requires geometry validation kind asha_procgen.validation.geometry_2d.v1, got {}",
+            "preview html requires geometry validation kind rusty_procgen.validation.geometry_2d.v1, got {}",
             validation.kind
         ));
     }
@@ -285,7 +285,7 @@ fn render_geometry_preview_html(
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Asha Procgen Dungeon Preview</title>
+<title>Rusty Procgen Dungeon Preview</title>
 <style>
 :root {{ color-scheme: dark; font-family: Inter, ui-sans-serif, system-ui, sans-serif; background: #0b0d10; color: #e8edf2; }}
 body {{ margin: 0; background: #0b0d10; }}
@@ -312,7 +312,7 @@ svg {{ display: block; min-width: {}px; min-height: {}px; background: #151b22; b
 @media (max-width: 900px) {{ main {{ grid-template-columns: 1fr; }} .panel {{ border-left: 0; border-top: 1px solid #2b3440; }} }}
 </style>
 </head>
-<body data-preview-kind="asha_procgen.html_preview.v1" data-kind="{}">
+<body data-preview-kind="rusty_procgen.html_preview.v1" data-kind="{}">
 <main>
 <section class="stage" aria-label="Dungeon floor plan">
 <svg xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="preview-title" viewBox="0 0 {} {}">
@@ -418,12 +418,12 @@ fn escape_attr(value: &str) -> String {
 
 fn validate_geometry_2d(geometry: &Geometry2dArtifact) -> ValidationReport {
     let mut diagnostics = Vec::new();
-    if geometry.kind != "asha_procgen.geometry_2d.v1" {
+    if geometry.kind != "rusty_procgen.geometry_2d.v1" {
         diagnostics.push(fatal(
             "geometry_kind_invalid",
             None,
             None,
-            "Geometry artifact kind must be asha_procgen.geometry_2d.v1.",
+            "Geometry artifact kind must be rusty_procgen.geometry_2d.v1.",
         ));
     }
     if geometry.bounds.width <= 0 || geometry.bounds.height <= 0 || geometry.bounds.grid <= 0 {
@@ -845,7 +845,7 @@ fn validate_geometry_2d(geometry: &Geometry2dArtifact) -> ValidationReport {
         .filter(|diagnostic| diagnostic.severity == Severity::Fatal)
         .count();
     ValidationReport {
-        kind: "asha_procgen.validation.geometry_2d.v1".to_owned(),
+        kind: "rusty_procgen.validation.geometry_2d.v1".to_owned(),
         schema_version: 1,
         state_hash: hash_json(geometry).unwrap_or_else(|_| "hash_error".to_owned()),
         ok: fatal_count == 0,
@@ -1179,7 +1179,7 @@ fn emit_geometry_2d(
         ));
     }
     if connection_plan.candidate_id != candidate.candidate_id
-        || connection_plan.kind != "asha_procgen.physical_connection_plan.v1"
+        || connection_plan.kind != "rusty_procgen.physical_connection_plan.v1"
     {
         return Err("physical connection plan does not match the supplied candidate".to_owned());
     }
@@ -1197,7 +1197,7 @@ fn emit_geometry_2d(
     )?;
     let contents = geometry_contents(candidate, intermediate, &placement.rooms);
     Ok(Geometry2dArtifact {
-        kind: "asha_procgen.geometry_2d.v1".to_owned(),
+        kind: "rusty_procgen.geometry_2d.v1".to_owned(),
         schema_version: 1,
         geometry_id: format!("geometry.{}.{}", candidate.candidate_id, seed),
         candidate_id: candidate.candidate_id.clone(),
@@ -1245,7 +1245,7 @@ fn ordered_geometry_region_specs<'a>(
 
 fn default_geometry_layout_policy() -> GeometryLayoutPolicy {
     GeometryLayoutPolicy {
-        kind: "asha_procgen.geometry_layout_policy.v1".to_owned(),
+        kind: "rusty_procgen.geometry_layout_policy.v1".to_owned(),
         schema_version: 1,
         initial_room_margin: 96,
         initial_column_gap: 144,
@@ -1260,8 +1260,8 @@ fn default_geometry_layout_policy() -> GeometryLayoutPolicy {
 }
 
 fn validate_geometry_layout_policy(policy: &GeometryLayoutPolicy) -> Result<(), String> {
-    if policy.kind != "asha_procgen.geometry_layout_policy.v1" || policy.schema_version != 1 {
-        return Err("unsupported geometry layout policy; expected asha_procgen.geometry_layout_policy.v1".to_owned());
+    if policy.kind != "rusty_procgen.geometry_layout_policy.v1" || policy.schema_version != 1 {
+        return Err("unsupported geometry layout policy; expected rusty_procgen.geometry_layout_policy.v1".to_owned());
     }
     for (label, value, minimum, maximum) in [
         ("initialRoomMargin", policy.initial_room_margin, 32, 1_024),

@@ -1,48 +1,48 @@
 {
-  "name": "asha-procgen",
+  "name": "rusty-procgen",
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "Dungeon procgen incubator for richer ASHA generated-level experiments.",
+  "description": "Deterministic dungeon generation, validation, and inspection workbench for Rusty Engine consumers.",
   "scripts": {
-    "check:asha-boundary": "node scripts/check-asha-boundary.mjs",
-    "procgen": "cargo run --quiet --manifest-path procgen-rs/Cargo.toml --bin asha-procgen --",
+    "check:migration-boundary": "node scripts/check-migration-boundary.mjs",
+    "check:corpus-identity": "node scripts/check-corpus-identity.mjs",
+    "procgen": "cargo run --quiet --manifest-path procgen-rs/Cargo.toml --bin rusty-procgen --",
     "baseline": "npm run procgen -- baseline --out-dir artifacts/samples/first-run --seed 4103",
     "batch:sample": "npm run procgen -- batch generate --profile fixtures/batch-profiles/v2-sample.json --out-dir artifacts/samples/batch-v2 --seed 5201 --count 10",
-    "geometry:recovery": "cargo run --quiet --release --manifest-path procgen-rs/Cargo.toml --bin asha-procgen -- batch generate --profile fixtures/batch-profiles/v2-sample.json --out-dir artifacts/samples/batch-v2 --seed 5201 --count 10 && npm run geometry:recovery:report",
+    "geometry:recovery": "cargo run --quiet --release --manifest-path procgen-rs/Cargo.toml --bin rusty-procgen -- batch generate --profile fixtures/batch-profiles/v2-sample.json --out-dir artifacts/samples/batch-v2 --seed 5201 --count 10 && npm run geometry:recovery:report",
     "geometry:recovery:report": "node scripts/report-geometry-recovery.mjs",
     "geometry:recovery:check": "node scripts/report-geometry-recovery.mjs --check",
     "build:viewer": "tsc -p tsconfig.json && esbuild viewer/app.ts --bundle --format=esm --platform=browser --target=es2022 --outfile=dist/ts/viewer/app.js",
     "viewer:serve": "npm run build:viewer && node scripts/serve-viewer.mjs",
     "viewer:serve:regenerate": "npm run baseline && npm run batch:sample && npm run build:viewer && node scripts/serve-viewer.mjs",
-    "viewer:smoke": "npm run build:viewer && node scripts/smoke-voxel-boundaries.mjs && node scripts/smoke-voxel-inspection-frame.mjs && node scripts/smoke-viewer.mjs",
+    "viewer:smoke": "npm run build:viewer && node scripts/smoke-voxel-boundaries.mjs && node scripts/legacy-asha-voxel-inspection-frame-smoke.mjs && node scripts/smoke-viewer.mjs",
     "policy:smoke": "npm run build:viewer && node scripts/smoke-generation-config.mjs && node scripts/smoke-placement-policy-experiment.mjs && node scripts/smoke-geometry-policy-experiment.mjs && node scripts/smoke-corridor-realization-experiment.mjs",
     "preview:smoke": "npm run viewer:smoke",
     "piece:smoke": "node scripts/smoke-piece-build.mjs",
     "catalog:coverage": "npm run build:viewer && node scripts/report-pure-catalog-coverage.mjs",
     "catalog-aware:coverage": "npm run build:viewer && node scripts/report-catalog-aware-coverage.mjs",
-    "publish:asha-smoke": "npm run build:viewer && node scripts/smoke-prefab-publish.mjs",
-    "voxel:asha-smoke": "npm run build:viewer && node scripts/smoke-asha-voxel-build.mjs",
+    "publish:legacy-asha-smoke": "npm run build:viewer && node scripts/legacy-asha-prefab-publication-smoke.mjs",
+    "voxel:legacy-asha-smoke": "npm run build:viewer && node scripts/legacy-asha-voxel-build-smoke.mjs",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "rust:check": "cargo check --manifest-path procgen-rs/Cargo.toml",
     "rust:test": "cargo test --manifest-path procgen-rs/Cargo.toml",
-    "test": "npm run check:asha-boundary && npm run typecheck && npm run rust:test",
-    "verify": "npm run check:asha-boundary && npm run typecheck && npm run publish:asha-smoke && node scripts/smoke-voxel-boundaries.mjs && node scripts/smoke-generation-config.mjs && npm run rust:check && npm run rust:test"
+    "test": "npm run check:migration-boundary && npm run check:corpus-identity && npm run typecheck && npm run rust:test",
+    "verify": "npm run check:migration-boundary && npm run check:corpus-identity && npm run typecheck && npm run publish:legacy-asha-smoke && node scripts/smoke-voxel-boundaries.mjs && node scripts/smoke-generation-config.mjs && npm run rust:check && npm run rust:test"
   },
   "dependencies": {
     "@asha/contracts": "file:../asha-engine/ts/packages/contracts",
     "@asha/game-workspace": "file:../asha-engine/ts/packages/game-workspace",
     "@asha/renderer-host": "file:../asha-engine/ts/packages/renderer-host",
-    "@asha/runtime-bridge": "file:../asha-engine/ts/packages/runtime-bridge",
-    "@asha/runtime-session": "file:../asha-engine/ts/packages/runtime-session"
+    "@asha/runtime-bridge": "file:../asha-engine/ts/packages/runtime-bridge"
   },
   "devDependencies": {
     "esbuild": "^0.25.0",
     "typescript": "^6.0.3"
   },
-  "ashaDownstream": {
-    "template": "asha-downstream-template",
+  "legacyAshaMigration": {
+    "ledger": "migration/asha-disposition.json",
     "engineSource": "../asha-engine",
-    "consumerPolicy": "downstream-visual-authoring"
+    "closeoutTask": 6400
   }
 }

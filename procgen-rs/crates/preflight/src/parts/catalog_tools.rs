@@ -13,12 +13,12 @@ fn inspect_shape_catalog(catalog: &ShapeCatalog, catalog_path: &Path) -> Catalog
     let mut seen_shapes = BTreeSet::new();
     let mut shapes = Vec::new();
 
-    if catalog.kind != "asha_procgen.shape_catalog.v1" {
+    if catalog.kind != "rusty_procgen.shape_catalog.v1" {
         diagnostics.push(fatal(
             "catalog_kind_invalid",
             None,
             None,
-            format!("Expected asha_procgen.shape_catalog.v1, got {}.", catalog.kind),
+            format!("Expected rusty_procgen.shape_catalog.v1, got {}.", catalog.kind),
         ));
     }
     if catalog.cell_size <= 0 {
@@ -115,7 +115,7 @@ fn inspect_shape_catalog(catalog: &ShapeCatalog, catalog_path: &Path) -> Catalog
     }
 
     CatalogInspectionReport {
-        kind: "asha_procgen.catalog_inspection.v1".to_owned(),
+        kind: "rusty_procgen.catalog_inspection.v1".to_owned(),
         schema_version: 1,
         catalog_id: catalog.catalog_id.clone(),
         catalog_ref: display_path(catalog_path),

@@ -11,7 +11,7 @@ use serde_json::{json, Value as JsonValue};
 fn main() {
     let cli = Cli::parse();
     if let Err(error) = run(cli) {
-        eprintln!("asha-procgen failed:");
+        eprintln!("rusty-procgen failed:");
         eprintln!("- {error}");
         std::process::exit(1);
     }

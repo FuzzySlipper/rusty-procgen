@@ -247,7 +247,7 @@ fn assemble_piece_placement_attempt(
     }
 
     let mut placement = PiecePlacement {
-        kind: "asha_procgen.piece_placement.v1".to_owned(),
+        kind: "rusty_procgen.piece_placement.v1".to_owned(),
         schema_version: 1,
         placement_id: format!("piece_placement.{}", shape_match.match_id),
         plan_id: plan.plan_id.clone(),
@@ -2244,12 +2244,12 @@ fn direction_vector(direction: &str) -> (i32, i32) {
 
 fn validate_piece_placement(placement: &PiecePlacement) -> ValidationReport {
     let mut diagnostics = Vec::new();
-    if placement.kind != "asha_procgen.piece_placement.v1" {
+    if placement.kind != "rusty_procgen.piece_placement.v1" {
         diagnostics.push(fatal(
             "piece_placement_kind_invalid",
             None,
             None,
-            "Placement artifact kind must be asha_procgen.piece_placement.v1.",
+            "Placement artifact kind must be rusty_procgen.piece_placement.v1.",
         ));
     }
     validate_piece_placement_policy(&placement.placement_policy, &mut diagnostics);
@@ -2296,7 +2296,7 @@ fn validate_piece_placement(placement: &PiecePlacement) -> ValidationReport {
         .filter(|diagnostic| diagnostic.severity == Severity::Fatal)
         .count();
     ValidationReport {
-        kind: "asha_procgen.validation.piece_placement.v1".to_owned(),
+        kind: "rusty_procgen.validation.piece_placement.v1".to_owned(),
         schema_version: 1,
         state_hash: hash_json(placement).unwrap_or_else(|_| "hash_error".to_owned()),
         ok: fatal_count == 0,

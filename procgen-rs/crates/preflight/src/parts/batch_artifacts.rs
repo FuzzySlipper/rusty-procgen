@@ -306,7 +306,7 @@ fn batch_generate_command(args: BatchGenerateArgs) -> Result<(), String> {
     }
     let accepted = enriched;
     let report = SelectionReport {
-        kind: "asha_procgen.selection_report.v1".to_owned(),
+        kind: "rusty_procgen.selection_report.v1".to_owned(),
         schema_version: 1,
         batch_id: format!("batch.v2.{}", args.seed),
         profile_id: profile.profile_id,
@@ -461,7 +461,7 @@ fn write_selection_preview_artifacts(entry: &mut SelectionEntry, seed: u64) -> R
     write_text(&html_path, &html)?;
 
     let preview = HtmlPreviewArtifact {
-        kind: "asha_procgen.html_preview.v1".to_owned(),
+        kind: "rusty_procgen.html_preview.v1".to_owned(),
         schema_version: 1,
         preview_id: format!("preview.{}", geometry.geometry_id),
         geometry_ref: display_path(&geometry_path),
@@ -593,7 +593,7 @@ fn write_selection_preview_artifacts(entry: &mut SelectionEntry, seed: u64) -> R
 
 fn load_batch_profile(path: &Path) -> Result<BatchProfile, String> {
     let profile: BatchProfile = read_json(path)?;
-    if profile.kind != "asha_procgen.batch_profile.v1" {
+    if profile.kind != "rusty_procgen.batch_profile.v1" {
         return Err(format!(
             "batch profile {} has unsupported kind {}",
             path.display(),

@@ -166,7 +166,7 @@ fn emit_piece_build_plan(
     }
 
     Ok(PieceBuildPlan {
-        kind: "asha_procgen.piece_build_plan.v1".to_owned(),
+        kind: "rusty_procgen.piece_build_plan.v1".to_owned(),
         schema_version: 1,
         plan_id: format!(
             "piece_plan.{}.{}",
@@ -202,9 +202,9 @@ fn validate_piece_plan_inputs(
             geometry.candidate_id, candidate.candidate_id
         ));
     }
-    if geometry.kind != "asha_procgen.geometry_2d.v1" {
+    if geometry.kind != "rusty_procgen.geometry_2d.v1" {
         return Err(format!(
-            "piece plan requires geometry kind asha_procgen.geometry_2d.v1, got {}",
+            "piece plan requires geometry kind rusty_procgen.geometry_2d.v1, got {}",
             geometry.kind
         ));
     }

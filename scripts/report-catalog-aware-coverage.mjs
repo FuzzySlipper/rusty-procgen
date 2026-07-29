@@ -10,7 +10,7 @@ const outputPath = resolve(
   process.env.CATALOG_AWARE_COVERAGE_OUT
     ?? 'artifacts/evidence/catalog-aware-generation-coverage.json',
 );
-const tempDir = await mkdtemp(join(tmpdir(), 'asha-procgen-catalog-aware-coverage-'));
+const tempDir = await mkdtemp(join(tmpdir(), 'rusty-procgen-catalog-aware-coverage-'));
 const configPath = join(tempDir, 'viewer-generation.json');
 await writeFile(configPath, await readFile('config/viewer-generation.json', 'utf8'), 'utf8');
 
@@ -21,7 +21,7 @@ const server = spawn(
     cwd: process.cwd(),
     env: {
       ...process.env,
-      ASHA_PROCGEN_GENERATION_CONFIG_PATH: configPath,
+      RUSTY_PROCGEN_GENERATION_CONFIG_PATH: configPath,
     },
     stdio: ['ignore', 'pipe', 'pipe'],
   },
@@ -68,7 +68,7 @@ try {
         first.response.status !== 422
         || !String(first.result.error).startsWith('catalog_aware_')
         || first.result.evidence?.kind
-          !== 'asha_procgen.catalog_aware_generation_exhaustion.v1'
+          !== 'rusty_procgen.catalog_aware_generation_exhaustion.v1'
       ) {
         throw new Error(
           `unexpected catalog-aware outcome for ${entry.candidateId}:`
@@ -86,7 +86,7 @@ try {
   }
   const successes = outcomes.filter((outcome) => outcome.status === 'success');
   const report = {
-    kind: 'asha_procgen.evidence.catalog_aware_generation_coverage.v1',
+    kind: 'rusty_procgen.evidence.catalog_aware_generation_coverage.v1',
     schemaVersion: 1,
     sourceSelectionRef: 'artifacts/samples/batch-v2/selection-report.json',
     sourceCatalogRef: 'fixtures/shape-catalogs/2d-basic.json',
@@ -121,7 +121,7 @@ try {
 
 function assertExactCatalogBuild(candidateId, result) {
   if (
-    result.kind !== 'asha_procgen.viewer_generation_rebuild.v1'
+    result.kind !== 'rusty_procgen.viewer_generation_rebuild.v1'
     || result.placement?.corridorRealization !== 'catalog'
     || result.placement?.connectionCells?.length !== 0
     || result.geometryValidation?.ok !== true

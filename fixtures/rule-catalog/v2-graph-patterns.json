@@ -1,7 +1,7 @@
 {
-  "kind": "asha_procgen.rule_catalog.v1",
+  "kind": "rusty_procgen.rule_catalog.v1",
   "schemaVersion": 1,
-  "catalogId": "asha_procgen.graph_patterns.v2",
+  "catalogId": "rusty_procgen.graph_patterns.v2",
   "patterns": [
     {
       "id": "hub_spoke_cluster",

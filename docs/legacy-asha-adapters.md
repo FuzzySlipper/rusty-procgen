@@ -1,14 +1,18 @@
-# ASHA Publishing Boundary
+# Temporary legacy Asha adapters
 
-`asha-procgen` is an offline authoring/compiler consumer. It owns dungeon
-generation policy and publishes selected results into ASHA-owned contract
-shapes; it does not become runtime authority by producing those artifacts.
+This document describes bounded predecessor evidence that remains executable
+during the in-place conversion. It is not the target Rusty architecture and
+does not create a compatibility promise. The exact package/import/script
+allowance is machine-owned by
+[`../migration/asha-disposition.json`](../migration/asha-disposition.json).
+Den #6397, #6398, and #6399 replace the three lanes; #6400 removes the residual
+coupling.
 
 ## Ownership
 
 | Surface | Owner | Procgen responsibility |
 | --- | --- | --- |
-| Shape catalog and placement | `asha-procgen` | Footprints, reserved cells, exits, sockets, matching constraints, transforms, seeded selection, and placement provenance. |
+| Shape catalog and placement | `rusty-procgen` | Footprints, reserved cells, exits, sockets, matching constraints, transforms, seeded selection, and placement provenance. |
 | Prefab registry | ASHA ProjectBundle contracts | Stable `PrefabId`, part identity, stable part roles, source asset references, variants, and overrides. Procgen supplies an explicit mapping into these generated types. |
 | Scene and ProjectBundle inventory | ASHA ProjectBundle contracts | Procgen emits a typed manifest plus a durable scene-side prefab-instance artifact and source-asset references. Rust ProjectBundle load remains the acceptance authority. |
 | Voxel geometry and accepted mutation | ASHA voxel/runtime authority | Procgen may reference voxel-object assets. The separate direct-command extrusion is only a bounded native authority smoke lane. |
@@ -24,7 +28,7 @@ prefab schema.
 Run:
 
 ```bash
-npm run publish:asha-smoke
+npm run publish:legacy-asha-smoke
 ```
 
 The proof reads the representative mapping at
@@ -49,24 +53,17 @@ Rust ProjectBundle load acceptance, rendering, navigation, or collision.
 
 ## Consumer role and distribution
 
-Sibling-checkout development currently installs ASHA packages with `file:`
-dependencies from `../asha-engine`. That is a development convenience, not a
-reproducible external distribution contract. External consumption should use
-the shared ASHA package/version/distribution mechanism once that work is
-available; Procgen must not invent a private package-copying or tarball lane.
-
-Upstream ASHA tasks #5828 and #5979 established the reusable
-`downstream-visual-authoring` consumer role. It permits exactly the five package
-roots used here: `@asha/contracts`, `@asha/game-workspace`,
-`@asha/renderer-host`, `@asha/runtime-bridge`, and `@asha/runtime-session`, with
-no approved private subpaths. `package.json`
-selects that role explicitly, and the local boundary checker fails closed when
-the configured role, upstream manifest, package allowance, or imported public
-surface does not match.
+Sibling-checkout development currently declares four direct Asha packages with
+`file:` dependencies from `../asha-engine`; their linked metadata identifies
+four additional transitive packages. That is a temporary conversion
+convenience, not a distribution contract. The repository-local ledger lists
+each direct dependency, transitive package, and importing file exactly; the
+boundary check fails closed on additions or drift. `@asha/runtime-session` was
+unused directly and remains only in the temporary runtime-bridge closure.
 
 ## Voxel command lane
 
-`src/voxel-extrusion.ts` and `npm run voxel:asha-smoke` remain a focused proof
+`src/voxel-extrusion.ts` and `npm run voxel:legacy-asha-smoke` remain a focused proof
 that bounded `VoxelCommand` batches are accepted by native Rust authority,
 repeat deterministically, reject an unknown material with the exact generated
 tagged DTO, and do not mutate state on rejection. They are not the canonical
@@ -77,11 +74,11 @@ non-mesh-fidelity limits remain documented in Den's `known-limitations` entry.
 
 No current Procgen crate should move upstream wholesale:
 
-- `asha-procgen-preflight` remains downstream authoring/generation tooling;
+- `rusty-procgen-preflight` remains downstream authoring/generation tooling;
 - graph grammar, scoring, repair, embedding, shape matching, placement, and
   HTML/viewer generation remain Procgen policy;
 - `src/voxel-extrusion.ts` remains a dungeon-specific realization adapter.
 
-Only a concrete missing public capability proven at this publishing border
-should become an upstream ASHA task. Determinism or potential reuse alone is
-not a reason to promote a local algorithm into engine authority.
+Only a concrete missing reusable mechanism proven at this publishing border
+should become an upstream Rusty Engine task. Determinism or potential reuse
+alone is not a reason to promote a local algorithm into engine authority.

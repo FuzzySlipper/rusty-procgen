@@ -1,8 +1,8 @@
 {
-  "kind": "asha_procgen.spatial_intent.v1",
+  "kind": "rusty_procgen.spatial_intent.v1",
   "schemaVersion": 1,
   "candidateId": "candidate.first_slice.5401",
-  "stateHash": "fnv1a64:73ad3ef2ef9c3d6c",
+  "stateHash": "fnv1a64:e556307b65f2f826",
   "analysisRef": "artifacts/samples/batch-v2/candidate-002/analysis.graph.json",
   "annotations": [
     {

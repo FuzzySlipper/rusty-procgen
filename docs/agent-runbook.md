@@ -436,7 +436,7 @@ npm run procgen -- repair apply \
 Use `den-serve` so the viewer is reachable from another machine on the LAN:
 
 ```bash
-den-serve up asha-procgen -repo /home/dev/asha-procgen
+den-serve up rusty-procgen -repo /home/dev/rusty-procgen
 ```
 
 The LAN URL printed by `den-serve` is the URL to give the human.
@@ -444,9 +444,9 @@ The LAN URL printed by `den-serve` is the URL to give the human.
 Useful commands:
 
 ```bash
-den-serve status asha-procgen -repo /home/dev/asha-procgen
-den-serve logs asha-procgen -repo /home/dev/asha-procgen
-den-serve stop asha-procgen -repo /home/dev/asha-procgen
+den-serve status rusty-procgen -repo /home/dev/rusty-procgen
+den-serve logs rusty-procgen -repo /home/dev/rusty-procgen
+den-serve stop rusty-procgen -repo /home/dev/rusty-procgen
 ```
 
 Serving semantics come from Den document `den-services/den-serve-agent-usage`.
@@ -467,7 +467,7 @@ cells, glued exits, piece labels, and socket/content markers.
 Its Catalog tab renders the active build-piece shape catalog when
 `shapeCatalogRef` is present.
 Its Voxel tab uses the same deterministic extrusion compiler as
-`npm run voxel:asha-smoke` to render an isometric floor/wall/ceiling cutaway.
+`npm run voxel:legacy-asha-smoke` to render an isometric floor/wall/ceiling cutaway.
 The compiler consumes the placement's versioned clearance/wall/doorway policy,
 keeps piece ownership through validation, and turns only glued-exit-owned
 connection routes into openings.
@@ -513,7 +513,7 @@ fixtures, samples, RuntimeSession, or native voxel evidence.
 Reset to defaults copies every `defaultValue` into `value` and submits the same
 complete rebuild. Candidate switching reloads the persisted configuration; it
 does not silently discard or substitute per-panel temporary state. For isolated
-automation, set `ASHA_PROCGEN_GENERATION_CONFIG_PATH` to a temporary config
+automation, set `RUSTY_PROCGEN_GENERATION_CONFIG_PATH` to a temporary config
 copy. The endpoint and browser smokes do this so checks never rewrite the
 tracked configuration.
 
@@ -542,9 +542,10 @@ stable build ID, and writes
 npm run verify
 ```
 
-The default gate checks ASHA dependency boundaries, TypeScript, Rust compile,
-Rust tests, publishing, and a focused two-room voxel-boundary smoke. Browser
-smoke is not part of the default gate yet.
+The default gate checks the exact temporary migration allowance, corpus
+identity, TypeScript, Rust compile, Rust tests, publication, and a focused
+two-room voxel-boundary smoke. Browser smoke is not part of the default gate
+yet.
 
 For optional preview-site evidence:
 
@@ -582,7 +583,7 @@ uses Chromium to write layout/intermediate/build/voxel/voxel-3d/standalone-previ
 screenshots plus a report under:
 
 ```text
-/tmp/asha-procgen-viewer-smoke/
+/tmp/rusty-procgen-viewer-smoke/
 ```
 
 ## Current Non-Goals

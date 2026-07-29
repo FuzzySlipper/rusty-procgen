@@ -60,7 +60,7 @@ fn graph_summary_report(
         .rev()
         .collect();
     Ok(GraphSummaryReport {
-        kind: "asha_procgen.graph_summary.v1".to_owned(),
+        kind: "rusty_procgen.graph_summary.v1".to_owned(),
         schema_version: 1,
         candidate_id: candidate.candidate_id.clone(),
         state_hash: hash_json(candidate)?,
@@ -199,7 +199,7 @@ fn analyze_graph(candidate: &Candidate) -> Result<GraphAnalysisReport, String> {
         })
         .collect();
     Ok(GraphAnalysisReport {
-        kind: "asha_procgen.graph_analysis.v1".to_owned(),
+        kind: "rusty_procgen.graph_analysis.v1".to_owned(),
         schema_version: 1,
         candidate_id: candidate.candidate_id.clone(),
         state_hash: hash_json(candidate)?,
@@ -220,7 +220,7 @@ fn compatible_rules_command(args: ReportOutArgs) -> Result<(), String> {
 
 fn compatible_rules_report(candidate: &Candidate) -> Result<RuleCompatibilityReport, String> {
     Ok(RuleCompatibilityReport {
-        kind: "asha_procgen.rule_compatibility.v1".to_owned(),
+        kind: "rusty_procgen.rule_compatibility.v1".to_owned(),
         schema_version: 1,
         candidate_id: candidate.candidate_id.clone(),
         state_hash: hash_json(candidate)?,

@@ -4,7 +4,7 @@ mod tests {
 
     fn test_intent(id: &str) -> SeedIntent {
         SeedIntent {
-            kind: "asha_procgen.seed_intent.v1".to_owned(),
+            kind: "rusty_procgen.seed_intent.v1".to_owned(),
             id: id.to_owned(),
             title: "Test".to_owned(),
             target_dimension: "topology_graph".to_owned(),
@@ -137,7 +137,7 @@ mod tests {
         let connection_plan = test_connection_plan(&candidate, &intermediate);
         let specs = ordered_geometry_region_specs(&candidate, &intermediate);
         let policy = GeometryLayoutPolicy {
-            kind: "asha_procgen.geometry_layout_policy.v1".to_owned(),
+            kind: "rusty_procgen.geometry_layout_policy.v1".to_owned(),
             schema_version: 1,
             initial_room_margin: 32,
             initial_column_gap: 32,
@@ -277,7 +277,7 @@ mod tests {
         let connection_plan = test_connection_plan(&candidate, &intermediate);
         let specs = ordered_geometry_region_specs(&candidate, &intermediate);
         let bounded = GeometryLayoutPolicy {
-            kind: "asha_procgen.geometry_layout_policy.v1".to_owned(),
+            kind: "rusty_procgen.geometry_layout_policy.v1".to_owned(),
             schema_version: 1,
             initial_room_margin: 32,
             initial_column_gap: 32,
@@ -337,7 +337,7 @@ mod tests {
     #[test]
     fn geometry_2d_contract_round_trips_minimal_layout() {
         let geometry = Geometry2dArtifact {
-            kind: "asha_procgen.geometry_2d.v1".to_owned(),
+            kind: "rusty_procgen.geometry_2d.v1".to_owned(),
             schema_version: 1,
             geometry_id: "geometry.test.1".to_owned(),
             candidate_id: "candidate.test.1".to_owned(),
@@ -436,12 +436,12 @@ mod tests {
         let encoded = serde_json::to_string(&geometry).expect("geometry should encode");
         let decoded: Geometry2dArtifact =
             serde_json::from_str(&encoded).expect("geometry should decode");
-        assert_eq!(decoded.kind, "asha_procgen.geometry_2d.v1");
+        assert_eq!(decoded.kind, "rusty_procgen.geometry_2d.v1");
         assert_eq!(decoded.rooms[0].rect.width, 96);
         assert_eq!(decoded.corridors[0].points.len(), 2);
 
         let preview = HtmlPreviewArtifact {
-            kind: "asha_procgen.html_preview.v1".to_owned(),
+            kind: "rusty_procgen.html_preview.v1".to_owned(),
             schema_version: 1,
             preview_id: "preview.test.1".to_owned(),
             geometry_ref: "artifacts/test/geometry.json".to_owned(),
@@ -452,14 +452,14 @@ mod tests {
         let encoded = serde_json::to_string(&preview).expect("preview should encode");
         let decoded: HtmlPreviewArtifact =
             serde_json::from_str(&encoded).expect("preview should decode");
-        assert_eq!(decoded.kind, "asha_procgen.html_preview.v1");
+        assert_eq!(decoded.kind, "rusty_procgen.html_preview.v1");
         assert_eq!(decoded.html_ref, "artifacts/test/preview.html");
     }
 
     #[test]
     fn validates_lock_key_loop() {
         let intent = SeedIntent {
-            kind: "asha_procgen.seed_intent.v1".to_owned(),
+            kind: "rusty_procgen.seed_intent.v1".to_owned(),
             id: "test".to_owned(),
             title: "Test".to_owned(),
             target_dimension: "topology_graph".to_owned(),
@@ -475,7 +475,7 @@ mod tests {
     #[test]
     fn validates_v2_graph_grammar_rules() {
         let intent = SeedIntent {
-            kind: "asha_procgen.seed_intent.v1".to_owned(),
+            kind: "rusty_procgen.seed_intent.v1".to_owned(),
             id: "v2".to_owned(),
             title: "V2".to_owned(),
             target_dimension: "topology_graph".to_owned(),
@@ -516,7 +516,7 @@ mod tests {
     #[test]
     fn rule_metadata_includes_v2_compatibility_hints() {
         let report = rule_metadata_report();
-        assert_eq!(report.kind, "asha_procgen.rule_metadata.v1");
+        assert_eq!(report.kind, "rusty_procgen.rule_metadata.v1");
         let nested = report
             .rules
             .iter()
@@ -569,7 +569,7 @@ mod tests {
     #[test]
     fn graph_summary_reports_metrics_and_provenance_tail() {
         let intent = SeedIntent {
-            kind: "asha_procgen.seed_intent.v1".to_owned(),
+            kind: "rusty_procgen.seed_intent.v1".to_owned(),
             id: "summary".to_owned(),
             title: "Summary".to_owned(),
             target_dimension: "topology_graph".to_owned(),
@@ -594,7 +594,7 @@ mod tests {
         let score = score_graph(&candidate);
         let summary =
             graph_summary_report(&candidate, &validation, &score).expect("summary should encode");
-        assert_eq!(summary.kind, "asha_procgen.graph_summary.v1");
+        assert_eq!(summary.kind, "rusty_procgen.graph_summary.v1");
         assert!(summary.validation_ok);
         assert_eq!(summary.node_count, candidate.graph.nodes.len());
         assert!(summary.locked_items.contains(&"item.gate_key_1".to_owned()));
@@ -606,7 +606,7 @@ mod tests {
     #[test]
     fn fork_candidate_preserves_graph_and_adds_provenance() {
         let intent = SeedIntent {
-            kind: "asha_procgen.seed_intent.v1".to_owned(),
+            kind: "rusty_procgen.seed_intent.v1".to_owned(),
             id: "fork".to_owned(),
             title: "Fork".to_owned(),
             target_dimension: "topology_graph".to_owned(),
@@ -641,7 +641,7 @@ mod tests {
     #[test]
     fn rejects_duplicate_v2_rule_with_repair_hint() {
         let intent = SeedIntent {
-            kind: "asha_procgen.seed_intent.v1".to_owned(),
+            kind: "rusty_procgen.seed_intent.v1".to_owned(),
             id: "duplicate".to_owned(),
             title: "Duplicate".to_owned(),
             target_dimension: "topology_graph".to_owned(),
@@ -659,7 +659,7 @@ mod tests {
     #[test]
     fn rejects_missing_required_item() {
         let intent = SeedIntent {
-            kind: "asha_procgen.seed_intent.v1".to_owned(),
+            kind: "rusty_procgen.seed_intent.v1".to_owned(),
             id: "broken".to_owned(),
             title: "Broken".to_owned(),
             target_dimension: "topology_graph".to_owned(),
@@ -681,7 +681,7 @@ mod tests {
     #[test]
     fn rejects_incompatible_v2_rule_with_repair_hint() {
         let intent = SeedIntent {
-            kind: "asha_procgen.seed_intent.v1".to_owned(),
+            kind: "rusty_procgen.seed_intent.v1".to_owned(),
             id: "incompatible".to_owned(),
             title: "Incompatible".to_owned(),
             target_dimension: "topology_graph".to_owned(),
@@ -698,7 +698,7 @@ mod tests {
     #[test]
     fn validates_v2_structural_repair_hints() {
         let intent = SeedIntent {
-            kind: "asha_procgen.seed_intent.v1".to_owned(),
+            kind: "rusty_procgen.seed_intent.v1".to_owned(),
             id: "structural".to_owned(),
             title: "Structural".to_owned(),
             target_dimension: "topology_graph".to_owned(),
@@ -763,7 +763,7 @@ mod tests {
     #[test]
     fn repair_report_prioritizes_missing_provider_actions() {
         let intent = SeedIntent {
-            kind: "asha_procgen.seed_intent.v1".to_owned(),
+            kind: "rusty_procgen.seed_intent.v1".to_owned(),
             id: "repair".to_owned(),
             title: "Repair".to_owned(),
             target_dimension: "topology_graph".to_owned(),
@@ -774,7 +774,7 @@ mod tests {
         candidate.graph.edges[0].required_item = Some("missing.key".to_owned());
         candidate.graph.edges[0].traversal = TraversalKind::Locked;
         let report = repair_report(&candidate).expect("repair report should encode");
-        assert_eq!(report.kind, "asha_procgen.repair_report.v1");
+        assert_eq!(report.kind, "rusty_procgen.repair_report.v1");
         assert!(!report.validation_ok);
         let suggestion = report
             .suggestions
@@ -809,7 +809,7 @@ mod tests {
     #[test]
     fn repair_report_maps_v2_structural_hints() {
         let intent = SeedIntent {
-            kind: "asha_procgen.seed_intent.v1".to_owned(),
+            kind: "rusty_procgen.seed_intent.v1".to_owned(),
             id: "repair-structural".to_owned(),
             title: "Repair Structural".to_owned(),
             target_dimension: "topology_graph".to_owned(),
@@ -863,7 +863,7 @@ mod tests {
         assert!(apply_graph_rule(&mut candidate, GraphRule::LockKeyLoop, 62).is_empty());
         assert!(apply_graph_rule(&mut candidate, GraphRule::OneWayShortcut, 63).is_empty());
         let report = analyze_graph(&candidate).expect("analysis should encode");
-        assert_eq!(report.kind, "asha_procgen.graph_analysis.v1");
+        assert_eq!(report.kind, "rusty_procgen.graph_analysis.v1");
         assert_eq!(
             report.critical_path.first().map(String::as_str),
             Some("start")
@@ -1313,7 +1313,7 @@ mod tests {
         let connection_plan = test_connection_plan(&candidate, &intermediate);
         let geometry = emit_geometry_2d(&candidate, &intermediate, &connection_plan, &args, 150)
             .expect("geometry should emit");
-        assert_eq!(geometry.kind, "asha_procgen.geometry_2d.v1");
+        assert_eq!(geometry.kind, "rusty_procgen.geometry_2d.v1");
         assert_eq!(geometry.rooms.len(), intermediate.regions.len());
         assert_eq!(geometry.corridors.len(), connection_plan.sections.len());
         assert_eq!(geometry.skipped_connectors.len(), 0);
@@ -1475,7 +1475,7 @@ mod tests {
         let geometry = full_stack_geometry_fixture(451);
         let report = validate_geometry_2d(&geometry);
         assert!(report.ok, "{:?}", report.diagnostics);
-        assert_eq!(report.kind, "asha_procgen.validation.geometry_2d.v1");
+        assert_eq!(report.kind, "rusty_procgen.validation.geometry_2d.v1");
     }
 
     #[test]
@@ -1574,7 +1574,7 @@ mod tests {
         );
         for expected in [
             "<!doctype html>",
-            "data-preview-kind=\"asha_procgen.html_preview.v1\"",
+            "data-preview-kind=\"rusty_procgen.html_preview.v1\"",
             "<svg",
             "<polyline",
             "<rect",
@@ -1620,7 +1620,7 @@ mod tests {
         let plan = emit_piece_build_plan(&candidate, &intermediate, &geometry, &args)
             .expect("piece plan should emit");
 
-        assert_eq!(plan.kind, "asha_procgen.piece_build_plan.v1");
+        assert_eq!(plan.kind, "rusty_procgen.piece_build_plan.v1");
         assert_eq!(plan.candidate_id, candidate.candidate_id);
         assert_eq!(plan.geometry_id, geometry.geometry_id);
         assert!(plan.requirements.len() >= geometry.rooms.len());
@@ -2313,7 +2313,7 @@ mod tests {
     #[test]
     fn corridor_realization_rejects_unknown_serialized_modes() {
         let value = serde_json::json!({
-            "kind": "asha_procgen.piece_build_plan.v1",
+            "kind": "rusty_procgen.piece_build_plan.v1",
             "schemaVersion": 1,
             "planId": "piece_plan.invalid",
             "candidateId": "candidate.invalid",
@@ -2705,7 +2705,7 @@ mod tests {
         assert!(report.ok, "{:?}", report.diagnostics);
         assert_eq!(placement.realization_search.realization_scale_tier, 1);
         assert_eq!(placement.realization_search.realization_attempts, 2);
-        assert_eq!(placement.kind, "asha_procgen.piece_placement.v1");
+        assert_eq!(placement.kind, "rusty_procgen.piece_placement.v1");
         assert_eq!(placement.grid_connectivity, GridConnectivity::FourWay);
         assert_eq!(placement.placement_policy, PiecePlacementPolicy::default());
         assert!(placement.occupied_cells.len() >= placement.instances.len());
@@ -3510,7 +3510,7 @@ mod tests {
 
     fn test_shape_catalog(shapes: Vec<CatalogShape>) -> ShapeCatalog {
         ShapeCatalog {
-            kind: "asha_procgen.shape_catalog.v1".to_owned(),
+            kind: "rusty_procgen.shape_catalog.v1".to_owned(),
             schema_version: 1,
             catalog_id: "shape_catalog.test.v1".to_owned(),
             cell_size: 1,
@@ -3558,7 +3558,7 @@ mod tests {
 
     fn test_piece_plan(requirements: Vec<PieceRequirement>) -> PieceBuildPlan {
         PieceBuildPlan {
-            kind: "asha_procgen.piece_build_plan.v1".to_owned(),
+            kind: "rusty_procgen.piece_build_plan.v1".to_owned(),
             schema_version: 1,
             plan_id: "piece_plan.test".to_owned(),
             candidate_id: "candidate.test".to_owned(),
@@ -3681,7 +3681,7 @@ mod tests {
             .join("../../..")
             .join(DEFAULT_BATCH_PROFILE);
         let profile = load_batch_profile(&profile_path).expect("default profile should load");
-        assert_eq!(profile.kind, "asha_procgen.batch_profile.v1");
+        assert_eq!(profile.kind, "rusty_procgen.batch_profile.v1");
         assert_eq!(profile.sequences.len(), 7);
         let first = batch_profile_sequence(&profile, 0).expect("first sequence");
         assert_eq!(first.label, "hub-merge");
@@ -3747,7 +3747,7 @@ mod tests {
             .join("../../..")
             .join(DEFAULT_SHAPE_CATALOG);
         let catalog: ShapeCatalog = read_json(&catalog_path).expect("shape catalog should load");
-        assert_eq!(catalog.kind, "asha_procgen.shape_catalog.v1");
+        assert_eq!(catalog.kind, "rusty_procgen.shape_catalog.v1");
         assert_eq!(catalog.catalog_id, "shape_catalog.2d_basic.v1");
         assert!(catalog.cell_size > 0);
         assert!(catalog.shapes.len() >= 12);
@@ -3888,7 +3888,7 @@ mod tests {
         let catalog: ShapeCatalog = read_json(&catalog_path).expect("shape catalog should load");
         let report = inspect_shape_catalog(&catalog, &catalog_path);
 
-        assert_eq!(report.kind, "asha_procgen.catalog_inspection.v1");
+        assert_eq!(report.kind, "rusty_procgen.catalog_inspection.v1");
         assert_eq!(report.catalog_id, "shape_catalog.2d_basic.v1");
         assert_eq!(report.shape_count, catalog.shapes.len());
         assert_eq!(report.placement_policy, PiecePlacementPolicy::default());
@@ -4049,7 +4049,7 @@ mod tests {
     #[test]
     fn scoring_rewards_cycles() {
         let intent = SeedIntent {
-            kind: "asha_procgen.seed_intent.v1".to_owned(),
+            kind: "rusty_procgen.seed_intent.v1".to_owned(),
             id: "score".to_owned(),
             title: "Score".to_owned(),
             target_dimension: "topology_graph".to_owned(),
@@ -4067,7 +4067,7 @@ mod tests {
     #[test]
     fn embeds_valid_graph() {
         let intent = SeedIntent {
-            kind: "asha_procgen.seed_intent.v1".to_owned(),
+            kind: "rusty_procgen.seed_intent.v1".to_owned(),
             id: "embed".to_owned(),
             title: "Embed".to_owned(),
             target_dimension: "topology_graph".to_owned(),

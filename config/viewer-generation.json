@@ -1,5 +1,5 @@
 {
-  "kind": "asha_procgen.viewer_generation_config.v1",
+  "kind": "rusty_procgen.viewer_generation_config.v1",
   "schemaVersion": 1,
   "geometryLayoutPolicy": {
     "initialRoomMargin": {

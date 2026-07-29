@@ -70,7 +70,7 @@ fn score_graph(candidate: &Candidate) -> ScoreReport {
         - (dead_end_count * 0.04);
     let overall = (raw.clamp(0.0, 1.0) * 100.0).round() / 100.0;
     ScoreReport {
-        kind: "asha_procgen.score.graph.v1".to_owned(),
+        kind: "rusty_procgen.score.graph.v1".to_owned(),
         schema_version: 1,
         state_hash: hash_json(candidate).unwrap_or_else(|_| "hash_error".to_owned()),
         overall,
@@ -277,7 +277,7 @@ fn embed_2d(candidate: &Candidate, seed: u64) -> LayoutArtifact {
         });
     }
     LayoutArtifact {
-        kind: "asha_procgen.layout_2d.v1".to_owned(),
+        kind: "rusty_procgen.layout_2d.v1".to_owned(),
         schema_version: 1,
         layout_id: format!("layout.{}.{}", candidate.candidate_id, seed),
         candidate_id: candidate.candidate_id.clone(),
@@ -332,7 +332,7 @@ fn accept_command(args: AcceptArgs) -> Result<(), String> {
     let candidate_hash = hash_json(&candidate)?;
     let layout_hash = hash_json(&layout)?;
     let artifact = AcceptedArtifact {
-        kind: "asha_procgen.accepted_artifact.v1".to_owned(),
+        kind: "rusty_procgen.accepted_artifact.v1".to_owned(),
         schema_version: 1,
         artifact_id: format!("accepted.{}", candidate.candidate_id),
         candidate_hash: candidate_hash.clone(),

@@ -1,5 +1,5 @@
-export const projectName = 'asha-procgen';
+export const projectName = 'rusty-procgen';
 
-export const projectRole = 'Dungeon procgen incubator for richer ASHA generated-level experiments.';
+export const projectRole = 'Deterministic dungeon generation, validation, and inspection workbench.';
 
-export const upstreamEngineSource = '../asha-engine';
+export const legacyEngineSource = '../asha-engine';

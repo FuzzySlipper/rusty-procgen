@@ -46,7 +46,7 @@ fn validate_built_flow(
         .filter(|diagnostic| diagnostic.severity == Severity::Fatal)
         .count();
     BuiltFlowValidationReport {
-        kind: "asha_procgen.validation.built_flow.v1".to_owned(),
+        kind: "rusty_procgen.validation.built_flow.v1".to_owned(),
         schema_version: 1,
         validation_id: format!("built_flow_validation.{}", placement.placement_id),
         candidate_id: candidate.candidate_id.clone(),

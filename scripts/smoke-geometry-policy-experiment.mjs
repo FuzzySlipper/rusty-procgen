@@ -28,7 +28,7 @@ try {
   const first = await postExperiment({ candidateId, geometryLayoutPolicy: policy }, 200);
   const repeated = await postExperiment({ candidateId, geometryLayoutPolicy: policy }, 200);
   if (
-    first.kind !== 'asha_procgen.geometry_layout_policy_experiment.v1'
+    first.kind !== 'rusty_procgen.geometry_layout_policy_experiment.v1'
     || first.experimentId !== repeated.experimentId
     || JSON.stringify(first.geometry) !== JSON.stringify(repeated.geometry)
     || JSON.stringify(first.placement) !== JSON.stringify(repeated.placement)
@@ -80,7 +80,7 @@ try {
 
 function geometryPolicy() {
   return {
-    kind: 'asha_procgen.geometry_layout_policy.v1',
+    kind: 'rusty_procgen.geometry_layout_policy.v1',
     schemaVersion: 1,
     initialRoomMargin: 96,
     initialColumnGap: 144,

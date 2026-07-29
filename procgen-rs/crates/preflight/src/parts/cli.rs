@@ -1,5 +1,5 @@
 #[derive(Parser)]
-#[command(name = "asha-procgen")]
+#[command(name = "rusty-procgen")]
 #[command(about = "Deterministic dungeon procgen CLI workbench")]
 struct Cli {
     #[command(subcommand)]

@@ -1,5 +1,5 @@
 {
-  "kind": "asha_procgen.candidate.v1",
+  "kind": "rusty_procgen.candidate.v1",
   "schemaVersion": 1,
   "candidateId": "candidate.first_slice.4103",
   "seed": 4103,

@@ -95,7 +95,7 @@ try {
   const successes = outcomes.filter((outcome) => outcome.status === 'success');
   const rejections = outcomes.filter((outcome) => outcome.status === 'rejected');
   const report = {
-    kind: 'asha_procgen.evidence.pure_catalog_coverage.v1',
+    kind: 'rusty_procgen.evidence.pure_catalog_coverage.v1',
     schemaVersion: 1,
     sourceSelectionRef: 'artifacts/samples/batch-v2/selection-report.json',
     sourceCatalogRef: 'fixtures/shape-catalogs/2d-basic.json',
@@ -138,7 +138,7 @@ try {
 
 function assertPureCatalogSuccess(candidateId, result) {
   if (
-    result.kind !== 'asha_procgen.corridor_realization_experiment.v1'
+    result.kind !== 'rusty_procgen.corridor_realization_experiment.v1'
     || result.corridorRealization !== 'catalog'
     || result.placement?.corridorRealization !== 'catalog'
     || !Array.isArray(result.placement?.instances)
@@ -159,7 +159,7 @@ function assertPureCatalogFailure(candidateId, evidence) {
   const failure = evidence?.failure;
   const budgets = evidence?.budgets;
   if (
-    evidence?.kind !== 'asha_procgen.pure_catalog_exhaustion.v1'
+    evidence?.kind !== 'rusty_procgen.pure_catalog_exhaustion.v1'
     || evidence.schemaVersion !== 1
     || typeof failure?.reason !== 'string'
     || typeof failure?.pieceId !== 'string'
@@ -285,7 +285,7 @@ async function waitForHealth() {
       const response = await fetch(`${baseUrl}/api/batches/v2`);
       if (
         response.ok
-        && response.headers.get('x-den-project') === 'asha-procgen'
+        && response.headers.get('x-den-project') === 'rusty-procgen'
       ) {
         return;
       }

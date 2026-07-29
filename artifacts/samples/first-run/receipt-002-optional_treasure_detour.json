@@ -1,11 +1,11 @@
 {
-  "kind": "asha_procgen.receipt.v1",
+  "kind": "rusty_procgen.receipt.v1",
   "schemaVersion": 1,
   "command": "graph apply-rule optional_treasure_detour",
   "status": "ok",
   "seed": 4105,
-  "inputHash": "fnv1a64:dbd202cdc5149c7d",
-  "outputHash": "fnv1a64:6a463ac76c7443d7",
+  "inputHash": "fnv1a64:0909447e227bb9af",
+  "outputHash": "fnv1a64:94809651b02be63d",
   "outputRef": "artifacts/samples/first-run/candidate-002-optional_treasure_detour.json",
   "diagnostics": []
 }

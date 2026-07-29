@@ -3,7 +3,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
 
-const tmp = mkdtempSync(join(tmpdir(), 'asha-procgen-piece-build-'));
+const tmp = mkdtempSync(join(tmpdir(), 'rusty-procgen-piece-build-'));
 const selection = JSON.parse(
   readFileSync('artifacts/samples/batch-v2/selection-report.json', 'utf8'),
 );
@@ -16,7 +16,7 @@ if (source === undefined) {
   throw new Error('piece build smoke requires an accepted candidate with geometry inputs');
 }
 const acceptedArtifact = JSON.parse(readFileSync(source.artifactRef, 'utf8'));
-if (acceptedArtifact.candidate?.kind !== 'asha_procgen.candidate.v1') {
+if (acceptedArtifact.candidate?.kind !== 'rusty_procgen.candidate.v1') {
   throw new Error('accepted piece build source does not contain a candidate');
 }
 

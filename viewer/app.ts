@@ -122,7 +122,7 @@ interface ValidationReport {
 }
 
 interface BuiltFlowValidationReport extends ValidationReport {
-  readonly kind: 'asha_procgen.validation.built_flow.v1';
+  readonly kind: 'rusty_procgen.validation.built_flow.v1';
   readonly placementId: string;
   readonly portalCount: number;
   readonly progression: readonly BuiltFlowProgressionStep[];
@@ -209,7 +209,7 @@ interface Geometry2dArtifact {
 }
 
 interface GeometryLayoutPolicy {
-  readonly kind: 'asha_procgen.geometry_layout_policy.v1';
+  readonly kind: 'rusty_procgen.geometry_layout_policy.v1';
   readonly schemaVersion: 1;
   readonly initialRoomMargin: number;
   readonly initialColumnGap: number;
@@ -502,7 +502,7 @@ interface NativeVoxelEvidence {
 }
 
 interface PlacementPolicyExperimentResponse {
-  readonly kind: 'asha_procgen.placement_policy_experiment.v1';
+  readonly kind: 'rusty_procgen.placement_policy_experiment.v1';
   readonly experimentId: string;
   readonly candidateId: string;
   readonly placementPolicy: PiecePlacementPolicy;
@@ -519,7 +519,7 @@ interface PlacementPolicyExperimentError {
 }
 
 interface PureCatalogExhaustionEvidence {
-  readonly kind: 'asha_procgen.pure_catalog_exhaustion.v1';
+  readonly kind: 'rusty_procgen.pure_catalog_exhaustion.v1';
   readonly schemaVersion: 1;
   readonly failure: {
     readonly reason: string;
@@ -568,7 +568,7 @@ interface PureCatalogExhaustionEvidence {
 }
 
 interface GeometryLayoutPolicyExperimentResponse {
-  readonly kind: 'asha_procgen.geometry_layout_policy_experiment.v1';
+  readonly kind: 'rusty_procgen.geometry_layout_policy_experiment.v1';
   readonly experimentId: string;
   readonly candidateId: string;
   readonly geometryLayoutPolicy: GeometryLayoutPolicy;
@@ -584,7 +584,7 @@ interface GeometryLayoutPolicyExperimentResponse {
 type CorridorRealization = 'catalog' | 'hybrid' | 'procedural';
 
 interface CorridorRealizationExperimentResponse {
-  readonly kind: 'asha_procgen.corridor_realization_experiment.v1';
+  readonly kind: 'rusty_procgen.corridor_realization_experiment.v1';
   readonly experimentId: string;
   readonly candidateId: string;
   readonly corridorRealization: CorridorRealization;
@@ -609,7 +609,7 @@ interface GenerationConfigSetting<T> {
 }
 
 interface ViewerGenerationConfig {
-  readonly kind: 'asha_procgen.viewer_generation_config.v1';
+  readonly kind: 'rusty_procgen.viewer_generation_config.v1';
   readonly schemaVersion: 1;
   readonly geometryLayoutPolicy: {
     readonly initialRoomMargin: GenerationConfigSetting<number>;
@@ -640,7 +640,7 @@ interface ViewerGenerationConfig {
 }
 
 interface GenerationConfigRebuildResponse {
-  readonly kind: 'asha_procgen.viewer_generation_rebuild.v1';
+  readonly kind: 'rusty_procgen.viewer_generation_rebuild.v1';
   readonly buildId: string;
   readonly candidateId: string;
   readonly config: ViewerGenerationConfig;
@@ -1423,7 +1423,7 @@ async function applyGenerationConfig(): Promise<void> {
       );
     }
     if (
-      result.kind !== 'asha_procgen.viewer_generation_rebuild.v1'
+      result.kind !== 'rusty_procgen.viewer_generation_rebuild.v1'
       || result.candidateId !== selection.candidateId
       || result.persisted !== true
       || result.nativeAuthority !== false
@@ -1535,7 +1535,7 @@ async function applyGeometryPolicyExperiment(): Promise<void> {
       );
     }
     if (
-      result.kind !== 'asha_procgen.geometry_layout_policy_experiment.v1'
+      result.kind !== 'rusty_procgen.geometry_layout_policy_experiment.v1'
       || result.candidateId !== selection.candidateId
       || result.persisted !== false
       || result.nativeAuthority !== false
@@ -1679,7 +1679,7 @@ function geometryPolicyFromControls(): GeometryLayoutPolicy | null {
   const maxSpacingTiers = Number(geometryPolicyMaxTiers.value);
   const roomOrderAttemptsPerTier = Number(geometryPolicyRoomAttempts.value);
   return {
-    kind: 'asha_procgen.geometry_layout_policy.v1',
+    kind: 'rusty_procgen.geometry_layout_policy.v1',
     schemaVersion: 1,
     initialRoomMargin: Number(geometryPolicyInitialMargin.value),
     initialColumnGap: Number(geometryPolicyInitialColumnGap.value),
@@ -1865,7 +1865,7 @@ async function applyCorridorRealizationExperiment(): Promise<void> {
       );
     }
     if (
-      result.kind !== 'asha_procgen.corridor_realization_experiment.v1'
+      result.kind !== 'rusty_procgen.corridor_realization_experiment.v1'
       || result.candidateId !== selection.candidateId
       || result.corridorRealization !== corridorRealization
       || result.persisted !== false
@@ -2027,7 +2027,7 @@ async function applyPlacementPolicyExperiment(): Promise<void> {
       throw new Error('detail' in result ? result.detail : `experiment request failed with ${response.status}`);
     }
     if (
-      result.kind !== 'asha_procgen.placement_policy_experiment.v1'
+      result.kind !== 'rusty_procgen.placement_policy_experiment.v1'
       || result.candidateId !== selection.candidateId
       || result.persisted !== false
       || result.nativeAuthority !== false
@@ -2302,7 +2302,7 @@ async function fetchGenerationConfig(): Promise<ViewerGenerationConfig> {
     );
   }
   if (
-    result.kind !== 'asha_procgen.viewer_generation_config.v1'
+    result.kind !== 'rusty_procgen.viewer_generation_config.v1'
     || result.schemaVersion !== 1
   ) {
     throw new Error('generation configuration returned an invalid response envelope');

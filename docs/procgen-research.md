@@ -1,6 +1,6 @@
 # Dungeon Procgen Research Notes
 
-Status: working research map for `asha-procgen`.
+Status: working research map for `rusty-procgen`.
 
 This repo starts with traditional 2D-topology dungeon generation: rooms,
 corridors, gates, keys, loops, encounters, and pacing connected as a graph. The

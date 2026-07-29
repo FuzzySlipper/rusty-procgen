@@ -1,5 +1,5 @@
 {
-  "kind": "asha_procgen.geometry_recovery_corpus.v1",
+  "kind": "rusty_procgen.geometry_recovery_corpus.v1",
   "schemaVersion": 1,
   "batchProfileRef": "fixtures/batch-profiles/v2-sample.json",
   "batchSeed": 5201,
@@ -90,49 +90,49 @@
       "candidateSeed": 5201,
       "profileSequence": "hub-merge",
       "baselineGeometryOutcome": "rejected",
-      "normalizedPlanSha256": "6e6dea62ce3dfe44c5e20dd78b4cfc9144d229165589cf54fbb9e4d5469897fd"
+      "normalizedPlanSha256": "b30240bf3371db03152e2aa59623ade01e2aa73f4a4de64aaeb490151f030504"
     },
     {
       "candidateIndex": 1,
       "candidateSeed": 5301,
       "profileSequence": "nested-boss",
       "baselineGeometryOutcome": "accepted",
-      "normalizedPlanSha256": "eca386465afdf0b2093d71b1c8a55c12d9e75897550f73411753a6b23a3c39ff"
+      "normalizedPlanSha256": "1b1b69845814cd7cb249b71084a62104499e6e794a90ff54caf0977e5e6ac6d0"
     },
     {
       "candidateIndex": 2,
       "candidateSeed": 5401,
       "profileSequence": "hazard-treasure-merge",
       "baselineGeometryOutcome": "rejected",
-      "normalizedPlanSha256": "e5417d78edf17912265af0a31620449b8b9be91865dc4815d8dc3ac48d25f9dc"
+      "normalizedPlanSha256": "3ec6fa3ec30897df41988d01fd10ff2b6d7e5c4200d0df57e0288590117d4b62"
     },
     {
       "candidateIndex": 3,
       "candidateSeed": 5501,
       "profileSequence": "hub-hazard-boss",
       "baselineGeometryOutcome": "rejected",
-      "normalizedPlanSha256": "0e6430cfb7a915373fefab205d07ba7592e086a5dbc01540bab1867d314a917f"
+      "normalizedPlanSha256": "cdc3aca9a06455183729e24c2c12f4371a52fca1707000c04a8c8ea8ff5e5484"
     },
     {
       "candidateIndex": 4,
       "candidateSeed": 5601,
       "profileSequence": "nested-treasure-merge",
       "baselineGeometryOutcome": "rejected",
-      "normalizedPlanSha256": "cac9761a25e02322cfd05e8a65af84029c7c7b46450fdbbd4062d459a308fec8"
+      "normalizedPlanSha256": "2a0added7ecf704a88ec24ce7b3da4c4b269e3ed6fcb6d26e619e8d32cfa8889"
     },
     {
       "candidateIndex": 5,
       "candidateSeed": 5701,
       "profileSequence": "full-v2-stack",
       "baselineGeometryOutcome": "rejected",
-      "normalizedPlanSha256": "aa5d0e43b549836b1d6118870fb8c449647dde92987aae9faaa2d41cccefb215"
+      "normalizedPlanSha256": "27c2fcfe5dc20582f4f8c96212b8d800968197262b2c02881e8a690fefa31a0e"
     },
     {
       "candidateIndex": 6,
       "candidateSeed": 5801,
       "profileSequence": "lock-key-baseline",
       "baselineGeometryOutcome": "accepted",
-      "normalizedPlanSha256": "5c56172e0fd5301c517d6b30caf9329f1bfe642444b4135eadba5606dbe257b2"
+      "normalizedPlanSha256": "fdd6bae14a198fcd00351d47257526ef3edeb44ca578f5f7fddee3528b2b7e7d"
     }
   ]
 }

@@ -1,8 +1,8 @@
 {
-  "kind": "asha_procgen.rule_compatibility.v1",
+  "kind": "rusty_procgen.rule_compatibility.v1",
   "schemaVersion": 1,
   "candidateId": "candidate.first_slice.5801",
-  "stateHash": "fnv1a64:2d405a624cfeb833",
+  "stateHash": "fnv1a64:5dc14f6d865968fd",
   "rules": [
     {
       "rule": "lock_key_loop",

@@ -57,24 +57,24 @@ At any point an agent may fork a candidate, repair it, or discard it.
 Minimum lifecycle commands:
 
 ```bash
-asha-procgen init \
+rusty-procgen init \
   --intent docs/seeds/lock-key-loop.json \
   --seed 4103 \
   --out runs/4103/base.candidate.json \
   --receipt runs/4103/init.receipt.json
 
-asha-procgen graph apply-rule \
+rusty-procgen graph apply-rule \
   --state runs/4103/base.candidate.json \
   --rule lock_key_loop \
   --seed 4104 \
   --out runs/4103/graph-001.candidate.json \
   --receipt runs/4103/graph-001.receipt.json
 
-asha-procgen validate graph \
+rusty-procgen validate graph \
   --state runs/4103/graph-001.candidate.json \
   --out runs/4103/graph-001.validation.json
 
-asha-procgen score graph \
+rusty-procgen score graph \
   --state runs/4103/graph-001.candidate.json \
   --out runs/4103/graph-001.score.json
 ```

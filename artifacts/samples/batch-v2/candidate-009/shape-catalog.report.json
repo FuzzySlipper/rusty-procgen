@@ -1,5 +1,5 @@
 {
-  "kind": "asha_procgen.catalog_inspection.v1",
+  "kind": "rusty_procgen.catalog_inspection.v1",
   "schemaVersion": 1,
   "catalogId": "shape_catalog.2d_basic.v1",
   "catalogRef": "fixtures/shape-catalogs/2d-basic.json",

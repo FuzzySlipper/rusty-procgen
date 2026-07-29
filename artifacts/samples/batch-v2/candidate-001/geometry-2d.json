@@ -1,5 +1,5 @@
 {
-  "kind": "asha_procgen.geometry_2d.v1",
+  "kind": "rusty_procgen.geometry_2d.v1",
   "schemaVersion": 1,
   "geometryId": "geometry.candidate.first_slice.5301.14308",
   "candidateId": "candidate.first_slice.5301",
@@ -9,7 +9,7 @@
   "sourceConnectionPlanRef": "artifacts/samples/batch-v2/candidate-001/physical-connection-plan.json",
   "connectionPlanId": "physical_connections.candidate.first_slice.5301",
   "layoutPolicy": {
-    "kind": "asha_procgen.geometry_layout_policy.v1",
+    "kind": "rusty_procgen.geometry_layout_policy.v1",
     "schemaVersion": 1,
     "initialRoomMargin": 96,
     "initialColumnGap": 144,

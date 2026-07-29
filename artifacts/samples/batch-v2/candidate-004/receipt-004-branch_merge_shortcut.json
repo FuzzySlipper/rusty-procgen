@@ -1,11 +1,11 @@
 {
-  "kind": "asha_procgen.receipt.v1",
+  "kind": "rusty_procgen.receipt.v1",
   "schemaVersion": 1,
   "command": "graph apply-rule branch_merge_shortcut",
   "status": "ok",
   "seed": 5605,
-  "inputHash": "fnv1a64:0b78f6f60ca4411b",
-  "outputHash": "fnv1a64:d69408e09216a8ef",
+  "inputHash": "fnv1a64:c242c028bb2d05a9",
+  "outputHash": "fnv1a64:02cfce8c2ba148f5",
   "outputRef": "artifacts/samples/batch-v2/candidate-004/candidate-004-branch_merge_shortcut.json",
   "diagnostics": []
 }

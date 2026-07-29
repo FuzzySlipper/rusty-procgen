@@ -19,7 +19,7 @@ candidate + intermediate breakdown
 
 ## Geometry Artifact
 
-Kind: `asha_procgen.geometry_2d.v1`
+Kind: `rusty_procgen.geometry_2d.v1`
 
 Commands:
 
@@ -84,7 +84,7 @@ intrusion, or an expanded doorway.
 
 ## Geometry Validation
 
-Kind: `asha_procgen.validation.geometry_2d.v1`
+Kind: `rusty_procgen.validation.geometry_2d.v1`
 
 Command:
 
@@ -102,7 +102,7 @@ and content room anchors.
 
 ## HTML Preview Artifact
 
-Kind: `asha_procgen.html_preview.v1`
+Kind: `rusty_procgen.html_preview.v1`
 
 Command:
 
@@ -128,10 +128,10 @@ legend/metadata, and no dev server requirement.
 
 ## Compatibility
 
-Existing `asha_procgen.layout_2d.v1` remains the simple graph embedding used by
+Existing `rusty_procgen.layout_2d.v1` remains the simple graph embedding used by
 the preview site. It is not replaced by `geometry_2d`.
 
-`asha_procgen.intermediate_breakdown.v1` remains the semantic pre-geometry
+`rusty_procgen.intermediate_breakdown.v1` remains the semantic pre-geometry
 handoff. `geometry_2d` consumes it and may fail validation if the geometry
 artifact loses required source refs, connectors, or content anchors.
 

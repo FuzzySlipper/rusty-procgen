@@ -1,11 +1,11 @@
 {
-  "kind": "asha_procgen.receipt.v1",
+  "kind": "rusty_procgen.receipt.v1",
   "schemaVersion": 1,
   "command": "graph apply-rule hazard_resource_tradeoff",
   "status": "ok",
   "seed": 5504,
-  "inputHash": "fnv1a64:df3cf4c4742a297d",
-  "outputHash": "fnv1a64:30f84e340fa6f705",
+  "inputHash": "fnv1a64:188ca85400d3fc8b",
+  "outputHash": "fnv1a64:92504edaa3b6a9f7",
   "outputRef": "artifacts/samples/batch-v2/candidate-003/candidate-003-hazard_resource_tradeoff.json",
   "diagnostics": []
 }

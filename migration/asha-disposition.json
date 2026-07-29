@@ -1,0 +1,250 @@
+{
+  "kind": "rusty_procgen.migration.asha_disposition.v1",
+  "schemaVersion": 1,
+  "predecessor": {
+    "project": "asha-procgen",
+    "artifactNamespace": "asha_procgen."
+  },
+  "current": {
+    "project": "rusty-procgen",
+    "artifactNamespace": "rusty_procgen.",
+    "legacyArtifactDecoding": "forbidden"
+  },
+  "activeAshaDependencies": [
+    {
+      "section": "dependencies",
+      "package": "@asha/contracts",
+      "specifier": "file:../asha-engine/ts/packages/contracts",
+      "removalTasks": [6397, 6398, 6399]
+    },
+    {
+      "section": "dependencies",
+      "package": "@asha/game-workspace",
+      "specifier": "file:../asha-engine/ts/packages/game-workspace",
+      "removalTasks": [6397]
+    },
+    {
+      "section": "dependencies",
+      "package": "@asha/renderer-host",
+      "specifier": "file:../asha-engine/ts/packages/renderer-host",
+      "removalTasks": [6399]
+    },
+    {
+      "section": "dependencies",
+      "package": "@asha/runtime-bridge",
+      "specifier": "file:../asha-engine/ts/packages/runtime-bridge",
+      "removalTasks": [6397, 6398]
+    }
+  ],
+  "transitiveAshaPackages": [
+    {
+      "package": "@asha/native-bridge",
+      "via": ["@asha/runtime-bridge"],
+      "removalTasks": [6397, 6398]
+    },
+    {
+      "package": "@asha/render-projection",
+      "via": ["@asha/renderer-host"],
+      "removalTasks": [6399]
+    },
+    {
+      "package": "@asha/renderer-three",
+      "via": ["@asha/renderer-host"],
+      "removalTasks": [6399]
+    },
+    {
+      "package": "@asha/runtime-session",
+      "via": ["@asha/runtime-bridge"],
+      "removalTasks": [6397, 6398]
+    }
+  ],
+  "activeAshaImports": [
+    {
+      "file": "scripts/legacy-asha-prefab-publication-smoke.mjs",
+      "specifier": "@asha/game-workspace",
+      "occurrences": 1,
+      "removalTask": 6397
+    },
+    {
+      "file": "scripts/legacy-asha-prefab-publication-smoke.mjs",
+      "specifier": "@asha/runtime-bridge",
+      "occurrences": 1,
+      "removalTask": 6397
+    },
+    {
+      "file": "scripts/legacy-asha-voxel-build-smoke.mjs",
+      "specifier": "@asha/runtime-bridge",
+      "occurrences": 1,
+      "removalTask": 6398
+    },
+    {
+      "file": "scripts/legacy-asha-voxel-inspection-frame-smoke.mjs",
+      "specifier": "@asha/renderer-host",
+      "occurrences": 1,
+      "removalTask": 6399
+    },
+    {
+      "file": "src/prefab-publishing.ts",
+      "specifier": "@asha/contracts",
+      "occurrences": 2,
+      "removalTask": 6397
+    },
+    {
+      "file": "src/prefab-publishing.ts",
+      "specifier": "@asha/game-workspace",
+      "occurrences": 1,
+      "removalTask": 6397
+    },
+    {
+      "file": "src/voxel-extrusion.ts",
+      "specifier": "@asha/contracts",
+      "occurrences": 1,
+      "removalTask": 6398
+    },
+    {
+      "file": "src/voxel-inspection-projection.ts",
+      "specifier": "@asha/contracts",
+      "occurrences": 1,
+      "removalTask": 6399
+    },
+    {
+      "file": "viewer/app.ts",
+      "specifier": "@asha/renderer-host",
+      "occurrences": 1,
+      "removalTask": 6399
+    }
+  ],
+  "integrationScripts": [
+    {
+      "path": "scripts/legacy-asha-prefab-publication-smoke.mjs",
+      "lane": "generated-content-publication",
+      "disposition": "replace_with_rusty_engine_authored_owners",
+      "removalTask": 6397
+    },
+    {
+      "path": "scripts/legacy-asha-voxel-build-smoke.mjs",
+      "lane": "voxel-authority",
+      "disposition": "replace_with_direct_rusty_spatial_composition",
+      "removalTask": 6398
+    },
+    {
+      "path": "scripts/legacy-asha-voxel-inspection-frame-smoke.mjs",
+      "lane": "retained-inspection",
+      "disposition": "replace_with_rusty_renderer_packages",
+      "removalTask": 6399
+    }
+  ],
+  "removedDependencies": [
+    {
+      "package": "@asha/runtime-session",
+      "reason": "removed as an unused direct declaration; remains ledgered only in the temporary runtime-bridge transitive closure"
+    }
+  ],
+  "schemaFamilies": [
+    "accepted_artifact.v1",
+    "asset_lock_references.v1",
+    "batch_profile.v1",
+    "batch_profile.v2_sample",
+    "candidate.v1",
+    "catalog_aware_generation.v1",
+    "catalog_aware_generation_exhaustion.v1",
+    "catalog_aware_generation_policy.v1",
+    "catalog_inspection.v1",
+    "corridor_realization_experiment.v1",
+    "evidence.catalog_aware_generation_coverage.v1",
+    "evidence.native_voxel_extrusion.v1",
+    "evidence.pure_catalog_coverage.v1",
+    "geometry_2d.v1",
+    "geometry_layout_policy.v1",
+    "geometry_layout_policy_experiment.v1",
+    "geometry_recovery_corpus.v1",
+    "geometry_recovery_report.v1",
+    "graph_analysis.v1",
+    "graph_patterns.v2",
+    "graph_summary.v1",
+    "html_preview.v1",
+    "intermediate_breakdown.v1",
+    "layout_2d.v1",
+    "pack.v1",
+    "physical_connection_plan.v1",
+    "piece_build_plan.v1",
+    "piece_placement.v1",
+    "piece_shape_match.v1",
+    "placement_policy_experiment.v1",
+    "prefab_project_bundle_publication.v1",
+    "prefab_publish_mapping.v1",
+    "published_prefab_instances.v1",
+    "pure_catalog_exhaustion.v1",
+    "receipt.v1",
+    "repair_report.v1",
+    "rule_catalog.v1",
+    "rule_compatibility.v1",
+    "rule_metadata.v1",
+    "score.graph.v1",
+    "seed_intent.v1",
+    "selection_report.v1",
+    "shape_catalog.v1",
+    "spatial_intent.v1",
+    "validation.built_flow.v1",
+    "validation.geometry_2d.v1",
+    "validation.graph.v1",
+    "validation.intermediate.v1",
+    "validation.piece_placement.v1",
+    "viewer_generation_config.v1",
+    "viewer_generation_rebuild.v1",
+    "voxel_object_source.v1"
+  ],
+  "newSchemaFamilies": [
+    "migration.asha_disposition.v1",
+    "migration.corpus_identity.v1",
+    "repository_identity.v1"
+  ],
+  "generatedCorpus": [
+    {
+      "path": "artifacts/samples/first-run",
+      "ownerCommand": "npm run baseline",
+      "disposition": "regenerated_with_rusty_identity"
+    },
+    {
+      "path": "artifacts/samples/batch-v2",
+      "ownerCommand": "npm run batch:sample",
+      "disposition": "regenerated_with_rusty_identity"
+    },
+    {
+      "path": "artifacts/evidence/geometry-recovery-v1.json",
+      "ownerCommand": "npm run geometry:recovery:report",
+      "disposition": "regenerated_with_rusty_identity"
+    },
+    {
+      "path": "artifacts/evidence/pure-catalog-coverage.json",
+      "ownerCommand": "npm run catalog:coverage",
+      "disposition": "regenerated_with_rusty_identity"
+    },
+    {
+      "path": "artifacts/evidence/catalog-aware-generation-coverage.json",
+      "ownerCommand": "npm run catalog-aware:coverage",
+      "disposition": "regenerated_with_rusty_identity"
+    },
+    {
+      "path": "artifacts/evidence/prefab-project-bundle-publication.json",
+      "ownerCommand": "npm run publish:legacy-asha-smoke",
+      "disposition": "regenerated_with_rusty_identity_pending_adapter_replacement"
+    },
+    {
+      "path": "artifacts/evidence/native-voxel-extrusion.json",
+      "ownerCommand": "npm run voxel:legacy-asha-smoke",
+      "disposition": "regenerated_with_rusty_identity_pending_adapter_replacement"
+    }
+  ],
+  "fixtureRoots": [
+    {
+      "path": "fixtures",
+      "disposition": "clean_break_namespace_rewrite"
+    },
+    {
+      "path": "config/viewer-generation.json",
+      "disposition": "kind_only_namespace_rewrite_preserving_local_values"
+    }
+  ],
+  "closeoutTask": 6400
+}

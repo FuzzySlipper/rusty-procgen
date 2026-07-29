@@ -1,11 +1,11 @@
 {
-  "kind": "asha_procgen.receipt.v1",
+  "kind": "rusty_procgen.receipt.v1",
   "schemaVersion": 1,
   "command": "graph apply-rule nested_lock_key_chain",
   "status": "ok",
   "seed": 6003,
-  "inputHash": "fnv1a64:9aa6c706e12a82a8",
-  "outputHash": "fnv1a64:2b6d9740bd8241d3",
+  "inputHash": "fnv1a64:3bc3b65afb82c32a",
+  "outputHash": "fnv1a64:367db2ce112234b9",
   "outputRef": "artifacts/samples/batch-v2/candidate-008/candidate-002-nested_lock_key_chain.json",
   "diagnostics": []
 }

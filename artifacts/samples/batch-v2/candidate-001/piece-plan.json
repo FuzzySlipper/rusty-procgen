@@ -1,5 +1,5 @@
 {
-  "kind": "asha_procgen.piece_build_plan.v1",
+  "kind": "rusty_procgen.piece_build_plan.v1",
   "schemaVersion": 1,
   "planId": "piece_plan.geometry.candidate.first_slice.5301.14308.hybrid",
   "candidateId": "candidate.first_slice.5301",

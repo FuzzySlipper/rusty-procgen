@@ -45,7 +45,7 @@ Example manifest shape:
 
 ```json
 {
-  "kind": "asha_procgen.pack.v1",
+  "kind": "rusty_procgen.pack.v1",
   "schemaVersion": 1,
   "packId": "pack.2d_basic",
   "label": "2D Basic",

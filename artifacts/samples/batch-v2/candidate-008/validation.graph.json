@@ -1,7 +1,7 @@
 {
-  "kind": "asha_procgen.validation.graph.v1",
+  "kind": "rusty_procgen.validation.graph.v1",
   "schemaVersion": 1,
-  "stateHash": "fnv1a64:a62c6022e0f6921a",
+  "stateHash": "fnv1a64:acdf45bd3a1a5598",
   "ok": true,
   "fatalCount": 0,
   "diagnostics": []

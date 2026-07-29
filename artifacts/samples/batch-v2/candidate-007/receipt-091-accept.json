@@ -1,11 +1,11 @@
 {
-  "kind": "asha_procgen.receipt.v1",
+  "kind": "rusty_procgen.receipt.v1",
   "schemaVersion": 1,
   "command": "accept",
   "status": "ok",
   "seed": null,
-  "inputHash": "fnv1a64:ff7099bbf506277f",
-  "outputHash": "fnv1a64:7d5acf7b9ad1d60d",
+  "inputHash": "fnv1a64:5f5f323884884385",
+  "outputHash": "fnv1a64:7465a4ddde4806eb",
   "outputRef": "artifacts/samples/batch-v2/candidate-007/accepted.json",
   "diagnostics": []
 }

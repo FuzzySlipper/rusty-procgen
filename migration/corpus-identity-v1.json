@@ -1,0 +1,45 @@
+{
+  "kind": "rusty_procgen.migration.corpus_identity.v1",
+  "schemaVersion": 1,
+  "predecessorNormalization": {
+    "artifactNamespace": [
+      "asha_procgen.",
+      "rusty_procgen."
+    ],
+    "repositoryIdentity": [
+      "asha-procgen",
+      "rusty-procgen"
+    ],
+    "displayIdentity": [
+      "Asha Procgen|ASHA Procgen",
+      "Rusty Procgen"
+    ],
+    "identityDerivedJsonHashValues": "normalized_to_hash_sentinel"
+  },
+  "corpus": {
+    "root": "artifacts",
+    "includedPaths": [
+      "samples/**"
+    ],
+    "fileCount": 331,
+    "normalizedSha256": "sha256:184a27892c7dfb011ca1a1f3d5d0ed4f8b5c5036399b339128737b052931f9c6",
+    "exactNormalizedFileEquivalence": true
+  },
+  "behavior": {
+    "acceptedCount": 9,
+    "rejectedCount": 1,
+    "acceptedTopologyFingerprints": [
+      "topology:418e96fe6aa81a3a",
+      "topology:418e96fe6aa81a3a",
+      "topology:544fdebf614b3e9f",
+      "topology:6b22395a3dc8714c",
+      "topology:6b22395a3dc8714c",
+      "topology:75da51af2e5b93b4",
+      "topology:75da51af2e5b93b4",
+      "topology:93f72844c48d0e47",
+      "topology:9cb0a811896f1cf7"
+    ],
+    "rejectedReasons": [],
+    "placementArtifactCount": 9
+  }
+}

@@ -1,11 +1,11 @@
 {
-  "kind": "asha_procgen.receipt.v1",
+  "kind": "rusty_procgen.receipt.v1",
   "schemaVersion": 1,
   "command": "embed 2d",
   "status": "ok",
   "seed": 5891,
-  "inputHash": "fnv1a64:f850465a69142de9",
-  "outputHash": "fnv1a64:9689ee184804d044",
+  "inputHash": "fnv1a64:52cecc7dcc933a27",
+  "outputHash": "fnv1a64:fa80de0081a1624a",
   "outputRef": "artifacts/samples/batch-v2/candidate-006/layout-2d.json",
   "diagnostics": []
 }

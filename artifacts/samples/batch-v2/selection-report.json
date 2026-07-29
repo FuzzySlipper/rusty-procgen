@@ -1,8 +1,8 @@
 {
-  "kind": "asha_procgen.selection_report.v1",
+  "kind": "rusty_procgen.selection_report.v1",
   "schemaVersion": 1,
   "batchId": "batch.v2.5201",
-  "profileId": "asha_procgen.batch_profile.v2_sample",
+  "profileId": "rusty_procgen.batch_profile.v2_sample",
   "profileRef": "fixtures/batch-profiles/v2-sample.json",
   "seed": 5201,
   "requestedCount": 10,

@@ -103,7 +103,7 @@ export interface ProcgenPrefabPublishMapping {
 }
 
 export interface ProcgenPrefabPublishConfiguration {
-  readonly kind: 'asha_procgen.prefab_publish_mapping.v1';
+  readonly kind: 'rusty_procgen.prefab_publish_mapping.v1';
   readonly candidateRef: string;
   readonly selectedInstanceIds: readonly string[];
   readonly mappings: readonly ProcgenPrefabPublishMapping[];
@@ -124,18 +124,18 @@ export interface ProcgenPrefabPublishConfiguration {
 }
 
 export interface ProcgenPrefabPublication {
-  readonly kind: 'asha_procgen.prefab_project_bundle_publication.v1';
+  readonly kind: 'rusty_procgen.prefab_project_bundle_publication.v1';
   readonly manifest: ProjectBundleManifest;
   readonly prefabRegistry: PrefabRegistry;
   readonly sceneArtifact: FlatSceneDocument;
   readonly prefabInstancesArtifact: {
-    readonly kind: 'asha_procgen.published_prefab_instances.v1';
+    readonly kind: 'rusty_procgen.published_prefab_instances.v1';
     readonly schemaVersion: 1;
     readonly scene: ReturnType<typeof sceneId>;
     readonly prefabInstances: readonly PrefabInstanceRecord[];
   };
   readonly assetLockArtifact: {
-    readonly kind: 'asha_procgen.asset_lock_references.v1';
+    readonly kind: 'rusty_procgen.asset_lock_references.v1';
     readonly schemaVersion: 1;
     readonly assets: ProcgenPrefabPublishConfiguration['sourceAssets'];
   };
@@ -272,13 +272,13 @@ export function compileProcgenPrefabPublication(input: {
     .sort((left, right) => left.instance - right.instance);
 
   const prefabInstancesArtifact = {
-    kind: 'asha_procgen.published_prefab_instances.v1' as const,
+    kind: 'rusty_procgen.published_prefab_instances.v1' as const,
     schemaVersion: 1 as const,
     scene: sceneId(configuration.scene.id),
     prefabInstances,
   };
   const assetLockArtifact = {
-    kind: 'asha_procgen.asset_lock_references.v1' as const,
+    kind: 'rusty_procgen.asset_lock_references.v1' as const,
     schemaVersion: 1 as const,
     assets: configuration.sourceAssets,
   };
@@ -313,7 +313,7 @@ export function compileProcgenPrefabPublication(input: {
   );
 
   return {
-    kind: 'asha_procgen.prefab_project_bundle_publication.v1',
+    kind: 'rusty_procgen.prefab_project_bundle_publication.v1',
     manifest,
     prefabRegistry,
     sceneArtifact,
@@ -336,10 +336,10 @@ function validateProvenance(
   placement: ProcgenPiecePlacementForPublish,
   configuration: ProcgenPrefabPublishConfiguration,
 ): void {
-  const validKinds = catalog.kind === 'asha_procgen.shape_catalog.v1'
-    && shapeMatch.kind === 'asha_procgen.piece_shape_match.v1'
-    && placement.kind === 'asha_procgen.piece_placement.v1'
-    && configuration.kind === 'asha_procgen.prefab_publish_mapping.v1';
+  const validKinds = catalog.kind === 'rusty_procgen.shape_catalog.v1'
+    && shapeMatch.kind === 'rusty_procgen.piece_shape_match.v1'
+    && placement.kind === 'rusty_procgen.piece_placement.v1'
+    && configuration.kind === 'rusty_procgen.prefab_publish_mapping.v1';
   const aligned = shapeMatch.ok
     && shapeMatch.unmatchedCount === 0
     && catalog.catalogId === shapeMatch.catalogId
@@ -470,7 +470,7 @@ function buildManifest(
     scenes: [{ id: sceneArtifact.id, schemaVersion: 1, artifact: configuration.scene.artifact }],
     assetLock: { artifact: configuration.assetLockArtifact, assetCount: configuration.sourceAssets.length },
     generationProvenance: {
-      provider: 'asha-procgen.prefab-publisher',
+      provider: 'rusty-procgen.prefab-publisher',
       seed,
       version: 1,
       params: JSON.stringify({
@@ -567,7 +567,7 @@ function buildSceneArtifact(
         childOrder: index,
         label: shape.label,
         tags: [
-          'asha-procgen',
+          'rusty-procgen',
           `prefab-${mapping.prefabId}`,
           `prefab-instance-${identity.prefabInstanceId}`,
         ],

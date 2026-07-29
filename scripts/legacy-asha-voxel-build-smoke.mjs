@@ -24,8 +24,8 @@ const engineCommit = execFileSync('git', ['rev-parse', 'HEAD'], {
 const source = conversionSource(plan);
 const request = conversionRequest(plan, source.source);
 
-const first = runDirectAuthorityBuild('asha-procgen.voxel-extrusion.first', plan.commands);
-const second = runDirectAuthorityBuild('asha-procgen.voxel-extrusion.repeat', plan.commands);
+const first = runDirectAuthorityBuild('rusty-procgen.voxel-extrusion.first', plan.commands);
+const second = runDirectAuthorityBuild('rusty-procgen.voxel-extrusion.repeat', plan.commands);
 assert.equal(second.history.cursor.voxelStateHash, first.history.cursor.voxelStateHash);
 
 const beforeRejected = first.history;
@@ -86,7 +86,7 @@ assert.equal(comparisonAfterRejected.latestOutputHash, comparison.model.latestOu
 assert.equal(comparisonAfterRejected.sessionHash, comparison.model.sessionHash);
 
 const evidence = {
-  kind: 'asha_procgen.evidence.native_voxel_extrusion.v1',
+  kind: 'rusty_procgen.evidence.native_voxel_extrusion.v1',
   sourcePlacement: path.relative(repoRoot, placementPath),
   placementId: plan.placementId,
   backend: 'native_rust_runtime_session_voxel_commands',
@@ -191,7 +191,7 @@ function chunkCommands(name, commands, limit) {
 }
 
 function runConversionComparison(sourceInput, planRequest) {
-  const session = createSession('asha-procgen.voxel-extrusion.conversion-comparison');
+  const session = createSession('rusty-procgen.voxel-extrusion.conversion-comparison');
   const registration = session.registerVoxelConversionSource(sourceInput);
   const authorityPlan = session.planVoxelConversion(planRequest);
   const preview = session.previewVoxelConversion({
@@ -213,7 +213,7 @@ function createSession(sessionId) {
   session.initialize({
     sessionId,
     seed: 5201,
-    project: { gameId: 'asha-procgen', workspaceId: 'workspace.local' },
+    project: { gameId: 'rusty-procgen', workspaceId: 'workspace.local' },
   });
   return session;
 }
@@ -248,7 +248,7 @@ function conversionSource(extrusion) {
   const sourceHash = `sha256:${createHash('sha256').update(JSON.stringify({ positions, triangles })).digest('hex')}`;
   return {
     source: {
-      assetId: 'mesh/asha-procgen-first-extrusion',
+      assetId: 'mesh/rusty-procgen-first-extrusion',
       assetKind: 'mesh',
       assetVersion: 1,
       sourceHash,

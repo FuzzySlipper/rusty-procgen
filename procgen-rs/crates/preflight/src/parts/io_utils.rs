@@ -65,7 +65,7 @@ fn receipt(
     diagnostics: Vec<Diagnostic>,
 ) -> Receipt {
     Receipt {
-        kind: "asha_procgen.receipt.v1".to_owned(),
+        kind: "rusty_procgen.receipt.v1".to_owned(),
         schema_version: 1,
         command: command.to_owned(),
         status: "ok".to_owned(),

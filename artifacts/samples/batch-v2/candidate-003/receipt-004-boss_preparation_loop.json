@@ -1,11 +1,11 @@
 {
-  "kind": "asha_procgen.receipt.v1",
+  "kind": "rusty_procgen.receipt.v1",
   "schemaVersion": 1,
   "command": "graph apply-rule boss_preparation_loop",
   "status": "ok",
   "seed": 5505,
-  "inputHash": "fnv1a64:628aad391bbd68e3",
-  "outputHash": "fnv1a64:cdd1c6e3e8314b15",
+  "inputHash": "fnv1a64:44271025859968a1",
+  "outputHash": "fnv1a64:3a1761f5f6b197d3",
   "outputRef": "artifacts/samples/batch-v2/candidate-003/candidate-004-boss_preparation_loop.json",
   "diagnostics": []
 }

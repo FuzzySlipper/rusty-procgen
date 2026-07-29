@@ -1,23 +1,38 @@
-# Asha Procgen
+# Rusty Procgen
 
-Dungeon procgen incubator for richer ASHA generated-level experiments.
+Deterministic dungeon generation, validation, catalog placement, and inspection
+workbench for Rusty Engine consumers.
 
-This repository is an ASHA downstream project. It should consume `asha-engine`
-through public package roots, generated contracts, documented runtime/session
-surfaces, and local prototype evidence. It should not import engine internals or
-silently patch a sibling engine checkout.
+Rusty Procgen owns dungeon meaning and orchestration: intent grammar, graph
+construction, scoring, repair, geometry, bounded placement, artifact schemas,
+content catalogs, and the interactive viewer. Reusable scene, asset, voxel,
+spatial, mesh, render, component, and service mechanisms belong in
+[`rusty-engine`](https://github.com/FuzzySlipper/rusty-engine).
+
+The repository is being converted in place from its historical Asha donor.
+Three explicitly named legacy adapter lanes remain executable while their
+Rusty Engine replacements land. Their exact packages, imports, scripts, and
+removal tasks are recorded in
+[`migration/asha-disposition.json`](migration/asha-disposition.json); the
+default gate rejects any unledgered addition. Predecessor artifact kinds are
+not supported.
 
 ## Fresh Setup
 
-Clone beside `asha-engine`:
+Clone beside `rusty-engine`:
 
 ```bash
 cd /home/dev
-git clone git@github.com:FuzzySlipper/asha-engine.git asha-engine
-git clone git@github.com:FuzzySlipper/asha-procgen.git asha-procgen
-cd asha-procgen
+git clone git@github.com:FuzzySlipper/rusty-engine.git rusty-engine
+git clone git@github.com:FuzzySlipper/rusty-procgen.git rusty-procgen
+cd rusty-procgen
 npm install
 ```
+
+Until the bounded adapter migration closes in Den #6400, the legacy
+publication, voxel-authority, and retained-renderer smokes also require the
+historical `asha-engine` checkout at `/home/dev/asha-engine`. The generator
+algorithms and Rust tests do not depend on its Rust crates.
 
 ## Verification
 
@@ -28,38 +43,40 @@ npm run verify
 Focused checks:
 
 ```bash
-npm run check:asha-boundary
+npm run check:migration-boundary
+npm run check:corpus-identity
 npm run typecheck
 npm run rust:check
 npm run rust:test
-npm run publish:asha-smoke
+npm run publish:legacy-asha-smoke
 npm run viewer:smoke
 npm run catalog:coverage
 ```
 
-## ASHA Prefab and ProjectBundle Publishing Proof
+## Temporary legacy publication proof
 
-The downstream publishing adapter maps representative Procgen shape matches
-and placements to generated ASHA prefab identities and a ProjectBundle-shaped
-durable artifact inventory:
+The temporary downstream adapter maps representative Procgen shape matches and
+placements to the predecessor prefab and project-bundle contracts:
 
 ```bash
-npm run publish:asha-smoke
+npm run publish:legacy-asha-smoke
 ```
 
-It uses public `@asha/contracts` and `@asha/game-workspace` roots, preserves
-generation provenance, and fails closed on missing mappings/roles, incompatible
-assets, duplicate identities, and invalid transforms. See
-[`docs/asha-publishing-boundary.md`](docs/asha-publishing-boundary.md) for the
-ownership, distribution, non-claims, and crate-disposition contract.
+This is migration evidence scheduled for replacement by Rusty Engine
+authored-scene, content, and asset owners in Den #6397. It preserves generation
+provenance and fails closed on missing mappings/roles, incompatible assets,
+duplicate identities, and invalid transforms. See
+[`docs/legacy-asha-adapters.md`](docs/legacy-asha-adapters.md) for its explicit
+non-claims and removal boundary.
 
-## Native ASHA Voxel Extrusion Proof
+## Temporary legacy voxel-authority proof
 
 The separate engine-backed authority smoke extrudes a validated 2D piece placement into
-a simple enclosed voxel volume. Placement `x/y` maps to ASHA voxel `x/z`; the
-proof adds a floor, three-voxel walls, and a ceiling, then submits bounded
-`generateChunk`, `fillRegion`, and `setVoxel` batches through a Rust-backed
-public `RuntimeSession`.
+a simple enclosed voxel volume. Placement `x/y` maps to voxel `x/z`; the proof
+adds a floor, three-voxel walls, and a ceiling, then submits bounded command
+batches through the predecessor Rust-backed authority. Den #6398 replaces this
+lane with direct Rusty Engine spatial composition; no RuntimeSession-style
+facade is part of the target design.
 
 The source placement carries a versioned policy for minimum inter-piece
 clearance, wall thickness, and doorway width (schema v1 supports width one).
@@ -97,7 +114,7 @@ npm run procgen -- build validate-flow \
 
 Procgen owns this generation and validation evidence. Portals are not gameplay
 doors: this work does not claim inventory, collision, navigation, persistence,
-animation, or RuntimeSession door authority.
+animation, or gameplay door authority.
 
 Before geometry, batch generation now emits
 `physical-connection-plan.json`. The plan normalizes compatible reciprocal open
@@ -109,20 +126,20 @@ with accidental junctions. This diagnostic means the configured search did not
 find an embedding; it is not a proof that no single-floor embedding exists.
 
 ```bash
-npm run voxel:asha-smoke
+npm run voxel:legacy-asha-smoke
 ```
 
 The command regenerates
 `artifacts/evidence/native-voxel-extrusion.json` with deterministic authority
 voxel-state hashes, command-phase receipts, and bounded comparison readbacks.
 
-The smoke test requires the sibling `asha-engine` checkout and its built native
-addon at `ts/packages/native-bridge/dist/native-bridge.node`. It proves native
-command acceptance, deterministic authority voxel-state hashes, and fail-closed
-unknown-material rejection. A separate voxel-conversion comparison preserves
-bounded model/material readback coverage, but it is not the mutation path under
-test. The proof does not claim 3D piece placement, exit-socket alignment,
-rendering, navigation, or performance evidence.
+This temporary smoke requires the sibling `asha-engine` checkout and its built
+native addon. It proves native command acceptance, deterministic authority
+voxel-state hashes, and fail-closed unknown-material rejection while the Rusty
+host replaces it. A separate voxel-conversion comparison preserves bounded
+model/material readback coverage, but it is not the mutation path under test.
+The proof does not claim 3D piece placement, exit-socket alignment, rendering,
+navigation, or performance evidence.
 
 ## Engine Voxel Inspection
 
@@ -200,10 +217,10 @@ anchors need a catalog-aware generation retry.
 The catalog-aware command rebuilds every accepted candidate twice through the
 unified viewer configuration path and writes
 `artifacts/evidence/catalog-aware-generation-coverage.json`. The current sample
-is 3/3 candidates and 2/2 topology fingerprints, improved from the earlier
-exact-assembly result of 1/3. Every recorded success has a stable repeated
-build ID, zero generated connection cells, and successful geometry, placement,
-and built-flow validation.
+is 5/9 candidates and 4/6 topology fingerprints, while strict pure-catalog
+assembly remains 0/9. Every recorded catalog-aware success has a stable
+repeated build ID, zero generated connection cells, and successful geometry,
+placement, and built-flow validation.
 
 A separate geometry-layout panel controls the earlier room distribution pass:
 initial outer/column/row spacing, per-tier growth, spacing-tier count, and room
@@ -211,22 +228,21 @@ ordering attempts. Apply reruns geometry, piece placement, and built-flow
 validation together in a temporary workspace. The default policy starts
 compact and escalates only after a tighter tier exhausts its route-order budget;
 the route grid and exclusive corridor separation remain fixed safety
-invariants. The current 10-layout corpus remains 3 accepted / 7 exhausted, but
-accepted frames shrink from 2160×720 to 1392×480 for the nested-boss layouts
-and from 1328×688 to 848×480 for the lock-key baseline. The unchanged rejection
-count shows that those seven cases need broader topology-aware room/port
-embedding alternatives, not merely larger fixed gaps. The three accepted
-placements include deterministic realization-search evidence; both
-non-baseline nested-boss layouts require route-order backtracking and retain
-zero-fatal built-flow reports.
+invariants. The current 10-layout corpus accepts 9 and rejects 1. The checked
+geometry-recovery report pins seven representative family plans with
+identity-neutral normalized hashes, compactness evidence, deterministic
+realization-search receipts, and zero-fatal physical validation for accepted
+placements.
 
-## ASHA Boundary
+## Rusty Engine boundary
 
-Use public ASHA package roots and documented subpaths only. If a prototype needs
-a missing public ASHA capability, capture a minimal reproduction here and move
-the engine-owned work upstream to `asha-engine`.
+Compose public Rusty Engine crates and packages through direct named services.
+If Procgen needs a missing reusable mechanism, capture a minimal concrete
+consumer reproduction and route the engine-owned work upstream. Do not recreate
+generic scene, asset, voxel, spatial, renderer, component, or service authority
+locally.
 
 The local Rust lane in `procgen-rs/` is for downstream preflight tooling,
-prototype generation evidence, and project-specific experiments. Generic
-runtime/session, collision, pathfinding, render projection, protocol/codegen,
-and replay authority belong upstream.
+generation logic, validation evidence, and project-specific experiments. The
+remaining Asha imports are temporary conversion exceptions owned exclusively by
+the migration ledger and Den #6397–#6400; they are not patterns for new work.

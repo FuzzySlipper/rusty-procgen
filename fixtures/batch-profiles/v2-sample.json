@@ -1,7 +1,7 @@
 {
-  "kind": "asha_procgen.batch_profile.v1",
+  "kind": "rusty_procgen.batch_profile.v1",
   "schemaVersion": 1,
-  "profileId": "asha_procgen.batch_profile.v2_sample",
+  "profileId": "rusty_procgen.batch_profile.v2_sample",
   "description": "Default v2 sample profile cycling through an embeddable lock-key baseline and richer graph grammar combinations.",
   "budgets": {
     "minOptionalBranches": 2,

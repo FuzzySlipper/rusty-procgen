@@ -1,7 +1,7 @@
 {
-  "kind": "asha_procgen.validation.geometry_2d.v1",
+  "kind": "rusty_procgen.validation.geometry_2d.v1",
   "schemaVersion": 1,
-  "stateHash": "fnv1a64:d40296fe8f481197",
+  "stateHash": "fnv1a64:1f70d8ee0bb55ab1",
   "ok": true,
   "fatalCount": 0,
   "diagnostics": []

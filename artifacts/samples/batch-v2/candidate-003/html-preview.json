@@ -1,5 +1,5 @@
 {
-  "kind": "asha_procgen.html_preview.v1",
+  "kind": "rusty_procgen.html_preview.v1",
   "schemaVersion": 1,
   "previewId": "preview.geometry.candidate.first_slice.5501.14302",
   "geometryRef": "artifacts/samples/batch-v2/candidate-003/geometry-2d.json",

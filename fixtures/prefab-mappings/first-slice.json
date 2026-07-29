@@ -1,5 +1,5 @@
 {
-  "kind": "asha_procgen.prefab_publish_mapping.v1",
+  "kind": "rusty_procgen.prefab_publish_mapping.v1",
   "candidateRef": "artifacts/samples/batch-v2/candidate-006/candidate-001-lock_key_loop.json",
   "selectedInstanceIds": [
     "instance.piece_room_room_region_start",
@@ -64,7 +64,7 @@
   ],
   "project": {
     "id": 5721,
-    "name": "asha-procgen-prefab-publishing-proof"
+    "name": "rusty-procgen-prefab-publishing-proof"
   },
   "scene": {
     "id": 5721,

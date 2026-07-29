@@ -1,11 +1,11 @@
 [package]
-name = "asha-procgen-preflight"
+name = "rusty-procgen-preflight"
 version = "0.1.0"
 edition = "2021"
 publish = false
 
 [[bin]]
-name = "asha-procgen"
+name = "rusty-procgen"
 path = "src/main.rs"
 
 [dependencies]

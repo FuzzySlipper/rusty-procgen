@@ -1,5 +1,5 @@
 {
-  "kind": "asha_procgen.layout_2d.v1",
+  "kind": "rusty_procgen.layout_2d.v1",
   "schemaVersion": 1,
   "layoutId": "layout.candidate.first_slice.6001.6091",
   "candidateId": "candidate.first_slice.6001",

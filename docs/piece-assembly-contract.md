@@ -28,7 +28,7 @@ simulated?"
 
 ## Shape Catalog Artifact
 
-Kind: `asha_procgen.shape_catalog.v1`
+Kind: `rusty_procgen.shape_catalog.v1`
 
 Shape catalogs are reusable prefab metadata. A shape may eventually point at
 art assets or voxel volumes, but this first contract is JSON-only and 2D-grid
@@ -114,7 +114,7 @@ must reproduce this evidence and the complete placement byte-for-byte.
 
 ## Piece Build Plan Artifact
 
-Kind: `asha_procgen.piece_build_plan.v1`
+Kind: `rusty_procgen.piece_build_plan.v1`
 
 The build plan is a requirement graph, not yet a placed map. It expands the
 geometry artifact into explicit pieces and connectors for catalog matching.
@@ -195,7 +195,7 @@ of this contract.
 
 ## Piece Shape Match Artifact
 
-Kind: `asha_procgen.piece_shape_match.v1`
+Kind: `rusty_procgen.piece_shape_match.v1`
 
 Shape match reports select catalog shapes for each build-plan requirement
 without placing them on an occupancy grid yet.
@@ -229,7 +229,7 @@ absolute placement cells.
 
 ## Piece Placement Artifact
 
-Kind: `asha_procgen.piece_placement.v1`
+Kind: `rusty_procgen.piece_placement.v1`
 
 Placement artifacts record selected catalog shapes and concrete grid cells.
 They are the first layer that owns occupancy.
@@ -291,7 +291,7 @@ Important instance fields:
 
 ## Validation Artifact
 
-Kind: `asha_procgen.validation.piece_placement.v1`
+Kind: `rusty_procgen.validation.piece_placement.v1`
 
 Placement validation should be deterministic and fail closed. Expected
 diagnostic families:

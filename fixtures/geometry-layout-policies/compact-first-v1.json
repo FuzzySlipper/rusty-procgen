@@ -1,5 +1,5 @@
 {
-  "kind": "asha_procgen.geometry_layout_policy.v1",
+  "kind": "rusty_procgen.geometry_layout_policy.v1",
   "schemaVersion": 1,
   "initialRoomMargin": 96,
   "initialColumnGap": 144,

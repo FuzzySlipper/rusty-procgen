@@ -1,7 +1,7 @@
 fn run_preflight_command(repo_root: &Path) -> Result<(), String> {
     let summary = run_preflight(repo_root)?;
     println!(
-        "asha-procgen preflight OK: engine source {}, rust lane {}",
+        "rusty-procgen preflight OK: engine source {}, rust lane {}",
         summary.engine_source, summary.rust_dir
     );
     Ok(())

@@ -1,5 +1,5 @@
 {
-  "kind": "asha_procgen.seed_intent.v1",
+  "kind": "rusty_procgen.seed_intent.v1",
   "id": "first_slice",
   "title": "First Slice Lock-Key Loop",
   "targetDimension": "topology_graph",

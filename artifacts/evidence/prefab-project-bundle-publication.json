@@ -1,11 +1,11 @@
 {
-  "kind": "asha_procgen.prefab_project_bundle_publication.v1",
+  "kind": "rusty_procgen.prefab_project_bundle_publication.v1",
   "manifest": {
     "bundleSchemaVersion": 2,
     "protocolVersion": 1,
     "project": {
       "id": 5721,
-      "name": "asha-procgen-prefab-publishing-proof"
+      "name": "rusty-procgen-prefab-publishing-proof"
     },
     "entryScene": 5721,
     "scenes": [
@@ -20,7 +20,7 @@
       "assetCount": 2
     },
     "generationProvenance": {
-      "provider": "asha-procgen.prefab-publisher",
+      "provider": "rusty-procgen.prefab-publisher",
       "seed": 14341,
       "version": 1,
       "params": "{\"candidateRef\":\"artifacts/samples/batch-v2/candidate-006/candidate-001-lock_key_loop.json\",\"catalogId\":\"shape_catalog.2d_basic.v1\",\"matchId\":\"piece_shape_match.piece_plan.geometry.candidate.first_slice.5801.14310.hybrid.14341.alternative_0\",\"placementId\":\"piece_placement.piece_shape_match.piece_plan.geometry.candidate.first_slice.5801.14310.hybrid.14341.alternative_0\"}"
@@ -30,7 +30,7 @@
         "path": "assets/lock.json",
         "class": "durable",
         "role": "assetLock",
-        "contentHash": "3a2ea662f8d51ac6"
+        "contentHash": "3505561bd46da1b3"
       },
       {
         "path": "prefabs/registry.json",
@@ -42,25 +42,25 @@
         "path": "prefabs/instances.json",
         "class": "durable",
         "role": "resource:prefab-instances",
-        "contentHash": "448aeac8119302c6"
+        "contentHash": "0f4a26748da0bc00"
       },
       {
         "path": "scene/procgen-layout.scene.json",
         "class": "durable",
         "role": "sceneDocument",
-        "contentHash": "137681985b7dff6a"
+        "contentHash": "f81c63e022464540"
       },
       {
         "path": "voxel/prefabs/procgen-standard-room.voxel.json",
         "class": "durable",
         "role": "resource:procgen-prefab-source",
-        "contentHash": "b0a799554b12cb29"
+        "contentHash": "b1f35ca9f33e81db"
       },
       {
         "path": "voxel/prefabs/procgen-locked-gate.voxel.json",
         "class": "durable",
         "role": "resource:procgen-prefab-source",
-        "contentHash": "ffd597098b8b5648"
+        "contentHash": "9e04fc264c45fae2"
       }
     ]
   },
@@ -157,7 +157,7 @@
     "schemaVersion": 1,
     "id": 5721,
     "metadata": {
-      "name": "asha-procgen-prefab-publishing-proof generated layout",
+      "name": "rusty-procgen-prefab-publishing-proof generated layout",
       "authoringFormatVersion": 1
     },
     "dependencies": [
@@ -166,14 +166,14 @@
         "version": {
           "req": "any"
         },
-        "hash": "b0a799554b12cb29"
+        "hash": "b1f35ca9f33e81db"
       },
       {
         "id": "voxel-object/procgen-locked-gate",
         "version": {
           "req": "any"
         },
-        "hash": "ffd597098b8b5648"
+        "hash": "9e04fc264c45fae2"
       }
     ],
     "nodes": [
@@ -183,7 +183,7 @@
         "childOrder": 0,
         "label": "Compact flow junction with two clearance-spaced portals per side",
         "tags": [
-          "asha-procgen",
+          "rusty-procgen",
           "prefab-1003",
           "prefab-instance-2001"
         ],
@@ -212,7 +212,7 @@
             "version": {
               "req": "any"
             },
-            "hash": "b0a799554b12cb29"
+            "hash": "b1f35ca9f33e81db"
           }
         }
       },
@@ -222,7 +222,7 @@
         "childOrder": 1,
         "label": "Standard chamber, one exit",
         "tags": [
-          "asha-procgen",
+          "rusty-procgen",
           "prefab-1002",
           "prefab-instance-2002"
         ],
@@ -251,14 +251,14 @@
             "version": {
               "req": "any"
             },
-            "hash": "ffd597098b8b5648"
+            "hash": "9e04fc264c45fae2"
           }
         }
       }
     ]
   },
   "prefabInstancesArtifact": {
-    "kind": "asha_procgen.published_prefab_instances.v1",
+    "kind": "rusty_procgen.published_prefab_instances.v1",
     "schemaVersion": 1,
     "scene": 5721,
     "prefabInstances": [
@@ -313,18 +313,18 @@
     ]
   },
   "assetLockArtifact": {
-    "kind": "asha_procgen.asset_lock_references.v1",
+    "kind": "rusty_procgen.asset_lock_references.v1",
     "schemaVersion": 1,
     "assets": [
       {
         "assetId": "voxel-object/procgen-standard-room",
         "artifact": "voxel/prefabs/procgen-standard-room.voxel.json",
-        "contentHash": "b0a799554b12cb29"
+        "contentHash": "b1f35ca9f33e81db"
       },
       {
         "assetId": "voxel-object/procgen-locked-gate",
         "artifact": "voxel/prefabs/procgen-locked-gate.voxel.json",
-        "contentHash": "ffd597098b8b5648"
+        "contentHash": "9e04fc264c45fae2"
       }
     ]
   },
@@ -332,12 +332,12 @@
     {
       "assetId": "voxel-object/procgen-standard-room",
       "artifact": "voxel/prefabs/procgen-standard-room.voxel.json",
-      "contentHash": "b0a799554b12cb29"
+      "contentHash": "b1f35ca9f33e81db"
     },
     {
       "assetId": "voxel-object/procgen-locked-gate",
       "artifact": "voxel/prefabs/procgen-locked-gate.voxel.json",
-      "contentHash": "ffd597098b8b5648"
+      "contentHash": "9e04fc264c45fae2"
     }
   ],
   "provenance": {

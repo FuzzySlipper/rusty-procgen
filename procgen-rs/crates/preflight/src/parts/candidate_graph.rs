@@ -30,7 +30,7 @@ fn init_candidate(args: InitArgs) -> Result<(), String> {
 
 fn create_initial_candidate(intent: &SeedIntent, seed: u64) -> Candidate {
     Candidate {
-        kind: "asha_procgen.candidate.v1".to_owned(),
+        kind: "rusty_procgen.candidate.v1".to_owned(),
         schema_version: 1,
         candidate_id: format!("candidate.{}.{}", intent.id, seed),
         seed,
@@ -92,7 +92,7 @@ fn apply_rule(args: ApplyRuleArgs) -> Result<(), String> {
         None
     };
     let receipt = Receipt {
-        kind: "asha_procgen.receipt.v1".to_owned(),
+        kind: "rusty_procgen.receipt.v1".to_owned(),
         schema_version: 1,
         command: format!("graph apply-rule {}", args.rule.as_str()),
         status: status.to_owned(),
@@ -890,7 +890,7 @@ fn graph_rules_command(args: RuleMetadataArgs) -> Result<(), String> {
 
 fn rule_metadata_report() -> RuleMetadataReport {
     RuleMetadataReport {
-        kind: "asha_procgen.rule_metadata.v1".to_owned(),
+        kind: "rusty_procgen.rule_metadata.v1".to_owned(),
         schema_version: 1,
         rules: vec![
             RuleMetadata {

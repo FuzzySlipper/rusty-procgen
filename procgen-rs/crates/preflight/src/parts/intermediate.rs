@@ -80,7 +80,7 @@ fn spatial_intent_report(
         }
     }
     Ok(SpatialIntentReport {
-        kind: "asha_procgen.spatial_intent.v1".to_owned(),
+        kind: "rusty_procgen.spatial_intent.v1".to_owned(),
         schema_version: 1,
         candidate_id: candidate.candidate_id.clone(),
         state_hash: hash_json(candidate)?,
@@ -199,7 +199,7 @@ fn intermediate_breakdown(
         })
         .collect::<Vec<_>>();
     Ok(IntermediateBreakdown {
-        kind: "asha_procgen.intermediate_breakdown.v1".to_owned(),
+        kind: "rusty_procgen.intermediate_breakdown.v1".to_owned(),
         schema_version: 2,
         candidate_id: candidate.candidate_id.clone(),
         state_hash: hash_json(candidate)?,

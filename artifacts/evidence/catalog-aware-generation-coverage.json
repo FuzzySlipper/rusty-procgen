@@ -1,30 +1,318 @@
 {
-  "kind": "asha_procgen.evidence.catalog_aware_generation_coverage.v1",
+  "kind": "rusty_procgen.evidence.catalog_aware_generation_coverage.v1",
   "schemaVersion": 1,
   "sourceSelectionRef": "artifacts/samples/batch-v2/selection-report.json",
   "sourceCatalogRef": "fixtures/shape-catalogs/2d-basic.json",
   "sourcePolicyRef": "config/viewer-generation.json:catalogAwareGenerationPolicy",
   "summary": {
-    "candidateCount": 3,
-    "successCount": 3,
-    "rejectionCount": 0,
-    "successfulTopologyCount": 2,
-    "uniqueTopologyCount": 2
+    "candidateCount": 9,
+    "successCount": 5,
+    "rejectionCount": 4,
+    "successfulTopologyCount": 4,
+    "uniqueTopologyCount": 6
   },
   "outcomes": [
     {
-      "candidateId": "candidate.first_slice.5301",
-      "topologyFingerprint": "topology:75da51af2e5b93b4",
+      "candidateId": "candidate.first_slice.5501",
+      "topologyFingerprint": "topology:544fdebf614b3e9f",
+      "status": "rejected",
+      "classification": "search_budget_exhaustion",
+      "evidence": {
+        "kind": "rusty_procgen.catalog_aware_generation_exhaustion.v1",
+        "schemaVersion": 1,
+        "classification": "search_budget_exhaustion",
+        "attempts": [
+          {
+            "attempt": 0,
+            "roomSlackCells": 0,
+            "classification": "search_budget_exhaustion",
+            "stage": "section_routing",
+            "detail": "Catalog-cell routing for section section.region_hub_central_1.region_start.open from 120,432 to 29,279 exhausted its 200000-state budget.",
+            "roomsPlaced": 12,
+            "sectionsRouted": 3,
+            "routingStates": 216412
+          },
+          {
+            "attempt": 1,
+            "roomSlackCells": 4,
+            "classification": "search_budget_exhaustion",
+            "stage": "section_routing",
+            "detail": "Catalog-cell routing for section section.region_hub_central_1.region_start.open from 120,432 to 29,279 exhausted its 200000-state budget.",
+            "roomsPlaced": 12,
+            "sectionsRouted": 3,
+            "routingStates": 217272
+          },
+          {
+            "attempt": 2,
+            "roomSlackCells": 8,
+            "classification": "search_budget_exhaustion",
+            "stage": "section_routing",
+            "detail": "Catalog-cell routing for section section.region_hub_central_1.region_start.open from 120,432 to 29,280 exhausted its 200000-state budget.",
+            "roomsPlaced": 12,
+            "sectionsRouted": 3,
+            "routingStates": 215534
+          },
+          {
+            "attempt": 3,
+            "roomSlackCells": 12,
+            "classification": "search_budget_exhaustion",
+            "stage": "section_routing",
+            "detail": "Catalog-cell routing for section section.region_hub_central_1.region_start.open from 120,432 to 29,280 exhausted its 200000-state budget.",
+            "roomsPlaced": 12,
+            "sectionsRouted": 3,
+            "routingStates": 215697
+          }
+        ]
+      }
+    },
+    {
+      "candidateId": "candidate.first_slice.5201",
+      "topologyFingerprint": "topology:418e96fe6aa81a3a",
+      "status": "rejected",
+      "classification": "generation_infeasibility",
+      "evidence": {
+        "kind": "rusty_procgen.catalog_aware_generation_exhaustion.v1",
+        "schemaVersion": 1,
+        "classification": "generation_infeasibility",
+        "attempts": [
+          {
+            "attempt": 0,
+            "roomSlackCells": 0,
+            "classification": "generation_infeasibility",
+            "stage": "section_routing",
+            "detail": "No catalog-cell route satisfied section section.region_goal.region_hub_central_1.open from 96,111 to 179,95 in bounds -48,-48..258,247.",
+            "roomsPlaced": 9,
+            "sectionsRouted": 5,
+            "routingStates": 132410
+          },
+          {
+            "attempt": 1,
+            "roomSlackCells": 4,
+            "classification": "generation_infeasibility",
+            "stage": "section_routing",
+            "detail": "No catalog-cell route satisfied section section.region_goal.region_hub_central_1.open from 96,111 to 179,93 in bounds -48,-48..258,247.",
+            "roomsPlaced": 9,
+            "sectionsRouted": 5,
+            "routingStates": 128073
+          },
+          {
+            "attempt": 2,
+            "roomSlackCells": 8,
+            "classification": "generation_infeasibility",
+            "stage": "section_routing",
+            "detail": "No catalog-cell route satisfied section section.region_goal.region_junction_merge_1.open from 89,118 to 28,170 in bounds -48,-48..258,247.",
+            "roomsPlaced": 9,
+            "sectionsRouted": 3,
+            "routingStates": 110370
+          },
+          {
+            "attempt": 3,
+            "roomSlackCells": 12,
+            "classification": "generation_infeasibility",
+            "stage": "section_routing",
+            "detail": "No catalog-cell route satisfied section section.region_goal.region_junction_merge_1.open from 93,118 to 28,170 in bounds -48,-48..258,247.",
+            "roomsPlaced": 9,
+            "sectionsRouted": 3,
+            "routingStates": 98737
+          }
+        ]
+      }
+    },
+    {
+      "candidateId": "candidate.first_slice.5901",
+      "topologyFingerprint": "topology:418e96fe6aa81a3a",
       "status": "success",
       "classification": "catalog_aware_exact_assembly",
-      "buildId": "a841fc9a8baae4229bae618df2187564d626a035314c1d94d2cb2e726d3500b0",
-      "instanceCount": 397,
+      "buildId": "4c203c018efac505b8997fb4e9be84f58416a197cd3d7f360eee5edc75609d37",
+      "instanceCount": 944,
       "connectionCellCount": 0,
       "placementValidationOk": true,
       "builtFlowValidationOk": true,
       "catalogAwareGeneration": {
         "policy": {
-          "kind": "asha_procgen.catalog_aware_generation_policy.v1",
+          "kind": "rusty_procgen.catalog_aware_generation_policy.v1",
+          "schemaVersion": 1,
+          "maxGenerationAttempts": 4,
+          "initialRoomSlackCells": 0,
+          "roomSlackGrowthCells": 4,
+          "maxRoomCandidates": 16,
+          "maxRoutingStatesPerSection": 200000,
+          "routeMarginCells": 48,
+          "guideDistanceWeight": 4,
+          "turnPenalty": 3
+        },
+        "attempts": [
+          {
+            "attempt": 0,
+            "roomSlackCells": 0,
+            "classification": "success",
+            "stage": "complete",
+            "detail": "Catalog rooms and direct-glue corridor chains passed all validators.",
+            "roomsPlaced": 9,
+            "sectionsRouted": 13,
+            "routingStates": 40739
+          }
+        ],
+        "selectedAttempt": 0
+      }
+    },
+    {
+      "candidateId": "candidate.first_slice.5401",
+      "topologyFingerprint": "topology:6b22395a3dc8714c",
+      "status": "rejected",
+      "classification": "search_budget_exhaustion",
+      "evidence": {
+        "kind": "rusty_procgen.catalog_aware_generation_exhaustion.v1",
+        "schemaVersion": 1,
+        "classification": "search_budget_exhaustion",
+        "attempts": [
+          {
+            "attempt": 0,
+            "roomSlackCells": 0,
+            "classification": "search_budget_exhaustion",
+            "stage": "section_routing",
+            "detail": "Catalog-cell routing for section section.region_gate_locked_1.region_start.open from 141,86 to 33,271 exhausted its 200000-state budget.",
+            "roomsPlaced": 9,
+            "sectionsRouted": 1,
+            "routingStates": 369749
+          },
+          {
+            "attempt": 1,
+            "roomSlackCells": 4,
+            "classification": "search_budget_exhaustion",
+            "stage": "section_routing",
+            "detail": "Catalog-cell routing for section section.region_gate_locked_1.region_start.open from 141,86 to 33,272 exhausted its 200000-state budget.",
+            "roomsPlaced": 9,
+            "sectionsRouted": 1,
+            "routingStates": 367815
+          },
+          {
+            "attempt": 2,
+            "roomSlackCells": 8,
+            "classification": "search_budget_exhaustion",
+            "stage": "section_routing",
+            "detail": "Catalog-cell routing for section section.region_gate_locked_1.region_start.open from 141,86 to 33,264 exhausted its 200000-state budget.",
+            "roomsPlaced": 9,
+            "sectionsRouted": 1,
+            "routingStates": 369749
+          },
+          {
+            "attempt": 3,
+            "roomSlackCells": 12,
+            "classification": "search_budget_exhaustion",
+            "stage": "section_routing",
+            "detail": "Catalog-cell routing for section section.region_gate_locked_1.region_start.open from 141,86 to 33,271 exhausted its 200000-state budget.",
+            "roomsPlaced": 9,
+            "sectionsRouted": 1,
+            "routingStates": 370122
+          }
+        ]
+      }
+    },
+    {
+      "candidateId": "candidate.first_slice.6101",
+      "topologyFingerprint": "topology:6b22395a3dc8714c",
+      "status": "rejected",
+      "classification": "search_budget_exhaustion",
+      "evidence": {
+        "kind": "rusty_procgen.catalog_aware_generation_exhaustion.v1",
+        "schemaVersion": 1,
+        "classification": "search_budget_exhaustion",
+        "attempts": [
+          {
+            "attempt": 0,
+            "roomSlackCells": 0,
+            "classification": "search_budget_exhaustion",
+            "stage": "section_routing",
+            "detail": "Catalog-cell routing for section section.region_gate_locked_1.region_start.open from 141,86 to 33,271 exhausted its 200000-state budget.",
+            "roomsPlaced": 9,
+            "sectionsRouted": 1,
+            "routingStates": 369749
+          },
+          {
+            "attempt": 1,
+            "roomSlackCells": 4,
+            "classification": "search_budget_exhaustion",
+            "stage": "section_routing",
+            "detail": "Catalog-cell routing for section section.region_gate_locked_1.region_start.open from 141,86 to 33,272 exhausted its 200000-state budget.",
+            "roomsPlaced": 9,
+            "sectionsRouted": 1,
+            "routingStates": 367815
+          },
+          {
+            "attempt": 2,
+            "roomSlackCells": 8,
+            "classification": "search_budget_exhaustion",
+            "stage": "section_routing",
+            "detail": "Catalog-cell routing for section section.region_gate_locked_1.region_start.open from 141,86 to 33,264 exhausted its 200000-state budget.",
+            "roomsPlaced": 9,
+            "sectionsRouted": 1,
+            "routingStates": 369749
+          },
+          {
+            "attempt": 3,
+            "roomSlackCells": 12,
+            "classification": "search_budget_exhaustion",
+            "stage": "section_routing",
+            "detail": "Catalog-cell routing for section section.region_gate_locked_1.region_start.open from 141,86 to 33,271 exhausted its 200000-state budget.",
+            "roomsPlaced": 9,
+            "sectionsRouted": 1,
+            "routingStates": 370122
+          }
+        ]
+      }
+    },
+    {
+      "candidateId": "candidate.first_slice.5601",
+      "topologyFingerprint": "topology:93f72844c48d0e47",
+      "status": "success",
+      "classification": "catalog_aware_exact_assembly",
+      "buildId": "faad28acf1dbd082bd110711561d2e415f83197dfa0e916636c54d668f3f2180",
+      "instanceCount": 1061,
+      "connectionCellCount": 0,
+      "placementValidationOk": true,
+      "builtFlowValidationOk": true,
+      "catalogAwareGeneration": {
+        "policy": {
+          "kind": "rusty_procgen.catalog_aware_generation_policy.v1",
+          "schemaVersion": 1,
+          "maxGenerationAttempts": 4,
+          "initialRoomSlackCells": 0,
+          "roomSlackGrowthCells": 4,
+          "maxRoomCandidates": 16,
+          "maxRoutingStatesPerSection": 200000,
+          "routeMarginCells": 48,
+          "guideDistanceWeight": 4,
+          "turnPenalty": 3
+        },
+        "attempts": [
+          {
+            "attempt": 0,
+            "roomSlackCells": 0,
+            "classification": "success",
+            "stage": "complete",
+            "detail": "Catalog rooms and direct-glue corridor chains passed all validators.",
+            "roomsPlaced": 9,
+            "sectionsRouted": 13,
+            "routingStates": 39806
+          }
+        ],
+        "selectedAttempt": 0
+      }
+    },
+    {
+      "candidateId": "candidate.first_slice.5301",
+      "topologyFingerprint": "topology:75da51af2e5b93b4",
+      "status": "success",
+      "classification": "catalog_aware_exact_assembly",
+      "buildId": "7568648e38d23c3d49a9ab4f636cc7dd6b00c511a028a7ffca9b74f507872133",
+      "instanceCount": 401,
+      "connectionCellCount": 0,
+      "placementValidationOk": true,
+      "builtFlowValidationOk": true,
+      "catalogAwareGeneration": {
+        "policy": {
+          "kind": "rusty_procgen.catalog_aware_generation_policy.v1",
           "schemaVersion": 1,
           "maxGenerationAttempts": 4,
           "initialRoomSlackCells": 0,
@@ -44,7 +332,7 @@
             "detail": "Catalog rooms and direct-glue corridor chains passed all validators.",
             "roomsPlaced": 8,
             "sectionsRouted": 10,
-            "routingStates": 11452
+            "routingStates": 11250
           }
         ],
         "selectedAttempt": 0
@@ -55,14 +343,14 @@
       "topologyFingerprint": "topology:75da51af2e5b93b4",
       "status": "success",
       "classification": "catalog_aware_exact_assembly",
-      "buildId": "bd1fbbf380b37bbed914f683ab8549645b81e07629bdcfc40f674a07546e8275",
-      "instanceCount": 397,
+      "buildId": "88f18612bbf3ed01d3ae8b45dc266fec3507120d14c0f5ca83ff32e4b6f39cdb",
+      "instanceCount": 401,
       "connectionCellCount": 0,
       "placementValidationOk": true,
       "builtFlowValidationOk": true,
       "catalogAwareGeneration": {
         "policy": {
-          "kind": "asha_procgen.catalog_aware_generation_policy.v1",
+          "kind": "rusty_procgen.catalog_aware_generation_policy.v1",
           "schemaVersion": 1,
           "maxGenerationAttempts": 4,
           "initialRoomSlackCells": 0,
@@ -82,7 +370,7 @@
             "detail": "Catalog rooms and direct-glue corridor chains passed all validators.",
             "roomsPlaced": 8,
             "sectionsRouted": 10,
-            "routingStates": 11452
+            "routingStates": 11250
           }
         ],
         "selectedAttempt": 0
@@ -93,14 +381,14 @@
       "topologyFingerprint": "topology:9cb0a811896f1cf7",
       "status": "success",
       "classification": "catalog_aware_exact_assembly",
-      "buildId": "09e18696e096396a76d11ad47e7bac4b052c0098ad0163188dd4120c2b6a303e",
-      "instanceCount": 137,
+      "buildId": "21dff0ffead93d9728a4499c4fdf680ffdcec8bfbd41d8170feca8fe972e24e0",
+      "instanceCount": 129,
       "connectionCellCount": 0,
       "placementValidationOk": true,
       "builtFlowValidationOk": true,
       "catalogAwareGeneration": {
         "policy": {
-          "kind": "asha_procgen.catalog_aware_generation_policy.v1",
+          "kind": "rusty_procgen.catalog_aware_generation_policy.v1",
           "schemaVersion": 1,
           "maxGenerationAttempts": 4,
           "initialRoomSlackCells": 0,
@@ -120,7 +408,7 @@
             "detail": "Catalog rooms and direct-glue corridor chains passed all validators.",
             "roomsPlaced": 4,
             "sectionsRouted": 4,
-            "routingStates": 4546
+            "routingStates": 4569
           }
         ],
         "selectedAttempt": 0

@@ -1,7 +1,7 @@
 {
-  "kind": "asha_procgen.validation.piece_placement.v1",
+  "kind": "rusty_procgen.validation.piece_placement.v1",
   "schemaVersion": 1,
-  "stateHash": "fnv1a64:ea03c4490f40871a",
+  "stateHash": "fnv1a64:835d4f1ef82820dc",
   "ok": true,
   "fatalCount": 0,
   "diagnostics": []

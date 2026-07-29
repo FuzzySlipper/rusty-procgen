@@ -17,7 +17,7 @@ const occupiedCells = [
 ];
 const connectionOwner = 'connection.glue_room_a_room_b';
 const placement = {
-  kind: 'asha_procgen.piece_placement.v1',
+  kind: 'rusty_procgen.piece_placement.v1',
   placementId: 'piece_placement.boundary_smoke',
   gridConnectivity: 'four_way',
   placementPolicy: policy,

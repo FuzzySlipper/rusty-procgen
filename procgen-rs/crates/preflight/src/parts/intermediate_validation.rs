@@ -236,7 +236,7 @@ fn validate_intermediate_breakdown(breakdown: &IntermediateBreakdown) -> Validat
         .filter(|diagnostic| diagnostic.severity == Severity::Fatal)
         .count();
     ValidationReport {
-        kind: "asha_procgen.validation.intermediate.v1".to_owned(),
+        kind: "rusty_procgen.validation.intermediate.v1".to_owned(),
         schema_version: 1,
         state_hash: hash_json(breakdown).unwrap_or_else(|_| "hash_error".to_owned()),
         ok: fatal_count == 0,

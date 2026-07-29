@@ -75,7 +75,7 @@ fn match_shapes_with_attempt(
         .filter(|diagnostic| diagnostic.code == "shape_match_missing")
         .count();
     PieceShapeMatchReport {
-        kind: "asha_procgen.piece_shape_match.v1".to_owned(),
+        kind: "rusty_procgen.piece_shape_match.v1".to_owned(),
         schema_version: 1,
         match_id: format!(
             "piece_shape_match.{}.{}.alternative_{}",

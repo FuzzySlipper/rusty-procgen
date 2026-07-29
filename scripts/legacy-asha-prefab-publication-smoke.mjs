@@ -24,7 +24,7 @@ const configuration = await readJson('fixtures/prefab-mappings/first-slice.json'
 const sourceAssetBodies = new Map(configuration.sourceAssets.map((source) => [
   source.artifact,
   `${JSON.stringify({
-    kind: 'asha_procgen.voxel_object_source.v1',
+    kind: 'rusty_procgen.voxel_object_source.v1',
     assetId: source.assetId,
     voxels: [],
   }, null, 2)}\n`,
@@ -56,7 +56,7 @@ assert.equal(publication.sceneArtifact.nodes[0].kind.kind, 'voxelVolume');
 assert.equal(publication.manifest.bundleSchemaVersion, 2);
 assert.equal(publication.manifest.entryScene, publication.sceneArtifact.id);
 assert.deepEqual(publication.manifest.scenes.map((scene) => scene.id), [publication.sceneArtifact.id]);
-assert.equal(publication.manifest.generationProvenance?.provider, 'asha-procgen.prefab-publisher');
+assert.equal(publication.manifest.generationProvenance?.provider, 'rusty-procgen.prefab-publisher');
 assert.equal(publication.manifest.artifacts.find((artifact) => artifact.role === 'prefabRegistry')?.path, 'prefabs/registry.json');
 assert.equal(
   publication.manifest.artifacts.filter((artifact) => artifact.role === 'resource:procgen-prefab-source').length,
@@ -71,13 +71,13 @@ const runtimeSession = createRuntimeSessionFacade({
   mode: 'rust',
 });
 runtimeSession.initialize({
-  sessionId: 'asha-procgen.prefab-publication-admission',
+  sessionId: 'rusty-procgen.prefab-publication-admission',
   seed: 5201,
-  project: { gameId: 'asha-procgen', workspaceId: 'prefab-publication' },
+  project: { gameId: 'rusty-procgen', workspaceId: 'prefab-publication' },
 });
 const legacyReceipt = await runtimeSession.loadProject({
   source: createMemoryAshaProjectSource(
-    'memory:asha-procgen-prefab-publication-v1-rejection',
+    'memory:rusty-procgen-prefab-publication-v1-rejection',
     publicationProjectFiles(
       { ...publication, manifest: { ...publication.manifest, bundleSchemaVersion: 1 } },
       canonicalConfiguration,
@@ -90,7 +90,7 @@ assert.equal(legacyReceipt.diagnostics[0]?.phase, 'sourceBatch');
 assert.match(legacyReceipt.diagnostics[0]?.message ?? '', /unsupported bundle schema version 1/);
 const projectReceipt = await runtimeSession.loadProject({
   source: createMemoryAshaProjectSource(
-    'memory:asha-procgen-prefab-publication',
+    'memory:rusty-procgen-prefab-publication',
     publicationProjectFiles(publication, canonicalConfiguration, sourceAssetBodies),
   ),
 });

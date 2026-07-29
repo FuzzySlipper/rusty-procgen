@@ -6,7 +6,7 @@ import { join } from 'node:path';
 const host = '127.0.0.1';
 const port = Number(process.env.GENERATION_CONFIG_SMOKE_PORT ?? 5195);
 const baseUrl = `http://${host}:${port}`;
-const tempDir = await mkdtemp(join(tmpdir(), 'asha-procgen-generation-config-smoke-'));
+const tempDir = await mkdtemp(join(tmpdir(), 'rusty-procgen-generation-config-smoke-'));
 const configPath = join(tempDir, 'viewer-generation.json');
 await writeFile(configPath, await readFile('config/viewer-generation.json', 'utf8'), 'utf8');
 
@@ -17,7 +17,7 @@ const server = spawn(
     cwd: process.cwd(),
     env: {
       ...process.env,
-      ASHA_PROCGEN_GENERATION_CONFIG_PATH: configPath,
+      RUSTY_PROCGEN_GENERATION_CONFIG_PATH: configPath,
     },
     stdio: ['ignore', 'pipe', 'pipe'],
   },
@@ -52,7 +52,7 @@ try {
   const first = await postRebuild({ candidateId, config: configured }, 200);
   const repeated = await postRebuild({ candidateId, config: configured }, 200);
   if (
-    first.kind !== 'asha_procgen.viewer_generation_rebuild.v1'
+    first.kind !== 'rusty_procgen.viewer_generation_rebuild.v1'
     || first.buildId !== repeated.buildId
     || JSON.stringify(first.geometry) !== JSON.stringify(repeated.geometry)
     || JSON.stringify(first.placement) !== JSON.stringify(repeated.placement)
@@ -204,7 +204,7 @@ try {
 
 function assertConfigEnvelope(config) {
   if (
-    config.kind !== 'asha_procgen.viewer_generation_config.v1'
+    config.kind !== 'rusty_procgen.viewer_generation_config.v1'
     || config.schemaVersion !== 1
   ) {
     throw new Error(`unexpected generation config envelope: ${JSON.stringify(config)}`);
@@ -213,7 +213,7 @@ function assertConfigEnvelope(config) {
 
 function assertCatalogAwareExhaustionEvidence(evidence) {
   if (
-    evidence?.kind !== 'asha_procgen.catalog_aware_generation_exhaustion.v1'
+    evidence?.kind !== 'rusty_procgen.catalog_aware_generation_exhaustion.v1'
     || evidence.schemaVersion !== 1
     || evidence.classification !== 'search_budget_exhaustion'
     || !Array.isArray(evidence.attempts)

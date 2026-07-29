@@ -28,6 +28,7 @@ const stableValue = (value) => {
 const normalizedPlanHash = (plan) => {
   const normalized = structuredClone(plan);
   for (const key of [
+    'kind',
     'candidateId',
     'planId',
     'sourceCandidateRef',
@@ -382,7 +383,7 @@ for (const family of fixture.families) {
 }
 
 const report = {
-  kind: 'asha_procgen.geometry_recovery_report.v1',
+  kind: 'rusty_procgen.geometry_recovery_report.v1',
   schemaVersion: 1,
   corpusRef: fixtureRef,
   selectionRef,

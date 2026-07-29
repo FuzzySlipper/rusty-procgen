@@ -1,11 +1,11 @@
 {
-  "kind": "asha_procgen.receipt.v1",
+  "kind": "rusty_procgen.receipt.v1",
   "schemaVersion": 1,
   "command": "graph apply-rule lock_key_loop",
   "status": "ok",
   "seed": 6002,
-  "inputHash": "fnv1a64:993b357924fd88b8",
-  "outputHash": "fnv1a64:c71aa55707ac3e5c",
+  "inputHash": "fnv1a64:0d079c4cb3044cda",
+  "outputHash": "fnv1a64:447b5d50a37564ea",
   "outputRef": "artifacts/samples/batch-v2/candidate-008/candidate-001-lock_key_loop.json",
   "diagnostics": []
 }

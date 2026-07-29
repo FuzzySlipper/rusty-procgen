@@ -27,7 +27,7 @@ try {
   const first = await postExperiment({ candidateId, placementPolicy: policy }, 200);
   const repeated = await postExperiment({ candidateId, placementPolicy: policy }, 200);
   if (
-    first.kind !== 'asha_procgen.placement_policy_experiment.v1'
+    first.kind !== 'rusty_procgen.placement_policy_experiment.v1'
     || first.experimentId !== repeated.experimentId
     || JSON.stringify(first.placement) !== JSON.stringify(repeated.placement)
     || first.validation?.ok !== true

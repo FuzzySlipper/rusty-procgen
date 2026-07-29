@@ -187,7 +187,7 @@ fn assemble_pure_catalog_placement(
                 )
             });
         let evidence = PureCatalogExhaustionEvidence {
-            kind: "asha_procgen.pure_catalog_exhaustion.v1".to_owned(),
+            kind: "rusty_procgen.pure_catalog_exhaustion.v1".to_owned(),
             schema_version: 1,
             failure,
             budgets: PureCatalogBudgetEvidence {
@@ -214,7 +214,7 @@ fn assemble_pure_catalog_placement(
     })?;
 
     let mut placement = PiecePlacement {
-        kind: "asha_procgen.piece_placement.v1".to_owned(),
+        kind: "rusty_procgen.piece_placement.v1".to_owned(),
         schema_version: 1,
         placement_id: format!("piece_placement.{}.pure_catalog", shape_match.match_id),
         plan_id: plan.plan_id.clone(),

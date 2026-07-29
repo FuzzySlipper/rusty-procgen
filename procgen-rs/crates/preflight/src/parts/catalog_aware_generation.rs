@@ -100,7 +100,7 @@ fn build_realize_catalog_aware_command(args: BuildRealizeCatalogAwareArgs) -> Re
         return Err("catalog-aware generation requires a catalog piece plan".to_owned());
     }
     let mut result = CatalogAwareGenerationResult {
-        kind: "asha_procgen.catalog_aware_generation.v1".to_owned(),
+        kind: "rusty_procgen.catalog_aware_generation.v1".to_owned(),
         schema_version: 1,
         ok: false,
         candidate_id: candidate.candidate_id.clone(),
@@ -540,7 +540,7 @@ fn realize_catalog_aware_attempt(
 }
 
 fn validate_catalog_aware_policy(policy: &CatalogAwareGenerationPolicy) -> Result<(), String> {
-    if policy.kind != "asha_procgen.catalog_aware_generation_policy.v1"
+    if policy.kind != "rusty_procgen.catalog_aware_generation_policy.v1"
         || policy.schema_version != 1
     {
         return Err("unsupported catalog-aware generation policy".to_owned());
@@ -1076,7 +1076,7 @@ fn materialize_catalog_composition(
         .sort_by(|left, right| left.piece_id.cmp(&right.piece_id));
     plan.links.sort_by(|left, right| left.id.cmp(&right.id));
     let shape_match = PieceShapeMatchReport {
-        kind: "asha_procgen.piece_shape_match.v1".to_owned(),
+        kind: "rusty_procgen.piece_shape_match.v1".to_owned(),
         schema_version: 1,
         match_id: format!(
             "piece_shape_match.{}.{}.catalog_aware",
@@ -1095,7 +1095,7 @@ fn materialize_catalog_composition(
         diagnostics: Vec::new(),
     };
     let placement = PiecePlacement {
-        kind: "asha_procgen.piece_placement.v1".to_owned(),
+        kind: "rusty_procgen.piece_placement.v1".to_owned(),
         schema_version: 1,
         placement_id: format!("piece_placement.{}.catalog_aware", plan.plan_id),
         plan_id: plan.plan_id.clone(),
