@@ -8,7 +8,7 @@ The adapter is an isolated Rust workspace at
 `integrations/rusty-engine-publication/`. The normal
 `rusty-procgen-preflight` crate has no Engine dependency. The adapter selects
 one exact public Engine commit through `engine-source.json`; no sibling Engine
-checkout or Asha package participates.
+checkout or predecessor package participates.
 
 ## Mapping
 

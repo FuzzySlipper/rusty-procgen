@@ -9,11 +9,11 @@ content catalogs, and the interactive viewer. Reusable scene, asset, voxel,
 spatial, mesh, render, component, and service mechanisms belong in
 [`rusty-engine`](https://github.com/FuzzySlipper/rusty-engine).
 
-The repository was converted in place from its historical Asha donor. No Asha
-package, sibling checkout, runtime adapter, or predecessor artifact decoder is
-part of the executable product. Historical dispositions remain recorded in
-[`migration/asha-disposition.json`](migration/asha-disposition.json); the
-default gate rejects any reintroduction. Predecessor artifact kinds are not
+The repository was converted in place from a historical donor. No predecessor
+package, sibling checkout, runtime adapter, or retired artifact decoder is part
+of the executable product. Historical dispositions remain isolated in
+[`migration/predecessor-disposition.json`](migration/predecessor-disposition.json);
+the default gate rejects any reintroduction. Predecessor artifact kinds are not
 supported.
 
 ## Fresh Setup
@@ -51,6 +51,11 @@ pnpm run viewer:smoke
 pnpm run catalog:coverage
 ```
 
+The exact conversion boundary, clean-checkout proof commands, and scope are in
+[`docs/conversion-closeout.md`](docs/conversion-closeout.md). Current product
+nonclaims are kept in
+[`docs/known-limitations.md`](docs/known-limitations.md).
+
 ## Rust library
 
 `rusty-procgen-preflight` exposes the deterministic generator as a library as
@@ -86,7 +91,7 @@ extrudes a validated 2D piece placement into a simple enclosed voxel volume.
 Placement `x/y` maps to voxel `x/z`; Procgen adds a floor, three-voxel walls,
 and a ceiling, then composes the exact-pinned
 `engine-spatial::VoxelCollisionScene` and `VoxelEditService` public surfaces.
-It contains no RuntimeSession-style facade, command tunnel, Asha package,
+It contains no universal runtime facade, command tunnel, predecessor package,
 renderer, or sibling Engine checkout.
 
 The source placement carries a versioned policy for minimum inter-piece
@@ -261,7 +266,6 @@ consumer reproduction and route the engine-owned work upstream. Do not recreate
 generic scene, asset, voxel, spatial, renderer, component, or service authority
 locally.
 
-The local Rust lane in `procgen-rs/` is for downstream preflight tooling,
-generation logic, validation evidence, and project-specific experiments. The
-remaining Asha imports are temporary conversion exceptions owned exclusively by
-the migration ledger and Den #6397–#6400; they are not patterns for new work.
+The local Rust lane in `procgen-rs/` is for downstream generation tooling,
+validation evidence, and project-specific experiments. The terminal migration
+ledger records no active predecessor dependency, import, or adapter exception.

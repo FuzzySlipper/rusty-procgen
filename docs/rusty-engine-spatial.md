@@ -10,9 +10,9 @@ The isolated downstream Rust workspace at
 `integrations/rusty-engine-spatial/` depends on
 `rusty-procgen-preflight` plus the public `engine-spatial` crate at the exact
 commit in `engine-source.json`. The normal Procgen core remains Engine
-independent. No Asha package, Node runtime, native addon, browser, renderer,
-sibling Engine checkout, RuntimeSession, or general command facade participates
-in this proof.
+independent. No predecessor package, Node runtime, native addon, browser,
+renderer, sibling Engine checkout, universal runtime facade, or general command
+facade participates in this proof.
 
 ## Composition
 

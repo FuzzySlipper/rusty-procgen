@@ -1,10 +1,11 @@
-# Asha donor boundary
+# Rusty Engine boundaries
 
-The in-place conversion retains no executable Asha package, transitive package,
-import, adapter script, sibling checkout, or predecessor artifact decoder. The
-historical disposition is machine-owned by
-[`../migration/asha-disposition.json`](../migration/asha-disposition.json).
-The migration boundary gate requires its active arrays to remain empty.
+The repository has no executable predecessor package, transitive package,
+import, adapter script, sibling checkout, or retired artifact decoder. The
+terminal historical disposition is isolated in
+[`../migration/predecessor-disposition.json`](../migration/predecessor-disposition.json).
+The migration boundary gate requires its active arrays to remain empty and
+rejects predecessor identities outside the migration records.
 
 Generated-content publication and voxel authority use exact-pinned public
 Rusty Engine Rust owners. Their contracts and evidence are documented in

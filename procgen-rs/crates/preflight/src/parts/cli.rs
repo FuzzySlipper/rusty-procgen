@@ -11,8 +11,6 @@ pub(crate) struct Cli {
 
 #[derive(Subcommand)]
 pub(crate) enum Command {
-    /// Check sibling ASHA engine checkout posture.
-    Preflight(PreflightArgs),
     /// Create a minimal candidate from a seed intent.
     Init(InitArgs),
     /// Mutate or summarize intent graphs.
@@ -43,12 +41,6 @@ pub(crate) enum Command {
     Baseline(BaselineArgs),
     /// Generate a deterministic batch and selection report.
     Batch(BatchCommand),
-}
-
-#[derive(Args)]
-pub(crate) struct PreflightArgs {
-    #[arg(default_value = ".")]
-    pub(crate) repo_root: PathBuf,
 }
 
 #[derive(Args)]

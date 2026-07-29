@@ -164,13 +164,16 @@ if (!/initialGrid: projection\.grid/.test(viewerSource) || !/surface\.setGrid\(p
   throw new Error('viewer does not mount and replace the public engine grid with its voxel projection');
 }
 const combinedSource = `${viewerSource}\n${projectionSource}`;
+const predecessorDisposition = JSON.parse(
+  await readFile(resolve(repoRoot, 'migration/predecessor-disposition.json'), 'utf8'),
+);
 const forbiddenRendererImport =
   /(?:from\s+|import\()['"](?:three(?:\/|['"])|@rusty-engine\/renderer-three(?:\/|['"])|@rusty-engine\/[^'"]+\/(?:src|backend)(?:\/|['"]))/;
 if (forbiddenRendererImport.test(combinedSource)) {
   throw new Error('voxel inspection source contains a direct renderer implementation import');
 }
-if (combinedSource.includes('@asha/')) {
-  throw new Error('voxel inspection source retains an Asha package import');
+if (combinedSource.includes(predecessorDisposition.predecessor.packageScope)) {
+  throw new Error('voxel inspection source retains a predecessor package import');
 }
 if (/\bfetch\s*\(/.test(projectionSource)) {
   throw new Error('neutral voxel inspection projection contains a raw transport seam');

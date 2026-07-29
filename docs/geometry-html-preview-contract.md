@@ -69,7 +69,7 @@ Important fields:
   cannot or should not draw a connector.
 
 The geometry artifact is allowed to use coordinates and rectangles. It is not a
-tile map and does not imply collision, runtime navigation, mesh, voxel, or ASHA
+tile map and does not imply collision, runtime navigation, mesh, voxel, or final
 renderer authority.
 
 The emitter sizes and distributes rooms from their planned connection demands,
@@ -138,7 +138,7 @@ artifact loses required source refs, connectors, or content anchors.
 ## Non-Goals
 
 - No tile-perfect roguelike map.
-- No final renderer or ASHA runtime integration.
+- No final renderer or gameplay runtime integration.
 - No mesh generation.
 - No voxel output.
 - No hand-authored art assets.

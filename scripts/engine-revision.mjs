@@ -146,8 +146,14 @@ function checkRendererPackages(root, source) {
   }
 
   const lock = readFileSync(join(root, 'pnpm-lock.yaml'), 'utf8');
-  if (/\b(?:workspace|link|file):(?:\.\.?\/|\/)|\/home\/dev\/|@asha\//.test(lock)) {
-    fail('pnpm-lock.yaml contains a forbidden local, workspace, or Asha dependency');
+  const predecessor = JSON.parse(
+    readFileSync(join(root, 'migration/predecessor-disposition.json'), 'utf8'),
+  );
+  if (
+    /\b(?:workspace|link|file):(?:\.\.?\/|\/)|\/home\/dev\//.test(lock)
+    || lock.includes(predecessor.predecessor.packageScope)
+  ) {
+    fail('pnpm-lock.yaml contains a forbidden local, workspace, or predecessor dependency');
   }
   for (const packageName of rendererPackages) {
     const expected = `${source.commit}#path:render/packages/${packageName}`;

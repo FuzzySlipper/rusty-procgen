@@ -15,7 +15,7 @@ generation is the only interesting target.
   how it changes player choice.
 - Separate high-level dungeon flow from spatial embedding and local decoration.
 - Start with 2D connectivity while keeping the framework dimension-agnostic.
-- Treat generic ASHA runtime, collision, pathfinding, replay, and protocol work
+- Treat generic runtime, collision, pathfinding, replay, and protocol work
   as upstream engine authority if an experiment proves broadly useful.
 
 ## Core Working Model
@@ -228,7 +228,7 @@ agent/generator batch -> validator -> scorer -> artifact store -> runtime shuffl
 - Run 8-64 local agents or generator workers in parallel.
 - Let them propose thousands of layouts, graph recipes, or module assemblies.
 - Validate all candidates offline for reachability, lock/key ordering,
-  navigation sanity, collision, destructibility constraints, and ASHA boundary
+  navigation sanity, collision, destructibility constraints, and engine-boundary
   compatibility.
 - Score and deduplicate accepted layouts.
 - Store accepted layouts as permanent install-level artifacts.
@@ -309,10 +309,10 @@ that looks like a deliberate level designer made choices.
 
 ## Non-Goals For The First Slice
 
-- No runtime ASHA authority changes.
+- No gameplay runtime authority changes.
 - No renderer dependency.
 - No full voxel dungeon output.
-- No local replacement for ASHA pathfinding/collision authority.
+- No local replacement for Engine pathfinding or collision authority.
 - No LLM content factory until deterministic graph generation and validation
   exist.
 - No attempt to solve Daggerfall-scale 3D layout before the 2D intent graph

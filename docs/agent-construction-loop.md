@@ -214,8 +214,8 @@ This series does not add:
 - hidden mutable workspace state;
 - 3D embedding;
 - voxel output;
-- ASHA runtime/renderer integration;
-- imports from ASHA internals.
+- gameplay runtime or final-renderer integration;
+- imports from private engine internals.
 
 All durable state should remain in explicit files under the caller-chosen output
 directory.

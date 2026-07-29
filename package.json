@@ -8,7 +8,7 @@
   "scripts": {
     "check:migration-boundary": "node scripts/check-migration-boundary.mjs",
     "check:corpus-identity": "node scripts/check-corpus-identity.mjs",
-    "procgen": "cargo run --quiet --manifest-path procgen-rs/Cargo.toml --bin rusty-procgen --",
+    "procgen": "cargo run --quiet --manifest-path procgen-rs/Cargo.toml --bin rusty-procgen",
     "baseline": "pnpm run procgen -- baseline --out-dir artifacts/samples/first-run --seed 4103",
     "batch:sample": "pnpm run procgen -- batch generate --profile fixtures/batch-profiles/v2-sample.json --out-dir artifacts/samples/batch-v2 --seed 5201 --count 10",
     "geometry:recovery": "cargo run --quiet --release --manifest-path procgen-rs/Cargo.toml --bin rusty-procgen -- batch generate --profile fixtures/batch-profiles/v2-sample.json --out-dir artifacts/samples/batch-v2 --seed 5201 --count 10 && pnpm run geometry:recovery:report",
@@ -45,10 +45,5 @@
   "devDependencies": {
     "esbuild": "^0.25.0",
     "typescript": "^6.0.3"
-  },
-  "legacyAshaMigration": {
-    "ledger": "migration/asha-disposition.json",
-    "engineSource": "../asha-engine",
-    "closeoutTask": 6400
   }
 }

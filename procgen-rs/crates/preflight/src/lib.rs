@@ -72,9 +72,6 @@ pub(crate) use catalog_aware_generation::*;
 #[path = "parts/batch_artifacts.rs"]
 mod batch_artifacts;
 pub(crate) use batch_artifacts::*;
-#[path = "parts/preflight.rs"]
-mod preflight;
-pub(crate) use preflight::*;
 #[path = "parts/dispatch.rs"]
 mod dispatch;
 

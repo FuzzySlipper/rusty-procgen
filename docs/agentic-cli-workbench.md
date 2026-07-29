@@ -241,4 +241,4 @@ requiring a custom service.
 - No hidden mutable workspace state.
 - No trusting LLMs for validation.
 - No runtime game authority in this repo.
-- No direct ASHA engine internals.
+- No direct private engine internals.

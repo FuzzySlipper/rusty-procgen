@@ -53,7 +53,7 @@ access.
 The CLI uses the same deterministic behavior owners and adds only explicit
 path reads/writes, receipt emission, transcripts, and exit status. A library
 host does not spawn the CLI, depend on Node or a browser, or require Rusty
-Engine/Asha dependencies.
+Engine or presentation dependencies.
 
 ## Verification
 

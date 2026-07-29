@@ -1,14 +1,7 @@
 {
   "kind": "rusty_procgen.repository_identity.v1",
-  "template": "rusty-procgen-in-place-conversion",
-  "templateVersion": "1",
+  "template": "rusty-procgen-standalone",
+  "templateVersion": "2",
   "project": "rusty-procgen",
-  "rustDir": "procgen-rs",
-  "predecessor": {
-    "project": "asha-procgen",
-    "template": "asha-downstream-template",
-    "templateVersion": "0.1.0",
-    "templateCommit": "705c0a8",
-    "copiedAt": "2026-07-07"
-  }
+  "rustDir": "procgen-rs"
 }

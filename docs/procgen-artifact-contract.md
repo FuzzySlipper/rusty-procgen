@@ -359,7 +359,7 @@ declare `gridConnectivity` (`four_way` by
 default, optionally `eight_way`) so validators and previews agree on whether
 diagonal contact counts as reachable. They are the first artifact layer that
 owns occupancy, while still stopping before mesh, voxel, renderer, collision,
-or ASHA runtime integration.
+or gameplay runtime integration.
 
 Validation rejects configured-clearance violations between unrelated piece
 instances. Catalog pieces with the same physical-section provenance may

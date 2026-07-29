@@ -341,7 +341,7 @@ Piece placement:
 
 - selected shapes, transforms, occupied cells, reserved cells, glued exits;
 - validation authority for prefab-grid assembly;
-- still no mesh, voxel, renderer, collision, or ASHA runtime authority.
+- still no mesh, voxel, renderer, collision, or gameplay runtime authority.
 
 ## Fixture Catalog Shape Families
 
@@ -372,7 +372,7 @@ hand while still covering the current sample dungeon vocabulary.
 - No final tile-perfect roguelike map.
 - No mesh generation.
 - No voxel output.
-- No ASHA runtime, renderer, collision, or pathfinding integration.
+- No gameplay runtime, renderer, collision, or pathfinding integration.
 - No hand-authored art assets beyond JSON fixture shape metadata.
 - No accepted 3D placement yet; 3D exits remain future contract vocabulary
   until validators can prove them.

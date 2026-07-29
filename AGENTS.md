@@ -24,7 +24,7 @@ Use this order when sources disagree:
 2. Current code, tests, fixtures, configuration, and generated evidence.
 3. This file, the README, and the owning contract under `docs/`.
 4. The machine-readable migration ledger in
-   `migration/asha-disposition.json`.
+   `migration/predecessor-disposition.json`.
 5. Historical notes and predecessor documentation.
 
 The repository is self-contained for agents without Den access. Den owns
@@ -52,6 +52,10 @@ artifacts, deterministic behavior owners, CLI adapters, or their test routing.
 The CLI must remain a filesystem/receipt consumer of the in-memory library
 rather than a second implementation.
 
+The terminal conversion proof and current product nonclaims live in
+[`docs/conversion-closeout.md`](docs/conversion-closeout.md) and
+[`docs/known-limitations.md`](docs/known-limitations.md).
+
 `config/viewer-generation.json` may contain intentional local user
 experiments. Preserve unrelated value changes and never stage them as
 collateral.
@@ -64,8 +68,8 @@ collateral.
   explicit.
 - Keep dungeon semantics downstream. Do not promote a universal Procgen
   runtime, gameplay AST, scheduler, behavior graph, or ambient event bus.
-- Call Rusty Engine public named services directly. Do not recreate Asha-style
-  RuntimeSession, command tunnels, hidden service location, or duplicate
+- Call Rusty Engine public named services directly. Do not recreate universal
+  runtime facades, command tunnels, hidden service location, or duplicate
   spatial/render authority.
 - TypeScript may author, translate, project, and orchestrate product behavior;
   it must not silently become a second copy of reusable Engine authority.
@@ -76,15 +80,15 @@ collateral.
 
 ## Predecessor boundary
 
-Asha is historical donor evidence, not a compatibility target. The executable
-repository has no Asha packages, imports, adapter scripts, or sibling-checkout
-requirements.
+The retired donor is historical evidence, not a compatibility target. The
+executable repository has no predecessor packages, imports, adapter scripts, or
+sibling-checkout requirements.
 
-`migration/asha-disposition.json` retains the exact historical disposition.
+`migration/predecessor-disposition.json` retains the exact historical
+disposition.
 `pnpm run check:migration-boundary` fails on any executable predecessor
-dependency, import, adapter script, or retired artifact kind. Do not add an
-Asha dependency or wrapper; route any missing mechanism to its Rusty Engine
-owner.
+dependency, import, adapter script, retired identity, or artifact kind. Route
+any missing reusable mechanism to its Rusty Engine owner.
 
 ## Local commands
 

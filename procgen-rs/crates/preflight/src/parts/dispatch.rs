@@ -3,7 +3,6 @@ use crate::*;
 
 pub(crate) fn run(cli: Cli) -> Result<(), String> {
     match cli.command {
-        Command::Preflight(args) => run_preflight_command(&args.repo_root),
         Command::Init(args) => init_candidate(args),
         Command::Graph(command) => match command.command {
             GraphSubcommand::ApplyRule(args) => apply_rule(args),

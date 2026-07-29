@@ -1,0 +1,196 @@
+{
+  "kind": "rusty_procgen.migration.predecessor_disposition.v2",
+  "schemaVersion": 2,
+  "status": "complete",
+  "completedByTask": 6400,
+  "completedAt": "2026-07-29",
+  "predecessor": {
+    "project": "asha-procgen",
+    "displayName": "Asha Procgen",
+    "artifactNamespace": "asha_procgen.",
+    "packageScope": "@asha/"
+  },
+  "current": {
+    "project": "rusty-procgen",
+    "displayName": "Rusty Procgen",
+    "artifactNamespace": "rusty_procgen.",
+    "legacyArtifactDecoding": "forbidden"
+  },
+  "pendingPaths": [],
+  "activePredecessorDependencies": [],
+  "activePredecessorImports": [],
+  "activePredecessorScripts": [],
+  "dependencyDispositions": [
+    {
+      "package": "@asha/runtime-session",
+      "disposition": "deleted",
+      "replacement": null,
+      "task": 6398
+    },
+    {
+      "package": "@asha/runtime-bridge",
+      "disposition": "deleted",
+      "replacement": "direct named Rusty Engine spatial and authored services",
+      "task": 6398
+    },
+    {
+      "package": "@asha/contracts",
+      "disposition": "replaced",
+      "replacement": "@rusty-engine/render-contracts",
+      "task": 6399
+    },
+    {
+      "package": "@asha/renderer-host",
+      "disposition": "replaced",
+      "replacement": "@rusty-engine/renderer-host",
+      "task": 6399
+    }
+  ],
+  "pathDispositions": [
+    {
+      "source": "repository identity and artifact namespaces",
+      "disposition": "adapted",
+      "owner": "rusty-procgen",
+      "task": 6395
+    },
+    {
+      "source": "deterministic graph, geometry, placement, and validation core",
+      "disposition": "ported_in_place",
+      "owner": "rusty-procgen-preflight",
+      "task": 6396
+    },
+    {
+      "source": "ProjectBundle and TypeScript prefab publication",
+      "disposition": "deleted_and_replaced",
+      "owner": "exact-pinned Rusty Engine authored owners",
+      "task": 6397
+    },
+    {
+      "source": "RuntimeSession voxel command lane",
+      "disposition": "deleted_and_replaced",
+      "owner": "downstream spatial host plus engine-spatial",
+      "task": 6398
+    },
+    {
+      "source": "retained renderer contracts and inspection host",
+      "disposition": "replaced",
+      "owner": "exact-pinned public Rusty Engine renderer packages",
+      "task": 6399
+    },
+    {
+      "source": "sibling-engine preflight command and conversion-only metadata",
+      "disposition": "deleted",
+      "owner": "none",
+      "task": 6400
+    }
+  ],
+  "schemaFamilies": [
+    "accepted_artifact.v1",
+    "batch_profile.v1",
+    "batch_profile.v2_sample",
+    "candidate.v1",
+    "catalog_aware_generation.v1",
+    "catalog_aware_generation_exhaustion.v1",
+    "catalog_aware_generation_policy.v1",
+    "catalog_inspection.v1",
+    "corridor_realization_experiment.v1",
+    "evidence.catalog_aware_generation_coverage.v1",
+    "evidence.engine_spatial_extrusion.v1",
+    "evidence.pure_catalog_coverage.v1",
+    "geometry_2d.v1",
+    "geometry_layout_policy.v1",
+    "geometry_layout_policy_experiment.v1",
+    "geometry_recovery_corpus.v1",
+    "geometry_recovery_report.v1",
+    "graph_analysis.v1",
+    "graph_patterns.v2",
+    "graph_summary.v1",
+    "html_preview.v1",
+    "intermediate_breakdown.v1",
+    "layout_2d.v1",
+    "pack.v1",
+    "physical_connection_plan.v1",
+    "piece_build_plan.v1",
+    "piece_placement.v1",
+    "piece_shape_match.v1",
+    "placement_policy_experiment.v1",
+    "engine_publish_mapping.v1",
+    "evidence.engine_authored_publication.v1",
+    "pure_catalog_exhaustion.v1",
+    "receipt.v1",
+    "repair_report.v1",
+    "rule_catalog.v1",
+    "rule_compatibility.v1",
+    "rule_metadata.v1",
+    "score.graph.v1",
+    "seed_intent.v1",
+    "selection_report.v1",
+    "shape_catalog.v1",
+    "spatial_intent.v1",
+    "validation.built_flow.v1",
+    "validation.geometry_2d.v1",
+    "validation.graph.v1",
+    "validation.intermediate.v1",
+    "validation.piece_placement.v1",
+    "viewer_generation_config.v1",
+    "viewer_generation_rebuild.v1",
+    "voxel_object_source.v1"
+  ],
+  "newSchemaFamilies": [
+    "migration.predecessor_disposition.v2",
+    "migration.corpus_identity.v1",
+    "repository_identity.v1"
+  ],
+  "generatedCorpus": [
+    {
+      "path": "artifacts/samples/first-run",
+      "ownerCommand": "pnpm run baseline",
+      "disposition": "regenerated_with_current_identity"
+    },
+    {
+      "path": "artifacts/samples/batch-v2",
+      "ownerCommand": "pnpm run batch:sample",
+      "disposition": "regenerated_with_current_identity"
+    },
+    {
+      "path": "artifacts/evidence/geometry-recovery-v1.json",
+      "ownerCommand": "pnpm run geometry:recovery:report",
+      "disposition": "regenerated_with_current_identity"
+    },
+    {
+      "path": "artifacts/evidence/pure-catalog-coverage.json",
+      "ownerCommand": "pnpm run catalog:coverage",
+      "disposition": "regenerated_with_current_identity"
+    },
+    {
+      "path": "artifacts/evidence/catalog-aware-generation-coverage.json",
+      "ownerCommand": "pnpm run catalog-aware:coverage",
+      "disposition": "regenerated_with_current_identity"
+    },
+    {
+      "path": "artifacts/evidence/engine-authored-publication.json",
+      "ownerCommand": "pnpm run publish:rusty-engine-smoke",
+      "disposition": "published_through_exact_pinned_rusty_engine_authored_owners"
+    },
+    {
+      "path": "artifacts/evidence/engine-spatial-extrusion.json",
+      "ownerCommand": "pnpm run voxel:rusty-engine-smoke",
+      "disposition": "admitted_through_exact_pinned_rusty_engine_spatial_authority"
+    }
+  ],
+  "fixtureRoots": [
+    {
+      "path": "fixtures",
+      "disposition": "current_namespace"
+    },
+    {
+      "path": "config/viewer-generation.json",
+      "disposition": "current_kind_with_user_values_preserved"
+    }
+  ],
+  "closeout": {
+    "task": 6400,
+    "laterCampaign": "cellular automata",
+    "laterCampaignIsConversionGap": false
+  }
+}

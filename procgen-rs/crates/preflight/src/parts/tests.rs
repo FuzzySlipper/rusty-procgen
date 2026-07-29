@@ -329,14 +329,6 @@ mod physical_geometry {
     }
 
     #[test]
-    fn rejects_private_engine_paths() {
-        let private_path = format!("{}/{}/{}", "../asha-engine", "engine-rs", "crates/state");
-        let error = reject_private_engine_path("demo", private_path.as_str())
-            .expect_err("private engine path should be rejected");
-        assert!(error.contains("private ASHA internals"));
-    }
-
-    #[test]
     fn geometry_2d_contract_round_trips_minimal_layout() {
         let geometry = Geometry2dArtifact {
             kind: "rusty_procgen.geometry_2d.v1".to_owned(),
