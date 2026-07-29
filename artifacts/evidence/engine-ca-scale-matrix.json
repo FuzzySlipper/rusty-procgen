@@ -1,0 +1,1130 @@
+{
+  "kind": "rusty_procgen.evidence.engine_ca_scale_matrix.v1",
+  "schemaVersion": 1,
+  "source": {
+    "benchmarkKind": "rusty_procgen.evidence.engine_ca_benchmark.v1",
+    "benchmarkSha256": "sha256:cb9f1facf149ea3c330473d30e5713bc8c507df96d459485307c254474cb2b3a",
+    "benchmarkRepositoryCommit": "eee5f32401e3dabbfd1ffdd4dcc46bf54993b1e5",
+    "viewerRepositoryCommit": "eee5f32401e3dabbfd1ffdd4dcc46bf54993b1e5",
+    "engineCommit": "db5641fc4e9d033112bc2b374a35933c3838e39c",
+    "benchmarkEnvironment": {
+      "operatingSystem": "linux",
+      "architecture": "x86_64",
+      "rustcVersion": "rustc 1.96.0 (ac68faa20 2026-05-25) (Arch Linux rust 1:1.96.0-1)",
+      "buildProfile": "release",
+      "clock": "std::time::Instant monotonic nanoseconds"
+    },
+    "benchmarkConfig": {
+      "warmupRuns": 1,
+      "recordedRuns": 2,
+      "chunkSize": 8,
+      "maxEditsPerStep": 4096,
+      "maxMeshValuesPerStep": 2000000
+    }
+  },
+  "matrix": {
+    "dimensions": [
+      "resident_volume",
+      "initial_active_density",
+      "changed_cell_density",
+      "step_count",
+      "boundary_policy",
+      "mesh_surface_complexity"
+    ],
+    "scenarios": [
+      {
+        "scenarioId": "sparse-propagation",
+        "workload": "sparse_propagation",
+        "ruleId": "frontier_trail_v1",
+        "bounds": {
+          "min": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "maxExclusive": {
+            "x": 9,
+            "y": 3,
+            "z": 9
+          }
+        },
+        "volume": 243,
+        "steps": 6,
+        "neighborhood": "von_neumann6",
+        "boundary": "fixed_empty",
+        "materializeEmpty": false,
+        "ca": {
+          "initialCells": 1,
+          "initialActiveDensity": 0.00411522633744856,
+          "maximumActiveCells": 183,
+          "maximumActiveDensity": 0.7530864197530864,
+          "changedCells": {
+            "samples": 6,
+            "min": 6,
+            "median": 56,
+            "p95": 92,
+            "max": 92
+          },
+          "changedCellDensity": {
+            "samples": 6,
+            "min": 0.024691358024691357,
+            "median": 0.23045267489711935,
+            "p95": 0.3786008230452675,
+            "max": 0.3786008230452675
+          },
+          "evaluatedCells": {
+            "samples": 6,
+            "min": 7,
+            "median": 70.5,
+            "p95": 160,
+            "max": 160
+          },
+          "totalChangedCells": 320
+        },
+        "engine": {
+          "initialAuthorityVoxels": 1,
+          "maximumAuthorityVoxels": 183,
+          "maximumResidentChunks": 3,
+          "maximumMeshChunks": 3,
+          "maximumMeshVertices": 984,
+          "maximumMeshQuads": 246,
+          "maximumFacesCulledInPublishedChunk": 774,
+          "projectionOperations": {
+            "samples": 6,
+            "min": 1,
+            "median": 2,
+            "p95": 3,
+            "max": 3
+          },
+          "finalAuthorityHash": "fnv1a64:cd09cf855eaf5e90",
+          "finalProjectionHash": "sha256:04f31529d9c47c619215ca00a3aee38891090f24642de34fdcb7748355a8f511"
+        },
+        "transfer": {
+          "encodedTraceBytes": 140428,
+          "shareOfBenchmarkArtifact": 0.008767246852364964
+        },
+        "timings": {
+          "posture": "same_host_observation_non_gating",
+          "admission": {
+            "stateMaterializationNs": {
+              "samples": 2,
+              "min": 180,
+              "median": 185,
+              "p95": 190,
+              "max": 190
+            },
+            "engineBuildNs": {
+              "samples": 2,
+              "min": 46396,
+              "median": 46436,
+              "p95": 46476,
+              "max": 46476
+            },
+            "evidenceReadbackNs": {
+              "samples": 2,
+              "min": 5891,
+              "median": 6001.5,
+              "p95": 6112,
+              "max": 6112
+            },
+            "artifactEncodingNs": {
+              "samples": 2,
+              "min": 3176,
+              "median": 3206,
+              "p95": 3236,
+              "max": 3236
+            }
+          },
+          "step": {
+            "caStepNs": {
+              "samples": 12,
+              "min": 6993,
+              "median": 45074,
+              "p95": 83295,
+              "max": 83295
+            },
+            "requestConstructionNs": {
+              "samples": 12,
+              "min": 651,
+              "median": 4007,
+              "p95": 7624,
+              "max": 7624
+            },
+            "spatialPreviewNs": {
+              "samples": 12,
+              "min": 43230,
+              "median": 125036.5,
+              "p95": 240637,
+              "max": 240637
+            },
+            "authorityCommitNs": {
+              "samples": 12,
+              "min": 1934,
+              "median": 2565,
+              "p95": 10339,
+              "max": 10339
+            },
+            "evidenceReadbackNs": {
+              "samples": 12,
+              "min": 26610,
+              "median": 112589,
+              "p95": 182549,
+              "max": 182549
+            },
+            "artifactEncodingNs": {
+              "samples": 12,
+              "min": 11040,
+              "median": 46661.5,
+              "p95": 81501,
+              "max": 81501
+            }
+          },
+          "endToEndNs": {
+            "samples": 12,
+            "min": 90587,
+            "median": 338042,
+            "p95": 593312,
+            "max": 593312
+          },
+          "changedCellsPerSecond": {
+            "samples": 12,
+            "min": 62737.22513253239,
+            "median": 155171.87013195216,
+            "p95": 188079.19844065246,
+            "max": 188079.19844065246
+          }
+        },
+        "browser": {
+          "sampledStep": 1,
+          "traceHash": "sha256:434839be98bdfc0defe197617850738b53b8a2062a421d8c24bfc7feced3f950",
+          "observations": [
+            {
+              "rendererApplicationMs": 6.1,
+              "renderSubmissionMs": 2.6,
+              "browserPresentationMs": 65.8
+            },
+            {
+              "rendererApplicationMs": 6.2,
+              "renderSubmissionMs": 3.3,
+              "browserPresentationMs": 61.7
+            },
+            {
+              "rendererApplicationMs": 5.2,
+              "renderSubmissionMs": 2.5,
+              "browserPresentationMs": 59.6
+            }
+          ],
+          "rendererApplicationMs": {
+            "samples": 3,
+            "min": 5.2,
+            "median": 6.1,
+            "p95": 6.2,
+            "max": 6.2
+          },
+          "renderSubmissionMs": {
+            "samples": 3,
+            "min": 2.5,
+            "median": 2.6,
+            "p95": 3.3,
+            "max": 3.3
+          },
+          "browserPresentationMs": {
+            "samples": 3,
+            "min": 59.6,
+            "median": 61.7,
+            "p95": 65.8,
+            "max": 65.8
+          }
+        },
+        "structuralHash": "sha256:9ab2a51960df28ce0f90d790ff71166bf2b7fa5f5771a14d8a967859fee33d62",
+        "deterministicAcrossRecordedRuns": true
+      },
+      {
+        "scenarioId": "dense-churn",
+        "workload": "dense_churn",
+        "ruleId": "parity_churn_v1",
+        "bounds": {
+          "min": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "maxExclusive": {
+            "x": 6,
+            "y": 3,
+            "z": 6
+          }
+        },
+        "volume": 108,
+        "steps": 4,
+        "neighborhood": "moore26",
+        "boundary": "fixed_empty",
+        "materializeEmpty": false,
+        "ca": {
+          "initialCells": 1,
+          "initialActiveDensity": 0.009259259259259259,
+          "maximumActiveCells": 55,
+          "maximumActiveDensity": 0.5092592592592593,
+          "changedCells": {
+            "samples": 4,
+            "min": 53,
+            "median": 107,
+            "p95": 107,
+            "max": 107
+          },
+          "changedCellDensity": {
+            "samples": 4,
+            "min": 0.49074074074074076,
+            "median": 0.9907407407407407,
+            "p95": 0.9907407407407407,
+            "max": 0.9907407407407407
+          },
+          "evaluatedCells": {
+            "samples": 4,
+            "min": 108,
+            "median": 108,
+            "p95": 108,
+            "max": 108
+          },
+          "totalChangedCells": 374
+        },
+        "engine": {
+          "initialAuthorityVoxels": 1,
+          "maximumAuthorityVoxels": 55,
+          "maximumResidentChunks": 1,
+          "maximumMeshChunks": 1,
+          "maximumMeshVertices": 1296,
+          "maximumMeshQuads": 324,
+          "maximumFacesCulledInPublishedChunk": 12,
+          "projectionOperations": {
+            "samples": 4,
+            "min": 1,
+            "median": 1,
+            "p95": 1,
+            "max": 1
+          },
+          "finalAuthorityHash": "fnv1a64:1533421f61008e82",
+          "finalProjectionHash": "sha256:fa47893b127ff7bdcd74949bb95f16a408a907642e95b34f1d4b1fd96617593b"
+        },
+        "transfer": {
+          "encodedTraceBytes": 192729,
+          "shareOfBenchmarkArtifact": 0.012032520000352119
+        },
+        "timings": {
+          "posture": "same_host_observation_non_gating",
+          "admission": {
+            "stateMaterializationNs": {
+              "samples": 2,
+              "min": 130,
+              "median": 205.5,
+              "p95": 281,
+              "max": 281
+            },
+            "engineBuildNs": {
+              "samples": 2,
+              "min": 45875,
+              "median": 47177.5,
+              "p95": 48480,
+              "max": 48480
+            },
+            "evidenceReadbackNs": {
+              "samples": 2,
+              "min": 6011,
+              "median": 6381.5,
+              "p95": 6752,
+              "max": 6752
+            },
+            "artifactEncodingNs": {
+              "samples": 2,
+              "min": 3146,
+              "median": 3211,
+              "p95": 3276,
+              "max": 3276
+            }
+          },
+          "step": {
+            "caStepNs": {
+              "samples": 8,
+              "min": 21570,
+              "median": 33276.5,
+              "p95": 34714,
+              "max": 34714
+            },
+            "requestConstructionNs": {
+              "samples": 8,
+              "min": 3857,
+              "median": 7213,
+              "p95": 7344,
+              "max": 7344
+            },
+            "spatialPreviewNs": {
+              "samples": 8,
+              "min": 80920,
+              "median": 83450,
+              "p95": 86941,
+              "max": 86941
+            },
+            "authorityCommitNs": {
+              "samples": 8,
+              "min": 2374,
+              "median": 2951,
+              "p95": 6462,
+              "max": 6462
+            },
+            "evidenceReadbackNs": {
+              "samples": 8,
+              "min": 222193,
+              "median": 225564,
+              "p95": 248301,
+              "max": 248301
+            },
+            "artifactEncodingNs": {
+              "samples": 8,
+              "min": 90999,
+              "median": 95386.5,
+              "p95": 97581,
+              "max": 97581
+            }
+          },
+          "endToEndNs": {
+            "samples": 8,
+            "min": 426001,
+            "median": 446573,
+            "p95": 474281,
+            "max": 474281
+          },
+          "changedCellsPerSecond": {
+            "samples": 8,
+            "min": 118666.98908263701,
+            "median": 235035.81519609096,
+            "p95": 241152.30232835928,
+            "max": 241152.30232835928
+          }
+        },
+        "browser": {
+          "sampledStep": 1,
+          "traceHash": "sha256:628aa69faff6d02093950cb7d3863b85c44c1a8782b2682b297d45fb44d78cd7",
+          "observations": [
+            {
+              "rendererApplicationMs": 5.6,
+              "renderSubmissionMs": 2.4,
+              "browserPresentationMs": 69.6
+            },
+            {
+              "rendererApplicationMs": 4.8,
+              "renderSubmissionMs": 2.4,
+              "browserPresentationMs": 70.3
+            },
+            {
+              "rendererApplicationMs": 4.6,
+              "renderSubmissionMs": 2.5,
+              "browserPresentationMs": 65.6
+            }
+          ],
+          "rendererApplicationMs": {
+            "samples": 3,
+            "min": 4.6,
+            "median": 4.8,
+            "p95": 5.6,
+            "max": 5.6
+          },
+          "renderSubmissionMs": {
+            "samples": 3,
+            "min": 2.4,
+            "median": 2.4,
+            "p95": 2.5,
+            "max": 2.5
+          },
+          "browserPresentationMs": {
+            "samples": 3,
+            "min": 65.6,
+            "median": 69.6,
+            "p95": 70.3,
+            "max": 70.3
+          }
+        },
+        "structuralHash": "sha256:3e64feee3589cead815aba832bc7170a50e3ed9307cd4654fe3a0428be7ef3bf",
+        "deterministicAcrossRecordedRuns": true
+      },
+      {
+        "scenarioId": "cross-boundary",
+        "workload": "cross_boundary",
+        "ruleId": "frontier_trail_v1",
+        "bounds": {
+          "min": {
+            "x": -4,
+            "y": -2,
+            "z": -4
+          },
+          "maxExclusive": {
+            "x": 5,
+            "y": 3,
+            "z": 5
+          }
+        },
+        "volume": 405,
+        "steps": 5,
+        "neighborhood": "von_neumann6",
+        "boundary": "wrap",
+        "materializeEmpty": false,
+        "ca": {
+          "initialCells": 1,
+          "initialActiveDensity": 0.0024691358024691358,
+          "maximumActiveCells": 189,
+          "maximumActiveDensity": 0.4666666666666667,
+          "changedCells": {
+            "samples": 5,
+            "min": 6,
+            "median": 54,
+            "p95": 128,
+            "max": 128
+          },
+          "changedCellDensity": {
+            "samples": 5,
+            "min": 0.014814814814814815,
+            "median": 0.13333333333333333,
+            "p95": 0.3160493827160494,
+            "max": 0.3160493827160494
+          },
+          "evaluatedCells": {
+            "samples": 5,
+            "min": 7,
+            "median": 61,
+            "p95": 182,
+            "max": 182
+          },
+          "totalChangedCells": 304
+        },
+        "engine": {
+          "initialAuthorityVoxels": 1,
+          "maximumAuthorityVoxels": 189,
+          "maximumResidentChunks": 8,
+          "maximumMeshChunks": 8,
+          "maximumMeshVertices": 1560,
+          "maximumMeshQuads": 390,
+          "maximumFacesCulledInPublishedChunk": 191,
+          "projectionOperations": {
+            "samples": 5,
+            "min": 4,
+            "median": 8,
+            "p95": 8,
+            "max": 8
+          },
+          "finalAuthorityHash": "fnv1a64:1a2504fa808b133b",
+          "finalProjectionHash": "sha256:1812a07e9a8653bb1b5e58ddcab226d5efb95499df807b3aadcbc9e373c7545b"
+        },
+        "transfer": {
+          "encodedTraceBytes": 164605,
+          "shareOfBenchmarkArtifact": 0.010276673228512369
+        },
+        "timings": {
+          "posture": "same_host_observation_non_gating",
+          "admission": {
+            "stateMaterializationNs": {
+              "samples": 2,
+              "min": 140,
+              "median": 145.5,
+              "p95": 151,
+              "max": 151
+            },
+            "engineBuildNs": {
+              "samples": 2,
+              "min": 46586,
+              "median": 46761.5,
+              "p95": 46937,
+              "max": 46937
+            },
+            "evidenceReadbackNs": {
+              "samples": 2,
+              "min": 6022,
+              "median": 6092,
+              "p95": 6162,
+              "max": 6162
+            },
+            "artifactEncodingNs": {
+              "samples": 2,
+              "min": 3116,
+              "median": 3201,
+              "p95": 3286,
+              "max": 3286
+            }
+          },
+          "step": {
+            "caStepNs": {
+              "samples": 10,
+              "min": 7384,
+              "median": 50302.5,
+              "p95": 121445,
+              "max": 121445
+            },
+            "requestConstructionNs": {
+              "samples": 10,
+              "min": 1132,
+              "median": 5319,
+              "p95": 11141,
+              "max": 11141
+            },
+            "spatialPreviewNs": {
+              "samples": 10,
+              "min": 194721,
+              "median": 441980.5,
+              "p95": 547346,
+              "max": 547346
+            },
+            "authorityCommitNs": {
+              "samples": 10,
+              "min": 1943,
+              "median": 13119,
+              "p95": 17593,
+              "max": 17593
+            },
+            "evidenceReadbackNs": {
+              "samples": 10,
+              "min": 35576,
+              "median": 162126,
+              "p95": 309555,
+              "max": 309555
+            },
+            "artifactEncodingNs": {
+              "samples": 10,
+              "min": 13334,
+              "median": 64911,
+              "p95": 129450,
+              "max": 129450
+            }
+          },
+          "endToEndNs": {
+            "samples": 10,
+            "min": 256836,
+            "median": 737758,
+            "p95": 1136530,
+            "max": 1136530
+          },
+          "changedCellsPerSecond": {
+            "samples": 10,
+            "min": 22910.732150630425,
+            "median": 73195.34564536286,
+            "p95": 117906.71368196874,
+            "max": 117906.71368196874
+          }
+        },
+        "browser": {
+          "sampledStep": 1,
+          "traceHash": "sha256:86b4445b8a12980b56b6222d48a70f65afc105dc1135a0b5927be048340ab4ce",
+          "observations": [
+            {
+              "rendererApplicationMs": 7,
+              "renderSubmissionMs": 3,
+              "browserPresentationMs": 67.6
+            },
+            {
+              "rendererApplicationMs": 7,
+              "renderSubmissionMs": 2.3,
+              "browserPresentationMs": 64.2
+            },
+            {
+              "rendererApplicationMs": 7,
+              "renderSubmissionMs": 3.1,
+              "browserPresentationMs": 64.6
+            }
+          ],
+          "rendererApplicationMs": {
+            "samples": 3,
+            "min": 7,
+            "median": 7,
+            "p95": 7,
+            "max": 7
+          },
+          "renderSubmissionMs": {
+            "samples": 3,
+            "min": 2.3,
+            "median": 3,
+            "p95": 3.1,
+            "max": 3.1
+          },
+          "browserPresentationMs": {
+            "samples": 3,
+            "min": 64.2,
+            "median": 64.6,
+            "p95": 67.6,
+            "max": 67.6
+          }
+        },
+        "structuralHash": "sha256:10f2c4c1d52c956134c05066936d860c9657bf5bbbfc6b9e38bc3fddcc7eff3e",
+        "deterministicAcrossRecordedRuns": true
+      },
+      {
+        "scenarioId": "large-resident-small-hot-region",
+        "workload": "large_resident_small_hot_region",
+        "ruleId": "frontier_trail_v1",
+        "bounds": {
+          "min": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "maxExclusive": {
+            "x": 64,
+            "y": 16,
+            "z": 64
+          }
+        },
+        "volume": 65536,
+        "steps": 4,
+        "neighborhood": "von_neumann6",
+        "boundary": "fixed_empty",
+        "materializeEmpty": true,
+        "ca": {
+          "initialCells": 1,
+          "initialActiveDensity": 0.0000152587890625,
+          "maximumActiveCells": 129,
+          "maximumActiveDensity": 0.0019683837890625,
+          "changedCells": {
+            "samples": 4,
+            "min": 6,
+            "median": 40,
+            "p95": 104,
+            "max": 104
+          },
+          "changedCellDensity": {
+            "samples": 4,
+            "min": 0.000091552734375,
+            "median": 0.0006103515625,
+            "p95": 0.0015869140625,
+            "max": 0.0015869140625
+          },
+          "evaluatedCells": {
+            "samples": 4,
+            "min": 7,
+            "median": 44,
+            "p95": 128,
+            "max": 128
+          },
+          "totalChangedCells": 190
+        },
+        "engine": {
+          "initialAuthorityVoxels": 65536,
+          "maximumAuthorityVoxels": 65536,
+          "maximumResidentChunks": 128,
+          "maximumMeshChunks": 128,
+          "maximumMeshVertices": 49152,
+          "maximumMeshQuads": 12288,
+          "maximumFacesCulledInPublishedChunk": 3008,
+          "projectionOperations": {
+            "samples": 4,
+            "min": 4,
+            "median": 7.5,
+            "p95": 8,
+            "max": 8
+          },
+          "finalAuthorityHash": "fnv1a64:b6e3993d2bdfa489",
+          "finalProjectionHash": "sha256:4a730bdcab72938b35fd2ee218f5c6920f0c87373c517f2563f1093624079a9f"
+        },
+        "transfer": {
+          "encodedTraceBytes": 1760930,
+          "shareOfBenchmarkArtifact": 0.10993895804066879
+        },
+        "timings": {
+          "posture": "same_host_observation_non_gating",
+          "admission": {
+            "stateMaterializationNs": {
+              "samples": 2,
+              "min": 307741,
+              "median": 313442,
+              "p95": 319143,
+              "max": 319143
+            },
+            "engineBuildNs": {
+              "samples": 2,
+              "min": 27185625,
+              "median": 27721725,
+              "p95": 28257825,
+              "max": 28257825
+            },
+            "evidenceReadbackNs": {
+              "samples": 2,
+              "min": 4118623,
+              "median": 4258758.5,
+              "p95": 4398894,
+              "max": 4398894
+            },
+            "artifactEncodingNs": {
+              "samples": 2,
+              "min": 3085646,
+              "median": 3162343.5,
+              "p95": 3239041,
+              "max": 3239041
+            }
+          },
+          "step": {
+            "caStepNs": {
+              "samples": 8,
+              "min": 11801,
+              "median": 41081.5,
+              "p95": 97832,
+              "max": 97832
+            },
+            "requestConstructionNs": {
+              "samples": 8,
+              "min": 1823,
+              "median": 6417,
+              "p95": 11271,
+              "max": 11271
+            },
+            "spatialPreviewNs": {
+              "samples": 8,
+              "min": 27577974,
+              "median": 27977385,
+              "p95": 29640050,
+              "max": 29640050
+            },
+            "authorityCommitNs": {
+              "samples": 8,
+              "min": 938783,
+              "median": 1003187,
+              "p95": 1041693,
+              "max": 1041693
+            },
+            "evidenceReadbackNs": {
+              "samples": 8,
+              "min": 349559,
+              "median": 425414.5,
+              "p95": 447271,
+              "max": 447271
+            },
+            "artifactEncodingNs": {
+              "samples": 8,
+              "min": 73977,
+              "median": 133582.5,
+              "p95": 162833,
+              "max": 162833
+            }
+          },
+          "endToEndNs": {
+            "samples": 8,
+            "min": 29023146,
+            "median": 29567341,
+            "p95": 31150474,
+            "max": 31150474
+          },
+          "changedCellsPerSecond": {
+            "samples": 8,
+            "min": 203.63948561480493,
+            "median": 1324.402892166974,
+            "p95": 3505.1239519679384,
+            "max": 3505.1239519679384
+          }
+        },
+        "browser": {
+          "sampledStep": 1,
+          "traceHash": "sha256:47361d782833a5d23ccd638cebc4a4a68afdd3f8d830c54fe589135a5ebbe5ae",
+          "observations": [
+            {
+              "rendererApplicationMs": 117.1,
+              "renderSubmissionMs": 3.9,
+              "browserPresentationMs": 360.2
+            },
+            {
+              "rendererApplicationMs": 117.7,
+              "renderSubmissionMs": 3.5,
+              "browserPresentationMs": 375.8
+            },
+            {
+              "rendererApplicationMs": 123.9,
+              "renderSubmissionMs": 3,
+              "browserPresentationMs": 366
+            }
+          ],
+          "rendererApplicationMs": {
+            "samples": 3,
+            "min": 117.1,
+            "median": 117.7,
+            "p95": 123.9,
+            "max": 123.9
+          },
+          "renderSubmissionMs": {
+            "samples": 3,
+            "min": 3,
+            "median": 3.5,
+            "p95": 3.9,
+            "max": 3.9
+          },
+          "browserPresentationMs": {
+            "samples": 3,
+            "min": 360.2,
+            "median": 366,
+            "p95": 375.8,
+            "max": 375.8
+          }
+        },
+        "structuralHash": "sha256:2f00c4baf6da739d1f538eb9aa91c8075fe62edf2005bb280324b0850d248bae",
+        "deterministicAcrossRecordedRuns": true
+      },
+      {
+        "scenarioId": "high-surface-area",
+        "workload": "high_surface_area",
+        "ruleId": "parity_churn_v1",
+        "bounds": {
+          "min": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "maxExclusive": {
+            "x": 10,
+            "y": 4,
+            "z": 10
+          }
+        },
+        "volume": 400,
+        "steps": 4,
+        "neighborhood": "moore26",
+        "boundary": "wrap",
+        "materializeEmpty": false,
+        "ca": {
+          "initialCells": 1,
+          "initialActiveDensity": 0.0025,
+          "maximumActiveCells": 201,
+          "maximumActiveDensity": 0.5025,
+          "changedCells": {
+            "samples": 4,
+            "min": 199,
+            "median": 399,
+            "p95": 399,
+            "max": 399
+          },
+          "changedCellDensity": {
+            "samples": 4,
+            "min": 0.4975,
+            "median": 0.9975,
+            "p95": 0.9975,
+            "max": 0.9975
+          },
+          "evaluatedCells": {
+            "samples": 4,
+            "min": 400,
+            "median": 400,
+            "p95": 400,
+            "max": 400
+          },
+          "totalChangedCells": 1396
+        },
+        "engine": {
+          "initialAuthorityVoxels": 1,
+          "maximumAuthorityVoxels": 201,
+          "maximumResidentChunks": 4,
+          "maximumMeshChunks": 4,
+          "maximumMeshVertices": 4800,
+          "maximumMeshQuads": 1200,
+          "maximumFacesCulledInPublishedChunk": 12,
+          "projectionOperations": {
+            "samples": 4,
+            "min": 4,
+            "median": 4,
+            "p95": 4,
+            "max": 4
+          },
+          "finalAuthorityHash": "fnv1a64:a2894a57155d61d7",
+          "finalProjectionHash": "sha256:d6919fabff99ad5fd5cf01adc8d9fb9d1362de01e3fa0b305708df2058604d3f"
+        },
+        "transfer": {
+          "encodedTraceBytes": 705068,
+          "shareOfBenchmarkArtifact": 0.04401903611603997
+        },
+        "timings": {
+          "posture": "same_host_observation_non_gating",
+          "admission": {
+            "stateMaterializationNs": {
+              "samples": 2,
+              "min": 221,
+              "median": 240.5,
+              "p95": 260,
+              "max": 260
+            },
+            "engineBuildNs": {
+              "samples": 2,
+              "min": 47999,
+              "median": 49797,
+              "p95": 51595,
+              "max": 51595
+            },
+            "evidenceReadbackNs": {
+              "samples": 2,
+              "min": 6632,
+              "median": 6692.5,
+              "p95": 6753,
+              "max": 6753
+            },
+            "artifactEncodingNs": {
+              "samples": 2,
+              "min": 3356,
+              "median": 3376.5,
+              "p95": 3397,
+              "max": 3397
+            }
+          },
+          "step": {
+            "caStepNs": {
+              "samples": 8,
+              "min": 81582,
+              "median": 125628,
+              "p95": 132737,
+              "max": 132737
+            },
+            "requestConstructionNs": {
+              "samples": 8,
+              "min": 17783,
+              "median": 32330.5,
+              "p95": 33332,
+              "max": 33332
+            },
+            "spatialPreviewNs": {
+              "samples": 8,
+              "min": 332597,
+              "median": 352859.5,
+              "p95": 366400,
+              "max": 366400
+            },
+            "authorityCommitNs": {
+              "samples": 8,
+              "min": 3346,
+              "median": 12133,
+              "p95": 12262,
+              "max": 12262
+            },
+            "evidenceReadbackNs": {
+              "samples": 8,
+              "min": 845429,
+              "median": 857397,
+              "p95": 967776,
+              "max": 967776
+            },
+            "artifactEncodingNs": {
+              "samples": 8,
+              "min": 347475,
+              "median": 360564,
+              "p95": 371449,
+              "max": 371449
+            }
+          },
+          "endToEndNs": {
+            "samples": 8,
+            "min": 1631307,
+            "median": 1742614.5,
+            "p95": 1880980,
+            "max": 1880980
+          },
+          "changedCellsPerSecond": {
+            "samples": 8,
+            "min": 120953.23303737273,
+            "median": 227000.11055369617,
+            "p95": 230413.01677626203,
+            "max": 230413.01677626203
+          }
+        },
+        "browser": {
+          "sampledStep": 1,
+          "traceHash": "sha256:4632d574601855ca947180b669afce4e361a4cbaf7803c65374a20034a224423",
+          "observations": [
+            {
+              "rendererApplicationMs": 17.3,
+              "renderSubmissionMs": 3.3,
+              "browserPresentationMs": 121.7
+            },
+            {
+              "rendererApplicationMs": 17.7,
+              "renderSubmissionMs": 2.8,
+              "browserPresentationMs": 117.5
+            },
+            {
+              "rendererApplicationMs": 16.7,
+              "renderSubmissionMs": 2.9,
+              "browserPresentationMs": 119.1
+            }
+          ],
+          "rendererApplicationMs": {
+            "samples": 3,
+            "min": 16.7,
+            "median": 17.3,
+            "p95": 17.7,
+            "max": 17.7
+          },
+          "renderSubmissionMs": {
+            "samples": 3,
+            "min": 2.8,
+            "median": 2.9,
+            "p95": 3.3,
+            "max": 3.3
+          },
+          "browserPresentationMs": {
+            "samples": 3,
+            "min": 117.5,
+            "median": 119.1,
+            "p95": 121.7,
+            "max": 121.7
+          }
+        },
+        "structuralHash": "sha256:36839be3803ce8f19bd838abca89652a881a7a97d909536e70fed4e0d6b35699",
+        "deterministicAcrossRecordedRuns": true
+      }
+    ]
+  },
+  "browser": {
+    "chromiumVersion": "Chromium 148.0.7778.215 Arch Linux",
+    "operatingSystem": "linux",
+    "architecture": "x64",
+    "viewport": {
+      "width": 1600,
+      "height": 860,
+      "deviceScaleFactor": 1
+    },
+    "measurementPosture": "three real Chromium first-step interaction samples per scenario; descriptive and non-gating",
+    "representativePlayback": [
+      "sparse-propagation",
+      "dense-churn",
+      "cross-boundary",
+      "large-resident-small-hot-region",
+      "high-surface-area"
+    ],
+    "deterministicReset": true,
+    "obsoleteResourcesReleased": true,
+    "boundedStepSelection": {
+      "scenario": "cross-boundary",
+      "step": 5,
+      "traceHash": "sha256:9ceacd555376869fb93ab5409d63ff3fc4fb1294c71e9f6506682dad4350d54d"
+    },
+    "visualSmoothness": {
+      "status": "not_measured",
+      "detail": "The trace has 4-6 discrete steps and no frame-pacing sampler; successful interaction is not a smoothness claim."
+    }
+  },
+  "findings": {
+    "slowestMedianStep": {
+      "scenarioId": "large-resident-small-hot-region",
+      "medianNs": 29567341,
+      "dominantMeasuredPhase": "spatialPreviewNs"
+    },
+    "largestEncodedTrace": {
+      "scenarioId": "large-resident-small-hot-region",
+      "bytes": 1760930
+    },
+    "largestResidentScope": {
+      "scenarioId": "large-resident-small-hot-region",
+      "domainCells": 65536,
+      "authorityVoxels": 65536,
+      "residentChunks": 128
+    },
+    "highestPublishedMeshSurface": {
+      "scenarioId": "large-resident-small-hot-region",
+      "quads": 12288
+    },
+    "optimizationDisposition": "No optimization task created: this first matrix exposes associations but does not isolate a production bottleneck from benchmark readback/encoding overhead."
+  },
+  "nonClaims": [
+    "Timing samples are observations from the declared hosts, never equality gates.",
+    "The five fixtures vary multiple dimensions and do not establish single-factor causality.",
+    "No memory allocation, dirty-region, GPU utilization, transfer-network, or frame-pacing measurement was taken.",
+    "Browser presentation time is interaction-to-two-animation-frames, not GPU completion time.",
+    "This bounded matrix is neither an Engine scale ceiling nor a gameplay runtime benchmark."
+  ]
+}
