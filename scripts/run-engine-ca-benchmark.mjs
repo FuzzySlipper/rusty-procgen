@@ -8,6 +8,8 @@ const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const allowedDirtyPaths = new Set([
   'config/viewer-generation.json',
   'artifacts/evidence/engine-ca-benchmark.json',
+  'artifacts/evidence/engine-ca-scale-matrix.json',
+  'docs/rusty-engine-ca-scale-baseline.md',
 ]);
 const status = capture('git', ['status', '--porcelain=v1'], repoRoot)
   .trimEnd()
