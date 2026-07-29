@@ -3,9 +3,9 @@
   "schemaVersion": 1,
   "source": {
     "benchmarkKind": "rusty_procgen.evidence.engine_ca_benchmark.v1",
-    "benchmarkSha256": "sha256:cb9f1facf149ea3c330473d30e5713bc8c507df96d459485307c254474cb2b3a",
-    "benchmarkRepositoryCommit": "eee5f32401e3dabbfd1ffdd4dcc46bf54993b1e5",
-    "viewerRepositoryCommit": "eee5f32401e3dabbfd1ffdd4dcc46bf54993b1e5",
+    "benchmarkSha256": "sha256:5ab0dcc6b2543d45e8094e7fcbdd6e94c2f310f41896b15715f260fd7307b910",
+    "benchmarkRepositoryCommit": "4f84bde2eb7d724d922403c591a098ebea582fcd",
+    "viewerRepositoryCommit": "4f84bde2eb7d724d922403c591a098ebea582fcd",
     "engineCommit": "db5641fc4e9d033112bc2b374a35933c3838e39c",
     "benchmarkEnvironment": {
       "operatingSystem": "linux",
@@ -101,97 +101,97 @@
         },
         "transfer": {
           "encodedTraceBytes": 140428,
-          "shareOfBenchmarkArtifact": 0.008767246852364964
+          "shareOfBenchmarkArtifact": 0.008767247399724624
         },
         "timings": {
           "posture": "same_host_observation_non_gating",
           "admission": {
             "stateMaterializationNs": {
               "samples": 2,
-              "min": 180,
-              "median": 185,
-              "p95": 190,
-              "max": 190
+              "min": 170,
+              "median": 190.5,
+              "p95": 211,
+              "max": 211
             },
             "engineBuildNs": {
               "samples": 2,
-              "min": 46396,
-              "median": 46436,
-              "p95": 46476,
-              "max": 46476
+              "min": 45955,
+              "median": 46270.5,
+              "p95": 46586,
+              "max": 46586
             },
             "evidenceReadbackNs": {
               "samples": 2,
-              "min": 5891,
-              "median": 6001.5,
-              "p95": 6112,
-              "max": 6112
+              "min": 6062,
+              "median": 6442.5,
+              "p95": 6823,
+              "max": 6823
             },
             "artifactEncodingNs": {
               "samples": 2,
-              "min": 3176,
-              "median": 3206,
-              "p95": 3236,
-              "max": 3236
+              "min": 3076,
+              "median": 3176,
+              "p95": 3276,
+              "max": 3276
             }
           },
           "step": {
             "caStepNs": {
               "samples": 12,
-              "min": 6993,
-              "median": 45074,
-              "p95": 83295,
-              "max": 83295
+              "min": 7093,
+              "median": 45043.5,
+              "p95": 79478,
+              "max": 79478
             },
             "requestConstructionNs": {
               "samples": 12,
-              "min": 651,
-              "median": 4007,
-              "p95": 7624,
-              "max": 7624
+              "min": 722,
+              "median": 4073,
+              "p95": 7614,
+              "max": 7614
             },
             "spatialPreviewNs": {
               "samples": 12,
-              "min": 43230,
-              "median": 125036.5,
-              "p95": 240637,
-              "max": 240637
+              "min": 46416,
+              "median": 124060,
+              "p95": 220279,
+              "max": 220279
             },
             "authorityCommitNs": {
               "samples": 12,
-              "min": 1934,
-              "median": 2565,
-              "p95": 10339,
-              "max": 10339
+              "min": 1834,
+              "median": 2384.5,
+              "p95": 7824,
+              "max": 7824
             },
             "evidenceReadbackNs": {
               "samples": 12,
-              "min": 26610,
-              "median": 112589,
-              "p95": 182549,
-              "max": 182549
+              "min": 26519,
+              "median": 110620,
+              "p95": 198137,
+              "max": 198137
             },
             "artifactEncodingNs": {
               "samples": 12,
-              "min": 11040,
-              "median": 46661.5,
-              "p95": 81501,
-              "max": 81501
+              "min": 10900,
+              "median": 45920.5,
+              "p95": 82894,
+              "max": 82894
             }
           },
           "endToEndNs": {
             "samples": 12,
-            "min": 90587,
-            "median": 338042,
-            "p95": 593312,
-            "max": 593312
+            "min": 94095,
+            "median": 332832.5,
+            "p95": 590196,
+            "max": 590196
           },
           "changedCellsPerSecond": {
             "samples": 12,
-            "min": 62737.22513253239,
-            "median": 155171.87013195216,
-            "p95": 188079.19844065246,
-            "max": 188079.19844065246
+            "min": 61393.007336464376,
+            "median": 156197.57721589823,
+            "p95": 188936.07519655794,
+            "max": 188936.07519655794
           }
         },
         "browser": {
@@ -199,41 +199,41 @@
           "traceHash": "sha256:434839be98bdfc0defe197617850738b53b8a2062a421d8c24bfc7feced3f950",
           "observations": [
             {
-              "rendererApplicationMs": 6.1,
-              "renderSubmissionMs": 2.6,
-              "browserPresentationMs": 65.8
-            },
-            {
-              "rendererApplicationMs": 6.2,
+              "rendererApplicationMs": 8.3,
               "renderSubmissionMs": 3.3,
-              "browserPresentationMs": 61.7
+              "browserPresentationMs": 84.1
             },
             {
-              "rendererApplicationMs": 5.2,
-              "renderSubmissionMs": 2.5,
-              "browserPresentationMs": 59.6
+              "rendererApplicationMs": 10.6,
+              "renderSubmissionMs": 4.3,
+              "browserPresentationMs": 85.4
+            },
+            {
+              "rendererApplicationMs": 6,
+              "renderSubmissionMs": 2.4,
+              "browserPresentationMs": 69.9
             }
           ],
           "rendererApplicationMs": {
             "samples": 3,
-            "min": 5.2,
-            "median": 6.1,
-            "p95": 6.2,
-            "max": 6.2
+            "min": 6,
+            "median": 8.3,
+            "p95": 10.6,
+            "max": 10.6
           },
           "renderSubmissionMs": {
             "samples": 3,
-            "min": 2.5,
-            "median": 2.6,
-            "p95": 3.3,
-            "max": 3.3
+            "min": 2.4,
+            "median": 3.3,
+            "p95": 4.3,
+            "max": 4.3
           },
           "browserPresentationMs": {
             "samples": 3,
-            "min": 59.6,
-            "median": 61.7,
-            "p95": 65.8,
-            "max": 65.8
+            "min": 69.9,
+            "median": 84.1,
+            "p95": 85.4,
+            "max": 85.4
           }
         },
         "structuralHash": "sha256:9ab2a51960df28ce0f90d790ff71166bf2b7fa5f5771a14d8a967859fee33d62",
@@ -308,97 +308,97 @@
         },
         "transfer": {
           "encodedTraceBytes": 192729,
-          "shareOfBenchmarkArtifact": 0.012032520000352119
+          "shareOfBenchmarkArtifact": 0.012032520751570392
         },
         "timings": {
           "posture": "same_host_observation_non_gating",
           "admission": {
             "stateMaterializationNs": {
               "samples": 2,
-              "min": 130,
-              "median": 205.5,
-              "p95": 281,
-              "max": 281
+              "min": 131,
+              "median": 136,
+              "p95": 141,
+              "max": 141
             },
             "engineBuildNs": {
               "samples": 2,
-              "min": 45875,
-              "median": 47177.5,
-              "p95": 48480,
-              "max": 48480
+              "min": 45334,
+              "median": 45424,
+              "p95": 45514,
+              "max": 45514
             },
             "evidenceReadbackNs": {
               "samples": 2,
-              "min": 6011,
-              "median": 6381.5,
-              "p95": 6752,
-              "max": 6752
+              "min": 5801,
+              "median": 5821,
+              "p95": 5841,
+              "max": 5841
             },
             "artifactEncodingNs": {
               "samples": 2,
-              "min": 3146,
-              "median": 3211,
-              "p95": 3276,
-              "max": 3276
+              "min": 3045,
+              "median": 3065.5,
+              "p95": 3086,
+              "max": 3086
             }
           },
           "step": {
             "caStepNs": {
               "samples": 8,
-              "min": 21570,
-              "median": 33276.5,
-              "p95": 34714,
-              "max": 34714
+              "min": 21861,
+              "median": 33431.5,
+              "p95": 34695,
+              "max": 34695
             },
             "requestConstructionNs": {
               "samples": 8,
-              "min": 3857,
-              "median": 7213,
-              "p95": 7344,
-              "max": 7344
+              "min": 3767,
+              "median": 7139,
+              "p95": 7284,
+              "max": 7284
             },
             "spatialPreviewNs": {
               "samples": 8,
-              "min": 80920,
-              "median": 83450,
-              "p95": 86941,
-              "max": 86941
+              "min": 78355,
+              "median": 82282.5,
+              "p95": 92982,
+              "max": 92982
             },
             "authorityCommitNs": {
               "samples": 8,
-              "min": 2374,
-              "median": 2951,
-              "p95": 6462,
-              "max": 6462
+              "min": 2054,
+              "median": 2790,
+              "p95": 7784,
+              "max": 7784
             },
             "evidenceReadbackNs": {
               "samples": 8,
-              "min": 222193,
-              "median": 225564,
-              "p95": 248301,
-              "max": 248301
+              "min": 224116,
+              "median": 226556,
+              "p95": 244504,
+              "max": 244504
             },
             "artifactEncodingNs": {
               "samples": 8,
-              "min": 90999,
-              "median": 95386.5,
-              "p95": 97581,
-              "max": 97581
+              "min": 91509,
+              "median": 96218.5,
+              "p95": 101348,
+              "max": 101348
             }
           },
           "endToEndNs": {
             "samples": 8,
-            "min": 426001,
-            "median": 446573,
-            "p95": 474281,
-            "max": 474281
+            "min": 424488,
+            "median": 450761.5,
+            "p95": 470833,
+            "max": 470833
           },
           "changedCellsPerSecond": {
             "samples": 8,
-            "min": 118666.98908263701,
-            "median": 235035.81519609096,
-            "p95": 241152.30232835928,
-            "max": 241152.30232835928
+            "min": 123267.85406946726,
+            "median": 232129.24165273883,
+            "p95": 242411.06119406704,
+            "max": 242411.06119406704
           }
         },
         "browser": {
@@ -406,41 +406,41 @@
           "traceHash": "sha256:628aa69faff6d02093950cb7d3863b85c44c1a8782b2682b297d45fb44d78cd7",
           "observations": [
             {
-              "rendererApplicationMs": 5.6,
-              "renderSubmissionMs": 2.4,
-              "browserPresentationMs": 69.6
+              "rendererApplicationMs": 5.2,
+              "renderSubmissionMs": 2.7,
+              "browserPresentationMs": 75.4
             },
             {
-              "rendererApplicationMs": 4.8,
-              "renderSubmissionMs": 2.4,
-              "browserPresentationMs": 70.3
+              "rendererApplicationMs": 5.4,
+              "renderSubmissionMs": 3,
+              "browserPresentationMs": 72.9
             },
             {
-              "rendererApplicationMs": 4.6,
+              "rendererApplicationMs": 6.8,
               "renderSubmissionMs": 2.5,
-              "browserPresentationMs": 65.6
+              "browserPresentationMs": 72.1
             }
           ],
           "rendererApplicationMs": {
             "samples": 3,
-            "min": 4.6,
-            "median": 4.8,
-            "p95": 5.6,
-            "max": 5.6
+            "min": 5.2,
+            "median": 5.4,
+            "p95": 6.8,
+            "max": 6.8
           },
           "renderSubmissionMs": {
             "samples": 3,
-            "min": 2.4,
-            "median": 2.4,
-            "p95": 2.5,
-            "max": 2.5
+            "min": 2.5,
+            "median": 2.7,
+            "p95": 3,
+            "max": 3
           },
           "browserPresentationMs": {
             "samples": 3,
-            "min": 65.6,
-            "median": 69.6,
-            "p95": 70.3,
-            "max": 70.3
+            "min": 72.1,
+            "median": 72.9,
+            "p95": 75.4,
+            "max": 75.4
           }
         },
         "structuralHash": "sha256:3e64feee3589cead815aba832bc7170a50e3ed9307cd4654fe3a0428be7ef3bf",
@@ -515,97 +515,97 @@
         },
         "transfer": {
           "encodedTraceBytes": 164605,
-          "shareOfBenchmarkArtifact": 0.010276673228512369
+          "shareOfBenchmarkArtifact": 0.010276673870109035
         },
         "timings": {
           "posture": "same_host_observation_non_gating",
           "admission": {
             "stateMaterializationNs": {
               "samples": 2,
-              "min": 140,
-              "median": 145.5,
-              "p95": 151,
-              "max": 151
+              "min": 161,
+              "median": 165.5,
+              "p95": 170,
+              "max": 170
             },
             "engineBuildNs": {
               "samples": 2,
-              "min": 46586,
-              "median": 46761.5,
-              "p95": 46937,
-              "max": 46937
+              "min": 47428,
+              "median": 47658.5,
+              "p95": 47889,
+              "max": 47889
             },
             "evidenceReadbackNs": {
               "samples": 2,
-              "min": 6022,
-              "median": 6092,
-              "p95": 6162,
-              "max": 6162
+              "min": 6061,
+              "median": 6086,
+              "p95": 6111,
+              "max": 6111
             },
             "artifactEncodingNs": {
               "samples": 2,
-              "min": 3116,
-              "median": 3201,
-              "p95": 3286,
-              "max": 3286
+              "min": 3036,
+              "median": 3106,
+              "p95": 3176,
+              "max": 3176
             }
           },
           "step": {
             "caStepNs": {
               "samples": 10,
-              "min": 7384,
-              "median": 50302.5,
-              "p95": 121445,
-              "max": 121445
+              "min": 7354,
+              "median": 49557,
+              "p95": 118590,
+              "max": 118590
             },
             "requestConstructionNs": {
               "samples": 10,
               "min": 1132,
-              "median": 5319,
-              "p95": 11141,
-              "max": 11141
+              "median": 5350,
+              "p95": 11311,
+              "max": 11311
             },
             "spatialPreviewNs": {
               "samples": 10,
-              "min": 194721,
-              "median": 441980.5,
-              "p95": 547346,
-              "max": 547346
+              "min": 200903,
+              "median": 446108.5,
+              "p95": 545894,
+              "max": 545894
             },
             "authorityCommitNs": {
               "samples": 10,
-              "min": 1943,
-              "median": 13119,
-              "p95": 17593,
-              "max": 17593
+              "min": 2024,
+              "median": 14572.5,
+              "p95": 22041,
+              "max": 22041
             },
             "evidenceReadbackNs": {
               "samples": 10,
-              "min": 35576,
-              "median": 162126,
-              "p95": 309555,
-              "max": 309555
+              "min": 35767,
+              "median": 164816,
+              "p95": 319834,
+              "max": 319834
             },
             "artifactEncodingNs": {
               "samples": 10,
-              "min": 13334,
-              "median": 64911,
-              "p95": 129450,
-              "max": 129450
+              "min": 13124,
+              "median": 65105.5,
+              "p95": 129220,
+              "max": 129220
             }
           },
           "endToEndNs": {
             "samples": 10,
-            "min": 256836,
-            "median": 737758,
-            "p95": 1136530,
-            "max": 1136530
+            "min": 260905,
+            "median": 748530,
+            "p95": 1140067,
+            "max": 1140067
           },
           "changedCellsPerSecond": {
             "samples": 10,
-            "min": 22910.732150630425,
-            "median": 73195.34564536286,
-            "p95": 117906.71368196874,
-            "max": 117906.71368196874
+            "min": 22725.465019827967,
+            "median": 72141.82035653987,
+            "p95": 116743.05128029732,
+            "max": 116743.05128029732
           }
         },
         "browser": {
@@ -613,41 +613,41 @@
           "traceHash": "sha256:86b4445b8a12980b56b6222d48a70f65afc105dc1135a0b5927be048340ab4ce",
           "observations": [
             {
-              "rendererApplicationMs": 7,
-              "renderSubmissionMs": 3,
-              "browserPresentationMs": 67.6
+              "rendererApplicationMs": 7.2,
+              "renderSubmissionMs": 2.7,
+              "browserPresentationMs": 69
             },
             {
               "rendererApplicationMs": 7,
-              "renderSubmissionMs": 2.3,
-              "browserPresentationMs": 64.2
+              "renderSubmissionMs": 2.6,
+              "browserPresentationMs": 65.8
             },
             {
-              "rendererApplicationMs": 7,
-              "renderSubmissionMs": 3.1,
-              "browserPresentationMs": 64.6
+              "rendererApplicationMs": 7.3,
+              "renderSubmissionMs": 2.6,
+              "browserPresentationMs": 67.1
             }
           ],
           "rendererApplicationMs": {
             "samples": 3,
             "min": 7,
-            "median": 7,
-            "p95": 7,
-            "max": 7
+            "median": 7.2,
+            "p95": 7.3,
+            "max": 7.3
           },
           "renderSubmissionMs": {
             "samples": 3,
-            "min": 2.3,
-            "median": 3,
-            "p95": 3.1,
-            "max": 3.1
+            "min": 2.6,
+            "median": 2.6,
+            "p95": 2.7,
+            "max": 2.7
           },
           "browserPresentationMs": {
             "samples": 3,
-            "min": 64.2,
-            "median": 64.6,
-            "p95": 67.6,
-            "max": 67.6
+            "min": 65.8,
+            "median": 67.1,
+            "p95": 69,
+            "max": 69
           }
         },
         "structuralHash": "sha256:10f2c4c1d52c956134c05066936d860c9657bf5bbbfc6b9e38bc3fddcc7eff3e",
@@ -722,97 +722,97 @@
         },
         "transfer": {
           "encodedTraceBytes": 1760930,
-          "shareOfBenchmarkArtifact": 0.10993895804066879
+          "shareOfBenchmarkArtifact": 0.10993896490441422
         },
         "timings": {
           "posture": "same_host_observation_non_gating",
           "admission": {
             "stateMaterializationNs": {
               "samples": 2,
-              "min": 307741,
-              "median": 313442,
-              "p95": 319143,
-              "max": 319143
+              "min": 317239,
+              "median": 385390.5,
+              "p95": 453542,
+              "max": 453542
             },
             "engineBuildNs": {
               "samples": 2,
-              "min": 27185625,
-              "median": 27721725,
-              "p95": 28257825,
-              "max": 28257825
+              "min": 27172246,
+              "median": 27229933.5,
+              "p95": 27287621,
+              "max": 27287621
             },
             "evidenceReadbackNs": {
               "samples": 2,
-              "min": 4118623,
-              "median": 4258758.5,
-              "p95": 4398894,
-              "max": 4398894
+              "min": 4230072,
+              "median": 4294521.5,
+              "p95": 4358971,
+              "max": 4358971
             },
             "artifactEncodingNs": {
               "samples": 2,
-              "min": 3085646,
-              "median": 3162343.5,
-              "p95": 3239041,
-              "max": 3239041
+              "min": 3250022,
+              "median": 4553857.5,
+              "p95": 5857693,
+              "max": 5857693
             }
           },
           "step": {
             "caStepNs": {
               "samples": 8,
-              "min": 11801,
-              "median": 41081.5,
-              "p95": 97832,
-              "max": 97832
+              "min": 12584,
+              "median": 40585.5,
+              "p95": 99625,
+              "max": 99625
             },
             "requestConstructionNs": {
               "samples": 8,
-              "min": 1823,
-              "median": 6417,
-              "p95": 11271,
-              "max": 11271
+              "min": 2354,
+              "median": 6412,
+              "p95": 11431,
+              "max": 11431
             },
             "spatialPreviewNs": {
               "samples": 8,
-              "min": 27577974,
-              "median": 27977385,
-              "p95": 29640050,
-              "max": 29640050
+              "min": 27327836,
+              "median": 27795323,
+              "p95": 28541067,
+              "max": 28541067
             },
             "authorityCommitNs": {
               "samples": 8,
-              "min": 938783,
-              "median": 1003187,
-              "p95": 1041693,
-              "max": 1041693
+              "min": 918305,
+              "median": 990589,
+              "p95": 1009213,
+              "max": 1009213
             },
             "evidenceReadbackNs": {
               "samples": 8,
-              "min": 349559,
-              "median": 425414.5,
-              "p95": 447271,
-              "max": 447271
+              "min": 341474,
+              "median": 434366,
+              "p95": 456538,
+              "max": 456538
             },
             "artifactEncodingNs": {
               "samples": 8,
-              "min": 73977,
-              "median": 133582.5,
-              "p95": 162833,
-              "max": 162833
+              "min": 73496,
+              "median": 137390.5,
+              "p95": 155398,
+              "max": 155398
             }
           },
           "endToEndNs": {
             "samples": 8,
-            "min": 29023146,
-            "median": 29567341,
-            "p95": 31150474,
-            "max": 31150474
+            "min": 28872773,
+            "median": 29349959,
+            "p95": 30071026,
+            "max": 30071026
           },
           "changedCellsPerSecond": {
             "samples": 8,
-            "min": 203.63948561480493,
-            "median": 1324.402892166974,
-            "p95": 3505.1239519679384,
-            "max": 3505.1239519679384
+            "min": 199.97718926861077,
+            "median": 1346.7453249617092,
+            "p95": 3591.1410004538993,
+            "max": 3591.1410004538993
           }
         },
         "browser": {
@@ -820,41 +820,41 @@
           "traceHash": "sha256:47361d782833a5d23ccd638cebc4a4a68afdd3f8d830c54fe589135a5ebbe5ae",
           "observations": [
             {
-              "rendererApplicationMs": 117.1,
+              "rendererApplicationMs": 127.6,
               "renderSubmissionMs": 3.9,
-              "browserPresentationMs": 360.2
+              "browserPresentationMs": 376.6
             },
             {
-              "rendererApplicationMs": 117.7,
+              "rendererApplicationMs": 121,
               "renderSubmissionMs": 3.5,
-              "browserPresentationMs": 375.8
+              "browserPresentationMs": 354.3
             },
             {
-              "rendererApplicationMs": 123.9,
-              "renderSubmissionMs": 3,
-              "browserPresentationMs": 366
+              "rendererApplicationMs": 133.2,
+              "renderSubmissionMs": 3.3,
+              "browserPresentationMs": 384.1
             }
           ],
           "rendererApplicationMs": {
             "samples": 3,
-            "min": 117.1,
-            "median": 117.7,
-            "p95": 123.9,
-            "max": 123.9
+            "min": 121,
+            "median": 127.6,
+            "p95": 133.2,
+            "max": 133.2
           },
           "renderSubmissionMs": {
             "samples": 3,
-            "min": 3,
+            "min": 3.3,
             "median": 3.5,
             "p95": 3.9,
             "max": 3.9
           },
           "browserPresentationMs": {
             "samples": 3,
-            "min": 360.2,
-            "median": 366,
-            "p95": 375.8,
-            "max": 375.8
+            "min": 354.3,
+            "median": 376.6,
+            "p95": 384.1,
+            "max": 384.1
           }
         },
         "structuralHash": "sha256:2f00c4baf6da739d1f538eb9aa91c8075fe62edf2005bb280324b0850d248bae",
@@ -929,97 +929,97 @@
         },
         "transfer": {
           "encodedTraceBytes": 705068,
-          "shareOfBenchmarkArtifact": 0.04401903611603997
+          "shareOfBenchmarkArtifact": 0.04401903886425101
         },
         "timings": {
           "posture": "same_host_observation_non_gating",
           "admission": {
             "stateMaterializationNs": {
               "samples": 2,
-              "min": 221,
-              "median": 240.5,
-              "p95": 260,
-              "max": 260
+              "min": 110,
+              "median": 160.5,
+              "p95": 211,
+              "max": 211
             },
             "engineBuildNs": {
               "samples": 2,
-              "min": 47999,
-              "median": 49797,
-              "p95": 51595,
-              "max": 51595
+              "min": 47408,
+              "median": 47939,
+              "p95": 48470,
+              "max": 48470
             },
             "evidenceReadbackNs": {
               "samples": 2,
-              "min": 6632,
-              "median": 6692.5,
-              "p95": 6753,
-              "max": 6753
+              "min": 5951,
+              "median": 6211.5,
+              "p95": 6472,
+              "max": 6472
             },
             "artifactEncodingNs": {
               "samples": 2,
-              "min": 3356,
-              "median": 3376.5,
-              "p95": 3397,
-              "max": 3397
+              "min": 3296,
+              "median": 3311.5,
+              "p95": 3327,
+              "max": 3327
             }
           },
           "step": {
             "caStepNs": {
               "samples": 8,
-              "min": 81582,
-              "median": 125628,
-              "p95": 132737,
-              "max": 132737
+              "min": 79477,
+              "median": 125322.5,
+              "p95": 129380,
+              "max": 129380
             },
             "requestConstructionNs": {
               "samples": 8,
-              "min": 17783,
-              "median": 32330.5,
-              "p95": 33332,
-              "max": 33332
+              "min": 17312,
+              "median": 32134.5,
+              "p95": 32901,
+              "max": 32901
             },
             "spatialPreviewNs": {
               "samples": 8,
-              "min": 332597,
-              "median": 352859.5,
-              "p95": 366400,
-              "max": 366400
+              "min": 329622,
+              "median": 350781,
+              "p95": 358526,
+              "max": 358526
             },
             "authorityCommitNs": {
               "samples": 8,
-              "min": 3346,
-              "median": 12133,
-              "p95": 12262,
-              "max": 12262
+              "min": 3206,
+              "median": 12192.5,
+              "p95": 13024,
+              "max": 13024
             },
             "evidenceReadbackNs": {
               "samples": 8,
-              "min": 845429,
-              "median": 857397,
-              "p95": 967776,
-              "max": 967776
+              "min": 849257,
+              "median": 861374,
+              "p95": 867190,
+              "max": 867190
             },
             "artifactEncodingNs": {
               "samples": 8,
-              "min": 347475,
-              "median": 360564,
-              "p95": 371449,
-              "max": 371449
+              "min": 346323,
+              "median": 359242,
+              "p95": 372021,
+              "max": 372021
             }
           },
           "endToEndNs": {
             "samples": 8,
-            "min": 1631307,
-            "median": 1742614.5,
-            "p95": 1880980,
-            "max": 1880980
+            "min": 1627823,
+            "median": 1747439,
+            "p95": 1765335,
+            "max": 1765335
           },
           "changedCellsPerSecond": {
             "samples": 8,
-            "min": 120953.23303737273,
-            "median": 227000.11055369617,
-            "p95": 230413.01677626203,
-            "max": 230413.01677626203
+            "min": 121430.16667053128,
+            "median": 227428.5858662666,
+            "p95": 230663.83780690143,
+            "max": 230663.83780690143
           }
         },
         "browser": {
@@ -1027,41 +1027,41 @@
           "traceHash": "sha256:4632d574601855ca947180b669afce4e361a4cbaf7803c65374a20034a224423",
           "observations": [
             {
-              "rendererApplicationMs": 17.3,
-              "renderSubmissionMs": 3.3,
-              "browserPresentationMs": 121.7
-            },
-            {
-              "rendererApplicationMs": 17.7,
+              "rendererApplicationMs": 18.1,
               "renderSubmissionMs": 2.8,
-              "browserPresentationMs": 117.5
+              "browserPresentationMs": 128.5
             },
             {
-              "rendererApplicationMs": 16.7,
-              "renderSubmissionMs": 2.9,
-              "browserPresentationMs": 119.1
+              "rendererApplicationMs": 17.6,
+              "renderSubmissionMs": 3,
+              "browserPresentationMs": 121.1
+            },
+            {
+              "rendererApplicationMs": 17.4,
+              "renderSubmissionMs": 2.8,
+              "browserPresentationMs": 128.7
             }
           ],
           "rendererApplicationMs": {
             "samples": 3,
-            "min": 16.7,
-            "median": 17.3,
-            "p95": 17.7,
-            "max": 17.7
+            "min": 17.4,
+            "median": 17.6,
+            "p95": 18.1,
+            "max": 18.1
           },
           "renderSubmissionMs": {
             "samples": 3,
             "min": 2.8,
-            "median": 2.9,
-            "p95": 3.3,
-            "max": 3.3
+            "median": 2.8,
+            "p95": 3,
+            "max": 3
           },
           "browserPresentationMs": {
             "samples": 3,
-            "min": 117.5,
-            "median": 119.1,
-            "p95": 121.7,
-            "max": 121.7
+            "min": 121.1,
+            "median": 128.5,
+            "p95": 128.7,
+            "max": 128.7
           }
         },
         "structuralHash": "sha256:36839be3803ce8f19bd838abca89652a881a7a97d909536e70fed4e0d6b35699",
@@ -1101,7 +1101,7 @@
   "findings": {
     "slowestMedianStep": {
       "scenarioId": "large-resident-small-hot-region",
-      "medianNs": 29567341,
+      "medianNs": 29349959,
       "dominantMeasuredPhase": "spatialPreviewNs"
     },
     "largestEncodedTrace": {

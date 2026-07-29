@@ -1,6 +1,6 @@
 # Rusty Engine CA scale baseline
 
-Status: checked first baseline for `eee5f32401e3dabbfd1ffdd4dcc46bf54993b1e5` against Rusty Engine `db5641fc4e9d033112bc2b374a35933c3838e39c`.
+Status: checked first baseline for `4f84bde2eb7d724d922403c591a098ebea582fcd` against Rusty Engine `db5641fc4e9d033112bc2b374a35933c3838e39c`.
 
 ## Reproduce and validate
 
@@ -18,11 +18,11 @@ as equality gates.
 
 | Scenario | Domain cells | Authority voxels initial/peak | Peak CA density | Changed median/max | Resident chunks/max quads | Median measured step | Changed cells/s | Trace bytes | Browser apply/two-frame |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| sparse-propagation | 243 | 1/183 | 75.31% | 56/92 | 3/246 | 338.042 µs | 155,172 | 137.14 KiB | 6.100 / 61.700 ms |
-| dense-churn | 108 | 1/55 | 50.93% | 107/107 | 1/324 | 446.573 µs | 235,036 | 188.21 KiB | 4.800 / 69.600 ms |
-| cross-boundary | 405 | 1/189 | 46.67% | 54/128 | 8/390 | 737.758 µs | 73,195 | 160.75 KiB | 7.000 / 64.600 ms |
-| large-resident-small-hot-region | 65536 | 65536/65536 | 0.20% | 40/104 | 128/12288 | 29.567 ms | 1,324 | 1.68 MiB | 117.700 / 366.000 ms |
-| high-surface-area | 400 | 1/201 | 50.25% | 399/399 | 4/1200 | 1.743 ms | 227,000 | 688.54 KiB | 17.300 / 119.100 ms |
+| sparse-propagation | 243 | 1/183 | 75.31% | 56/92 | 3/246 | 332.832 µs | 156,198 | 137.14 KiB | 8.300 / 84.100 ms |
+| dense-churn | 108 | 1/55 | 50.93% | 107/107 | 1/324 | 450.762 µs | 232,129 | 188.21 KiB | 5.400 / 72.900 ms |
+| cross-boundary | 405 | 1/189 | 46.67% | 54/128 | 8/390 | 748.530 µs | 72,142 | 160.75 KiB | 7.200 / 67.100 ms |
+| large-resident-small-hot-region | 65536 | 65536/65536 | 0.20% | 40/104 | 128/12288 | 29.350 ms | 1,347 | 1.68 MiB | 127.600 / 376.600 ms |
+| high-surface-area | 400 | 1/201 | 50.25% | 399/399 | 4/1200 | 1.747 ms | 227,429 | 688.54 KiB | 17.600 / 128.500 ms |
 
 Rust uses 1 warmup and
 2 recorded runs on
@@ -36,7 +36,7 @@ are not thresholds.
 
 - Slowest median measured step:
   `large-resident-small-hot-region` at
-  29.567 ms; its largest
+  29.350 ms; its largest
   measured phase was
   `spatialPreviewNs`.
 - Largest encoded trace:
