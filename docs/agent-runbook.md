@@ -534,8 +534,9 @@ Reproduce the catalog-aware accepted-corpus result with:
 pnpm run catalog-aware:coverage
 ```
 
-This uses an isolated configuration copy, repeats successful builds to prove a
-stable build ID, and writes
+This uses the tracked
+`fixtures/policies/catalog-aware-coverage-config.v1.json` in an isolated
+configuration copy, repeats successful builds to prove a stable build ID, and writes
 `artifacts/evidence/catalog-aware-generation-coverage.json`.
 
 ## Verification

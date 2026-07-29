@@ -244,9 +244,11 @@ reusable catalog vocabulary gap from geometry whose room ports or corridor
 anchors need a catalog-aware generation retry.
 
 The catalog-aware command rebuilds every accepted candidate twice through the
-unified viewer configuration path and writes
+unified viewer configuration path using the tracked
+`fixtures/policies/catalog-aware-coverage-config.v1.json` evidence policy and
+writes
 `artifacts/evidence/catalog-aware-generation-coverage.json`. The current sample
-is 5/9 candidates and 4/6 topology fingerprints, while strict pure-catalog
+is 6/9 candidates and 4/6 topology fingerprints, while strict pure-catalog
 assembly remains 0/9. Every recorded catalog-aware success has a stable
 repeated build ID, zero generated connection cells, and successful geometry,
 placement, and built-flow validation.

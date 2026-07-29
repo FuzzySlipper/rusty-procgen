@@ -12,7 +12,8 @@ const outputPath = resolve(
 );
 const tempDir = await mkdtemp(join(tmpdir(), 'rusty-procgen-catalog-aware-coverage-'));
 const configPath = join(tempDir, 'viewer-generation.json');
-await writeFile(configPath, await readFile('config/viewer-generation.json', 'utf8'), 'utf8');
+const sourcePolicyRef = 'fixtures/policies/catalog-aware-coverage-config.v1.json';
+await writeFile(configPath, await readFile(sourcePolicyRef, 'utf8'), 'utf8');
 
 const server = spawn(
   process.execPath,
@@ -90,7 +91,7 @@ try {
     schemaVersion: 1,
     sourceSelectionRef: 'artifacts/samples/batch-v2/selection-report.json',
     sourceCatalogRef: 'fixtures/shape-catalogs/2d-basic.json',
-    sourcePolicyRef: 'config/viewer-generation.json:catalogAwareGenerationPolicy',
+    sourcePolicyRef,
     summary: {
       candidateCount: outcomes.length,
       successCount: successes.length,

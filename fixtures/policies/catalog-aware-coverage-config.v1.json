@@ -1,0 +1,90 @@
+{
+  "kind": "rusty_procgen.viewer_generation_config.v1",
+  "schemaVersion": 1,
+  "geometryLayoutPolicy": {
+    "initialRoomMargin": {
+      "value": 96,
+      "defaultValue": 96
+    },
+    "initialColumnGap": {
+      "value": 144,
+      "defaultValue": 144
+    },
+    "initialRowGap": {
+      "value": 64,
+      "defaultValue": 64
+    },
+    "roomMarginGrowth": {
+      "value": 48,
+      "defaultValue": 48
+    },
+    "columnGapGrowth": {
+      "value": 72,
+      "defaultValue": 72
+    },
+    "rowGapGrowth": {
+      "value": 40,
+      "defaultValue": 40
+    },
+    "maxSpacingTiers": {
+      "value": 5,
+      "defaultValue": 5
+    },
+    "roomOrderAttemptsPerTier": {
+      "value": 4,
+      "defaultValue": 4
+    },
+    "maxSearchAttempts": {
+      "value": 80,
+      "defaultValue": 80
+    }
+  },
+  "placementPolicy": {
+    "minimumClearanceCells": {
+      "value": 3,
+      "defaultValue": 3
+    },
+    "wallThicknessCells": {
+      "value": 1,
+      "defaultValue": 1
+    }
+  },
+  "catalogAwareGenerationPolicy": {
+    "maxGenerationAttempts": {
+      "value": 4,
+      "defaultValue": 4
+    },
+    "initialRoomSlackCells": {
+      "value": 0,
+      "defaultValue": 0
+    },
+    "roomSlackGrowthCells": {
+      "value": 4,
+      "defaultValue": 4
+    },
+    "maxRoomCandidates": {
+      "value": 16,
+      "defaultValue": 16
+    },
+    "maxRoutingStatesPerSection": {
+      "value": 200000,
+      "defaultValue": 200000
+    },
+    "routeMarginCells": {
+      "value": 48,
+      "defaultValue": 48
+    },
+    "guideDistanceWeight": {
+      "value": 4,
+      "defaultValue": 4
+    },
+    "turnPenalty": {
+      "value": 3,
+      "defaultValue": 3
+    }
+  },
+  "corridorRealization": {
+    "value": "catalog",
+    "defaultValue": "hybrid"
+  }
+}

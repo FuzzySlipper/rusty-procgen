@@ -34,7 +34,9 @@ receipts, spatial readback, and failure atomicity. The viewer gate builds the
 product and exercises strict renderer boundaries plus real Chromium interaction.
 
 The complete checked evidence corpus is regenerated only through its owning
-commands:
+commands. Catalog-aware coverage deliberately consumes
+`fixtures/policies/catalog-aware-coverage-config.v1.json`, never the mutable
+workbench configuration:
 
 ```bash
 pnpm run baseline
