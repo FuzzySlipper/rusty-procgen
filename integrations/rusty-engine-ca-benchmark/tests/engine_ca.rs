@@ -63,12 +63,16 @@ fn checked_suite_is_deterministic_through_real_engine_authority() {
             .iter()
             .find(|authored| authored.id == scenario.scenario_id)
             .expect("authored scenario");
+        let automaton = CaAutomaton::new(authored.clone()).expect("accepted automaton");
         assert_eq!(
             scenario.trace.initial.initial_ca_state_hash,
-            CaAutomaton::new(authored.clone())
-                .expect("accepted automaton")
-                .initial_state_hash()
+            automaton.initial_state_hash()
         );
+        assert_eq!(
+            scenario.trace.initial.initial_ca_cumulative_hash,
+            automaton.current_scenario_hash()
+        );
+        assert_eq!(scenario.trace.initial_cells, authored.initial_cells);
         assert_projection_trace_is_self_consistent(&scenario.trace);
     }
 

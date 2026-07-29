@@ -19,6 +19,8 @@ const MAX_SCENARIOS = 32;
 const MAX_STEPS = 4_096;
 const MAX_RECORDED_RUNS = 8;
 const MAX_PROJECTION_CHUNKS = 4_096;
+const MAX_SEED_CELLS = 4_096;
+const MAX_CELL_STEPS = 1_048_576;
 const MATERIALS = [
   { slot: 1, id: 'rusty-procgen/ca/source', color: [0.94, 0.69, 0.22, 1] },
   { slot: 2, id: 'rusty-procgen/ca/frontier', color: [0.18, 0.76, 0.67, 1] },
@@ -31,6 +33,11 @@ type Coord = readonly [number, number, number];
 export interface CaBounds {
   readonly min: { readonly x: number; readonly y: number; readonly z: number };
   readonly maxExclusive: { readonly x: number; readonly y: number; readonly z: number };
+}
+
+export interface CaSeedCell {
+  readonly coord: { readonly x: number; readonly y: number; readonly z: number };
+  readonly state: 'source' | 'frontier' | 'trail';
 }
 
 export interface CaMeshGroup {
@@ -152,8 +159,10 @@ export interface CaScenarioEvidence {
     readonly neighborhood: string;
     readonly boundary: string;
     readonly materializeEmpty: boolean;
+    readonly initialCells: readonly CaSeedCell[];
     readonly initial: {
       readonly initialCaStateHash: string;
+      readonly initialCaCumulativeHash: string;
       readonly readout: CaAuthorityReadout;
       readonly projectionChunks: readonly CaMeshChunk[];
       readonly projectionStateHash: string;
@@ -433,6 +442,7 @@ function decodeScenario(
     true,
   );
   const trace = decodeTrace(value.trace, `${path}.trace`, scenarioId, config);
+  const expectedStructuralHash = sha256Serialized(serializeTrace(trace));
   const runs = list(value.recordedRuns, `${path}.recordedRuns`, 1, MAX_RECORDED_RUNS);
   if (runs.length !== config.recordedRuns) {
     fail(`${path}.recordedRuns`, `must contain ${config.recordedRuns} runs`);
@@ -441,6 +451,12 @@ function decodeScenario(
   for (let index = 0; index < runs.length; index += 1) {
     const run = decodeRecordedRun(runs[index], `${path}.recordedRuns[${index}]`, trace.steps.length);
     exactInteger(run.run, `${path}.recordedRuns[${index}].run`, index + 1);
+    if (run.structuralHash !== expectedStructuralHash) {
+      fail(
+        `${path}.recordedRuns[${index}].structuralHash`,
+        `does not match ${expectedStructuralHash}`,
+      );
+    }
     structuralHash ??= run.structuralHash;
     if (run.structuralHash !== structuralHash) {
       fail(`${path}.recordedRuns[${index}].structuralHash`, 'differs across recorded runs');
@@ -457,7 +473,7 @@ function decodeTrace(
 ): CaScenarioEvidence['trace'] {
   const value = record(input, path, [
     'kind', 'schemaVersion', 'scenarioId', 'workload', 'ruleId', 'seed', 'bounds',
-    'neighborhood', 'boundary', 'materializeEmpty', 'initial', 'steps',
+    'neighborhood', 'boundary', 'materializeEmpty', 'initialCells', 'initial', 'steps',
   ]);
   exactText(value.kind, `${path}.kind`, CA_TRACE_KIND);
   exactInteger(value.schemaVersion, `${path}.schemaVersion`, 1);
@@ -472,8 +488,39 @@ function decodeTrace(
   enumeration(value.neighborhood, `${path}.neighborhood`, ['von_neumann6', 'moore26']);
   enumeration(value.boundary, `${path}.boundary`, ['fixed_empty', 'wrap']);
   booleanValue(value.materializeEmpty, `${path}.materializeEmpty`);
+  const initialCells = decodeInitialCells(value.initialCells, `${path}.initialCells`, bounds);
   const initial = decodeInitial(value.initial, `${path}.initial`, config);
   const steps = list(value.steps, `${path}.steps`, 1, MAX_STEPS);
+  const cellSteps = boundsVolume(bounds) * steps.length;
+  if (!Number.isSafeInteger(cellSteps) || cellSteps > MAX_CELL_STEPS) {
+    fail(path, `cell-step workload ${cellSteps} exceeds ${MAX_CELL_STEPS}`);
+  }
+  const orderedInitialCells = [...initialCells].sort((left, right) =>
+    xyzCompare(left.coord, right.coord));
+  const initialStateHash = fnv1a64Json(orderedInitialCells);
+  if (initial.initialCaStateHash !== initialStateHash) {
+    fail(`${path}.initial.initialCaStateHash`, `does not match ${initialStateHash}`);
+  }
+  const initialCumulativeHash = fnv1a64Json({
+    scenario: {
+      id: scenarioId,
+      workload: value.workload,
+      seed: value.seed,
+      bounds,
+      neighborhood: value.neighborhood,
+      boundary: value.boundary,
+      rule: value.ruleId,
+      steps: steps.length,
+      initialCells,
+    },
+    initialStateHash,
+  });
+  if (initial.initialCaCumulativeHash !== initialCumulativeHash) {
+    fail(
+      `${path}.initial.initialCaCumulativeHash`,
+      `does not match ${initialCumulativeHash}`,
+    );
+  }
   const chunks = new Map<string, CaMeshChunk>();
   for (const chunk of initial.projectionChunks) {
     chunks.set(coordKey(chunk.chunk), chunk);
@@ -483,6 +530,7 @@ function decodeTrace(
     'initial',
     scenarioId,
     initial.initialCaStateHash,
+    initial.initialCaCumulativeHash,
     initial.readout,
     initial.projectionStateHash,
   ]);
@@ -492,7 +540,7 @@ function decodeTrace(
 
   let revision = initial.readout.sourceRevision;
   let previousTraceHash = initial.traceHash;
-  let previousCa: CaStepEvidence | null = null;
+  let previousCaCumulativeHash = initial.initialCaCumulativeHash;
   for (let index = 0; index < steps.length; index += 1) {
     const stepPath = `${path}.steps[${index}]`;
     const step = decodeStep(steps[index], stepPath, config, index + 1);
@@ -508,7 +556,13 @@ function decodeTrace(
     }
     applyProjectionOps(chunks, step.projectionOps, stepPath);
     verifyProjectionState(chunks, step.projectionStateHash, step.readout, stepPath);
-    verifyCaHashes(step.ca, previousCa, scenarioId, value.ruleId as string, stepPath);
+    verifyCaHashes(
+      step.ca,
+      previousCaCumulativeHash,
+      scenarioId,
+      value.ruleId as string,
+      stepPath,
+    );
     const traceHash = sha256Json([
       'step',
       step.previousTraceHash,
@@ -526,7 +580,7 @@ function decodeTrace(
     }
     revision = step.acceptedRevision;
     previousTraceHash = step.traceHash;
-    previousCa = step.ca;
+    previousCaCumulativeHash = step.ca.cumulativeScenarioHash;
   }
   decodeBounds(bounds, `${path}.bounds`);
   return input as CaScenarioEvidence['trace'];
@@ -538,10 +592,11 @@ function decodeInitial(
   config: CaBenchmarkEvidence['config'],
 ): CaScenarioEvidence['trace']['initial'] {
   const value = record(input, path, [
-    'initialCaStateHash', 'readout', 'projectionChunks', 'projectionStateHash',
-    'traceHash',
+    'initialCaStateHash', 'initialCaCumulativeHash', 'readout',
+    'projectionChunks', 'projectionStateHash', 'traceHash',
   ]);
   hash(value.initialCaStateHash, `${path}.initialCaStateHash`, 'fnv1a64');
+  hash(value.initialCaCumulativeHash, `${path}.initialCaCumulativeHash`, 'fnv1a64');
   const readout = decodeReadout(value.readout, `${path}.readout`);
   const chunks = list(value.projectionChunks, `${path}.projectionChunks`, 0, MAX_PROJECTION_CHUNKS);
   let meshValues = 0;
@@ -561,6 +616,7 @@ function decodeInitial(
   hash(value.traceHash, `${path}.traceHash`, 'sha256');
   return {
     initialCaStateHash: value.initialCaStateHash as string,
+    initialCaCumulativeHash: value.initialCaCumulativeHash as string,
     readout,
     projectionChunks: chunks as unknown as readonly CaMeshChunk[],
     projectionStateHash: value.projectionStateHash as string,
@@ -678,6 +734,14 @@ function decodeCaStep(input: unknown, path: string, expectedStep: number): CaSte
   ]);
   for (const key of Object.keys(counts)) {
     integer(counts[key], `${path}.stateCounts.${key}`, 0, Number.MAX_SAFE_INTEGER);
+  }
+  const countedActive = checkedAdd(
+    checkedAdd(counts.source as number, counts.frontier as number, path),
+    counts.trail as number,
+    path,
+  );
+  if (value.activeCellCount !== countedActive) {
+    fail(`${path}.activeCellCount`, `stateCounts report ${countedActive} active cells`);
   }
   const deltas = list(value.deltas, `${path}.deltas`, 0, changed);
   let previous: { readonly x: number; readonly y: number; readonly z: number } | null = null;
@@ -834,7 +898,7 @@ function decodeRecordedRun(
 
 function verifyCaHashes(
   ca: CaStepEvidence,
-  previous: CaStepEvidence | null,
+  previousCumulativeHash: string,
   scenarioId: string,
   ruleId: string,
   path: string,
@@ -848,18 +912,16 @@ function verifyCaHashes(
   if (ca.deltaHash !== deltaHash) {
     fail(`${path}.ca.deltaHash`, `does not match ${deltaHash}`);
   }
-  if (previous !== null) {
-    const cumulative = fnv1a64Json({
-      previousHash: previous.cumulativeScenarioHash,
-      deltaHash: ca.deltaHash,
-      stateHash: ca.stateHash,
-      step: ca.step,
-      activeCellCount: ca.activeCellCount,
-      touchedBounds: ca.touchedBounds,
-    });
-    if (ca.cumulativeScenarioHash !== cumulative) {
-      fail(`${path}.ca.cumulativeScenarioHash`, `does not match ${cumulative}`);
-    }
+  const cumulative = fnv1a64Json({
+    previousHash: previousCumulativeHash,
+    deltaHash: ca.deltaHash,
+    stateHash: ca.stateHash,
+    step: ca.step,
+    activeCellCount: ca.activeCellCount,
+    touchedBounds: ca.touchedBounds,
+  });
+  if (ca.cumulativeScenarioHash !== cumulative) {
+    fail(`${path}.ca.cumulativeScenarioHash`, `does not match ${cumulative}`);
   }
 }
 
@@ -1024,6 +1086,150 @@ function serializeProjectionOps(ops: readonly CaProjectionOp[]): string {
     : `{"op":"upsert","chunk":${serializeChunk(op.chunk)}}`).join(',')}]`;
 }
 
+function serializeTrace(trace: CaScenarioEvidence['trace']): string {
+  return [
+    '{"kind":',
+    JSON.stringify(trace.kind),
+    ',"schemaVersion":',
+    String(trace.schemaVersion),
+    ',"scenarioId":',
+    JSON.stringify(trace.scenarioId),
+    ',"workload":',
+    JSON.stringify(trace.workload),
+    ',"ruleId":',
+    JSON.stringify(trace.ruleId),
+    ',"seed":',
+    String(trace.seed),
+    ',"bounds":',
+    JSON.stringify({
+      min: trace.bounds.min,
+      maxExclusive: trace.bounds.maxExclusive,
+    }),
+    ',"neighborhood":',
+    JSON.stringify(trace.neighborhood),
+    ',"boundary":',
+    JSON.stringify(trace.boundary),
+    ',"materializeEmpty":',
+    String(trace.materializeEmpty),
+    ',"initialCells":',
+    serializeSeedCells(trace.initialCells),
+    ',"initial":',
+    serializeInitial(trace.initial),
+    ',"steps":[',
+    trace.steps.map(serializeSpatialStep).join(','),
+    ']}',
+  ].join('');
+}
+
+function serializeSeedCells(cells: readonly CaSeedCell[]): string {
+  return JSON.stringify(cells.map((cell) => ({
+    coord: { x: cell.coord.x, y: cell.coord.y, z: cell.coord.z },
+    state: cell.state,
+  })));
+}
+
+function serializeInitial(initial: CaScenarioEvidence['trace']['initial']): string {
+  return [
+    '{"initialCaStateHash":',
+    JSON.stringify(initial.initialCaStateHash),
+    ',"initialCaCumulativeHash":',
+    JSON.stringify(initial.initialCaCumulativeHash),
+    ',"readout":',
+    serializeReadout(initial.readout),
+    ',"projectionChunks":[',
+    initial.projectionChunks.map(serializeChunk).join(','),
+    '],"projectionStateHash":',
+    JSON.stringify(initial.projectionStateHash),
+    ',"traceHash":',
+    JSON.stringify(initial.traceHash),
+    '}',
+  ].join('');
+}
+
+function serializeSpatialStep(step: CaSpatialStep): string {
+  return [
+    '{"ca":',
+    serializeCaStep(step.ca),
+    ',"revisionBefore":',
+    String(step.revisionBefore),
+    ',"acceptedRevision":',
+    String(step.acceptedRevision),
+    ',"engineChangedVoxels":',
+    String(step.engineChangedVoxels),
+    ',"canonicalEditCount":',
+    String(step.canonicalEditCount),
+    ',"engineDeltaCount":',
+    String(step.engineDeltaCount),
+    ',"readout":',
+    serializeReadout(step.readout),
+    ',"projectionOps":',
+    serializeProjectionOps(step.projectionOps),
+    ',"projectionDeltaHash":',
+    JSON.stringify(step.projectionDeltaHash),
+    ',"projectionStateHash":',
+    JSON.stringify(step.projectionStateHash),
+    ',"previousTraceHash":',
+    JSON.stringify(step.previousTraceHash),
+    ',"traceHash":',
+    JSON.stringify(step.traceHash),
+    '}',
+  ].join('');
+}
+
+function serializeCaStep(ca: CaStepEvidence): string {
+  return JSON.stringify({
+    step: ca.step,
+    activeCellCount: ca.activeCellCount,
+    changedCellCount: ca.changedCellCount,
+    evaluatedCellCount: ca.evaluatedCellCount,
+    touchedBounds: ca.touchedBounds === null
+      ? null
+      : {
+          min: {
+            x: ca.touchedBounds.min.x,
+            y: ca.touchedBounds.min.y,
+            z: ca.touchedBounds.min.z,
+          },
+          maxInclusive: {
+            x: ca.touchedBounds.maxInclusive.x,
+            y: ca.touchedBounds.maxInclusive.y,
+            z: ca.touchedBounds.maxInclusive.z,
+          },
+        },
+    stateCounts: {
+      empty: ca.stateCounts.empty,
+      source: ca.stateCounts.source,
+      frontier: ca.stateCounts.frontier,
+      trail: ca.stateCounts.trail,
+    },
+    deltas: ca.deltas.map((delta) => ({
+      coord: { x: delta.coord.x, y: delta.coord.y, z: delta.coord.z },
+      previous: delta.previous,
+      current: delta.current,
+    })),
+    deltaHash: ca.deltaHash,
+    stateHash: ca.stateHash,
+    cumulativeScenarioHash: ca.cumulativeScenarioHash,
+  });
+}
+
+function serializeReadout(readout: CaAuthorityReadout): string {
+  return JSON.stringify({
+    sourceRevision: readout.sourceRevision,
+    authorityHash: readout.authorityHash,
+    projectionRevisionsCoherent: readout.projectionRevisionsCoherent,
+    solidVoxelCount: readout.solidVoxelCount,
+    residentChunkCount: readout.residentChunkCount,
+    colliderChunkCount: readout.colliderChunkCount,
+    navigationCellCount: readout.navigationCellCount,
+    navigationHash: readout.navigationHash,
+    meshChunkCount: readout.meshChunkCount,
+    meshVertexCount: readout.meshVertexCount,
+    meshQuadCount: readout.meshQuadCount,
+    meshProjectionHash: readout.meshProjectionHash,
+  });
+}
+
 function serializeChunk(chunk: CaMeshChunk): string {
   return [
     '{"chunk":',
@@ -1081,6 +1287,54 @@ function decodeBounds(input: unknown, path: string): CaBounds {
     fail(path, 'has an empty or inverted axis');
   }
   return { min, maxExclusive };
+}
+
+function decodeInitialCells(
+  input: unknown,
+  path: string,
+  bounds: CaBounds,
+): readonly CaSeedCell[] {
+  const cells = list(input, path, 0, MAX_SEED_CELLS);
+  const seen = new Set<string>();
+  return cells.map((inputCell, index) => {
+    const cellPath = `${path}[${index}]`;
+    const value = record(inputCell, cellPath, ['coord', 'state']);
+    const decodedCoord = xyz(value.coord, `${cellPath}.coord`);
+    if (
+      decodedCoord.x < bounds.min.x
+      || decodedCoord.x >= bounds.maxExclusive.x
+      || decodedCoord.y < bounds.min.y
+      || decodedCoord.y >= bounds.maxExclusive.y
+      || decodedCoord.z < bounds.min.z
+      || decodedCoord.z >= bounds.maxExclusive.z
+    ) {
+      fail(`${cellPath}.coord`, 'lies outside the authored bounds');
+    }
+    const key = `${decodedCoord.x}:${decodedCoord.y}:${decodedCoord.z}`;
+    if (seen.has(key)) {
+      fail(`${cellPath}.coord`, `duplicates seed coordinate ${key}`);
+    }
+    seen.add(key);
+    return {
+      coord: decodedCoord,
+      state: enumeration(value.state, `${cellPath}.state`, [
+        'source', 'frontier', 'trail',
+      ]),
+    };
+  });
+}
+
+function boundsVolume(bounds: CaBounds): number {
+  const dimensions = [
+    bounds.maxExclusive.x - bounds.min.x,
+    bounds.maxExclusive.y - bounds.min.y,
+    bounds.maxExclusive.z - bounds.min.z,
+  ];
+  const volume = dimensions.reduce((product, dimension) => product * dimension, 1);
+  if (!Number.isSafeInteger(volume) || volume > MAX_CELL_STEPS) {
+    fail('evidence.trace.bounds', `volume ${volume} exceeds ${MAX_CELL_STEPS}`);
+  }
+  return volume;
 }
 
 function xyz(

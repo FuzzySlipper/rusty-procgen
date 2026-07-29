@@ -36,10 +36,11 @@ requests contain only changed CA cells. Other workloads omit empty cells.
 
 `rusty_procgen.engine_ca_authority_trace.v1` records:
 
-- the complete authored scenario, rule, seed, bounds, boundary, and material
-  posture;
-- the initial CA state hash, initial Engine authority, and full public mesh
-  chunks, allowing consumers to recompute the initial trace-chain link;
+- the complete authored scenario, including ordered initial cells, rule, seed,
+  bounds, boundary, and material posture;
+- the initial CA state and cumulative hashes, initial Engine authority, and
+  full public mesh chunks, allowing consumers to recompute the CA root and
+  initial Engine trace-chain link;
 - every CA delta, Engine revision/fact, coherent collision/navigation/mesh
   readout, changed public mesh chunk upsert/delete, and cumulative trace hash;
 - complete public vertex/index/group buffers for changed chunks so a later
@@ -91,9 +92,10 @@ semantics, scheduling, persistence, or a maximum Engine scale.
 
 The downstream viewer's `CA Trace` tab is a strict consumer of the checked
 benchmark artifact, not part of the authority producer. Before renderer
-submission it verifies the schema, initial and per-step trace links, CA delta
-chain, projection operations and retained-state hashes, readout totals, and
-every referenced public mesh buffer. It then maps chunk facts to public
+submission it verifies the schema, producer-defined structural hash, initial
+CA state and cumulative root, initial and per-step trace links, CA delta chain,
+projection operations and retained-state hashes, readout totals, and every
+referenced public mesh buffer. It then maps chunk facts to public
 `@rusty-engine/render-contracts` retained frames and mounts only
 `@rusty-engine/renderer-host`.
 

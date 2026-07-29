@@ -159,6 +159,7 @@ fn run_scenario(
         neighborhood: scenario_identity.neighborhood,
         boundary: scenario_identity.boundary,
         materialize_empty: options.materialize_empty,
+        initial_cells: scenario_identity.initial_cells,
         initial,
         steps,
     };

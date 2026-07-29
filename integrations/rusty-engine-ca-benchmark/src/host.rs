@@ -71,15 +71,18 @@ impl CaSpatialHost {
         let projection_state_hash = hash_value(&projection_summaries(&projection_chunks))?;
         let readout = capture_readout(&scene, &projection_chunks, &projection_state_hash);
         let initial_ca_state_hash = automaton.initial_state_hash().to_owned();
+        let initial_ca_cumulative_hash = automaton.current_scenario_hash().to_owned();
         let trace_hash = hash_value(&(
             "initial",
             automaton.scenario().id.as_str(),
             initial_ca_state_hash.as_str(),
+            initial_ca_cumulative_hash.as_str(),
             &readout,
             &projection_state_hash,
         ))?;
         let initial = CaInitialAuthority {
             initial_ca_state_hash,
+            initial_ca_cumulative_hash,
             readout,
             projection_chunks: projection_chunks.values().cloned().collect(),
             projection_state_hash: projection_state_hash.clone(),

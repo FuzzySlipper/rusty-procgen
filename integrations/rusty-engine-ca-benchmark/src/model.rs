@@ -5,7 +5,7 @@ use engine_spatial::{
     CollisionSceneError, VoxelEditApplyError, VoxelSourceRevision, MAX_VOXEL_EDITS_PER_TRANSACTION,
 };
 use rusty_procgen_preflight::cellular_automata::{
-    CaBoundaryPolicy, CaBounds, CaCellState, CaError, CaNeighborhood, CaStepEvidence,
+    CaBoundaryPolicy, CaBounds, CaCellState, CaError, CaNeighborhood, CaSeedCell, CaStepEvidence,
     CaWorkloadClass,
 };
 use serde::{Deserialize, Serialize};
@@ -182,6 +182,7 @@ pub struct CaMeshChunkSummary {
 #[serde(deny_unknown_fields, rename_all = "camelCase")]
 pub struct CaInitialAuthority {
     pub initial_ca_state_hash: String,
+    pub initial_ca_cumulative_hash: String,
     pub readout: CaAuthorityReadout,
     pub projection_chunks: Vec<CaMeshChunkFact>,
     pub projection_state_hash: String,
@@ -218,6 +219,7 @@ pub struct CaSpatialTrace {
     pub neighborhood: CaNeighborhood,
     pub boundary: CaBoundaryPolicy,
     pub materialize_empty: bool,
+    pub initial_cells: Vec<CaSeedCell>,
     pub initial: CaInitialAuthority,
     pub steps: Vec<CaSpatialStep>,
 }

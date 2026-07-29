@@ -4,7 +4,11 @@ import {
   compileCaScenario,
   decodeCaBenchmarkEvidence,
 } from '../dist/ts/src/ca-authority-trace.js';
-import { sha256Text } from '../dist/ts/src/ca-trace-hash.js';
+import {
+  fnv1a64Json,
+  sha256Json,
+  sha256Text,
+} from '../dist/ts/src/ca-trace-hash.js';
 
 const artifactPath = 'artifacts/evidence/engine-ca-benchmark.json';
 const source = await readFile(artifactPath, 'utf8');
@@ -77,6 +81,22 @@ expectRejected('trace-chain mutation', (candidate) => {
   candidate.scenarios[0].trace.steps[1].previousTraceHash =
     'sha256:1111111111111111111111111111111111111111111111111111111111111111';
 });
+expectRejected('arbitrary equal structural hashes', (candidate) => {
+  for (const run of candidate.scenarios[0].recordedRuns) {
+    run.structuralHash =
+      'sha256:2222222222222222222222222222222222222222222222222222222222222222';
+  }
+}, /recordedRuns\[0\]\.structuralHash/);
+expectRejected('initial CA cumulative root', (candidate) => {
+  candidate.scenarios[0].trace.initial.initialCaCumulativeHash =
+    'fnv1a64:3333333333333333';
+}, /initial\.initialCaCumulativeHash/);
+expectRejected('re-chained CA state count mutation', (candidate) => {
+  const trace = candidate.scenarios[0].trace;
+  trace.steps[0].ca.activeCellCount += 1;
+  trace.steps[0].ca.stateCounts.frontier += 1;
+  rechainTrace(trace);
+}, /recordedRuns\[0\]\.structuralHash/);
 
 const inspectedSources = await Promise.all([
   readFile('src/ca-authority-trace.ts', 'utf8'),
@@ -105,18 +125,51 @@ console.log(JSON.stringify({
       .find((op) => op.op === 'defineVoxelObject').asset.meshes.length,
     finalChunks: scenario.chunkCountAfterStep.at(-1),
   })),
-  tamperCases: 6,
+  tamperCases: 9,
   authority: 'captured_hash_chained_engine_evidence',
   timingRole: 'observational_non_gating',
 }, null, 2));
 
-function expectRejected(label, mutate) {
+function expectRejected(label, mutate, expected = null) {
   const candidate = structuredClone(input);
   mutate(candidate);
   try {
     decodeCaBenchmarkEvidence(candidate);
-  } catch {
+  } catch (error) {
+    if (expected !== null && !expected.test(String(error))) {
+      throw new Error(`${label} rejected for the wrong reason: ${String(error)}`);
+    }
     return;
   }
   throw new Error(`${label} tamper was accepted`);
+}
+
+function rechainTrace(trace) {
+  let previousCaHash = trace.initial.initialCaCumulativeHash;
+  let previousTraceHash = trace.initial.traceHash;
+  for (const step of trace.steps) {
+    step.ca.cumulativeScenarioHash = fnv1a64Json({
+      previousHash: previousCaHash,
+      deltaHash: step.ca.deltaHash,
+      stateHash: step.ca.stateHash,
+      step: step.ca.step,
+      activeCellCount: step.ca.activeCellCount,
+      touchedBounds: step.ca.touchedBounds,
+    });
+    step.previousTraceHash = previousTraceHash;
+    step.traceHash = sha256Json([
+      'step',
+      step.previousTraceHash,
+      step.ca,
+      step.revisionBefore,
+      step.acceptedRevision,
+      step.canonicalEditCount,
+      step.engineDeltaCount,
+      step.readout,
+      step.projectionDeltaHash,
+      step.projectionStateHash,
+    ]);
+    previousCaHash = step.ca.cumulativeScenarioHash;
+    previousTraceHash = step.traceHash;
+  }
 }

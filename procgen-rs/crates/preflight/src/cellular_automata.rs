@@ -376,6 +376,10 @@ impl CaAutomaton {
         &self.initial_state_hash
     }
 
+    pub fn current_scenario_hash(&self) -> &str {
+        &self.cumulative_scenario_hash
+    }
+
     pub fn current_state_hash(&self) -> Result<String, CaError> {
         hash_state(&self.cells)
     }
