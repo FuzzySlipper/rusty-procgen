@@ -347,7 +347,7 @@ function validateScaleEvidence(scale, benchmark, benchmarkBytes, scenarioSuite) 
     if (JSON.stringify(row) !== JSON.stringify(expected)) {
       fail(`scale evidence row ${row.scenarioId} diverges from benchmark derivation`);
     }
-    for (const value of numericLeaves(row)) {
+    for (const value of numericLeaves({ ...row, bounds: undefined })) {
       if (!Number.isFinite(value) || value < 0) {
         fail(`scale evidence row ${row.scenarioId} has invalid numeric data`);
       }
