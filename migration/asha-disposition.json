@@ -10,65 +10,10 @@
     "artifactNamespace": "rusty_procgen.",
     "legacyArtifactDecoding": "forbidden"
   },
-  "activeAshaDependencies": [
-    {
-      "section": "dependencies",
-      "package": "@asha/contracts",
-      "specifier": "file:../asha-engine/ts/packages/contracts",
-      "removalTasks": [6399]
-    },
-    {
-      "section": "dependencies",
-      "package": "@asha/renderer-host",
-      "specifier": "file:../asha-engine/ts/packages/renderer-host",
-      "removalTasks": [6399]
-    }
-  ],
-  "transitiveAshaPackages": [
-    {
-      "package": "@asha/render-projection",
-      "via": ["@asha/renderer-host"],
-      "removalTasks": [6399]
-    },
-    {
-      "package": "@asha/renderer-three",
-      "via": ["@asha/renderer-host"],
-      "removalTasks": [6399]
-    },
-    {
-      "package": "@asha/runtime-bridge",
-      "via": ["@asha/renderer-host"],
-      "removalTasks": [6399]
-    }
-  ],
-  "activeAshaImports": [
-    {
-      "file": "scripts/legacy-asha-voxel-inspection-frame-smoke.mjs",
-      "specifier": "@asha/renderer-host",
-      "occurrences": 1,
-      "removalTask": 6399
-    },
-    {
-      "file": "src/voxel-inspection-projection.ts",
-      "specifier": "@asha/contracts",
-      "occurrences": 1,
-      "removalTask": 6399
-    },
-    {
-      "file": "viewer/app.ts",
-      "specifier": "@asha/renderer-host",
-      "occurrences": 1,
-      "removalTask": 6399
-    }
-  ],
-  "integrationScripts": [
-    {
-      "path": "scripts/legacy-asha-voxel-inspection-frame-smoke.mjs",
-      "lane": "retained-inspection",
-      "disposition": "replace_with_rusty_renderer_packages",
-      "removalTask": 6399
-    }
-  ],
+  "activeAshaDependencies": [],
+  "transitiveAshaPackages": [],
+  "activeAshaImports": [],
+  "integrationScripts": [],
   "removedDependencies": [
     {
       "package": "@asha/runtime-session",
@@ -76,7 +21,15 @@
     },
     {
       "package": "@asha/runtime-bridge",
-      "reason": "removed as the voxel-authority integration; it remains only as renderer-host package metadata until Den #6399 replaces that package"
+      "reason": "removed with the voxel-authority integration and the final Asha renderer-host dependency"
+    },
+    {
+      "package": "@asha/contracts",
+      "reason": "replaced by exact-revision @rusty-engine/render-contracts under Den #6399"
+    },
+    {
+      "package": "@asha/renderer-host",
+      "reason": "replaced by exact-revision @rusty-engine/renderer-host and its public peer closure under Den #6399"
     }
   ],
   "schemaFamilies": [

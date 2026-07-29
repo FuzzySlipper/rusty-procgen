@@ -1,30 +1,32 @@
-# Temporary legacy Asha adapter
+# Asha donor boundary
 
-Only retained inspection and viewer hosting still use predecessor packages
-during the in-place conversion. This is not the target Rusty architecture and
-does not create a compatibility promise. The exact package, transitive-package,
-import, and script allowances are machine-owned by
+The in-place conversion retains no executable Asha package, transitive package,
+import, adapter script, sibling checkout, or predecessor artifact decoder. The
+historical disposition is machine-owned by
 [`../migration/asha-disposition.json`](../migration/asha-disposition.json).
-Den #6399 replaces the renderer lane; #6400 proves clean closeout.
+The migration boundary gate requires its active arrays to remain empty.
 
-Generated-content publication and voxel authority already use exact-pinned
-public Rusty Engine Rust owners. Their contracts and evidence are documented in
+Generated-content publication and voxel authority use exact-pinned public
+Rusty Engine Rust owners. Their contracts and evidence are documented in
 [`rusty-engine-publication.md`](rusty-engine-publication.md) and
 [`rusty-engine-spatial.md`](rusty-engine-spatial.md).
 
-## Retained inspection lane
+## Inspection lane
 
 `src/voxel-inspection-projection.ts`,
-`scripts/legacy-asha-voxel-inspection-frame-smoke.mjs`, and `viewer/app.ts`
-remain a bounded presentation-only consumer of the predecessor renderer host.
-They do not own placement, accepted voxels, collision, navigation, mesh truth,
-or publication. The TypeScript extrusion projection remains an explicitly
-unverified convenience for temporary viewer experiments; committed spatial
-evidence comes from the Rust host.
+`scripts/smoke-rusty-renderer-inspection.mjs`, and `viewer/app.ts` are a bounded
+presentation-only consumer of exact-revision public
+`@rusty-engine/render-contracts` and `@rusty-engine/renderer-host`. Their public
+peer closure is pinned to the same Engine commit in `engine-source.json`.
+Procgen imports neither Three nor a backend implementation directly.
 
-The remaining Asha dependencies are sibling-checkout conversion conveniences,
-not a distribution contract. The migration boundary check fails closed on any
-new package, import, adapter script, or predecessor artifact identity.
+The lane does not own placement, accepted voxels, collision, navigation, mesh
+truth, or publication. The TypeScript extrusion projection is an explicitly
+unverified convenience for viewer experiments; committed spatial evidence
+comes from the Rust host. Strict frame decoding and the Engine host reject
+malformed input without replacing retained content. Real-Chromium evidence
+covers controls, candidate/config replacement, stale-work suppression, resize,
+picking, structural readouts, and disposal.
 
 ## Crate and code disposition
 

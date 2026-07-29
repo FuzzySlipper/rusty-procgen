@@ -23,22 +23,22 @@ state mutation and the validators own pass/fail evidence.
 Already available:
 
 ```bash
-npm run procgen -- init --intent <intent.json> --seed <u64> --out <candidate.json> --receipt <receipt.json>
-npm run procgen -- graph apply-rule --state <candidate.json> --rule <rule_id> --seed <u64> --out <candidate.json> --receipt <receipt.json>
-npm run procgen -- graph compatible-rules --state <candidate.json> --out <compatible-rules.json>
-npm run procgen -- graph fork --state <candidate.json> --label <name> --seed <u64> --out <candidate.json> --receipt <receipt.json>
-npm run procgen -- graph summarize --state <candidate.json>
-npm run procgen -- analyze graph --state <candidate.json> --out <analysis.json>
-npm run procgen -- validate graph --state <candidate.json> --out <validation.json>
-npm run procgen -- repair apply --state <candidate.json> --action <action_id> --target <node_id> --seed <u64> --out <candidate.json> --receipt <receipt.json>
-npm run procgen -- score graph --state <candidate.json> --out <score.json>
-npm run procgen -- annotate spatial-intent --state <candidate.json> --analysis <analysis.json> --out <spatial-intent.json>
-npm run procgen -- breakdown emit --state <candidate.json> --annotations <spatial-intent.json> --out <intermediate-breakdown.json>
-npm run procgen -- breakdown validate --state <intermediate-breakdown.json> --out <intermediate.validation.json>
-npm run procgen -- embed 2d --state <candidate.json> --seed <u64> --out <layout.json> --receipt <receipt.json>
-npm run procgen -- accept --candidate <candidate.json> --layout <layout.json> --validation <validation.json> --score <score.json> --out <accepted.json> --receipt <receipt.json>
-npm run procgen -- batch generate --out-dir <dir> --seed <u64> --count <n>
-npm run procgen -- batch generate --profile fixtures/batch-profiles/v2-sample.json --out-dir <dir> --seed <u64> --count <n>
+pnpm run procgen -- init --intent <intent.json> --seed <u64> --out <candidate.json> --receipt <receipt.json>
+pnpm run procgen -- graph apply-rule --state <candidate.json> --rule <rule_id> --seed <u64> --out <candidate.json> --receipt <receipt.json>
+pnpm run procgen -- graph compatible-rules --state <candidate.json> --out <compatible-rules.json>
+pnpm run procgen -- graph fork --state <candidate.json> --label <name> --seed <u64> --out <candidate.json> --receipt <receipt.json>
+pnpm run procgen -- graph summarize --state <candidate.json>
+pnpm run procgen -- analyze graph --state <candidate.json> --out <analysis.json>
+pnpm run procgen -- validate graph --state <candidate.json> --out <validation.json>
+pnpm run procgen -- repair apply --state <candidate.json> --action <action_id> --target <node_id> --seed <u64> --out <candidate.json> --receipt <receipt.json>
+pnpm run procgen -- score graph --state <candidate.json> --out <score.json>
+pnpm run procgen -- annotate spatial-intent --state <candidate.json> --analysis <analysis.json> --out <spatial-intent.json>
+pnpm run procgen -- breakdown emit --state <candidate.json> --annotations <spatial-intent.json> --out <intermediate-breakdown.json>
+pnpm run procgen -- breakdown validate --state <intermediate-breakdown.json> --out <intermediate.validation.json>
+pnpm run procgen -- embed 2d --state <candidate.json> --seed <u64> --out <layout.json> --receipt <receipt.json>
+pnpm run procgen -- accept --candidate <candidate.json> --layout <layout.json> --validation <validation.json> --score <score.json> --out <accepted.json> --receipt <receipt.json>
+pnpm run procgen -- batch generate --out-dir <dir> --seed <u64> --count <n>
+pnpm run procgen -- batch generate --profile fixtures/batch-profiles/v2-sample.json --out-dir <dir> --seed <u64> --count <n>
 ```
 
 Implemented graph rules:
@@ -65,7 +65,7 @@ The core command/artifact surfaces are implemented as deterministic files.
 Implemented command:
 
 ```bash
-npm run procgen -- graph rules --out artifacts/manual/rules.json
+pnpm run procgen -- graph rules --out artifacts/manual/rules.json
 ```
 
 Artifact kind:
@@ -83,7 +83,7 @@ an agent choose a plausible next rule before mutating state.
 Implemented command:
 
 ```bash
-npm run procgen -- graph summarize --state <candidate.json> --json --out <summary.json>
+pnpm run procgen -- graph summarize --state <candidate.json> --json --out <summary.json>
 ```
 
 Artifact kind:
@@ -102,7 +102,7 @@ candidates.
 Implemented command:
 
 ```bash
-npm run procgen -- graph fork --state <candidate.json> --label <name> --seed <u64> --out <candidate.json> --receipt <receipt.json>
+pnpm run procgen -- graph fork --state <candidate.json> --label <name> --seed <u64> --out <candidate.json> --receipt <receipt.json>
 ```
 
 Forking should preserve the graph and provenance, add a fork provenance step,
@@ -114,7 +114,7 @@ copying candidates when trying alternate plans.
 Implemented command:
 
 ```bash
-npm run procgen -- repair suggest --state <candidate.json> --out <repair.json>
+pnpm run procgen -- repair suggest --state <candidate.json> --out <repair.json>
 ```
 
 Artifact kind:
@@ -132,7 +132,7 @@ Suggestions are advisory: they do not replace validation.
 Implemented command:
 
 ```bash
-npm run procgen -- repair apply --state <candidate.json> --action add_rejoin_edge --target <node_id> --seed <u64> --out <candidate.json> --receipt <receipt.json>
+pnpm run procgen -- repair apply --state <candidate.json> --action add_rejoin_edge --target <node_id> --seed <u64> --out <candidate.json> --receipt <receipt.json>
 ```
 
 Supported actions are `add_rejoin_edge` for simple terminal branch nodes and
@@ -144,11 +144,11 @@ Rejected repairs still write receipts with diagnostics.
 Implemented commands:
 
 ```bash
-npm run procgen -- analyze graph --state <candidate.json> --out <analysis.json>
-npm run procgen -- graph compatible-rules --state <candidate.json> --out <compatible-rules.json>
-npm run procgen -- annotate spatial-intent --state <candidate.json> --analysis <analysis.json> --out <spatial-intent.json>
-npm run procgen -- breakdown emit --state <candidate.json> --annotations <spatial-intent.json> --out <intermediate-breakdown.json>
-npm run procgen -- breakdown validate --state <intermediate-breakdown.json> --out <intermediate.validation.json>
+pnpm run procgen -- analyze graph --state <candidate.json> --out <analysis.json>
+pnpm run procgen -- graph compatible-rules --state <candidate.json> --out <compatible-rules.json>
+pnpm run procgen -- annotate spatial-intent --state <candidate.json> --analysis <analysis.json> --out <spatial-intent.json>
+pnpm run procgen -- breakdown emit --state <candidate.json> --annotations <spatial-intent.json> --out <intermediate-breakdown.json>
+pnpm run procgen -- breakdown validate --state <intermediate-breakdown.json> --out <intermediate.validation.json>
 ```
 
 See `docs/intermediate-layout-contract.md` for artifact kinds and the
@@ -161,7 +161,7 @@ dungeon layouts.
 Implemented command:
 
 ```bash
-npm run procgen -- batch generate --profile fixtures/batch-profiles/v2-sample.json --out-dir <dir> --seed <u64> --count <n>
+pnpm run procgen -- batch generate --profile fixtures/batch-profiles/v2-sample.json --out-dir <dir> --seed <u64> --count <n>
 ```
 
 Artifact kind:

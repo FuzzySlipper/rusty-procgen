@@ -41,8 +41,8 @@ Run:
 
 ```bash
 ./scripts/engine-revision check
-npm run engine:publication:test
-npm run publish:rusty-engine-smoke
+pnpm run engine:publication:test
+pnpm run publish:rusty-engine-smoke
 ```
 
 The smoke regenerates

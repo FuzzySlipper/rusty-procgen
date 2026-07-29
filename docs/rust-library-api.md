@@ -69,5 +69,5 @@ cargo test --manifest-path procgen-rs/Cargo.toml --locked
 cargo clippy --manifest-path procgen-rs/Cargo.toml --all-targets --locked -- -D warnings
 ```
 
-The repository `npm run verify` gate additionally proves fixed-corpus artifact
+The repository `pnpm run verify` gate additionally proves fixed-corpus artifact
 identity and the remaining explicitly ledgered integration lanes.

@@ -1,9 +1,10 @@
 import {
+  decodeRenderFrameDiff,
   renderHandle,
   type EditorGridDescriptor,
   type RenderDiff,
   type RenderFrameDiff,
-} from '@asha/contracts';
+} from '@rusty-engine/render-contracts';
 
 import type { VoxelExtrusionPlan } from './voxel-extrusion.js';
 
@@ -23,6 +24,10 @@ export interface VoxelInspectionProjection {
     readonly target: readonly [number, number, number];
     readonly moveSpeed: number;
   };
+}
+
+export function decodeVoxelInspectionFrame(input: unknown): RenderFrameDiff {
+  return decodeRenderFrameDiff(input);
 }
 
 export interface VoxelInspectionDoorState {
@@ -65,7 +70,7 @@ export function buildVoxelInspectionProjection(
     handle: renderHandle(index + 1),
     parent: null,
     node: {
-      geometry: { shape: 'cube' },
+      geometry: { kind: 'cube' },
       material: {
         color: MATERIAL_COLORS[box.material] ?? UNKNOWN_MATERIAL_COLOR,
         wireframe: false,
@@ -86,7 +91,8 @@ export function buildVoxelInspectionProjection(
       visible: true,
       layer: 'scene',
       metadata: {
-        source: null,
+        sourceEntity: null,
+        sourceSceneNode: null,
         tags: [],
         label: `procgen-voxel-box:${box.min.join(',')}..${box.maxExclusive.join(',')}:material-${box.material}:voxels-${box.voxelCount}`,
       },
@@ -112,7 +118,7 @@ export function buildVoxelInspectionProjection(
         handle: renderHandle(voxelOps.length + doorOps.length + 1),
         parent: null,
         node: {
-          geometry: { shape: 'cube' },
+          geometry: { kind: 'cube' },
           material: {
             color: unlocked ? [0.16, 0.48, 0.98, 0.48] : [0.93, 0.16, 0.2, 0.56],
             wireframe: false,
@@ -131,7 +137,8 @@ export function buildVoxelInspectionProjection(
           visible: true,
           layer: 'scene',
           metadata: {
-            source: null,
+            sourceEntity: null,
+            sourceSceneNode: null,
             tags: [],
             label: `procgen-door:${portal.sourceEdge}:${portal.requiredItem ?? 'unlocked'}:${portal.id}:cell-${cellIndex + 1}`,
           },
@@ -178,7 +185,7 @@ export function buildVoxelInspectionProjection(
   const gridFadeEnd = Math.max(radius * 3, 48);
 
   return {
-    frame: { ops: [...voxelOps, ...doorOps, ...lightOps] },
+    frame: { schemaVersion: 1, ops: [...voxelOps, ...doorOps, ...lightOps] },
     placementId: plan.placementId,
     ceilingY,
     projectedVoxelCount: projectedVoxels.length,

@@ -1,9 +1,12 @@
 import { readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 
-import { ASHA_RENDERER_EDITOR_VIEWPORT_MAX_FRAME_OPS } from '@asha/renderer-host';
+import { RUSTY_RENDERER_EDITOR_VIEWPORT_MAX_FRAME_OPS } from '@rusty-engine/renderer-host';
 
-import { buildVoxelInspectionProjection } from '../dist/ts/src/voxel-inspection-projection.js';
+import {
+  buildVoxelInspectionProjection,
+  decodeVoxelInspectionFrame,
+} from '../dist/ts/src/voxel-inspection-projection.js';
 import { compilePlacementExtrusion } from '../dist/ts/src/voxel-extrusion.js';
 
 const repoRoot = resolve(import.meta.dirname, '..');
@@ -31,10 +34,13 @@ for (const entry of entries) {
   if (JSON.stringify(projection.frame) !== JSON.stringify(repeated.frame)) {
     throw new Error(`inspection frame for ${plan.placementId} is not deterministic`);
   }
+  if (decodeVoxelInspectionFrame(projection.frame) !== projection.frame) {
+    throw new Error(`strict contract decode did not retain ${plan.placementId} by identity`);
+  }
   assertProjectionExactlyRepresentsPlan(plan, projection);
-  if (projection.frame.ops.length > ASHA_RENDERER_EDITOR_VIEWPORT_MAX_FRAME_OPS) {
+  if (projection.frame.ops.length > RUSTY_RENDERER_EDITOR_VIEWPORT_MAX_FRAME_OPS) {
     throw new Error(
-      `inspection frame for ${plan.placementId} has ${projection.frame.ops.length} ops; limit is ${ASHA_RENDERER_EDITOR_VIEWPORT_MAX_FRAME_OPS}`,
+      `inspection frame for ${plan.placementId} has ${projection.frame.ops.length} ops; limit is ${RUSTY_RENDERER_EDITOR_VIEWPORT_MAX_FRAME_OPS}`,
     );
   }
   if (projection.omittedCeilingVoxelCount <= 0) {
@@ -129,21 +135,49 @@ if (projections.length > 1) {
   }
 }
 
+for (const malformed of [
+  null,
+  { schemaVersion: 2, ops: [] },
+  { schemaVersion: 1, ops: [{ op: 'destroy', handle: 1, unexpected: true }] },
+  { schemaVersion: 1, ops: [{ op: 'destroy', handle: -1 }] },
+]) {
+  let rejected = false;
+  try {
+    decodeVoxelInspectionFrame(malformed);
+  } catch {
+    rejected = true;
+  }
+  if (!rejected) {
+    throw new Error(`strict Rusty renderer boundary admitted malformed frame ${JSON.stringify(malformed)}`);
+  }
+}
+
 const viewerSource = await readFile(resolve(repoRoot, 'viewer/app.ts'), 'utf8');
 const projectionSource = await readFile(resolve(repoRoot, 'src/voxel-inspection-projection.ts'), 'utf8');
-if (!/from '@asha\/renderer-host'/.test(viewerSource)) {
-  throw new Error('viewer does not import the engine renderer host from its package root');
+if (!/from '@rusty-engine\/renderer-host'/.test(viewerSource)) {
+  throw new Error('viewer does not import the Rusty Engine renderer host from its package root');
+}
+if (!/from '@rusty-engine\/render-contracts'/.test(projectionSource)) {
+  throw new Error('inspection projection does not import Rusty Engine contracts from the package root');
 }
 if (!/initialGrid: projection\.grid/.test(viewerSource) || !/surface\.setGrid\(projection\.grid\)/.test(viewerSource)) {
   throw new Error('viewer does not mount and replace the public engine grid with its voxel projection');
 }
-const forbiddenRendererImport = /(?:from\s+|import\()['"](?:three(?:\/|['"])|@asha\/renderer-three)/;
-if (forbiddenRendererImport.test(`${viewerSource}\n${projectionSource}`)) {
+const combinedSource = `${viewerSource}\n${projectionSource}`;
+const forbiddenRendererImport =
+  /(?:from\s+|import\()['"](?:three(?:\/|['"])|@rusty-engine\/renderer-three(?:\/|['"])|@rusty-engine\/[^'"]+\/(?:src|backend)(?:\/|['"]))/;
+if (forbiddenRendererImport.test(combinedSource)) {
   throw new Error('voxel inspection source contains a direct renderer implementation import');
+}
+if (combinedSource.includes('@asha/')) {
+  throw new Error('voxel inspection source retains an Asha package import');
+}
+if (/\bfetch\s*\(/.test(projectionSource)) {
+  throw new Error('neutral voxel inspection projection contains a raw transport seam');
 }
 
 console.log(
-  `voxel inspection frame smoke passed; ${projections.length} layouts, max ${Math.max(...projections.map((projection) => projection.frame.ops.length))}/${ASHA_RENDERER_EDITOR_VIEWPORT_MAX_FRAME_OPS} frame ops; largest layout ${projections[0].projectedVoxelCount} voxels in ${projections[0].projectedNodeCount} nodes`,
+  `Rusty renderer inspection smoke passed; ${projections.length} layouts, max ${Math.max(...projections.map((projection) => projection.frame.ops.length))}/${RUSTY_RENDERER_EDITOR_VIEWPORT_MAX_FRAME_OPS} frame ops; largest layout ${projections[0].projectedVoxelCount} voxels in ${projections[0].projectedNodeCount} nodes; strict malformed-frame boundary covered`,
 );
 
 function assertProjectionExactlyRepresentsPlan(plan, projection) {

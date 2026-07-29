@@ -74,64 +74,58 @@ collateral.
 - Durable artifacts use only the current `rusty_procgen.*` kinds. Predecessor
   artifact kinds are not accepted or decoded.
 
-## Temporary predecessor adapters
+## Predecessor boundary
 
-Asha is historical donor evidence, not a compatibility target. The in-place
-conversion temporarily retains a small number of explicit Asha adapters so
-each working lane stays executable until its Rusty replacement lands.
+Asha is historical donor evidence, not a compatibility target. The executable
+repository has no Asha packages, imports, adapter scripts, or sibling-checkout
+requirements.
 
-`migration/asha-disposition.json` is the exact allowlist for every remaining
-package, import, and integration script. `npm run check:migration-boundary`
-fails on additions, missing ledger entries, hidden adapter names, or retired
-artifact kinds. Do not add another Asha dependency or wrapper; route the need
-to the owning conversion task.
-
-The remaining lanes are:
-
-- retained inspection and viewer hosting — Den #6399;
-- removal and clean closeout — Den #6400.
+`migration/asha-disposition.json` retains the exact historical disposition.
+`pnpm run check:migration-boundary` fails on any executable predecessor
+dependency, import, adapter script, or retired artifact kind. Do not add an
+Asha dependency or wrapper; route any missing mechanism to its Rusty Engine
+owner.
 
 ## Local commands
 
 Run from the repository root.
 
 ```bash
-npm install
-npm run verify
-npm run check:migration-boundary
-npm run check:corpus-identity
-npm run typecheck
-npm run rust:check
-npm run rust:test
-npm run engine:publication:test
-npm run publish:rusty-engine-smoke
-npm run engine:spatial:test
-npm run voxel:rusty-engine-smoke
+pnpm install --frozen-lockfile
+pnpm run verify
+pnpm run check:migration-boundary
+pnpm run check:corpus-identity
+pnpm run typecheck
+pnpm run rust:check
+pnpm run rust:test
+pnpm run engine:publication:test
+pnpm run publish:rusty-engine-smoke
+pnpm run engine:spatial:test
+pnpm run voxel:rusty-engine-smoke
 ```
 
 Focused workflows:
 
 ```bash
-npm run baseline
-npm run batch:sample
-npm run piece:smoke
-npm run policy:smoke
-npm run viewer:smoke
-npm run catalog:coverage
-npm run catalog-aware:coverage
+pnpm run baseline
+pnpm run batch:sample
+pnpm run piece:smoke
+pnpm run policy:smoke
+pnpm run viewer:smoke
+pnpm run catalog:coverage
+pnpm run catalog-aware:coverage
 ```
-
-Commands containing `legacy-asha` are temporary conversion evidence, not
-approved architecture. Their exact removal tasks are recorded in the ledger.
 
 The publication and spatial adapters are isolated Rust workspaces under
 `integrations/`. They select one exact public Engine commit through
-`engine-source.json`; use `./scripts/engine-revision check` before changing
-their public Engine dependencies.
+`engine-source.json`. The root package manager resolves the renderer contract,
+projection, host, and Three backend packages from that same exact public
+revision. Use `./scripts/engine-revision check` before changing any public
+Engine dependency.
 
 ## Change and verification posture
 
-- Run the narrowest relevant check first, then `npm run verify`.
+- Run the narrowest relevant check first, then `pnpm run verify`.
 - Regenerate checked artifacts through their owning commands.
 - Artifact/schema changes require deterministic regeneration, namespace checks,
   and corpus diff review.

@@ -9,52 +9,46 @@ content catalogs, and the interactive viewer. Reusable scene, asset, voxel,
 spatial, mesh, render, component, and service mechanisms belong in
 [`rusty-engine`](https://github.com/FuzzySlipper/rusty-engine).
 
-The repository is being converted in place from its historical Asha donor.
-One explicitly named legacy renderer adapter remains executable while its
-Rusty Engine replacement lands. Its exact packages, imports, script, and
-removal task are recorded in
+The repository was converted in place from its historical Asha donor. No Asha
+package, sibling checkout, runtime adapter, or predecessor artifact decoder is
+part of the executable product. Historical dispositions remain recorded in
 [`migration/asha-disposition.json`](migration/asha-disposition.json); the
-default gate rejects any unledgered addition. Predecessor artifact kinds are
-not supported.
+default gate rejects any reintroduction. Predecessor artifact kinds are not
+supported.
 
 ## Fresh Setup
 
-Clone beside `rusty-engine`:
+The executable dependencies resolve from public exact revisions; no sibling
+Engine checkout is required:
 
 ```bash
 cd /home/dev
-git clone git@github.com:FuzzySlipper/rusty-engine.git rusty-engine
 git clone git@github.com:FuzzySlipper/rusty-procgen.git rusty-procgen
 cd rusty-procgen
-npm install
+pnpm install --frozen-lockfile
 ```
-
-Until the bounded adapter migration closes in Den #6400, the retained-renderer
-smoke requires the historical `asha-engine` checkout at
-`/home/dev/asha-engine`. Generation, content publication, and spatial authority
-do not depend on Asha.
 
 ## Verification
 
 ```bash
-npm run verify
+pnpm run verify
 ```
 
 Focused checks:
 
 ```bash
-npm run check:migration-boundary
-npm run check:corpus-identity
-npm run engine:revision
-npm run typecheck
-npm run rust:check
-npm run rust:test
-npm run engine:publication:test
-npm run publish:rusty-engine-smoke
-npm run engine:spatial:test
-npm run voxel:rusty-engine-smoke
-npm run viewer:smoke
-npm run catalog:coverage
+pnpm run check:migration-boundary
+pnpm run check:corpus-identity
+pnpm run engine:revision
+pnpm run typecheck
+pnpm run rust:check
+pnpm run rust:test
+pnpm run engine:publication:test
+pnpm run publish:rusty-engine-smoke
+pnpm run engine:spatial:test
+pnpm run voxel:rusty-engine-smoke
+pnpm run viewer:smoke
+pnpm run catalog:coverage
 ```
 
 ## Rust library
@@ -74,7 +68,7 @@ and placements into the public Rusty Engine asset catalog, prefab registry,
 authored scene, entity admission, and atomic content publication owners:
 
 ```bash
-npm run publish:rusty-engine-smoke
+pnpm run publish:rusty-engine-smoke
 ```
 
 The adapter is isolated from the normal Procgen core and selects one exact
@@ -104,8 +98,8 @@ The compiler rejects unsafe policy combinations, wider unsupported openings,
 and routes that would open a non-exit boundary or unrelated piece.
 
 ```bash
-npm run engine:spatial:test
-npm run voxel:rusty-engine-smoke
+pnpm run engine:spatial:test
+pnpm run voxel:rusty-engine-smoke
 ```
 
 The smoke regenerates
@@ -136,7 +130,7 @@ is physically reached and its required item is available, so a reverse-facing
 edge or crossing cannot silently bypass a gate. The report is reproducible with:
 
 ```bash
-npm run procgen -- build validate-flow \
+pnpm run procgen -- build validate-flow \
   --candidate artifacts/samples/batch-v2/candidate-000/accepted.json \
   --geometry artifacts/samples/batch-v2/candidate-000/geometry-2d.json \
   --piece-plan artifacts/samples/batch-v2/candidate-000/piece-plan.json \
@@ -162,8 +156,10 @@ find an embedding; it is not a proof that no single-floor embedding exists.
 The LAN viewer keeps the existing isometric `Voxel` evidence tab and adds a
 separate `Voxel 3D` inspection tab. The 3D view compiles the same placement
 extrusion, omits only its ceiling from the presentation frame, and mounts the
-public `@asha/renderer-host` inspection surface with its procedural grid, mouse
-or arrow-key orbit, focused W/A/S/D movement, and keyboard/wheel zoom. It is
+exact-revision public `@rusty-engine/renderer-host` inspection surface with its
+procedural grid, mouse or arrow-key orbit, focused W/A/S/D movement, and
+keyboard/wheel zoom. The frame crosses
+`@rusty-engine/render-contracts` strict decoding before submission. It is
 projection-only visual evidence, not collision, navigation, native-render, or
 performance authority.
 
@@ -181,6 +177,13 @@ state selector can show the initial state, each verified item-collection step,
 or an all-unlocked presentation. Door nodes participate in the same frame-op
 budget and include source-edge, portal, and required-item identity in their
 pick label.
+
+The viewer exposes renderer compatibility, retained-frame, viewport, grid, and
+camera readouts without treating them as dungeon truth. The real-Chromium smoke
+proves candidate/config replacement, rapid stale-work suppression, resizing,
+controls, picking, and page-hide disposal. Malformed contract frames reject
+before renderer mutation, and ordinary headless generation remains independent
+of the renderer packages.
 
 The Build, Voxel, and Voxel 3D tabs expose one generation configuration form
 for geometry distribution, placement clearance, route wall buffer, catalog-aware
@@ -218,8 +221,8 @@ matching native-authority receipt.
 Pure-catalog corpus coverage is reproducible with:
 
 ```bash
-npm run catalog:coverage
-npm run catalog-aware:coverage
+pnpm run catalog:coverage
+pnpm run catalog-aware:coverage
 ```
 
 The command realizes every accepted batch candidate in `catalog` mode and

@@ -12,7 +12,7 @@ voxel rules.
 Analyze the graph:
 
 ```bash
-npm run procgen -- analyze graph \
+pnpm run procgen -- analyze graph \
   --state <candidate.json> \
   --out <analysis.json>
 ```
@@ -20,7 +20,7 @@ npm run procgen -- analyze graph \
 Inspect rule compatibility:
 
 ```bash
-npm run procgen -- graph compatible-rules \
+pnpm run procgen -- graph compatible-rules \
   --state <candidate.json> \
   --out <compatible-rules.json>
 ```
@@ -28,7 +28,7 @@ npm run procgen -- graph compatible-rules \
 Apply a bounded repair action:
 
 ```bash
-npm run procgen -- repair apply \
+pnpm run procgen -- repair apply \
   --state <candidate.json> \
   --action add_rejoin_edge \
   --target <node_id> \
@@ -47,7 +47,7 @@ Current repair actions:
 Annotate spatial intent:
 
 ```bash
-npm run procgen -- annotate spatial-intent \
+pnpm run procgen -- annotate spatial-intent \
   --state <candidate.json> \
   --analysis <analysis.json> \
   --out <spatial-intent.json>
@@ -56,7 +56,7 @@ npm run procgen -- annotate spatial-intent \
 Emit an intermediate breakdown:
 
 ```bash
-npm run procgen -- breakdown emit \
+pnpm run procgen -- breakdown emit \
   --state <candidate.json> \
   --annotations <spatial-intent.json> \
   --out <intermediate-breakdown.json>
@@ -65,7 +65,7 @@ npm run procgen -- breakdown emit \
 Validate the breakdown:
 
 ```bash
-npm run procgen -- breakdown validate \
+pnpm run procgen -- breakdown validate \
   --state <intermediate-breakdown.json> \
   --out <intermediate.validation.json>
 ```

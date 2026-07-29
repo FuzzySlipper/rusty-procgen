@@ -44,9 +44,9 @@ Run:
 
 ```bash
 ./scripts/engine-revision check
-npm run engine:spatial:test
-npm run engine:spatial:clippy
-npm run voxel:rusty-engine-smoke
+pnpm run engine:spatial:test
+pnpm run engine:spatial:clippy
+pnpm run voxel:rusty-engine-smoke
 ```
 
 The smoke regenerates

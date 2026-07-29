@@ -5,13 +5,13 @@ Status: v2 sample runbook for the CLI workbench and viewer.
 ## Install
 
 ```bash
-npm install
+pnpm install --frozen-lockfile
 ```
 
 ## Build A Sample Run
 
 ```bash
-npm run baseline
+pnpm run baseline
 ```
 
 This writes a deterministic example under:
@@ -36,7 +36,7 @@ Important files:
 ## Build A Batch Run
 
 ```bash
-npm run batch:sample
+pnpm run batch:sample
 ```
 
 This writes a deterministic v2 batch under:
@@ -69,7 +69,7 @@ fixtures/batch-profiles/v2-sample.json
 Run the versioned topology-embedding and exclusive-routing recovery corpus with:
 
 ```bash
-npm run geometry:recovery
+pnpm run geometry:recovery
 ```
 
 This regenerates the unchanged ten-candidate sample in release mode and writes
@@ -110,7 +110,7 @@ selected physical scale and number of attempted scales.
 After regeneration, verify that the committed report is byte-identical with:
 
 ```bash
-npm run geometry:recovery:check
+pnpm run geometry:recovery:check
 ```
 
 The selection report records the profile id/ref, the profile sequence used for
@@ -119,7 +119,7 @@ by deterministic selection score. Accepted entries also carry refs to graph
 analysis, compatible rules, spatial intent, intermediate breakdown, and
 intermediate validation artifacts.
 
-`npm run batch:sample` also emits the full generated dungeon preview stack for
+`pnpm run batch:sample` also emits the full generated dungeon preview stack for
 each accepted candidate:
 
 ```text
@@ -144,14 +144,14 @@ piece artifacts are absent.
 ## Manual CLI Sequence
 
 ```bash
-npm run procgen -- init \
+pnpm run procgen -- init \
   --intent fixtures/intents/first-slice.intent.json \
   --seed 4103 \
   --out artifacts/manual/candidate-000-base.json \
   --receipt artifacts/manual/receipt-000-init.json \
   --transcript artifacts/manual/transcript.jsonl
 
-npm run procgen -- graph apply-rule \
+pnpm run procgen -- graph apply-rule \
   --state artifacts/manual/candidate-000-base.json \
   --rule lock_key_loop \
   --seed 4104 \
@@ -159,22 +159,22 @@ npm run procgen -- graph apply-rule \
   --receipt artifacts/manual/receipt-001-lock_key_loop.json \
   --transcript artifacts/manual/transcript.jsonl
 
-npm run procgen -- validate graph \
+pnpm run procgen -- validate graph \
   --state artifacts/manual/candidate-001-lock_key_loop.json \
   --out artifacts/manual/validation.graph.json
 
-npm run procgen -- score graph \
+pnpm run procgen -- score graph \
   --state artifacts/manual/candidate-001-lock_key_loop.json \
   --out artifacts/manual/score.graph.json
 ```
 
-Use `npm run procgen -- graph summarize --state <candidate>` to print a compact
+Use `pnpm run procgen -- graph summarize --state <candidate>` to print a compact
 agent-readable graph summary.
 
 Fork before trying alternate plans:
 
 ```bash
-npm run procgen -- graph fork \
+pnpm run procgen -- graph fork \
   --state artifacts/manual/candidate-001-lock_key_loop.json \
   --label boss-prep-attempt \
   --seed 4201 \
@@ -186,18 +186,18 @@ npm run procgen -- graph fork \
 For machine-readable planning context:
 
 ```bash
-npm run procgen -- graph rules --out artifacts/manual/rules.json
+pnpm run procgen -- graph rules --out artifacts/manual/rules.json
 
-npm run procgen -- graph summarize \
+pnpm run procgen -- graph summarize \
   --state artifacts/samples/batch-v2/candidate-005/candidate-007-branch_merge_shortcut.json \
   --json \
   --out artifacts/manual/summary.json
 
-npm run procgen -- analyze graph \
+pnpm run procgen -- analyze graph \
   --state artifacts/samples/batch-v2/candidate-005/candidate-007-branch_merge_shortcut.json \
   --out artifacts/manual/analysis.json
 
-npm run procgen -- graph compatible-rules \
+pnpm run procgen -- graph compatible-rules \
   --state artifacts/samples/batch-v2/candidate-005/candidate-007-branch_merge_shortcut.json \
   --out artifacts/manual/compatible-rules.json
 ```
@@ -227,17 +227,17 @@ docs/intermediate-layout-contract.md
 A typical manual chain:
 
 ```bash
-npm run procgen -- annotate spatial-intent \
+pnpm run procgen -- annotate spatial-intent \
   --state artifacts/samples/batch-v2/candidate-005/candidate-007-branch_merge_shortcut.json \
   --analysis artifacts/manual/analysis.json \
   --out artifacts/manual/spatial-intent.json
 
-npm run procgen -- breakdown emit \
+pnpm run procgen -- breakdown emit \
   --state artifacts/samples/batch-v2/candidate-005/candidate-007-branch_merge_shortcut.json \
   --annotations artifacts/manual/spatial-intent.json \
   --out artifacts/manual/intermediate-breakdown.json
 
-npm run procgen -- breakdown validate \
+pnpm run procgen -- breakdown validate \
   --state artifacts/manual/intermediate-breakdown.json \
   --out artifacts/manual/intermediate.validation.json
 ```
@@ -260,12 +260,12 @@ separate from the existing simple `layout-2d.json` graph embedding.
 Plan physical connections, then emit geometry from that exact plan:
 
 ```bash
-npm run procgen -- geometry plan-connections \
+pnpm run procgen -- geometry plan-connections \
   --candidate artifacts/samples/batch-v2/candidate-005/candidate-007-branch_merge_shortcut.json \
   --intermediate artifacts/samples/batch-v2/candidate-005/intermediate-breakdown.json \
   --out artifacts/manual/physical-connection-plan.json
 
-npm run procgen -- geometry emit-2d \
+pnpm run procgen -- geometry emit-2d \
   --candidate artifacts/samples/batch-v2/candidate-005/candidate-007-branch_merge_shortcut.json \
   --intermediate artifacts/samples/batch-v2/candidate-005/intermediate-breakdown.json \
   --connection-plan artifacts/manual/physical-connection-plan.json \
@@ -277,7 +277,7 @@ npm run procgen -- geometry emit-2d \
 Validate the emitted geometry before using it as preview evidence:
 
 ```bash
-npm run procgen -- geometry validate-2d \
+pnpm run procgen -- geometry validate-2d \
   --state artifacts/manual/geometry-2d.json \
   --out artifacts/manual/geometry-2d.validation.json
 ```
@@ -285,7 +285,7 @@ npm run procgen -- geometry validate-2d \
 Render the standalone HTML/SVG preview:
 
 ```bash
-npm run procgen -- preview html \
+pnpm run procgen -- preview html \
   --geometry artifacts/manual/geometry-2d.json \
   --validation artifacts/manual/geometry-2d.validation.json \
   --out artifacts/manual/geometry-2d.preview.html
@@ -309,30 +309,30 @@ occupancy cells, reservations, and glued-exit validation.
 Current piece assembly commands:
 
 ```bash
-npm run procgen -- build catalog inspect \
+pnpm run procgen -- build catalog inspect \
   --catalog fixtures/shape-catalogs/2d-basic.json \
   --out artifacts/manual/shape-catalog.report.json
 
-npm run procgen -- build emit-piece-plan \
+pnpm run procgen -- build emit-piece-plan \
   --candidate artifacts/samples/batch-v2/candidate-005/candidate-007-branch_merge_shortcut.json \
   --geometry artifacts/manual/geometry-2d.json \
   --intermediate artifacts/manual/intermediate-breakdown.json \
   --out artifacts/manual/piece-plan.json
 
-npm run procgen -- build match-shapes \
+pnpm run procgen -- build match-shapes \
   --catalog fixtures/shape-catalogs/2d-basic.json \
   --piece-plan artifacts/manual/piece-plan.json \
   --seed 7101 \
   --out artifacts/manual/piece-shape-match.json
 
-npm run procgen -- build assemble \
+pnpm run procgen -- build assemble \
   --catalog fixtures/shape-catalogs/2d-basic.json \
   --piece-plan artifacts/manual/piece-plan.json \
   --shape-match artifacts/manual/piece-shape-match.json \
   --connectivity four-way \
   --out artifacts/manual/piece-placement.json
 
-npm run procgen -- build validate-placement \
+pnpm run procgen -- build validate-placement \
   --state artifacts/manual/piece-placement.json \
   --out artifacts/manual/piece-placement.validation.json
 ```
@@ -340,7 +340,7 @@ npm run procgen -- build validate-placement \
 Focused smoke:
 
 ```bash
-npm run piece:smoke
+pnpm run piece:smoke
 ```
 
 Do not treat the current viewer Build tab's geometry-rasterized cells as final
@@ -396,7 +396,7 @@ reports, data-driven batch profiles, and viewer context panes.
 This intentionally fails with stable diagnostics:
 
 ```bash
-npm run procgen -- validate graph \
+pnpm run procgen -- validate graph \
   --state fixtures/candidates/invalid-missing-key.candidate.json \
   --out artifacts/manual/invalid.validation.json
 ```
@@ -410,7 +410,7 @@ required_item_unavailable
 To turn diagnostics into an advisory repair artifact:
 
 ```bash
-npm run procgen -- repair suggest \
+pnpm run procgen -- repair suggest \
   --state fixtures/candidates/invalid-missing-key.candidate.json \
   --out artifacts/manual/invalid.repair.json
 ```
@@ -422,7 +422,7 @@ or accepting them.
 Some diagnostics can now be handled with bounded repair actions:
 
 ```bash
-npm run procgen -- repair apply \
+pnpm run procgen -- repair apply \
   --state <candidate.json> \
   --action add_rejoin_edge \
   --target <terminal-node-id> \
@@ -467,18 +467,20 @@ cells, glued exits, piece labels, and socket/content markers.
 Its Catalog tab renders the active build-piece shape catalog when
 `shapeCatalogRef` is present.
 Its Voxel tab uses the same downstream placement policy as
-`npm run voxel:rusty-engine-smoke` to render an isometric floor/wall/ceiling cutaway.
+`pnpm run voxel:rusty-engine-smoke` to render an isometric floor/wall/ceiling cutaway.
 The compiler consumes the placement's versioned clearance/wall/doorway policy,
 keeps piece ownership through validation, and turns only glued-exit-owned
 connection routes into openings.
 When the selected placement matches the committed Engine spatial evidence, the
 tab also shows the canonical authority hash and Engine pin. Other candidates are
 clearly labelled as unverified voxel proposals.
-Its separate Voxel 3D tab sends a ceiling-free floor/wall projection through
-the public engine-owned inspection renderer and procedural grid. Drag with the
+Its separate Voxel 3D tab sends a strictly decoded ceiling-free floor/wall
+projection through the exact-revision public Engine inspection renderer and
+procedural grid. Drag with the
 primary mouse button or use Arrow keys to orbit; focus the canvas and use
 W/A/S/D to move, and use +/− or the wheel to zoom. Candidate changes atomically
-replace the retained frame and grid. The downstream projection compacts
+replace the retained frame and grid, and rapid selection changes discard stale
+async work. The downstream projection compacts
 same-material cells into deterministic maximal cuboids, and its smoke expands
 those cuboids cell-by-cell to prove exact, non-overlapping material coverage for
 every accepted sample before checking the public renderer frame-op limit. This
@@ -529,7 +531,7 @@ available. Configured builds remain downstream, non-native-authority evidence.
 Reproduce the catalog-aware accepted-corpus result with:
 
 ```bash
-npm run catalog-aware:coverage
+pnpm run catalog-aware:coverage
 ```
 
 This uses an isolated configuration copy, repeats successful builds to prove a
@@ -539,36 +541,36 @@ stable build ID, and writes
 ## Verification
 
 ```bash
-npm run verify
+pnpm run verify
 ```
 
-The default gate checks the exact temporary migration allowance, corpus
-identity, TypeScript, Rust compile, Rust tests, publication, and a focused
-two-room voxel-boundary smoke. Browser smoke is not part of the default gate
-yet.
+The default gate checks the empty predecessor boundary, exact public Engine
+revision across Rust and renderer packages, corpus identity, TypeScript, Rust
+compile, Rust tests, publication, and a focused two-room voxel-boundary smoke.
+Browser smoke is not part of the default gate.
 
 For optional preview-site evidence:
 
 ```bash
-npm run viewer:smoke
+pnpm run viewer:smoke
 ```
 
-`npm run viewer:serve` builds the browser bundle and serves the already
+`pnpm run viewer:serve` builds the browser bundle and serves the already
 verified committed artifacts so managed health checks are not blocked by the
-bounded-but-expensive batch search. Use `npm run viewer:serve:regenerate` only
+bounded-but-expensive batch search. Use `pnpm run viewer:serve:regenerate` only
 when intentionally rebuilding baseline and batch evidence before serving.
 
 The transactional generation-config contract and the legacy focused endpoint
 contracts can be checked separately:
 
 ```bash
-npm run policy:smoke
+pnpm run policy:smoke
 ```
 
 The standalone HTML preview smoke alias is:
 
 ```bash
-npm run preview:smoke
+pnpm run preview:smoke
 ```
 
 This builds the viewer, starts the local preview server on `127.0.0.1`, checks
@@ -578,7 +580,9 @@ corridor elements, and required content labels. It also checks the viewer Build
 tab for the catalog piece placement grid, rendered cells, socket markers, and
 glued-exit links, checks the Voxel tab for exposed isometric faces plus a
 matching native authority receipt, and exercises the engine-owned Voxel 3D
-mount, ceiling omission, public picking, and candidate frame replacement. It
+mount, ceiling omission, public picking, candidate/config frame replacement,
+rapid stale-work suppression, resize, controls, structural readouts, and
+page-hide disposal. It
 uses Chromium to write layout/intermediate/build/voxel/voxel-3d/standalone-preview
 screenshots plus a report under:
 

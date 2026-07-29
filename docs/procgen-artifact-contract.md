@@ -8,7 +8,7 @@ explicit outputs, and produces structured JSON a human or agent can inspect.
 ## Command Pattern
 
 ```bash
-npm run procgen -- <command> --state <candidate.json> --out <output.json> --receipt <receipt.json> --seed <u64>
+pnpm run procgen -- <command> --state <candidate.json> --out <output.json> --receipt <receipt.json> --seed <u64>
 ```
 
 Use `--transcript <path>` on mutating commands when building an auditable run.

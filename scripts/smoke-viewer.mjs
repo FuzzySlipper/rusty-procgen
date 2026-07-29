@@ -233,11 +233,11 @@ try {
   if (!voxel3dDom.includes('Engine Voxel Inspection')) {
     throw new Error('Voxel 3D tab was not found');
   }
-  if (!voxel3dDom.includes('data-renderer-host="asha_renderer_inspection_surface.v0"')) {
+  if (!voxel3dDom.includes('data-renderer-host="rusty_renderer_inspection_surface.v1"')) {
     throw new Error('Voxel 3D tab did not mount the engine inspection surface');
   }
-  if (!voxel3dDom.includes('data-renderer-authority="projection_only_inspection"')) {
-    throw new Error('Voxel 3D tab did not expose projection-only renderer authority');
+  if (!voxel3dDom.includes('data-renderer-role="projection_only_inspection"')) {
+    throw new Error('Voxel 3D tab did not expose its projection-only renderer role');
   }
   if (!voxel3dDom.includes('data-state="ready"')) {
     throw new Error(`Voxel 3D engine mount was not ready: ${attributeValue(voxel3dDom, 'data-state')}`);
@@ -408,7 +408,7 @@ try {
       },
       alternatePlacementId,
       alternateFrameHash,
-      rendererAuthority: 'projection_only_inspection',
+      rendererRole: 'projection_only_inspection',
       interaction: voxel3dInteraction,
     },
     screenshots: screenshots.map((screenshot) => join(outDir, screenshot.name)),
@@ -508,11 +508,75 @@ async function exerciseEngineInspection(chromium, url, primaryCandidateId, alter
     cdp = await connectCdp(page.webSocketDebuggerUrl);
     await waitForCdpValue(cdp, `document.querySelector('#voxel-3d-diagnostic')?.dataset.state`, 'ready');
     const initial = await inspectionDataset(cdp);
+    if (
+      initial.rendererHost !== 'rusty_renderer_inspection_surface.v1'
+      || initial.rendererRole !== 'projection_only_inspection'
+      || initial.rendererCompatibilityVersion !== 'inspection-surface.v1'
+      || initial.rendererStatus !== 'running'
+      || initial.retainedOpCount <= 0
+    ) {
+      throw new Error(`Rusty Engine renderer identity/readout is incomplete: ${JSON.stringify(initial)}`);
+    }
     if (initial.gridLineCount <= 0 || initial.gridRevision < 1) {
       throw new Error(`engine grid was not realized: lines=${initial.gridLineCount}, revision=${initial.gridRevision}`);
     }
     if (initial.doorNodeCount <= 0 || initial.lockedDoorCount <= 0 || initial.unlockedDoorCount <= 0) {
       throw new Error(`verified initial doors were not rendered: ${JSON.stringify(initial)}`);
+    }
+    await cdp.send('Emulation.setDeviceMetricsOverride', {
+      width: 960,
+      height: 700,
+      deviceScaleFactor: 1,
+      mobile: false,
+    });
+    await waitForCdpValue(
+      cdp,
+      `document.querySelector('#voxel-3d-panel')?.dataset.viewportHash !== ${JSON.stringify(initial.viewportHash)}`,
+      true,
+    );
+    const resized = await inspectionDataset(cdp);
+    await cdp.send('Emulation.setDeviceMetricsOverride', {
+      width: 1200,
+      height: 820,
+      deviceScaleFactor: 1,
+      mobile: false,
+    });
+    await waitForCdpValue(
+      cdp,
+      `document.querySelector('#voxel-3d-panel')?.dataset.viewportHash !== ${JSON.stringify(resized.viewportHash)}`,
+      true,
+    );
+
+    if (alternateCandidateId !== undefined) {
+      const rapidSwitchStarted = await evaluateCdp(cdp, `(() => {
+        const buttons = [...document.querySelectorAll('.candidate-button')];
+        const alternate = buttons.find((candidate) =>
+          candidate.dataset.candidateId === ${JSON.stringify(alternateCandidateId)});
+        const primary = buttons.find((candidate) =>
+          candidate.dataset.candidateId === ${JSON.stringify(primaryCandidateId)});
+        alternate?.click();
+        primary?.click();
+        return alternate !== undefined && primary !== undefined;
+      })()`);
+      if (!rapidSwitchStarted) {
+        throw new Error('rapid stale-candidate replacement controls were unavailable');
+      }
+      await waitForCdpValue(
+        cdp,
+        `document.querySelector('#voxel-3d-diagnostic')?.dataset.state`,
+        'ready',
+      );
+      await waitForCdpValue(
+        cdp,
+        `document.querySelector('#voxel-3d-panel')?.dataset.placementId`,
+        initial.placementId,
+      );
+      const afterRapidSwitch = await inspectionDataset(cdp);
+      if (afterRapidSwitch.frameHash !== initial.frameHash) {
+        throw new Error(
+          `stale candidate work replaced the latest projection: ${initial.frameHash} -> ${afterRapidSwitch.frameHash}`,
+        );
+      }
     }
     await evaluateCdp(cdp, `(() => {
       const select = document.querySelector('#voxel-3d-door-state');
@@ -823,6 +887,13 @@ async function exerciseEngineInspection(chromium, url, primaryCandidateId, alter
     if (revisions.some((revision, index) => index > 0 && revision <= revisions[index - 1])) {
       throw new Error(`engine camera revisions did not advance for every control path: ${revisions.join(',')}`);
     }
+    const disposed = await evaluateCdp(cdp, `(() => {
+      window.dispatchEvent(new Event('pagehide'));
+      return document.querySelector('#voxel-3d-panel')?.dataset.disposed;
+    })()`);
+    if (disposed !== 'true') {
+      throw new Error(`renderer disposal was not observable at pagehide: ${JSON.stringify(disposed)}`);
+    }
     return {
       cameraRevisions: revisions,
       initialDistance: initial.cameraDistance,
@@ -843,6 +914,9 @@ async function exerciseEngineInspection(chromium, url, primaryCandidateId, alter
       replacementGridRevision: replacement.gridRevision,
       replacementPlacementId: replacement.placementId,
       candidateReplacementExercised: alternateCandidateId !== undefined,
+      resizeHashes: [initial.viewportHash, resized.viewportHash],
+      staleReplacementPreservedLatest: alternateCandidateId !== undefined,
+      disposedOnPagehide: true,
     };
   } catch (error) {
     throw new Error(`${error.message}\nChromium log:\n${browserLog}`);
@@ -870,6 +944,12 @@ async function inspectionDataset(cdp) {
       doorNodeCount: Number(data.doorNodeCount),
       lockedDoorCount: Number(data.lockedDoorCount),
       unlockedDoorCount: Number(data.unlockedDoorCount),
+      rendererHost: data.rendererHost,
+      rendererRole: data.rendererRole,
+      rendererCompatibilityVersion: data.rendererCompatibilityVersion,
+      rendererStatus: data.rendererStatus,
+      retainedOpCount: Number(data.retainedOpCount),
+      viewportHash: data.viewportHash,
     };
   })()`);
 }

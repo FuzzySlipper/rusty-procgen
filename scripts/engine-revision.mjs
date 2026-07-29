@@ -26,8 +26,17 @@ const workspaces = [
     lock: 'integrations/rusty-engine-spatial/Cargo.lock',
   },
 ];
+const rendererPackages = [
+  'render-contracts',
+  'render-projection',
+  'renderer-host',
+  'renderer-three',
+];
 const carrierPaths = [
   'engine-source.json',
+  'package.json',
+  'pnpm-workspace.yaml',
+  'pnpm-lock.yaml',
   ...workspaces.flatMap(({ manifest, lock }) => [manifest, lock]),
 ];
 const command = process.argv[2];
@@ -94,11 +103,62 @@ function check(root) {
     }
     lockedPackages += engineSources.length;
   }
+  checkRendererPackages(root, source);
   console.log(
     `Rusty Engine revision check passed (${source.commit}, `
       + `${manifestDependencies} manifest dependencies, ${lockedPackages} locked packages `
-      + `across ${workspaces.length} workspaces).`,
+      + `across ${workspaces.length} Rust workspaces, ${rendererPackages.length} renderer packages).`,
   );
+}
+
+function checkRendererPackages(root, source) {
+  const packageJson = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'));
+  if (packageJson.packageManager !== 'pnpm@11.7.0') {
+    fail('package.json must pin packageManager pnpm@11.7.0');
+  }
+  for (const packageName of rendererPackages) {
+    const dependencyName = `@rusty-engine/${packageName}`;
+    const expected = rendererSpecifier(packageName, source.commit);
+    if (packageJson.dependencies?.[dependencyName] !== expected) {
+      fail(`package.json expected ${dependencyName} at ${expected}`);
+    }
+  }
+  for (const [name, specifier] of Object.entries(packageJson.dependencies ?? {})) {
+    if (
+      name.startsWith('@rusty-engine/')
+      && (typeof specifier !== 'string' || !specifier.includes(`#${source.commit}&path:`))
+    ) {
+      fail(`package.json contains an unpinned Rusty Engine dependency: ${name}`);
+    }
+  }
+
+  const workspace = readFileSync(join(root, 'pnpm-workspace.yaml'), 'utf8');
+  for (const packageName of rendererPackages) {
+    const expected =
+      `"@rusty-engine/${packageName}@https://codeload.github.com/FuzzySlipper/rusty-engine/tar.gz/`
+      + `${source.commit}#path:render/packages/${packageName}": true`;
+    if (!workspace.includes(expected)) {
+      fail(`pnpm-workspace.yaml lacks the exact allowBuilds carrier for ${packageName}`);
+    }
+  }
+  if (/\b(?:workspace|link|file):(?:\.\.?\/|\/)|\/home\/dev\//.test(workspace)) {
+    fail('pnpm-workspace.yaml contains a forbidden local dependency carrier');
+  }
+
+  const lock = readFileSync(join(root, 'pnpm-lock.yaml'), 'utf8');
+  if (/\b(?:workspace|link|file):(?:\.\.?\/|\/)|\/home\/dev\/|@asha\//.test(lock)) {
+    fail('pnpm-lock.yaml contains a forbidden local, workspace, or Asha dependency');
+  }
+  for (const packageName of rendererPackages) {
+    const expected = `${source.commit}#path:render/packages/${packageName}`;
+    if (!lock.includes(expected)) {
+      fail(`pnpm-lock.yaml does not resolve ${packageName} from exact Engine revision ${source.commit}`);
+    }
+  }
+}
+
+function rendererSpecifier(packageName, commit) {
+  return `github:FuzzySlipper/rusty-engine#${commit}&path:render/packages/${packageName}`;
 }
 
 function strictSource(root) {
@@ -143,6 +203,7 @@ function update(commit, dryRun) {
         candidate,
       );
     }
+    run('pnpm', ['install'], candidate);
     run('./scripts/engine-revision', ['check'], candidate);
     for (const workspace of workspaces) {
       run(
@@ -151,6 +212,7 @@ function update(commit, dryRun) {
         candidate,
       );
     }
+    run('pnpm', ['run', 'typecheck'], candidate);
     const diff = capture('git', ['diff', '--', ...carrierPaths], candidate);
     if (diff.length === 0) {
       console.log(`Rusty Engine is already pinned to ${commit}; no changes.`);
@@ -214,6 +276,29 @@ function rewriteCandidate(root, commit) {
     );
     writeFileSync(manifestPath, after);
   }
+  const packagePath = join(root, 'package.json');
+  const packageJson = JSON.parse(readFileSync(packagePath, 'utf8'));
+  for (const packageName of rendererPackages) {
+    packageJson.dependencies[`@rusty-engine/${packageName}`] =
+      rendererSpecifier(packageName, commit);
+  }
+  writeFileSync(packagePath, `${JSON.stringify(packageJson, null, 2)}\n`);
+
+  const workspacePath = join(root, 'pnpm-workspace.yaml');
+  const workspaceBefore = readFileSync(workspacePath, 'utf8');
+  const workspaceAfter = workspaceBefore.replace(
+    /(https:\/\/codeload\.github\.com\/FuzzySlipper\/rusty-engine\/tar\.gz\/)[0-9a-f]{40}(#path:render\/packages\/)/g,
+    `$1${commit}$2`,
+  );
+  for (const packageName of rendererPackages) {
+    const expected =
+      `"@rusty-engine/${packageName}@https://codeload.github.com/FuzzySlipper/rusty-engine/tar.gz/`
+      + `${commit}#path:render/packages/${packageName}": true`;
+    if (!workspaceAfter.includes(expected)) {
+      fail(`pnpm-workspace.yaml had no renderer allowBuild carrier for ${packageName}`);
+    }
+  }
+  writeFileSync(workspacePath, workspaceAfter);
 }
 
 function run(program, args, cwd, fatal = true) {

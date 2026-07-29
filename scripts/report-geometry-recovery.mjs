@@ -406,7 +406,7 @@ if (checkOnly) {
   const committed = await readFile(resolve(repoRoot, outputRef), 'utf8');
   if (committed !== encoded) {
     throw new Error(
-      `${outputRef} is stale; run npm run geometry:recovery:report`,
+      `${outputRef} is stale; run pnpm run geometry:recovery:report`,
     );
   }
   console.log(

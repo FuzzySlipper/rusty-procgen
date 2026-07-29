@@ -1,8 +1,8 @@
 import {
-  ASHA_RENDERER_EDITOR_VIEWPORT_MAX_FRAME_OPS,
-  mountAshaRendererInspectionSurface,
-  type AshaRendererInspectionSurface,
-} from '@asha/renderer-host';
+  RUSTY_RENDERER_EDITOR_VIEWPORT_MAX_FRAME_OPS,
+  mountRendererInspectionSurface,
+  type RendererInspectionSurface,
+} from '@rusty-engine/renderer-host';
 
 import {
   compilePlacementExtrusion,
@@ -11,6 +11,7 @@ import {
 } from '../src/voxel-extrusion.js';
 import {
   buildVoxelInspectionProjection,
+  decodeVoxelInspectionFrame,
   type VoxelInspectionProjection,
 } from '../src/voxel-inspection-projection.js';
 
@@ -931,8 +932,8 @@ let corridorExperimentBusy = false;
 let generationConfigRevision = 0;
 let generationConfigBusy = false;
 let configuredBuildId: string | null = null;
-let voxelInspectionSurface: AshaRendererInspectionSurface | null = null;
-let voxelInspectionMount: Promise<AshaRendererInspectionSurface> | null = null;
+let voxelInspectionSurface: RendererInspectionSurface | null = null;
+let voxelInspectionMount: Promise<RendererInspectionSurface> | null = null;
 let voxelInspectionRevision = 0;
 let voxelInspectionReadoutFrame: number | null = null;
 
@@ -994,6 +995,9 @@ window.addEventListener('pagehide', () => {
   voxelInspectionRevision += 1;
   stopVoxelInspectionReadoutSync();
   voxelInspectionSurface?.dispose();
+  voxelInspectionPanel.dataset.disposed = String(
+    voxelInspectionSurface?.readout().status === 'disposed',
+  );
   voxelInspectionSurface = null;
   voxelInspectionMount = null;
 });
@@ -2829,9 +2833,10 @@ async function renderVoxelInspection(): Promise<void> {
       compilePlacementExtrusion(currentPlacement),
       doorState,
     );
-    if (projection.frame.ops.length > ASHA_RENDERER_EDITOR_VIEWPORT_MAX_FRAME_OPS) {
+    decodeVoxelInspectionFrame(projection.frame);
+    if (projection.frame.ops.length > RUSTY_RENDERER_EDITOR_VIEWPORT_MAX_FRAME_OPS) {
       throw new Error(
-        `projection has ${projection.frame.ops.length} ops; engine host limit is ${ASHA_RENDERER_EDITOR_VIEWPORT_MAX_FRAME_OPS}`,
+        `projection has ${projection.frame.ops.length} ops; engine host limit is ${RUSTY_RENDERER_EDITOR_VIEWPORT_MAX_FRAME_OPS}`,
       );
     }
   } catch (error) {
@@ -2884,7 +2889,8 @@ async function renderVoxelInspection(): Promise<void> {
     const readout = syncVoxelInspectionReadout(surface);
     startVoxelInspectionReadoutSync(surface);
     voxelInspectionPanel.dataset.rendererHost = surface.kind;
-    voxelInspectionPanel.dataset.rendererAuthority = surface.authority;
+    voxelInspectionPanel.dataset.rendererRole = surface.role;
+    voxelInspectionPanel.dataset.rendererCompatibilityVersion = readout.compatibilityVersion;
     voxelInspectionPanel.dataset.rendererStatus = readout.status;
     voxelInspectionPanel.dataset.frameHash = readout.retainedFrameHash;
     const pickPoints = Array.from({ length: 9 }, (_, row) =>
@@ -2917,11 +2923,11 @@ async function renderVoxelInspection(): Promise<void> {
 
 async function ensureVoxelInspectionSurface(
   projection: VoxelInspectionProjection,
-): Promise<AshaRendererInspectionSurface> {
+): Promise<RendererInspectionSurface> {
   if (voxelInspectionSurface !== null) {
     return voxelInspectionSurface;
   }
-  voxelInspectionMount ??= mountAshaRendererInspectionSurface(voxelInspectionCanvas, {
+  voxelInspectionMount ??= mountRendererInspectionSurface(voxelInspectionCanvas, {
     autoStart: false,
     clearColor: 0x10151c,
     frame: projection.frame,
@@ -2943,8 +2949,8 @@ async function ensureVoxelInspectionSurface(
 }
 
 function syncVoxelInspectionReadout(
-  surface: AshaRendererInspectionSurface,
-): ReturnType<AshaRendererInspectionSurface['readout']> {
+  surface: RendererInspectionSurface,
+): ReturnType<RendererInspectionSurface['readout']> {
   const readout = surface.readout();
   voxelInspectionPanel.dataset.cameraRevision = String(readout.cameraRevision);
   voxelInspectionPanel.dataset.cameraDistance = readout.cameraDistance.toFixed(3);
@@ -2954,10 +2960,12 @@ function syncVoxelInspectionReadout(
   voxelInspectionPanel.dataset.pressedOrbitKeys = readout.pressedOrbitKeys.join(',');
   voxelInspectionPanel.dataset.gridRevision = String(readout.gridRevision);
   voxelInspectionPanel.dataset.gridLineCount = String(readout.grid?.renderedLineCount ?? 0);
+  voxelInspectionPanel.dataset.retainedOpCount = String(readout.retainedOpCount);
+  voxelInspectionPanel.dataset.viewportHash = readout.viewportHash;
   return readout;
 }
 
-function startVoxelInspectionReadoutSync(surface: AshaRendererInspectionSurface): void {
+function startVoxelInspectionReadoutSync(surface: RendererInspectionSurface): void {
   stopVoxelInspectionReadoutSync();
   const sync = (): void => {
     if (surface !== voxelInspectionSurface || activeView !== 'voxel3d') {

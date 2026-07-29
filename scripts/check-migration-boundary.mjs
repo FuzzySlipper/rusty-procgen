@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url';
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const packageJson = readJson(join(repoRoot, 'package.json'));
-const packageLock = readJson(join(repoRoot, 'package-lock.json'));
+const packageLockText = readFileSync(join(repoRoot, 'pnpm-lock.yaml'), 'utf8');
 const ledgerPath = join(repoRoot, packageJson.legacyAshaMigration?.ledger ?? '');
 const ledger = readJson(ledgerPath);
 const scannedExtensions = new Set([
@@ -125,31 +125,11 @@ function checkDependencies() {
 }
 
 function checkTransitivePackages() {
-  const direct = new Set(ledger.activeAshaDependencies.map((entry) => entry.package));
-  const grouped = new Map();
-  for (const metadata of Object.values(packageLock.packages ?? {})) {
-    const owner = metadata.name;
-    if (typeof owner !== 'string' || !owner.startsWith('@asha/')) {
-      continue;
-    }
-    for (const dependency of Object.keys(metadata.dependencies ?? {})) {
-      if (!dependency.startsWith('@asha/') || direct.has(dependency)) {
-        continue;
-      }
-      const owners = grouped.get(dependency) ?? new Set();
-      owners.add(owner);
-      grouped.set(dependency, owners);
-    }
-  }
-  const actual = [...grouped.entries()].map(([packageName, owners]) => ({
-    package: packageName,
-    via: [...owners].sort(),
-  }));
-  const expected = ledger.transitiveAshaPackages.map(({ package: packageName, via }) => ({
-    package: packageName,
-    via: [...via].sort(),
-  }));
-  compareExact('transitive Asha packages', actual, expected);
+  const lockedAshaPackages = [...new Set(
+    [...packageLockText.matchAll(/@asha\/[A-Za-z0-9._-]+/g)].map((match) => match[0]),
+  )].sort();
+  const expected = ledger.transitiveAshaPackages.map((entry) => entry.package).sort();
+  compareExact('transitive Asha packages', lockedAshaPackages, expected);
 }
 
 function checkImports() {

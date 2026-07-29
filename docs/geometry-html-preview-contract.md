@@ -24,12 +24,12 @@ Kind: `rusty_procgen.geometry_2d.v1`
 Commands:
 
 ```bash
-npm run procgen -- geometry plan-connections \
+pnpm run procgen -- geometry plan-connections \
   --candidate <candidate.json> \
   --intermediate <intermediate-breakdown.json> \
   --out <physical-connection-plan.json>
 
-npm run procgen -- geometry emit-2d \
+pnpm run procgen -- geometry emit-2d \
   --candidate <candidate.json> \
   --intermediate <intermediate-breakdown.json> \
   --connection-plan <physical-connection-plan.json> \
@@ -89,7 +89,7 @@ Kind: `rusty_procgen.validation.geometry_2d.v1`
 Command:
 
 ```bash
-npm run procgen -- geometry validate-2d \
+pnpm run procgen -- geometry validate-2d \
   --state <geometry.json> \
   --out <geometry.validation.json>
 ```
@@ -107,7 +107,7 @@ Kind: `rusty_procgen.html_preview.v1`
 Command:
 
 ```bash
-npm run procgen -- preview html \
+pnpm run procgen -- preview html \
   --geometry <geometry.json> \
   --validation <geometry.validation.json> \
   --out <preview.html>
