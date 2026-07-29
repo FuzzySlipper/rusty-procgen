@@ -153,6 +153,10 @@ pub enum SpatialExtrusionError {
         expected: VoxelSourceRevision,
         actual: VoxelSourceRevision,
     },
+    IdentityOnlyReplacement {
+        current: String,
+        proposed: String,
+    },
     EngineBuild(CollisionSceneError),
     EngineEdit(VoxelEditApplyError),
 }
@@ -187,6 +191,12 @@ impl fmt::Display for SpatialExtrusionError {
                     "stale spatial revision: expected {}, actual {}",
                     expected.raw(),
                     actual.raw()
+                )
+            }
+            Self::IdentityOnlyReplacement { current, proposed } => {
+                write!(
+                    formatter,
+                    "identity-only spatial replacement is not revisioned: current {current}, proposed {proposed}"
                 )
             }
             Self::EngineBuild(error) => write!(formatter, "Engine spatial build failed: {error}"),

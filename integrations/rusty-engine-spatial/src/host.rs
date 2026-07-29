@@ -144,6 +144,14 @@ impl SpatialExtrusionHost {
         }));
         let revision_before = self.scene.source_revision();
         if edits.is_empty() {
+            if let Some(current) = &self.placement_id {
+                if current != &plan.placement_id {
+                    return Err(SpatialExtrusionError::IdentityOnlyReplacement {
+                        current: current.clone(),
+                        proposed: plan.placement_id.clone(),
+                    });
+                }
+            }
             return Ok(SpatialExtrusionReceipt {
                 placement_id: plan.placement_id.clone(),
                 revision_before: revision_before.raw(),

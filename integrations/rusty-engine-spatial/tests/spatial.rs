@@ -93,6 +93,29 @@ fn engine_authority_is_deterministic_coherent_and_reopenable() {
     assert!(first_readout.mesh_quad_count > 0);
     assert!(first_readout.navigation_cell_count > 0);
 
+    let no_op_receipt = first.admit_plan(first.source_revision(), &plan).unwrap();
+    assert_eq!(no_op_receipt.placement_id, plan.placement_id);
+    assert_eq!(no_op_receipt.revision_before, 1);
+    assert_eq!(no_op_receipt.accepted_revision, 1);
+    assert_eq!(no_op_receipt.changed_voxels, 0);
+    assert_eq!(no_op_receipt.transaction_count, 0);
+    assert_eq!(no_op_receipt.readout, first_readout);
+    assert_eq!(first.placement_id(), Some(placement.placement_id.as_str()));
+    assert_eq!(first.source_revision().raw(), 1);
+
+    let mut alternate_identity = plan.clone();
+    alternate_identity.placement_id = "placement.same-voxels-new-identity".to_owned();
+    assert!(matches!(
+        first.admit_plan(first.source_revision(), &alternate_identity),
+        Err(SpatialExtrusionError::IdentityOnlyReplacement {
+            ref current,
+            ref proposed,
+        }) if current == &plan.placement_id && proposed == &alternate_identity.placement_id
+    ));
+    assert_eq!(first.placement_id(), Some(placement.placement_id.as_str()));
+    assert_eq!(first.source_revision().raw(), 1);
+    assert_eq!(first.readout(), first_readout);
+
     let mut repeated = SpatialExtrusionHost::empty(options).unwrap();
     repeated
         .admit_placement(VoxelSourceRevision::INITIAL, &placement)
@@ -106,6 +129,23 @@ fn engine_authority_is_deterministic_coherent_and_reopenable() {
     );
     assert_eq!(reopened.source_revision(), first.source_revision());
     assert_eq!(reopened.readout(), first_readout);
+
+    let mut no_op_reopened =
+        SpatialExtrusionHost::reopen(options, &plan, first.source_revision()).unwrap();
+    let reopened_no_op_receipt = no_op_reopened
+        .admit_plan(no_op_reopened.source_revision(), &plan)
+        .unwrap();
+    assert_eq!(reopened_no_op_receipt, no_op_receipt);
+    assert!(matches!(
+        no_op_reopened.admit_plan(no_op_reopened.source_revision(), &alternate_identity),
+        Err(SpatialExtrusionError::IdentityOnlyReplacement { .. })
+    ));
+    assert_eq!(
+        no_op_reopened.placement_id(),
+        Some(placement.placement_id.as_str())
+    );
+    assert_eq!(no_op_reopened.source_revision(), first.source_revision());
+    assert_eq!(no_op_reopened.readout(), first_readout);
 
     let mut continuation = plan.clone();
     continuation.solid_voxels[0].material =
