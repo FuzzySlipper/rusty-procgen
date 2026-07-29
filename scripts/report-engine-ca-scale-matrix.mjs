@@ -384,7 +384,7 @@ function findings(scenarios) {
   );
   const largestResident = maximumBy(
     scenarios,
-    (scenario) => scenario.volume,
+    (scenario) => scenario.engine.maximumResidentChunks,
   );
   const highestSurface = maximumBy(
     scenarios,
@@ -402,7 +402,8 @@ function findings(scenarios) {
     },
     largestResidentScope: {
       scenarioId: largestResident.scenarioId,
-      volume: largestResident.volume,
+      domainCells: largestResident.volume,
+      authorityVoxels: largestResident.engine.maximumAuthorityVoxels,
       residentChunks: largestResident.engine.maximumResidentChunks,
     },
     highestPublishedMeshSurface: {
@@ -418,6 +419,7 @@ function renderReport(scale) {
   const rows = scale.matrix.scenarios.map((scenario) => [
     scenario.scenarioId,
     String(scenario.volume),
+    `${scenario.engine.initialAuthorityVoxels}/${scenario.engine.maximumAuthorityVoxels}`,
     percent(scenario.ca.maximumActiveDensity),
     `${scenario.ca.changedCells.median}/${scenario.ca.changedCells.max}`,
     `${scenario.engine.maximumResidentChunks}/${scenario.engine.maximumMeshQuads}`,
@@ -444,8 +446,8 @@ as equality gates.
 
 ## Matrix
 
-| Scenario | Resident cells | Peak CA density | Changed median/max | Resident chunks/max quads | Median measured step | Changed cells/s | Trace bytes | Browser apply/two-frame |
-|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| Scenario | Domain cells | Authority voxels initial/peak | Peak CA density | Changed median/max | Resident chunks/max quads | Median measured step | Changed cells/s | Trace bytes | Browser apply/two-frame |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
 ${rows.map((row) => `| ${row.join(' | ')} |`).join('\n')}
 
 Rust uses ${scale.source.benchmarkConfig.warmupRuns} warmup and
@@ -469,8 +471,11 @@ are not thresholds.
   ${formatBytes(scale.findings.largestEncodedTrace.bytes)}.
 - Largest resident scope:
   \`${scale.findings.largestResidentScope.scenarioId}\` at
-  ${scale.findings.largestResidentScope.volume.toLocaleString('en-US')} cells
-  and ${scale.findings.largestResidentScope.residentChunks} resident chunks.
+  ${scale.findings.largestResidentScope.authorityVoxels.toLocaleString('en-US')}
+  authority voxels across
+  ${scale.findings.largestResidentScope.residentChunks} resident chunks in a
+  ${scale.findings.largestResidentScope.domainCells.toLocaleString('en-US')}-cell
+  domain.
 - Highest published mesh surface:
   \`${scale.findings.highestPublishedMeshSurface.scenarioId}\` at
   ${scale.findings.highestPublishedMeshSurface.quads.toLocaleString('en-US')}
