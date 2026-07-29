@@ -210,6 +210,13 @@ keyboard/wheel zoom. The frame crosses
 projection-only visual evidence, not collision, navigation, native-render, or
 performance authority.
 
+For a committed placement, the Rust spatial host records a SHA-256 over the
+complete canonical extrusion plan. Both Voxel views must reproduce that exact
+plan, counts, materials, and readout before displaying native authority.
+Placement identity alone is insufficient; a same-ID divergent plan is shown as
+an explicit authority mismatch and no retained 3D frame is mounted. Configured
+and temporary projections remain visibly unverified.
+
 Before submission, the presentation projection deterministically partitions
 same-material voxels into lossless maximal cuboids. The projection smoke
 reconstructs every cuboid cell-by-cell and checks the complete accepted sample

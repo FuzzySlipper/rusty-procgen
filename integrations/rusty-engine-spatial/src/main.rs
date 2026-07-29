@@ -15,6 +15,7 @@ struct Evidence {
     schema_version: u32,
     source_placement: String,
     placement_id: String,
+    plan_sha256: String,
     engine_commit: String,
     coordinate_mapping: String,
     enclosure: Enclosure,
@@ -154,11 +155,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         return Err("spatial extrusion proof did not satisfy its invariants".into());
     }
 
+    let plan_sha256 = format!("sha256:{:x}", Sha256::digest(serde_json::to_vec(&plan)?));
     let evidence = Evidence {
-        kind: "rusty_procgen.evidence.engine_spatial_extrusion.v1",
-        schema_version: 1,
+        kind: "rusty_procgen.evidence.engine_spatial_extrusion.v2",
+        schema_version: 2,
         source_placement: source_relative.to_owned(),
         placement_id: plan.placement_id.clone(),
+        plan_sha256,
         engine_commit: engine_commit(&repo_root)?,
         coordinate_mapping: plan.coordinate_mapping.clone(),
         enclosure: Enclosure {
@@ -216,6 +219,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             "evidence": evidence_path.strip_prefix(&repo_root)?.to_string_lossy(),
             "sha256": format!("{:x}", Sha256::digest([&canonical[..], b"\n"].concat())),
             "authorityHash": evidence.authority.readout.authority_hash,
+            "planSha256": evidence.plan_sha256,
             "solidVoxels": evidence.counts.solid_voxels,
         }))?
     );

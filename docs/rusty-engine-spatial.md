@@ -50,11 +50,20 @@ pnpm run voxel:rusty-engine-smoke
 ```
 
 The smoke regenerates
-`artifacts/evidence/engine-spatial-extrusion.json`. Tests cover the complete
+`artifacts/evidence/engine-spatial-extrusion.json`. Its versioned evidence
+includes a Rust-produced SHA-256 of the complete canonical extrusion plan.
+Committed Voxel and Voxel 3D views recompute that plan only as a downstream
+projection and must match the Rust-owned hash, counts, materials, and readout
+before they may display native authority. A matching placement identity alone
+is never sufficient. Temporary and configured previews remain explicitly
+unverified.
+
+Tests cover the complete
 checked accepted-placement corpus, exact representative parity with the former
 extrusion policy, deterministic repetition, coherent collision/navigation/mesh
 readout, exact reopen, bounded multi-transaction application, and fail-atomic
-malformed, unknown-material, oversized, stale, and late Engine failures.
+malformed, unknown-material, oversized, stale, and late Engine failures. The
+cross-language smoke also rejects a same-placement-ID plan mutation.
 
 This slice does not claim renderer behavior, browser interaction, gameplay,
 navigation quality, persistence policy, or performance. The TypeScript viewer

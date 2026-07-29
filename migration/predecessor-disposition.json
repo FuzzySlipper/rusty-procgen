@@ -95,7 +95,7 @@
     "catalog_inspection.v1",
     "corridor_realization_experiment.v1",
     "evidence.catalog_aware_generation_coverage.v1",
-    "evidence.engine_spatial_extrusion.v1",
+    "evidence.engine_spatial_extrusion.v2",
     "evidence.pure_catalog_coverage.v1",
     "geometry_2d.v1",
     "geometry_layout_policy.v1",

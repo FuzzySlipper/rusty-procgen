@@ -10,6 +10,11 @@ import {
   type VoxelExtrusionPlan,
 } from '../src/voxel-extrusion.js';
 import {
+  decodeEngineSpatialEvidence,
+  verifyEngineSpatialPlan,
+  type EngineSpatialEvidence,
+} from '../src/engine-spatial-evidence.js';
+import {
   buildVoxelInspectionProjection,
   decodeVoxelInspectionFrame,
   type VoxelInspectionProjection,
@@ -490,21 +495,6 @@ interface MatchedSocket {
   readonly requiredSocket: string;
   readonly catalogSocketId: string;
   readonly kind: string;
-}
-
-interface EngineSpatialEvidence {
-  readonly placementId: string;
-  readonly engineCommit: string;
-  readonly authority: {
-    readonly deterministic: boolean;
-    readonly transactionCount: number;
-    readonly maxEditsPerTransaction: number;
-    readonly readout: {
-      readonly authorityHash: string;
-      readonly projectionRevisionsCoherent: boolean;
-      readonly meshProjectionHash: string;
-    };
-  };
 }
 
 interface PlacementPolicyExperimentResponse {
@@ -1037,9 +1027,10 @@ window.addEventListener('pagehide', () => {
   corridorExperimentRevision += 1;
   voxelInspectionRevision += 1;
   stopVoxelInspectionReadoutSync();
+  const alreadyDisposed = voxelInspectionPanel.dataset.disposed === 'true';
   voxelInspectionSurface?.dispose();
   voxelInspectionPanel.dataset.disposed = String(
-    voxelInspectionSurface?.readout().status === 'disposed',
+    alreadyDisposed || voxelInspectionSurface?.readout().status === 'disposed',
   );
   voxelInspectionSurface = null;
   voxelInspectionMount = null;
@@ -2377,7 +2368,7 @@ async function fetchVoxelEvidence(): Promise<EngineSpatialEvidence | null> {
   if (!response.ok) {
     return null;
   }
-  return (await response.json()) as EngineSpatialEvidence;
+  return decodeEngineSpatialEvidence(await response.json());
 }
 
 async function fetchArtifact(url: string): Promise<AcceptedArtifact> {
@@ -2877,18 +2868,38 @@ function renderActiveView(): void {
 
 async function renderVoxelInspection(): Promise<void> {
   const revision = ++voxelInspectionRevision;
+  voxelInspectionPanel.dataset.disposed = 'false';
+  const activeExperimentId = currentGeometryExperimentId
+    ?? currentPolicyExperimentId
+    ?? currentCorridorExperimentId;
+  const projectionMode = configuredBuildId !== null
+    ? 'configured'
+    : activeExperimentId === null
+      ? 'committed'
+      : 'temporary';
   let projection: VoxelInspectionProjection;
   let doorPreviewLabel = 'unverified doors hidden';
+  let nativePlanSha256 = '';
+  voxelInspectionPanel.dataset.nativeAuthority = projectionMode === 'committed'
+    ? 'checking'
+    : 'unverified';
+  voxelInspectionPanel.dataset.planSha256 = '';
   try {
     if (currentPlacement === null) {
       throw new Error('no piece placement is available for voxel extrusion');
     }
+    const plan = compilePlacementExtrusion(currentPlacement);
+    if (projectionMode === 'committed') {
+      if (voxelEvidence === null) {
+        throw new Error('committed placement has no native Engine authority evidence');
+      }
+      nativePlanSha256 = verifyEngineSpatialPlan(voxelEvidence, plan);
+      voxelInspectionPanel.dataset.nativeAuthority = 'verified';
+      voxelInspectionPanel.dataset.planSha256 = nativePlanSha256;
+    }
     const doorState = voxelDoorProjectionState(currentPlacement);
     doorPreviewLabel = doorState.label;
-    projection = buildVoxelInspectionProjection(
-      compilePlacementExtrusion(currentPlacement),
-      doorState,
-    );
+    projection = buildVoxelInspectionProjection(plan, doorState);
     decodeVoxelInspectionFrame(projection.frame);
     if (projection.frame.ops.length > RUSTY_RENDERER_EDITOR_VIEWPORT_MAX_FRAME_OPS) {
       throw new Error(
@@ -2896,8 +2907,11 @@ async function renderVoxelInspection(): Promise<void> {
       );
     }
   } catch (error) {
+    if (projectionMode === 'committed') {
+      voxelInspectionPanel.dataset.nativeAuthority = 'rejected';
+    }
     setVoxelInspectionDiagnostic('error', `Voxel 3D unavailable: ${describeError(error)}`);
-    voxelInspectionSurface?.stop();
+    releaseRejectedVoxelInspection();
     return;
   }
 
@@ -2910,16 +2924,18 @@ async function renderVoxelInspection(): Promise<void> {
   voxelInspectionPanel.dataset.unlockedDoorCount = String(projection.unlockedDoorCount);
   voxelInspectionPanel.dataset.doorPreviewState = doorPreviewLabel;
   voxelInspectionPanel.dataset.ceilingY = String(projection.ceilingY);
-  const activeExperimentId = currentGeometryExperimentId
-    ?? currentPolicyExperimentId
-    ?? currentCorridorExperimentId;
   voxelInspectionPanel.dataset.policyMode = configuredBuildId !== null
     ? 'configured'
     : activeExperimentId === null
       ? 'committed'
       : 'experiment';
   voxelInspectionPanel.dataset.policyExperimentId = activeExperimentId ?? '';
-  setVoxelInspectionDiagnostic('loading', `Mounting engine projection for ${projection.placementId}…`);
+  setVoxelInspectionDiagnostic(
+    'loading',
+    projectionMode === 'committed'
+      ? `Mounting plan ${nativePlanSha256} verified against Engine authority…`
+      : `Mounting unverified preview for ${projection.placementId}…`,
+  );
 
   try {
     const surface = await ensureVoxelInspectionSurface(projection);
@@ -3041,6 +3057,42 @@ function stopVoxelInspectionReadoutSync(): void {
   }
 }
 
+function releaseRejectedVoxelInspection(): void {
+  stopVoxelInspectionReadoutSync();
+  voxelInspectionSurface?.dispose();
+  voxelInspectionSurface = null;
+  voxelInspectionMount = null;
+  voxelInspectionPanel.dataset.disposed = 'true';
+  for (const key of [
+    'placementId',
+    'projectedVoxelCount',
+    'projectedNodeCount',
+    'omittedCeilingVoxelCount',
+    'doorNodeCount',
+    'lockedDoorCount',
+    'unlockedDoorCount',
+    'doorPreviewState',
+    'ceilingY',
+    'rendererHost',
+    'rendererRole',
+    'rendererCompatibilityVersion',
+    'rendererStatus',
+    'frameHash',
+    'retainedOpCount',
+    'viewportHash',
+    'cameraRevision',
+    'cameraDistance',
+    'lastCameraChange',
+    'dragging',
+    'pressedMovementKeys',
+    'pressedOrbitKeys',
+    'gridRevision',
+    'gridLineCount',
+  ]) {
+    delete voxelInspectionPanel.dataset[key];
+  }
+}
+
 function setVoxelInspectionDiagnostic(state: 'loading' | 'ready' | 'error', message: string): void {
   voxelInspectionDiagnostic.dataset.state = state;
   voxelInspectionDiagnostic.textContent = message;
@@ -3098,7 +3150,16 @@ function renderVoxelBuild(
   title.textContent = 'Rusty Engine Voxel Extrusion Cutaway';
   target.append(title);
 
-  const verified = mode === 'committed' && evidence?.placementId === placement.placementId;
+  let verificationError: string | null = null;
+  let verified = false;
+  if (mode === 'committed' && evidence !== null) {
+    try {
+      verifyEngineSpatialPlan(evidence, plan);
+      verified = true;
+    } catch (error) {
+      verificationError = describeError(error);
+    }
+  }
   const detail = createSvg('text');
   detail.setAttribute('class', `voxel-detail ${verified ? 'verified' : 'unverified'}`);
   detail.setAttribute('x', String(margin));
@@ -3109,7 +3170,9 @@ function renderVoxelBuild(
       ? `${plan.solidVoxelCount} voxel experiment / temporary Rust placement / no native authority receipt`
       : mode === 'configured'
         ? `${plan.solidVoxelCount} voxel configured build / persisted Rust placement / no native authority receipt`
-      : `${plan.solidVoxelCount} voxel proposal / selected placement has no matching native authority receipt`;
+      : verificationError === null
+        ? `${plan.solidVoxelCount} voxel proposal / selected placement has no matching native authority receipt`
+        : `${plan.solidVoxelCount} voxel proposal / native authority mismatch: ${verificationError}`;
   target.append(detail);
 
   const source = createSvg('text');
@@ -3117,7 +3180,7 @@ function renderVoxelBuild(
   source.setAttribute('x', String(margin));
   source.setAttribute('y', '75');
   source.textContent = verified && evidence !== null
-    ? `Rusty Engine ${evidence.engineCommit.slice(0, 12)} / deterministic ${evidence.authority.deterministic ? 'yes' : 'no'} / coherent projections ${evidence.authority.readout.projectionRevisionsCoherent ? 'yes' : 'no'}`
+    ? `Rusty Engine ${evidence.engineCommit.slice(0, 12)} / plan ${evidence.planSha256.slice(0, 19)}… / deterministic yes / coherent projections yes`
     : `${mode === 'temporary' ? 'temporary policy experiment / ' : mode === 'configured' ? 'persisted generation config / ' : ''}${placement.placementId} / XZ floor plan with ghosted ceiling`;
   target.append(source);
 

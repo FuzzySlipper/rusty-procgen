@@ -84,6 +84,7 @@ export interface VoxelExtrusionOptions {
 }
 
 export interface VoxelExtrusionPlan {
+  readonly schemaVersion: 1;
   readonly placementId: string;
   readonly coordinateMapping: 'placement_x_y_to_voxel_x_z';
   readonly solidVoxels: readonly {
@@ -183,6 +184,7 @@ export function compilePlacementExtrusion(
   const chunks = requiredChunks(sortedSolids, options.chunkSize);
 
   return {
+    schemaVersion: 1,
     placementId: placement.placementId,
     coordinateMapping: 'placement_x_y_to_voxel_x_z',
     solidVoxels: sortedSolids.map((voxel) => ({

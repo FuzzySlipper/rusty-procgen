@@ -1,8 +1,9 @@
 {
-  "kind": "rusty_procgen.evidence.engine_spatial_extrusion.v1",
-  "schemaVersion": 1,
+  "kind": "rusty_procgen.evidence.engine_spatial_extrusion.v2",
+  "schemaVersion": 2,
   "sourcePlacement": "artifacts/samples/batch-v2/candidate-006/piece-placement.json",
   "placementId": "piece_placement.piece_shape_match.piece_plan.geometry.candidate.first_slice.5801.14310.hybrid.14341.alternative_0",
+  "planSha256": "sha256:5a543d6432be7f68ef3e281eec18846190d825f0378771f50054522e4fa5d006",
   "engineCommit": "db5641fc4e9d033112bc2b374a35933c3838e39c",
   "coordinateMapping": "placement_x_y_to_voxel_x_z",
   "enclosure": {

@@ -139,6 +139,13 @@ try {
   }
   const voxelEvidence = await fetchJson('/api/evidence/engine-spatial-extrusion');
   const caEvidence = await fetchJson('/api/evidence/engine-ca-benchmark');
+  if (
+    voxelEvidence.kind !== 'rusty_procgen.evidence.engine_spatial_extrusion.v2'
+    || voxelEvidence.schemaVersion !== 2
+    || !/^sha256:[0-9a-f]{64}$/.test(voxelEvidence.planSha256)
+  ) {
+    throw new Error('Rusty Engine spatial evidence has no canonical plan binding');
+  }
   const voxelEntry = batch.accepted.find((entry) => entry.piecePlacementRef === voxelEvidence.sourcePlacement);
   if (
     voxelEntry === undefined
@@ -226,6 +233,9 @@ try {
   if (!voxelDom.includes(voxelEvidence.authority.readout.authorityHash)) {
     throw new Error('voxel tab did not show matching Engine spatial authority evidence');
   }
+  if (!voxelDom.includes(voxelEvidence.planSha256.slice(0, 19))) {
+    throw new Error('voxel tab did not show its Rust-owned plan binding');
+  }
   if (voxelFaceCount < 500) {
     throw new Error(`voxel tab rendered too few exposed faces: ${voxelFaceCount}`);
   }
@@ -256,6 +266,8 @@ try {
   const voxel3dDoorNodeCount = Number(attributeValue(voxel3dDom, 'data-door-node-count'));
   const voxel3dLockedDoorCount = Number(attributeValue(voxel3dDom, 'data-locked-door-count'));
   const voxel3dUnlockedDoorCount = Number(attributeValue(voxel3dDom, 'data-unlocked-door-count'));
+  const voxel3dNativeAuthority = attributeValue(voxel3dDom, 'data-native-authority');
+  const voxel3dPlanSha256 = attributeValue(voxel3dDom, 'data-plan-sha256');
   if (
     projectedVoxelCount < 500
     || omittedCeilingVoxelCount <= 0
@@ -266,6 +278,8 @@ try {
     || voxel3dDoorNodeCount <= 0
     || voxel3dLockedDoorCount <= 0
     || voxel3dUnlockedDoorCount <= 0
+    || voxel3dNativeAuthority !== 'verified'
+    || voxel3dPlanSha256 !== voxelEvidence.planSha256
   ) {
     throw new Error(
       `Voxel 3D projection evidence is incomplete: projected=${projectedVoxelCount}, omitted=${omittedCeilingVoxelCount}, picks=${voxel3dPickHitCount}, grid=${voxel3dGridLineCount}`,
@@ -276,15 +290,14 @@ try {
   if (alternateVoxelEntry !== undefined) {
     const alternateVoxel3dUrl = `${baseUrl}/?inspection=once&candidate=${encodeURIComponent(alternateVoxelEntry.candidateId)}#voxel3d`;
     const alternateVoxel3dDom = await dumpEngineDom(chromium, alternateVoxel3dUrl);
-    alternatePlacementId = attributeValue(alternateVoxel3dDom, 'data-placement-id');
-    alternateFrameHash = attributeValue(alternateVoxel3dDom, 'data-frame-hash');
     if (
-      !alternateVoxel3dDom.includes('data-state="ready"')
-      || alternatePlacementId === voxel3dPlacementId
-      || alternateFrameHash === voxel3dFrameHash
+      !alternateVoxel3dDom.includes('data-state="error"')
+      || !alternateVoxel3dDom.includes('data-native-authority="rejected"')
+      || !alternateVoxel3dDom.includes('does not match native')
+      || alternateVoxel3dDom.includes('data-renderer-host=')
     ) {
       throw new Error(
-        `Voxel 3D candidate switching did not refresh the engine frame deterministically: ready=${alternateVoxel3dDom.includes('data-state="ready"')}, placement=${voxel3dPlacementId}->${alternatePlacementId}, frame=${voxel3dFrameHash}->${alternateFrameHash}`,
+        'Voxel 3D admitted a committed candidate with no matching Rust-owned plan',
       );
     }
   }
@@ -293,6 +306,12 @@ try {
     `${baseUrl}/?candidate=${encodeURIComponent(voxelEntry.candidateId)}#voxel3d`,
     voxelEntry.candidateId,
     alternateVoxelEntry?.candidateId,
+  );
+  const nativeAuthorityTamper = await exerciseNativeAuthorityTamper(
+    chromium,
+    voxelEntry.candidateId,
+    voxelEvidence,
+    await fetchArtifact(voxelEvidence.sourcePlacement),
   );
   const caTraceInteraction = await exerciseCaTrace(chromium, caEvidence);
   const screenshots = [
@@ -418,6 +437,7 @@ try {
       alternateFrameHash,
       rendererRole: 'projection_only_inspection',
       interaction: voxel3dInteraction,
+      nativeAuthorityTamper,
     },
     caTraceTab: caTraceInteraction,
     screenshots: screenshots.map((screenshot) => join(outDir, screenshot.name)),
@@ -494,6 +514,154 @@ async function dumpEngineDom(chromium, url) {
   return stdout;
 }
 
+async function exerciseNativeAuthorityTamper(
+  chromium,
+  candidateId,
+  evidence,
+  placement,
+) {
+  const profileDir = join(outDir, 'chromium-native-authority-tamper-profile');
+  const cdpPort = Number(process.env.VIEWER_SMOKE_TAMPER_CDP_PORT ?? port + 1002);
+  await rm(profileDir, { recursive: true, force: true, maxRetries: 5, retryDelay: 100 });
+  const tamperedPlacement = structuredClone(placement);
+  const furthest = tamperedPlacement.occupiedCells.reduce(
+    (maximum, cell) => ({
+      x: Math.max(maximum.x, cell.x),
+      y: Math.max(maximum.y, cell.y),
+    }),
+    { x: 0, y: 0 },
+  );
+  tamperedPlacement.occupiedCells.push({
+    instanceId: tamperedPlacement.occupiedCells[0].instanceId,
+    x: furthest.x + 100,
+    y: furthest.y + 100,
+  });
+  const responseBody = Buffer.from(JSON.stringify(tamperedPlacement)).toString('base64');
+  const sourceToken = encodeURIComponent(evidence.sourcePlacement);
+  const url = `${baseUrl}/?candidate=${encodeURIComponent(candidateId)}#voxel`;
+  const browser = spawn(chromium, [
+    '--headless',
+    '--no-sandbox',
+    '--enable-unsafe-swiftshader',
+    `--remote-debugging-port=${cdpPort}`,
+    `--user-data-dir=${profileDir}`,
+    '--window-size=1200,820',
+    'about:blank',
+  ], { stdio: ['ignore', 'ignore', 'pipe'] });
+  let browserLog = '';
+  browser.stderr.on('data', (chunk) => {
+    browserLog += chunk.toString();
+  });
+  let cdp;
+  let interceptionError;
+  let tamperedResponses = 0;
+  try {
+    const page = await waitForCdpPage(cdpPort, 'about:blank');
+    cdp = await connectCdp(page.webSocketDebuggerUrl);
+    const unsubscribe = cdp.on('Fetch.requestPaused', (event) => {
+      void (async () => {
+        if (
+          event.responseStatusCode !== undefined
+          && event.request.url.includes(sourceToken)
+        ) {
+          tamperedResponses += 1;
+          const headers = (event.responseHeaders ?? [])
+            .filter((header) => !['content-length', 'content-encoding']
+              .includes(header.name.toLowerCase()));
+          await cdp.send('Fetch.fulfillRequest', {
+            requestId: event.requestId,
+            responseCode: event.responseStatusCode,
+            responseHeaders: headers,
+            body: responseBody,
+          });
+          return;
+        }
+        await cdp.send('Fetch.continueRequest', { requestId: event.requestId });
+      })().catch((error) => {
+        interceptionError = error;
+      });
+    });
+    await cdp.send('Page.enable');
+    await cdp.send('Fetch.enable', {
+      patterns: [{
+        urlPattern: `*${sourceToken}*`,
+        requestStage: 'Response',
+      }],
+    });
+    await cdp.send('Page.navigate', { url });
+    await waitForCdpValue(
+      cdp,
+      `document.querySelector('#layout')?.textContent.includes('native authority mismatch')`,
+      true,
+      30_000,
+    );
+    if (interceptionError !== undefined) {
+      throw interceptionError;
+    }
+    const voxel = await evaluateCdp(cdp, `(() => ({
+      text: document.querySelector('#layout')?.textContent,
+      leakedAuthority: document.querySelector('#layout')?.textContent
+        .includes(${JSON.stringify(evidence.authority.readout.authorityHash)}),
+    }))()`);
+    if (
+      tamperedResponses !== 1
+      || voxel.leakedAuthority
+      || !String(voxel.text).includes('plan SHA')
+    ) {
+      throw new Error(
+        `Voxel same-ID tamper did not fail closed: ${JSON.stringify({ tamperedResponses, voxel })}`,
+      );
+    }
+
+    const openedVoxel3d = await evaluateCdp(cdp, `(() => {
+      const button = document.querySelector('[data-view="voxel3d"]');
+      button?.click();
+      return button !== null;
+    })()`);
+    if (!openedVoxel3d) {
+      throw new Error('Voxel 3D tab was unavailable during same-ID tamper probe');
+    }
+    await waitForCdpValue(
+      cdp,
+      `document.querySelector('#voxel-3d-diagnostic')?.dataset.state`,
+      'error',
+      30_000,
+    );
+    const voxel3d = await evaluateCdp(cdp, `(() => {
+      const panel = document.querySelector('#voxel-3d-panel');
+      const diagnostic = document.querySelector('#voxel-3d-diagnostic');
+      return {
+        nativeAuthority: panel?.dataset.nativeAuthority,
+        rendererHost: panel?.dataset.rendererHost ?? '',
+        diagnostic: diagnostic?.textContent,
+      };
+    })()`);
+    if (
+      voxel3d.nativeAuthority !== 'rejected'
+      || voxel3d.rendererHost !== ''
+      || !String(voxel3d.diagnostic).includes('plan SHA')
+      || !String(voxel3d.diagnostic).includes('does not match native')
+    ) {
+      throw new Error(`Voxel 3D same-ID tamper did not fail visibly: ${JSON.stringify(voxel3d)}`);
+    }
+    unsubscribe();
+    return {
+      placementId: evidence.placementId,
+      interceptedResponses: tamperedResponses,
+      voxelRejected: true,
+      voxel3dRejected: true,
+      authorityHashWithheld: true,
+    };
+  } catch (error) {
+    throw new Error(`${error.message}\nChromium native-authority tamper log:\n${browserLog}`);
+  } finally {
+    cdp?.close();
+    browser.kill('SIGTERM');
+    await waitForChildExit(browser);
+    await rm(profileDir, { recursive: true, force: true, maxRetries: 5, retryDelay: 100 });
+  }
+}
+
 async function exerciseEngineInspection(chromium, url, primaryCandidateId, alternateCandidateId) {
   const profileDir = join(outDir, 'chromium-cdp-profile');
   const cdpPort = Number(process.env.VIEWER_SMOKE_CDP_PORT ?? port + 1000);
@@ -523,6 +691,8 @@ async function exerciseEngineInspection(chromium, url, primaryCandidateId, alter
       || initial.rendererCompatibilityVersion !== 'inspection-surface.v1'
       || initial.rendererStatus !== 'running'
       || initial.retainedOpCount <= 0
+      || initial.nativeAuthority !== 'verified'
+      || !/^sha256:[0-9a-f]{64}$/.test(initial.planSha256)
     ) {
       throw new Error(`Rusty Engine renderer identity/readout is incomplete: ${JSON.stringify(initial)}`);
     }
@@ -680,13 +850,13 @@ async function exerciseEngineInspection(chromium, url, primaryCandidateId, alter
     if (!switchedToRejectingCandidate) {
       throw new Error(`pure catalog rejection candidate was not found: ${alternateCandidateId}`);
     }
-    await waitForCdpValue(cdp, `document.querySelector('#voxel-3d-diagnostic')?.dataset.state`, 'ready');
+    await waitForCdpValue(cdp, `document.querySelector('#voxel-3d-diagnostic')?.dataset.state`, 'error');
     await waitForCdpValue(
       cdp,
-      `document.querySelector('#voxel-3d-panel')?.dataset.placementId !== ${JSON.stringify(initial.placementId)}`,
-      true,
+      `document.querySelector('#voxel-3d-panel')?.dataset.nativeAuthority`,
+      'rejected',
     );
-    const pureCatalogBaseline = await inspectionDataset(cdp);
+    const pureCatalogBaseline = initial;
 
     const submittedPureCatalogConfig = await evaluateCdp(cdp, `(() => {
       const form = document.querySelector('#generation-config-form');
@@ -876,12 +1046,23 @@ async function exerciseEngineInspection(chromium, url, primaryCandidateId, alter
       if (!switched) {
         throw new Error(`alternate candidate button was not found: ${alternateCandidateId}`);
       }
-      await waitForCdpValue(cdp, `document.querySelector('#voxel-3d-diagnostic')?.dataset.state`, 'ready');
-      await waitForCdpValue(cdp, `document.querySelector('#voxel-3d-panel')?.dataset.placementId !== ${JSON.stringify(initial.placementId)}`, true);
-      replacement = await inspectionDataset(cdp);
-      if (replacement.gridRevision <= initial.gridRevision || replacement.gridLineCount <= 0) {
+      await waitForCdpValue(cdp, `document.querySelector('#voxel-3d-diagnostic')?.dataset.state`, 'error');
+      await waitForCdpValue(
+        cdp,
+        `document.querySelector('#voxel-3d-panel')?.dataset.nativeAuthority`,
+        'rejected',
+      );
+      const rejectedReplacement = await inspectionDataset(cdp);
+      if (
+        rejectedReplacement.frameHash !== undefined
+        || rejectedReplacement.rendererHost !== undefined
+        || Number.isFinite(rejectedReplacement.gridRevision)
+      ) {
         throw new Error(
-          `candidate replacement did not replace the engine grid: initial=${initial.gridRevision}, replacement=${replacement.gridRevision}`,
+          `unverified candidate changed the retained Engine frame: ${JSON.stringify({
+            resetBuild,
+            rejectedReplacement,
+          })}`,
         );
       }
     }
@@ -923,6 +1104,7 @@ async function exerciseEngineInspection(chromium, url, primaryCandidateId, alter
       replacementGridRevision: replacement.gridRevision,
       replacementPlacementId: replacement.placementId,
       candidateReplacementExercised: alternateCandidateId !== undefined,
+      unverifiedCandidateRejected: alternateCandidateId !== undefined,
       resizeHashes: [initial.viewportHash, resized.viewportHash],
       staleReplacementPreservedLatest: alternateCandidateId !== undefined,
       disposedOnPagehide: true,
@@ -1401,6 +1583,8 @@ async function inspectionDataset(cdp) {
       frameHash: data.frameHash,
       policyMode: data.policyMode,
       policyExperimentId: data.policyExperimentId,
+      nativeAuthority: data.nativeAuthority,
+      planSha256: data.planSha256,
       doorNodeCount: Number(data.doorNodeCount),
       lockedDoorCount: Number(data.lockedDoorCount),
       unlockedDoorCount: Number(data.unlockedDoorCount),
@@ -1437,13 +1621,21 @@ async function connectCdp(url) {
   });
   let nextId = 0;
   const pending = new Map();
+  const listeners = new Map();
   socket.addEventListener('message', (event) => {
     const message = JSON.parse(event.data);
     const request = pending.get(message.id);
-    if (request === undefined) return;
-    pending.delete(message.id);
-    if (message.error) request.reject(new Error(message.error.message));
-    else request.resolve(message.result);
+    if (request !== undefined) {
+      pending.delete(message.id);
+      if (message.error) request.reject(new Error(message.error.message));
+      else request.resolve(message.result);
+      return;
+    }
+    if (typeof message.method === 'string') {
+      for (const listener of listeners.get(message.method) ?? []) {
+        listener(message.params);
+      }
+    }
   });
   return {
     send(method, params = {}) {
@@ -1452,6 +1644,14 @@ async function connectCdp(url) {
         pending.set(id, { resolve, reject });
         socket.send(JSON.stringify({ id, method, params }));
       });
+    },
+    on(method, listener) {
+      const methodListeners = listeners.get(method) ?? new Set();
+      methodListeners.add(listener);
+      listeners.set(method, methodListeners);
+      return () => {
+        methodListeners.delete(listener);
+      };
     },
     close() {
       socket.close();
