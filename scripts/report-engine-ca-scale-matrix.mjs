@@ -312,7 +312,7 @@ function validateScaleEvidence(scale, benchmark, benchmarkBytes, scenarioSuite) 
     || JSON.stringify(scale.source.benchmarkEnvironment) !== JSON.stringify(benchmark.environment)
     || JSON.stringify(scale.source.benchmarkConfig) !== JSON.stringify(benchmark.config)
     || !/^[0-9a-f]{40}$/.test(scale.source.viewerRepositoryCommit)
-    || !isAncestor(scale.source.viewerRepositoryCommit)
+    || scale.source.viewerRepositoryCommit !== benchmark.repositoryCommit
   ) {
     fail('scale evidence source pins do not match the benchmark artifact');
   }
@@ -555,15 +555,6 @@ function sha256(bytes) {
 
 function gitHead() {
   return execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim();
-}
-
-function isAncestor(commit) {
-  try {
-    execFileSync('git', ['merge-base', '--is-ancestor', commit, 'HEAD']);
-    return true;
-  } catch {
-    return false;
-  }
 }
 
 function chromiumVersion() {
