@@ -22,6 +22,7 @@
           <button class="view-tab" type="button" data-view="voxel" data-selected="false">Voxel</button>
           <button class="view-tab" type="button" data-view="voxel3d" data-selected="false">Voxel 3D</button>
           <button class="view-tab" type="button" data-view="catalog" data-selected="false">Catalog</button>
+          <button class="view-tab" type="button" data-view="ca" data-selected="false">CA Trace</button>
         </div>
         <section id="generation-config-panel" class="placement-policy-panel geometry-policy-panel" aria-label="Generation configuration" hidden>
           <div class="placement-policy-heading">
@@ -250,6 +251,59 @@
           </div>
           <p id="voxel-3d-diagnostic" class="voxel-3d-diagnostic" role="status">Waiting for a voxel placement.</p>
           <canvas id="voxel-3d-canvas" tabindex="0" aria-label="Interactive engine-rendered voxel projection"></canvas>
+        </section>
+        <section id="ca-trace-panel" class="ca-trace-panel" aria-label="Captured Engine cellular automata authority trace" hidden>
+          <header class="ca-trace-header">
+            <div>
+              <p class="ca-trace-eyebrow">Rust-owned evidence · projection-only inspection</p>
+              <h2>Captured Engine CA Authority Trace</h2>
+              <p>This viewer replays a versioned, hash-chained benchmark artifact through the public Rusty Engine renderer host. It does not run CA or gameplay authority in the browser.</p>
+            </div>
+            <p class="ca-trace-controls-help">Drag or Arrow keys to orbit · W/A/S/D to move · +/− or wheel to zoom · click the view to focus</p>
+          </header>
+          <div class="ca-trace-toolbar" aria-label="CA trace playback controls">
+            <label>
+              <span>Scenario</span>
+              <select id="ca-trace-scenario" aria-label="Captured CA scenario"></select>
+            </label>
+            <label>
+              <span>Recorded run</span>
+              <select id="ca-trace-run" aria-label="Observational timing run"></select>
+            </label>
+            <label>
+              <span>Playback rate</span>
+              <select id="ca-trace-rate" aria-label="CA trace playback rate">
+                <option value="0.5">0.5×</option>
+                <option value="1" selected>1×</option>
+                <option value="2">2×</option>
+                <option value="4">4×</option>
+              </select>
+            </label>
+            <div class="ca-trace-actions">
+              <button id="ca-trace-play" type="button" data-state="paused">Play</button>
+              <button id="ca-trace-step" type="button">Step</button>
+              <button id="ca-trace-reset" type="button">Reset</button>
+            </div>
+          </div>
+          <div class="ca-trace-seek-row">
+            <label for="ca-trace-seek" id="ca-trace-step-label">Step 0</label>
+            <input id="ca-trace-seek" type="range" min="0" max="0" value="0" step="1">
+          </div>
+          <p id="ca-trace-diagnostic" class="voxel-3d-diagnostic" role="status">Waiting to verify the captured trace.</p>
+          <div class="ca-trace-stage">
+            <canvas id="ca-trace-canvas" tabindex="0" aria-label="Interactive captured Engine CA projection"></canvas>
+            <aside class="ca-trace-readouts" aria-label="Captured authority and timing readouts">
+              <section>
+                <h3>Structural evidence</h3>
+                <div id="ca-trace-metrics" class="ca-trace-metrics"></div>
+              </section>
+              <section>
+                <h3>Recorded timings</h3>
+                <p>Observational only. Timing values do not gate correctness or replay authority.</p>
+                <div id="ca-trace-timings" class="ca-trace-metrics"></div>
+              </section>
+            </aside>
+          </div>
         </section>
       </section>
     </main>

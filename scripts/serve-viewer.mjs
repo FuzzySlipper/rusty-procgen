@@ -27,6 +27,7 @@ const routes = new Map([
   ['/api/artifacts/first-run', join(repoRoot, 'artifacts/samples/first-run/accepted.json')],
   ['/api/batches/v2', join(repoRoot, 'artifacts/samples/batch-v2/selection-report.json')],
   ['/api/evidence/engine-spatial-extrusion', join(repoRoot, 'artifacts/evidence/engine-spatial-extrusion.json')],
+  ['/api/evidence/engine-ca-benchmark', join(repoRoot, 'artifacts/evidence/engine-ca-benchmark.json')],
   ['/src/voxel-extrusion.js', join(repoRoot, 'dist/ts/src/voxel-extrusion.js')],
 ]);
 

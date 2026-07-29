@@ -138,6 +138,7 @@ try {
     throw new Error('direct fixture catalog route did not match artifact catalog route');
   }
   const voxelEvidence = await fetchJson('/api/evidence/engine-spatial-extrusion');
+  const caEvidence = await fetchJson('/api/evidence/engine-ca-benchmark');
   const voxelEntry = batch.accepted.find((entry) => entry.piecePlacementRef === voxelEvidence.sourcePlacement);
   if (
     voxelEntry === undefined
@@ -293,6 +294,7 @@ try {
     voxelEntry.candidateId,
     alternateVoxelEntry?.candidateId,
   );
+  const caTraceInteraction = await exerciseCaTrace(chromium, caEvidence);
   const screenshots = [
     {
       name: 'layout-desktop.png',
@@ -328,6 +330,12 @@ try {
       name: 'voxel-3d-desktop.png',
       url: `${baseUrl}/?candidate=${encodeURIComponent(voxelEntry.candidateId)}#voxel3d`,
       size: '1200,820',
+      capturedByInteractionProbe: true,
+    },
+    {
+      name: 'ca-trace-desktop.png',
+      url: `${baseUrl}/#ca`,
+      size: '1280,860',
       capturedByInteractionProbe: true,
     },
     {
@@ -411,6 +419,7 @@ try {
       rendererRole: 'projection_only_inspection',
       interaction: voxel3dInteraction,
     },
+    caTraceTab: caTraceInteraction,
     screenshots: screenshots.map((screenshot) => join(outDir, screenshot.name)),
   };
   await writeFile(join(outDir, 'viewer-smoke-report.json'), `${JSON.stringify(report, null, 2)}\n`);
@@ -926,6 +935,349 @@ async function exerciseEngineInspection(chromium, url, primaryCandidateId, alter
     await waitForChildExit(browser);
     await rm(profileDir, { recursive: true, force: true, maxRetries: 5, retryDelay: 100 });
   }
+}
+
+async function exerciseCaTrace(chromium, evidence) {
+  if (
+    evidence.kind !== 'rusty_procgen.evidence.engine_ca_benchmark.v1'
+    || !Array.isArray(evidence.scenarios)
+  ) {
+    throw new Error('CA benchmark evidence route did not return the accepted contract');
+  }
+  const expected = new Map(evidence.scenarios.map((scenario) => [scenario.scenarioId, scenario]));
+  for (const scenarioId of [
+    'sparse-propagation',
+    'dense-churn',
+    'cross-boundary',
+    'large-resident-small-hot-region',
+  ]) {
+    if (!expected.has(scenarioId)) {
+      throw new Error(`CA browser smoke is missing scenario ${scenarioId}`);
+    }
+  }
+
+  const profileDir = join(outDir, 'chromium-ca-trace-profile');
+  const cdpPort = Number(process.env.VIEWER_SMOKE_CA_CDP_PORT ?? port + 1001);
+  await rm(profileDir, { recursive: true, force: true, maxRetries: 5, retryDelay: 100 });
+  const url = `${baseUrl}/#ca`;
+  const browser = spawn(chromium, [
+    '--headless',
+    '--no-sandbox',
+    '--enable-unsafe-swiftshader',
+    `--remote-debugging-port=${cdpPort}`,
+    `--user-data-dir=${profileDir}`,
+    '--window-size=1280,860',
+    url,
+  ], { stdio: ['ignore', 'ignore', 'pipe'] });
+  let browserLog = '';
+  browser.stderr.on('data', (chunk) => {
+    browserLog += chunk.toString();
+  });
+  let cdp;
+  try {
+    const page = await waitForCdpPage(cdpPort, url);
+    cdp = await connectCdp(page.webSocketDebuggerUrl);
+    await waitForCdpValue(
+      cdp,
+      `document.querySelector('#ca-trace-panel')?.dataset.state`,
+      'ready',
+      30_000,
+    );
+    const sparseEvidence = expected.get('sparse-propagation');
+    const initial = await caTraceDataset(cdp);
+    if (
+      initial.scenarioId !== 'sparse-propagation'
+      || initial.step !== 0
+      || initial.authoritySource !== 'captured_engine_trace'
+      || initial.timingRole !== 'observational_non_gating'
+      || initial.rendererHost !== 'rusty_renderer_inspection_surface.v1'
+      || initial.rendererRole !== 'projection_only_inspection'
+      || initial.rendererStatus !== 'running'
+      || initial.gridLineCount <= 0
+      || initial.retainedOpCount <= 0
+      || initial.traceHash !== sparseEvidence.trace.initial.traceHash
+      || initial.projectionStateHash !== sparseEvidence.trace.initial.projectionStateHash
+      || initial.meshChunkCount !== sparseEvidence.trace.initial.readout.meshChunkCount
+    ) {
+      throw new Error(`initial CA trace projection is incomplete: ${JSON.stringify(initial)}`);
+    }
+
+    await evaluateCdp(cdp, `document.querySelector('#ca-trace-step')?.focus()`);
+    await cdp.send('Input.dispatchKeyEvent', {
+      type: 'keyDown',
+      key: 'Enter',
+      code: 'Enter',
+      text: '\r',
+      unmodifiedText: '\r',
+      windowsVirtualKeyCode: 13,
+    });
+    await cdp.send('Input.dispatchKeyEvent', {
+      type: 'keyUp',
+      key: 'Enter',
+      code: 'Enter',
+      windowsVirtualKeyCode: 13,
+    });
+    await waitForCdpValue(cdp, `Number(document.querySelector('#ca-trace-panel')?.dataset.step)`, 1);
+    const stepped = await caTraceDataset(cdp);
+    if (
+      stepped.traceHash !== sparseEvidence.trace.steps[0].traceHash
+      || stepped.projectionStateHash !== sparseEvidence.trace.steps[0].projectionStateHash
+      || stepped.meshChunkCount !== sparseEvidence.trace.steps[0].readout.meshChunkCount
+    ) {
+      throw new Error(`CA step readout diverged from captured evidence: ${JSON.stringify(stepped)}`);
+    }
+
+    await evaluateCdp(cdp, `document.querySelector('#ca-trace-reset')?.focus()`);
+    await cdp.send('Input.dispatchKeyEvent', {
+      type: 'keyDown',
+      key: 'Enter',
+      code: 'Enter',
+      text: '\r',
+      unmodifiedText: '\r',
+      windowsVirtualKeyCode: 13,
+    });
+    await cdp.send('Input.dispatchKeyEvent', {
+      type: 'keyUp',
+      key: 'Enter',
+      code: 'Enter',
+      windowsVirtualKeyCode: 13,
+    });
+    await waitForCdpValue(cdp, `Number(document.querySelector('#ca-trace-panel')?.dataset.step)`, 0);
+    await waitForCdpValue(cdp, `document.querySelector('#ca-trace-panel')?.dataset.frameHash`, initial.frameHash);
+    const reset = await caTraceDataset(cdp);
+    if (reset.traceHash !== initial.traceHash || reset.replacementCount <= initial.replacementCount) {
+      throw new Error(`CA reset did not restore exact initial authority: ${JSON.stringify(reset)}`);
+    }
+
+    const runChanged = await evaluateCdp(cdp, `(() => {
+      const select = document.querySelector('#ca-trace-run');
+      if (!(select instanceof HTMLSelectElement) || select.options.length < 2) return false;
+      select.value = select.options[1].value;
+      select.dispatchEvent(new Event('change', { bubbles: true }));
+      return true;
+    })()`);
+    if (runChanged) {
+      await waitForCdpValue(cdp, `Number(document.querySelector('#ca-trace-panel')?.dataset.run)`, 2);
+    }
+
+    await evaluateCdp(cdp, `(() => {
+      const rate = document.querySelector('#ca-trace-rate');
+      if (!(rate instanceof HTMLSelectElement)) return false;
+      rate.value = '4';
+      rate.dispatchEvent(new Event('change', { bubbles: true }));
+      document.querySelector('#ca-trace-play')?.click();
+      return true;
+    })()`);
+    await waitForCdpValue(
+      cdp,
+      `Number(document.querySelector('#ca-trace-panel')?.dataset.step) >= 2`,
+      true,
+    );
+    await evaluateCdp(cdp, `document.querySelector('#ca-trace-play')?.click()`);
+
+    const scenarioReadouts = {};
+    for (const scenarioId of ['dense-churn', 'cross-boundary']) {
+      const scenarioEvidence = expected.get(scenarioId);
+      await evaluateCdp(cdp, `(() => {
+        const select = document.querySelector('#ca-trace-scenario');
+        if (!(select instanceof HTMLSelectElement)) return false;
+        select.value = ${JSON.stringify(scenarioId)};
+        select.dispatchEvent(new Event('change', { bubbles: true }));
+        return true;
+      })()`);
+      await waitForCdpValue(cdp, `document.querySelector('#ca-trace-panel')?.dataset.state`, 'ready');
+      await waitForCdpValue(cdp, `document.querySelector('#ca-trace-panel')?.dataset.scenarioId`, scenarioId);
+      const scenarioInitial = await caTraceDataset(cdp);
+      if (
+        scenarioInitial.traceHash !== scenarioEvidence.trace.initial.traceHash
+        || scenarioInitial.projectionStateHash !== scenarioEvidence.trace.initial.projectionStateHash
+        || scenarioInitial.meshChunkCount !== scenarioEvidence.trace.initial.readout.meshChunkCount
+      ) {
+        throw new Error(`${scenarioId} initial browser projection diverged from evidence`);
+      }
+      await evaluateCdp(cdp, `document.querySelector('#ca-trace-step')?.click()`);
+      await waitForCdpValue(cdp, `Number(document.querySelector('#ca-trace-panel')?.dataset.step)`, 1);
+      const scenarioStep = await caTraceDataset(cdp);
+      if (
+        scenarioStep.traceHash !== scenarioEvidence.trace.steps[0].traceHash
+        || scenarioStep.projectionStateHash !== scenarioEvidence.trace.steps[0].projectionStateHash
+      ) {
+        throw new Error(`${scenarioId} step browser projection diverged from evidence`);
+      }
+      scenarioReadouts[scenarioId] = {
+        initialTraceHash: scenarioInitial.traceHash,
+        stepTraceHash: scenarioStep.traceHash,
+        chunks: scenarioStep.meshChunkCount,
+      };
+    }
+
+    const largeEvidence = expected.get('large-resident-small-hot-region');
+    await evaluateCdp(cdp, `(() => {
+      const select = document.querySelector('#ca-trace-scenario');
+      select.value = 'large-resident-small-hot-region';
+      select.dispatchEvent(new Event('change', { bubbles: true }));
+    })()`);
+    await waitForCdpValue(cdp, `document.querySelector('#ca-trace-panel')?.dataset.state`, 'ready');
+    await waitForCdpValue(
+      cdp,
+      `document.querySelector('#ca-trace-panel')?.dataset.scenarioId`,
+      'large-resident-small-hot-region',
+    );
+    const large = await caTraceDataset(cdp);
+    const expectedLargeRetainedOps = largeEvidence.trace.initial.readout.meshChunkCount + 7;
+    if (large.retainedOpCount !== expectedLargeRetainedOps) {
+      throw new Error(`large retained projection has ${large.retainedOpCount} ops, expected ${expectedLargeRetainedOps}`);
+    }
+    await evaluateCdp(cdp, `(() => {
+      const select = document.querySelector('#ca-trace-scenario');
+      select.value = 'dense-churn';
+      select.dispatchEvent(new Event('change', { bubbles: true }));
+    })()`);
+    await waitForCdpValue(cdp, `document.querySelector('#ca-trace-panel')?.dataset.state`, 'ready');
+    await waitForCdpValue(cdp, `document.querySelector('#ca-trace-panel')?.dataset.scenarioId`, 'dense-churn');
+    const afterRelease = await caTraceDataset(cdp);
+    const expectedDenseRetainedOps =
+      expected.get('dense-churn').trace.initial.readout.meshChunkCount + 7;
+    if (
+      afterRelease.retainedOpCount !== expectedDenseRetainedOps
+      || afterRelease.retainedOpCount >= large.retainedOpCount
+    ) {
+      throw new Error(`scenario replacement retained obsolete resources: ${large.retainedOpCount} -> ${afterRelease.retainedOpCount}`);
+    }
+    const crossEvidence = expected.get('cross-boundary');
+    await evaluateCdp(cdp, `(() => {
+      const scenario = document.querySelector('#ca-trace-scenario');
+      const seek = document.querySelector('#ca-trace-seek');
+      scenario.value = 'cross-boundary';
+      scenario.dispatchEvent(new Event('change', { bubbles: true }));
+      return seek instanceof HTMLInputElement;
+    })()`);
+    await waitForCdpValue(cdp, `document.querySelector('#ca-trace-panel')?.dataset.state`, 'ready');
+    await waitForCdpValue(cdp, `document.querySelector('#ca-trace-panel')?.dataset.scenarioId`, 'cross-boundary');
+    await evaluateCdp(cdp, `document.querySelector('#ca-trace-seek')?.focus()`);
+    await cdp.send('Input.dispatchKeyEvent', { type: 'keyDown', key: 'End', code: 'End' });
+    await cdp.send('Input.dispatchKeyEvent', { type: 'keyUp', key: 'End', code: 'End' });
+    await waitForCdpValue(
+      cdp,
+      `Number(document.querySelector('#ca-trace-panel')?.dataset.step)`,
+      crossEvidence.trace.steps.length,
+    );
+    const selectedFinalStep = await caTraceDataset(cdp);
+    if (selectedFinalStep.traceHash !== crossEvidence.trace.steps.at(-1).traceHash) {
+      throw new Error('bounded step selection did not reach the captured cross-boundary final state');
+    }
+
+    await evaluateCdp(cdp, `document.querySelector('#ca-trace-canvas')?.scrollIntoView({ block: 'center' })`);
+    const rect = await evaluateCdp(cdp, `(() => {
+      const rect = document.querySelector('#ca-trace-canvas').getBoundingClientRect();
+      return { x: rect.x, y: rect.y, width: rect.width, height: rect.height };
+    })()`);
+    const x = rect.x + rect.width * 0.5;
+    const y = rect.y + rect.height * 0.5;
+    await cdp.send('Input.dispatchMouseEvent', { type: 'mousePressed', x, y, button: 'left', clickCount: 1 });
+    await cdp.send('Input.dispatchMouseEvent', { type: 'mouseReleased', x, y, button: 'left', clickCount: 1 });
+    await cdp.send('Input.dispatchKeyEvent', { type: 'keyDown', key: 'ArrowRight', code: 'ArrowRight' });
+    await delay(180);
+    await cdp.send('Input.dispatchKeyEvent', { type: 'keyUp', key: 'ArrowRight', code: 'ArrowRight' });
+    await waitForCdpValue(cdp, `document.querySelector('#ca-trace-panel')?.dataset.lastCameraChange`, 'keyboard_orbit');
+    const camera = await caTraceDataset(cdp);
+
+    await cdp.send('Emulation.setDeviceMetricsOverride', {
+      width: 980,
+      height: 720,
+      deviceScaleFactor: 1,
+      mobile: false,
+    });
+    await waitForCdpValue(
+      cdp,
+      `document.querySelector('#ca-trace-panel')?.dataset.viewportHash !== ${JSON.stringify(camera.viewportHash)}`,
+      true,
+    );
+    const resized = await caTraceDataset(cdp);
+    await cdp.send('Emulation.setDeviceMetricsOverride', {
+      width: 1600,
+      height: 860,
+      deviceScaleFactor: 1,
+      mobile: false,
+    });
+    await waitForCdpValue(
+      cdp,
+      `document.querySelector('#ca-trace-panel')?.dataset.viewportHash !== ${JSON.stringify(resized.viewportHash)}`,
+      true,
+    );
+    await evaluateCdp(cdp, `document.querySelector('#ca-trace-panel')?.scrollIntoView({ block: 'start' })`);
+    await delay(100);
+    const screenshot = await cdp.send('Page.captureScreenshot', { format: 'png', fromSurface: true });
+    await writeFile(join(outDir, 'ca-trace-desktop.png'), screenshot.data, 'base64');
+    const screenshotFile = await stat(join(outDir, 'ca-trace-desktop.png'));
+    if (screenshotFile.size < 5_000) {
+      throw new Error('CA trace screenshot is too small to prove a rendered inspection view');
+    }
+
+    const disposed = await evaluateCdp(cdp, `(() => {
+      window.dispatchEvent(new Event('pagehide'));
+      return document.querySelector('#ca-trace-panel')?.dataset.disposed;
+    })()`);
+    if (disposed !== 'true') {
+      throw new Error(`CA trace renderer disposal was not observable: ${JSON.stringify(disposed)}`);
+    }
+    return {
+      authority: initial.authoritySource,
+      timingRole: initial.timingRole,
+      sparse: {
+        initialTraceHash: initial.traceHash,
+        stepTraceHash: stepped.traceHash,
+        resetFrameHash: reset.frameHash,
+      },
+      scenarios: scenarioReadouts,
+      cameraRevision: camera.cameraRevision,
+      cameraControl: camera.lastCameraChange,
+      resizeHashes: [camera.viewportHash, resized.viewportHash],
+      deterministicReset: true,
+      retainedOpsAfterLargeToDense: [large.retainedOpCount, afterRelease.retainedOpCount],
+      obsoleteResourcesReleased: true,
+      boundedStepSelection: {
+        scenario: 'cross-boundary',
+        step: selectedFinalStep.step,
+        traceHash: selectedFinalStep.traceHash,
+      },
+      disposedOnPagehide: true,
+    };
+  } catch (error) {
+    throw new Error(`${error.message}\nChromium CA trace log:\n${browserLog}`);
+  } finally {
+    cdp?.close();
+    browser.kill('SIGTERM');
+    await waitForChildExit(browser);
+    await rm(profileDir, { recursive: true, force: true, maxRetries: 5, retryDelay: 100 });
+  }
+}
+
+async function caTraceDataset(cdp) {
+  return await evaluateCdp(cdp, `(() => {
+    const data = document.querySelector('#ca-trace-panel').dataset;
+    return {
+      authoritySource: data.authoritySource,
+      timingRole: data.timingRole,
+      scenarioId: data.scenarioId,
+      step: Number(data.step),
+      run: Number(data.run),
+      traceHash: data.traceHash,
+      projectionStateHash: data.projectionStateHash,
+      meshChunkCount: Number(data.meshChunkCount),
+      sourceRevision: Number(data.sourceRevision),
+      replacementCount: Number(data.replacementCount),
+      rendererHost: data.rendererHost,
+      rendererRole: data.rendererRole,
+      rendererStatus: data.rendererStatus,
+      frameHash: data.frameHash,
+      retainedOpCount: Number(data.retainedOpCount),
+      gridLineCount: Number(data.gridLineCount),
+      cameraRevision: Number(data.cameraRevision),
+      lastCameraChange: data.lastCameraChange,
+      viewportHash: data.viewportHash,
+    };
+  })()`);
 }
 
 async function inspectionDataset(cdp) {

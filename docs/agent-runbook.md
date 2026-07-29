@@ -458,6 +458,7 @@ Viewer API routes:
 - `/api/batches/v2`
 - `/api/artifacts/by-path?path=<artifact-ref-from-selection-report>`
 - `/api/evidence/engine-spatial-extrusion`
+- `/api/evidence/engine-ca-benchmark`
 
 The batch viewer shows candidate scores, profile sequence, artifact refs,
 validation status, provenance steps, and any diagnostics/repair hints for the
@@ -486,6 +487,16 @@ those cuboids cell-by-cell to prove exact, non-overlapping material coverage for
 every accepted sample before checking the public renderer frame-op limit. This
 tab is projection-only inspection and does not claim runtime, collision,
 navigation, native-render, or performance authority.
+
+The separate CA Trace tab consumes the checked
+`rusty_procgen.evidence.engine_ca_benchmark.v1` artifact. Its strict browser
+border recomputes the versioned trace links, CA delta chain, projection diffs,
+retained projection state, readout totals, and referenced mesh-buffer hashes
+before mounting anything. Playback uses real public Engine mesh buffers and
+changed-chunk define/update/delete facts; it does not rebuild cubes from CA
+cells or evolve local CA authority. Scenario, recorded timing run, rate,
+play/pause, step, reset, and bounded seek controls remain downstream inspection
+state. Timings are explicitly observational and non-gating.
 
 Build, Voxel, and Voxel 3D show one generation configuration form backed by
 `config/viewer-generation.json`. Every editable field has a `value` and
@@ -583,8 +594,11 @@ glued-exit links, checks the Voxel tab for exposed isometric faces plus a
 matching native authority receipt, and exercises the engine-owned Voxel 3D
 mount, ceiling omission, public picking, candidate/config frame replacement,
 rapid stale-work suppression, resize, controls, structural readouts, and
-page-hide disposal. It
-uses Chromium to write layout/intermediate/build/voxel/voxel-3d/standalone-preview
+page-hide disposal. It also plays sparse, dense, and cross-boundary CA traces,
+checks source hashes/readouts after retained updates and keyboard seeking,
+proves large-to-dense replacement releases obsolete retained facts, and
+exercises camera, resize, deterministic reset, and disposal. It uses Chromium
+to write layout/intermediate/build/voxel/voxel-3d/ca-trace/standalone-preview
 screenshots plus a report under:
 
 ```text

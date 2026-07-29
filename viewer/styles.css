@@ -143,7 +143,7 @@ body {
 
 .view-tabs {
   display: inline-grid;
-  grid-template-columns: repeat(6, minmax(104px, 1fr));
+  grid-template-columns: repeat(7, minmax(104px, 1fr));
   gap: 6px;
   margin-bottom: 12px;
 }
@@ -598,6 +598,203 @@ body {
 
 #voxel-3d-canvas:focus-visible {
   box-shadow: inset 0 0 0 2px var(--border-strong);
+}
+
+.ca-trace-panel {
+  display: grid;
+  gap: 12px;
+  width: 100%;
+  min-width: 760px;
+  min-height: 620px;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: #151b23;
+}
+
+.ca-trace-panel[hidden] {
+  display: none;
+}
+
+.ca-trace-header {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.ca-trace-header h2,
+.ca-trace-header p {
+  margin: 0;
+}
+
+.ca-trace-header h2 {
+  margin: 2px 0 5px;
+  font-size: 19px;
+}
+
+.ca-trace-header p,
+.ca-trace-controls-help {
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+.ca-trace-eyebrow {
+  color: var(--ok) !important;
+  font-weight: 750;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.ca-trace-controls-help {
+  max-width: 360px;
+  text-align: right;
+}
+
+.ca-trace-toolbar {
+  display: grid;
+  grid-template-columns: minmax(250px, 2fr) minmax(150px, 1fr) minmax(130px, 0.7fr) auto;
+  align-items: end;
+  gap: 10px;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface-muted);
+}
+
+.ca-trace-toolbar label {
+  display: grid;
+  gap: 4px;
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.ca-trace-toolbar select,
+.ca-trace-toolbar button {
+  min-height: 34px;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  background: var(--surface-strong);
+  color: var(--text-soft);
+  font: inherit;
+}
+
+.ca-trace-toolbar button {
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 750;
+  padding: 0 12px;
+}
+
+.ca-trace-toolbar button:hover:not(:disabled),
+.ca-trace-toolbar button[data-state="playing"] {
+  border-color: var(--border-strong);
+  background: #223543;
+  color: #eff8ff;
+}
+
+.ca-trace-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.ca-trace-seek-row {
+  display: grid;
+  grid-template-columns: 115px 1fr;
+  align-items: center;
+  gap: 10px;
+  color: var(--text-soft);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.ca-trace-seek-row input {
+  width: 100%;
+}
+
+.ca-trace-panel > .voxel-3d-diagnostic {
+  position: static;
+  pointer-events: auto;
+}
+
+.ca-trace-stage {
+  display: grid;
+  grid-template-columns: minmax(480px, 1fr) minmax(300px, 380px);
+  min-height: 540px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+  background: #0c1219;
+}
+
+#ca-trace-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 540px;
+  outline: none;
+}
+
+#ca-trace-canvas:focus-visible {
+  box-shadow: inset 0 0 0 2px var(--border-strong);
+}
+
+.ca-trace-readouts {
+  display: grid;
+  align-content: start;
+  gap: 14px;
+  padding: 12px;
+  border-left: 1px solid var(--border);
+  background: rgb(20 26 34 / 95%);
+  overflow: auto;
+}
+
+.ca-trace-readouts section {
+  display: grid;
+  gap: 7px;
+}
+
+.ca-trace-readouts h3,
+.ca-trace-readouts p {
+  margin: 0;
+}
+
+.ca-trace-readouts h3 {
+  color: var(--text-soft);
+  font-size: 12px;
+  text-transform: uppercase;
+}
+
+.ca-trace-readouts p {
+  color: var(--text-muted);
+  font-size: 11px;
+}
+
+.ca-trace-metrics {
+  display: grid;
+  gap: 5px;
+}
+
+.ca-trace-metric {
+  display: grid;
+  grid-template-columns: minmax(105px, 0.8fr) minmax(0, 1.2fr);
+  gap: 8px;
+  padding-bottom: 5px;
+  border-bottom: 1px solid rgb(53 68 84 / 56%);
+  font-size: 11px;
+}
+
+.ca-trace-metric span {
+  color: var(--text-muted);
+}
+
+.ca-trace-metric strong {
+  overflow-wrap: anywhere;
+  color: var(--text-soft);
+  font-weight: 650;
+  text-align: right;
 }
 
 .link {

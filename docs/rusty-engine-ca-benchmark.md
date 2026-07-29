@@ -86,3 +86,25 @@ the exact code revision exercised, not the later evidence-only commit.
 
 This proof does not certify browser playback, renderer performance, gameplay
 semantics, scheduling, persistence, or a maximum Engine scale.
+
+## Captured trace inspection
+
+The downstream viewer's `CA Trace` tab is a strict consumer of the checked
+benchmark artifact, not part of the authority producer. Before renderer
+submission it verifies the schema, initial and per-step trace links, CA delta
+chain, projection operations and retained-state hashes, readout totals, and
+every referenced public mesh buffer. It then maps chunk facts to public
+`@rusty-engine/render-contracts` retained frames and mounts only
+`@rusty-engine/renderer-host`.
+
+Playback applies changed-chunk frame updates and deletes; it never evolves CA
+state or regenerates cubes from cell deltas. Scenario replacement and reset use
+atomic authored-frame replacement so obsolete retained resources are released.
+The real Chromium gate exercises sparse, dense, cross-boundary, and
+large-resident traces, keyboard controls, bounded seeking, camera/grid/resize,
+deterministic reset, structural readout equality, and disposal.
+
+```bash
+pnpm run ca:trace:smoke
+pnpm run viewer:smoke
+```

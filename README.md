@@ -52,6 +52,7 @@ pnpm run catalog:coverage
 pnpm run ca:fixtures:check
 pnpm run engine:ca:test
 pnpm run engine:ca:benchmark
+pnpm run ca:trace:smoke
 ```
 
 The exact conversion boundary, clean-checkout proof commands, and scope are in
@@ -85,6 +86,14 @@ subsequent requests delta-sized. Scripted-clock regressions prove deterministic
 structural repetition and fail-atomic stale, oversized, malformed, dropped, and
 superseded operations. Release timings record exact host/tool/revision
 provenance but are observations, not pass thresholds.
+
+The viewer's `CA Trace` tab strictly verifies that checked artifact before
+compiling its public mesh buffers and changed-chunk facts into retained Rusty
+Engine frames. It supports captured scenario/run selection, bounded seeking,
+step/play/reset controls, and host-owned camera/grid behavior. Structural
+readouts remain tied to the captured hash chain; recorded timings are labelled
+non-gating. This is playback of real Rust-owned authority evidence, not a
+browser CA runtime.
 
 ## Rust library
 

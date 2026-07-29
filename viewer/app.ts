@@ -14,6 +14,7 @@ import {
   decodeVoxelInspectionFrame,
   type VoxelInspectionProjection,
 } from '../src/voxel-inspection-projection.js';
+import { createCaTraceViewer } from './ca-trace-viewer.js';
 
 interface AcceptedArtifact {
   readonly artifactId: string;
@@ -674,6 +675,19 @@ const voxel3dCanvas = document.querySelector<HTMLCanvasElement>('#voxel-3d-canva
 const voxel3dDiagnostic = document.querySelector<HTMLElement>('#voxel-3d-diagnostic');
 const voxel3dDoorState = document.querySelector<HTMLSelectElement>('#voxel-3d-door-state');
 const voxel3dDoorLegend = document.querySelector<HTMLElement>('#voxel-3d-door-legend');
+const caTracePanelElement = document.querySelector<HTMLElement>('#ca-trace-panel');
+const caTraceCanvasElement = document.querySelector<HTMLCanvasElement>('#ca-trace-canvas');
+const caTraceDiagnosticElement = document.querySelector<HTMLElement>('#ca-trace-diagnostic');
+const caTraceScenarioElement = document.querySelector<HTMLSelectElement>('#ca-trace-scenario');
+const caTraceRunElement = document.querySelector<HTMLSelectElement>('#ca-trace-run');
+const caTraceRateElement = document.querySelector<HTMLSelectElement>('#ca-trace-rate');
+const caTracePlayElement = document.querySelector<HTMLButtonElement>('#ca-trace-play');
+const caTraceStepElement = document.querySelector<HTMLButtonElement>('#ca-trace-step');
+const caTraceResetElement = document.querySelector<HTMLButtonElement>('#ca-trace-reset');
+const caTraceSeekElement = document.querySelector<HTMLInputElement>('#ca-trace-seek');
+const caTraceStepLabelElement = document.querySelector<HTMLElement>('#ca-trace-step-label');
+const caTraceMetricsElement = document.querySelector<HTMLElement>('#ca-trace-metrics');
+const caTraceTimingsElement = document.querySelector<HTMLElement>('#ca-trace-timings');
 const generationConfigPanelElement = document.querySelector<HTMLElement>('#generation-config-panel');
 const generationConfigFormElement = document.querySelector<HTMLFormElement>('#generation-config-form');
 const generationConfigModeElement = document.querySelector<HTMLElement>('#generation-config-mode');
@@ -751,6 +765,19 @@ if (
   || voxel3dDiagnostic === null
   || voxel3dDoorState === null
   || voxel3dDoorLegend === null
+  || caTracePanelElement === null
+  || caTraceCanvasElement === null
+  || caTraceDiagnosticElement === null
+  || caTraceScenarioElement === null
+  || caTraceRunElement === null
+  || caTraceRateElement === null
+  || caTracePlayElement === null
+  || caTraceStepElement === null
+  || caTraceResetElement === null
+  || caTraceSeekElement === null
+  || caTraceStepLabelElement === null
+  || caTraceMetricsElement === null
+  || caTraceTimingsElement === null
   || generationConfigPanelElement === null
   || generationConfigFormElement === null
   || generationConfigModeElement === null
@@ -819,7 +846,7 @@ if (
   throw new Error('viewer mount elements are missing');
 }
 
-type ViewMode = 'layout' | 'intermediate' | 'build' | 'voxel' | 'voxel3d' | 'catalog';
+type ViewMode = 'layout' | 'intermediate' | 'build' | 'voxel' | 'voxel3d' | 'catalog' | 'ca';
 
 const layoutSvg = svg;
 const summaryPanel = summary;
@@ -830,6 +857,7 @@ const voxelInspectionCanvas = voxel3dCanvas;
 const voxelInspectionDiagnostic = voxel3dDiagnostic;
 const voxelDoorStateControl = voxel3dDoorState;
 const voxelDoorLegend = voxel3dDoorLegend;
+const caTracePanel = caTracePanelElement;
 const generationConfigPanel = generationConfigPanelElement;
 const generationConfigForm = generationConfigFormElement;
 const generationConfigMode = generationConfigModeElement;
@@ -902,6 +930,21 @@ let persistedGenerationConfig = await fetchGenerationConfig();
 const viewerSearch = new URLSearchParams(location.search);
 const requestedCandidate = viewerSearch.get('candidate');
 const renderInspectionOnce = viewerSearch.get('inspection') === 'once';
+const caTraceViewer = createCaTraceViewer({
+  panel: caTracePanel,
+  canvas: caTraceCanvasElement,
+  diagnostic: caTraceDiagnosticElement,
+  scenario: caTraceScenarioElement,
+  run: caTraceRunElement,
+  rate: caTraceRateElement,
+  play: caTracePlayElement,
+  step: caTraceStepElement,
+  reset: caTraceResetElement,
+  seek: caTraceSeekElement,
+  stepLabel: caTraceStepLabelElement,
+  metrics: caTraceMetricsElement,
+  timings: caTraceTimingsElement,
+}, { renderOnce: renderInspectionOnce });
 const initialSelection = batch.accepted.find((entry) => entry.candidateId === requestedCandidate)
   ?? batch.accepted[0]
   ?? null;
@@ -1000,12 +1043,13 @@ window.addEventListener('pagehide', () => {
   );
   voxelInspectionSurface = null;
   voxelInspectionMount = null;
+  caTraceViewer.dispose();
 });
 
 for (const tab of viewTabs) {
   tab.addEventListener('click', () => {
     const nextView = tab.dataset.view;
-    if (nextView === 'layout' || nextView === 'intermediate' || nextView === 'build' || nextView === 'voxel' || nextView === 'voxel3d' || nextView === 'catalog') {
+    if (nextView === 'layout' || nextView === 'intermediate' || nextView === 'build' || nextView === 'voxel' || nextView === 'voxel3d' || nextView === 'catalog' || nextView === 'ca') {
       activeView = nextView;
       history.replaceState(null, '', `#${activeView}`);
       renderActiveView();
@@ -2459,6 +2503,9 @@ function initialViewMode(): ViewMode {
   if (location.hash === '#voxel3d') {
     return 'voxel3d';
   }
+  if (location.hash === '#ca') {
+    return 'ca';
+  }
   return 'layout';
 }
 
@@ -2773,12 +2820,21 @@ function renderActiveView(): void {
   corridorRealizationPanel.hidden = true;
   placementPolicyPanel.hidden = true;
   const inspectionActive = activeView === 'voxel3d';
-  layoutSvg.style.display = inspectionActive ? 'none' : '';
+  const caTraceActive = activeView === 'ca';
+  layoutSvg.style.display = inspectionActive || caTraceActive ? 'none' : '';
   voxelInspectionPanel.hidden = !inspectionActive;
+  caTracePanel.hidden = !caTraceActive;
   if (!inspectionActive) {
     voxelInspectionRevision += 1;
     voxelInspectionSurface?.stop();
     stopVoxelInspectionReadoutSync();
+  }
+  if (!caTraceActive) {
+    caTraceViewer.deactivate();
+  }
+  if (caTraceActive) {
+    void caTraceViewer.activate();
+    return;
   }
   if (inspectionActive) {
     void renderVoxelInspection();
