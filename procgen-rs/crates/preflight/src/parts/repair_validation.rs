@@ -319,12 +319,38 @@ pub(crate) fn suggested_actions_for_diagnostic(diagnostic: &Diagnostic) -> Vec<S
 
 pub(crate) fn validate_graph(candidate: &Candidate) -> ValidationReport {
     let mut diagnostics = Vec::new();
-    let node_ids: BTreeSet<&str> = candidate
-        .graph
-        .nodes
-        .iter()
-        .map(|node| node.id.as_str())
-        .collect();
+    let mut node_ids = BTreeSet::new();
+    let mut duplicate_node_ids = BTreeSet::new();
+    for node in &candidate.graph.nodes {
+        if !node_ids.insert(node.id.as_str()) {
+            duplicate_node_ids.insert(node.id.as_str());
+        }
+    }
+    for node_id in duplicate_node_ids {
+        diagnostics.push(fatal_with_hint(
+            "duplicate_node_id",
+            Some(node_id),
+            None,
+            "Graph node identities must be unique.",
+            "Choose a different rule seed or remove the colliding authored node.",
+        ));
+    }
+    let mut edge_ids = BTreeSet::new();
+    let mut duplicate_edge_ids = BTreeSet::new();
+    for edge in &candidate.graph.edges {
+        if !edge_ids.insert(edge.id.as_str()) {
+            duplicate_edge_ids.insert(edge.id.as_str());
+        }
+    }
+    for edge_id in duplicate_edge_ids {
+        diagnostics.push(fatal_with_hint(
+            "duplicate_edge_id",
+            None,
+            Some(edge_id),
+            "Graph edge identities must be unique.",
+            "Choose a different rule seed or remove the colliding authored edge.",
+        ));
+    }
     let start_count = candidate
         .graph
         .nodes

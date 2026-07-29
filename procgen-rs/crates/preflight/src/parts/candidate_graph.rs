@@ -179,6 +179,29 @@ pub(crate) fn apply_graph_rule(
     rule: GraphRule,
     seed: u64,
 ) -> Vec<Diagnostic> {
+    let mut proposed = candidate.clone();
+    let mut diagnostics = mutate_graph_rule(&mut proposed, rule, seed);
+    if diagnostics
+        .iter()
+        .all(|diagnostic| diagnostic.severity != Severity::Fatal)
+    {
+        diagnostics.extend(
+            validate_graph(&proposed)
+                .diagnostics
+                .into_iter()
+                .filter(|diagnostic| diagnostic.severity == Severity::Fatal),
+        );
+    }
+    if diagnostics
+        .iter()
+        .all(|diagnostic| diagnostic.severity != Severity::Fatal)
+    {
+        *candidate = proposed;
+    }
+    diagnostics
+}
+
+fn mutate_graph_rule(candidate: &mut Candidate, rule: GraphRule, seed: u64) -> Vec<Diagnostic> {
     let mut diagnostics = Vec::new();
     match rule {
         GraphRule::LockKeyLoop => {

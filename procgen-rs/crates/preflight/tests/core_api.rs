@@ -1,7 +1,9 @@
 use rusty_procgen_preflight::core::{
     CorridorRealization, GraphRule, GridConnectivity, ProcgenCore, RuleDisposition,
 };
-use rusty_procgen_preflight::{SeedIntent, ShapeCatalog};
+use rusty_procgen_preflight::{
+    Edge, EdgeKind, Node, NodeKind, SeedIntent, ShapeCatalog, TraversalKind,
+};
 
 fn seed_intent() -> SeedIntent {
     serde_json::from_str(include_str!(
@@ -109,4 +111,88 @@ fn public_core_rejects_malformed_realization_tiers() {
     assert_eq!(ProcgenCore::realization_scale_multiplier(0), Some(1));
     assert_eq!(ProcgenCore::realization_scale_multiplier(7), Some(8));
     assert_eq!(ProcgenCore::realization_scale_multiplier(u32::MAX), None);
+}
+
+#[test]
+fn public_core_rejects_seed_derived_identity_collisions_without_mutation() {
+    let base = ProcgenCore::create_candidate(&seed_intent(), 6_001);
+    let accepted = ProcgenCore::apply_rule(&base, GraphRule::OptionalTreasureDetour, 0x2a);
+    assert_eq!(accepted.disposition, RuleDisposition::Accepted);
+    let accepted_hash =
+        ProcgenCore::canonical_hash(&accepted.candidate).expect("accepted candidate hash");
+
+    let repeated =
+        ProcgenCore::apply_rule(&accepted.candidate, GraphRule::OptionalTreasureDetour, 0x2a);
+    assert_eq!(repeated.disposition, RuleDisposition::Rejected);
+    assert_eq!(
+        ProcgenCore::canonical_hash(&repeated.candidate).expect("rejected candidate hash"),
+        accepted_hash
+    );
+    assert!(repeated
+        .diagnostics
+        .iter()
+        .any(|diagnostic| diagnostic.code == "duplicate_node_id"));
+
+    let mut node_collision = base.clone();
+    node_collision.graph.nodes.push(Node {
+        id: "treasure.002b".to_owned(),
+        kind: NodeKind::Treasure,
+        label: "Authored collision".to_owned(),
+        tags: vec!["optional".to_owned()],
+        grants_item: None,
+    });
+    let node_collision_hash =
+        ProcgenCore::canonical_hash(&node_collision).expect("node-collision input hash");
+    let rejected =
+        ProcgenCore::apply_rule(&node_collision, GraphRule::OptionalTreasureDetour, 0x2b);
+    assert_eq!(rejected.disposition, RuleDisposition::Rejected);
+    assert_eq!(
+        ProcgenCore::canonical_hash(&rejected.candidate).expect("node rejection hash"),
+        node_collision_hash
+    );
+    assert!(rejected
+        .diagnostics
+        .iter()
+        .any(|diagnostic| diagnostic.code == "duplicate_node_id"));
+
+    let mut edge_collision = base;
+    edge_collision.graph.edges.push(Edge {
+        id: "edge.start.treasure.002c".to_owned(),
+        from: "start".to_owned(),
+        to: "goal".to_owned(),
+        kind: EdgeKind::OptionalBranch,
+        traversal: TraversalKind::Open,
+        required_item: None,
+        tags: vec!["authored".to_owned()],
+    });
+    let edge_collision_hash =
+        ProcgenCore::canonical_hash(&edge_collision).expect("edge-collision input hash");
+    let rejected =
+        ProcgenCore::apply_rule(&edge_collision, GraphRule::OptionalTreasureDetour, 0x2c);
+    assert_eq!(rejected.disposition, RuleDisposition::Rejected);
+    assert_eq!(
+        ProcgenCore::canonical_hash(&rejected.candidate).expect("edge rejection hash"),
+        edge_collision_hash
+    );
+    assert!(rejected
+        .diagnostics
+        .iter()
+        .any(|diagnostic| diagnostic.code == "duplicate_edge_id"));
+}
+
+#[test]
+fn public_validator_rejects_duplicate_node_and_edge_identities() {
+    let mut candidate = ProcgenCore::create_candidate(&seed_intent(), 6_101);
+    candidate.graph.nodes.push(candidate.graph.nodes[0].clone());
+    candidate.graph.edges.push(candidate.graph.edges[0].clone());
+    let validation = ProcgenCore::validate_candidate(&candidate);
+    assert!(!validation.ok);
+    assert!(validation
+        .diagnostics
+        .iter()
+        .any(|diagnostic| diagnostic.code == "duplicate_node_id"));
+    assert!(validation
+        .diagnostics
+        .iter()
+        .any(|diagnostic| diagnostic.code == "duplicate_edge_id"));
 }
