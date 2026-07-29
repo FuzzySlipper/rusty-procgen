@@ -75,6 +75,7 @@ pub(crate) use batch_artifacts::*;
 #[path = "parts/dispatch.rs"]
 mod dispatch;
 
+pub mod cellular_automata;
 pub mod core;
 
 /// Parse process arguments and execute the filesystem-backed CLI adapter.

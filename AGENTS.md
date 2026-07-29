@@ -56,6 +56,11 @@ The terminal conversion proof and current product nonclaims live in
 [`docs/conversion-closeout.md`](docs/conversion-closeout.md) and
 [`docs/known-limitations.md`](docs/known-limitations.md).
 
+The procedural CA workload API is owned by
+`procgen-rs/crates/preflight/src/cellular_automata.rs`; its boundary and fixture
+workflow are documented in
+[`docs/cellular-automata-workloads.md`](docs/cellular-automata-workloads.md).
+
 `config/viewer-generation.json` may contain intentional local user
 experiments. Preserve unrelated value changes and never stage them as
 collateral.

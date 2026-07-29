@@ -1,0 +1,101 @@
+{
+  "kind": "rusty_procgen.ca_scenario_suite.v1",
+  "schemaVersion": 1,
+  "scenarios": [
+    {
+      "id": "sparse-propagation",
+      "workload": "sparse_propagation",
+      "seed": 7101,
+      "bounds": {
+        "min": { "x": 0, "y": 0, "z": 0 },
+        "maxExclusive": { "x": 9, "y": 3, "z": 9 }
+      },
+      "neighborhood": "von_neumann6",
+      "boundary": "fixed_empty",
+      "rule": "frontier_trail_v1",
+      "steps": 6,
+      "initialCells": [
+        {
+          "coord": { "x": 4, "y": 1, "z": 4 },
+          "state": "source"
+        }
+      ]
+    },
+    {
+      "id": "dense-churn",
+      "workload": "dense_churn",
+      "seed": 7102,
+      "bounds": {
+        "min": { "x": 0, "y": 0, "z": 0 },
+        "maxExclusive": { "x": 6, "y": 3, "z": 6 }
+      },
+      "neighborhood": "moore26",
+      "boundary": "fixed_empty",
+      "rule": "parity_churn_v1",
+      "steps": 4,
+      "initialCells": [
+        {
+          "coord": { "x": 3, "y": 1, "z": 3 },
+          "state": "source"
+        }
+      ]
+    },
+    {
+      "id": "cross-boundary",
+      "workload": "cross_boundary",
+      "seed": 7103,
+      "bounds": {
+        "min": { "x": -4, "y": -2, "z": -4 },
+        "maxExclusive": { "x": 5, "y": 3, "z": 5 }
+      },
+      "neighborhood": "von_neumann6",
+      "boundary": "wrap",
+      "rule": "frontier_trail_v1",
+      "steps": 5,
+      "initialCells": [
+        {
+          "coord": { "x": 4, "y": 0, "z": 4 },
+          "state": "source"
+        }
+      ]
+    },
+    {
+      "id": "large-resident-small-hot-region",
+      "workload": "large_resident_small_hot_region",
+      "seed": 7104,
+      "bounds": {
+        "min": { "x": 0, "y": 0, "z": 0 },
+        "maxExclusive": { "x": 64, "y": 16, "z": 64 }
+      },
+      "neighborhood": "von_neumann6",
+      "boundary": "fixed_empty",
+      "rule": "frontier_trail_v1",
+      "steps": 4,
+      "initialCells": [
+        {
+          "coord": { "x": 32, "y": 8, "z": 32 },
+          "state": "source"
+        }
+      ]
+    },
+    {
+      "id": "high-surface-area",
+      "workload": "high_surface_area",
+      "seed": 7105,
+      "bounds": {
+        "min": { "x": 0, "y": 0, "z": 0 },
+        "maxExclusive": { "x": 10, "y": 4, "z": 10 }
+      },
+      "neighborhood": "moore26",
+      "boundary": "wrap",
+      "rule": "parity_churn_v1",
+      "steps": 4,
+      "initialCells": [
+        {
+          "coord": { "x": 5, "y": 2, "z": 5 },
+          "state": "source"
+        }
+      ]
+    }
+  ]
+}

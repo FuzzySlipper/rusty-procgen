@@ -49,12 +49,17 @@ pnpm run engine:spatial:test
 pnpm run voxel:rusty-engine-smoke
 pnpm run viewer:smoke
 pnpm run catalog:coverage
+pnpm run ca:fixtures:check
 ```
 
 The exact conversion boundary, clean-checkout proof commands, and scope are in
 [`docs/conversion-closeout.md`](docs/conversion-closeout.md). Current product
 nonclaims are kept in
 [`docs/known-limitations.md`](docs/known-limitations.md).
+
+The filesystem-free cellular-automata workload contract and checked scenario
+suite are documented in
+[`docs/cellular-automata-workloads.md`](docs/cellular-automata-workloads.md).
 
 ## Rust library
 

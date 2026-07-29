@@ -16,8 +16,10 @@ not a complete game runtime.
   performance certification.
 - Downstream games remain responsible for full gameplay execution, persistence,
   encounter meaning, and presentation policy.
-- Cellular-automata generation is a later feature campaign. It is not a missing
-  conversion requirement and no current artifact or API promises it.
+- Cellular-automata workloads are a separate post-conversion campaign. The
+  current Rust API promises only deterministic bounded procedural deltas; it
+  does not yet prove Engine spatial execution, retained-trace playback, a scale
+  matrix, or gameplay/simulation semantics.
 
 These limits should narrow claims, not create compatibility shims or duplicate
 Rusty Engine authority.
