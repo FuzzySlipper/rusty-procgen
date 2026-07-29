@@ -143,6 +143,7 @@
     "ca_scenario_suite.v1",
     "ca_delta_fixture_set.v1",
     "evidence.engine_ca_benchmark.v1",
+    "evidence.engine_ca_scale_matrix.v1",
     "engine_ca_authority_trace.v1"
   ],
   "generatedCorpus": [
@@ -185,6 +186,11 @@
       "path": "artifacts/evidence/engine-ca-benchmark.json",
       "ownerCommand": "pnpm run engine:ca:benchmark",
       "disposition": "generated_from_deterministic_ca_deltas_through_exact_pinned_rusty_engine_spatial_authority"
+    },
+    {
+      "path": "artifacts/evidence/engine-ca-scale-matrix.json",
+      "ownerCommand": "pnpm run engine:ca:scale",
+      "disposition": "derived_from_exact_pinned_benchmark_and_real_chromium_observations"
     }
   ],
   "fixtureRoots": [
