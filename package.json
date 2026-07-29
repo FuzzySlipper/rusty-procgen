@@ -22,17 +22,19 @@
     "piece:smoke": "node scripts/smoke-piece-build.mjs",
     "catalog:coverage": "npm run build:viewer && node scripts/report-pure-catalog-coverage.mjs",
     "catalog-aware:coverage": "npm run build:viewer && node scripts/report-catalog-aware-coverage.mjs",
-    "publish:legacy-asha-smoke": "npm run build:viewer && node scripts/legacy-asha-prefab-publication-smoke.mjs",
+    "engine:revision": "./scripts/engine-revision check",
+    "engine:publication:test": "cargo test --quiet --manifest-path integrations/rusty-engine-publication/Cargo.toml --locked",
+    "engine:publication:clippy": "cargo clippy --quiet --manifest-path integrations/rusty-engine-publication/Cargo.toml --all-targets --locked -- -D warnings",
+    "publish:rusty-engine-smoke": "cargo run --quiet --manifest-path integrations/rusty-engine-publication/Cargo.toml --locked --bin rusty-procgen-publish-smoke -- .",
     "voxel:legacy-asha-smoke": "npm run build:viewer && node scripts/legacy-asha-voxel-build-smoke.mjs",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "rust:check": "cargo check --manifest-path procgen-rs/Cargo.toml",
     "rust:test": "cargo test --manifest-path procgen-rs/Cargo.toml",
-    "test": "npm run check:migration-boundary && npm run check:corpus-identity && npm run typecheck && npm run rust:test",
-    "verify": "npm run check:migration-boundary && npm run check:corpus-identity && npm run typecheck && npm run publish:legacy-asha-smoke && node scripts/smoke-voxel-boundaries.mjs && node scripts/smoke-generation-config.mjs && npm run rust:check && npm run rust:test"
+    "test": "npm run check:migration-boundary && npm run check:corpus-identity && npm run engine:revision && npm run typecheck && npm run engine:publication:test && npm run rust:test",
+    "verify": "npm run check:migration-boundary && npm run check:corpus-identity && npm run engine:revision && npm run typecheck && npm run engine:publication:test && npm run engine:publication:clippy && npm run publish:rusty-engine-smoke && node scripts/smoke-voxel-boundaries.mjs && node scripts/smoke-generation-config.mjs && npm run rust:check && npm run rust:test"
   },
   "dependencies": {
     "@asha/contracts": "file:../asha-engine/ts/packages/contracts",
-    "@asha/game-workspace": "file:../asha-engine/ts/packages/game-workspace",
     "@asha/renderer-host": "file:../asha-engine/ts/packages/renderer-host",
     "@asha/runtime-bridge": "file:../asha-engine/ts/packages/runtime-bridge"
   },

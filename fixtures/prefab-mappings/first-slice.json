@@ -1,5 +1,5 @@
 {
-  "kind": "rusty_procgen.prefab_publish_mapping.v1",
+  "kind": "rusty_procgen.engine_publish_mapping.v1",
   "candidateRef": "artifacts/samples/batch-v2/candidate-006/candidate-001-lock_key_loop.json",
   "selectedInstanceIds": [
     "instance.piece_room_room_region_start",
@@ -53,13 +53,15 @@
   "sourceAssets": [
     {
       "assetId": "voxel-object/procgen-standard-room",
-      "artifact": "voxel/prefabs/procgen-standard-room.voxel.json",
-      "contentHash": "1325fb908dde81e8"
+      "artifact": "resources/procgen-standard-room.voxel.json",
+      "source": "fixtures/prefab-sources/procgen-standard-room.voxel.json",
+      "contentHash": "dde25ad06fd46800f118e9a9d379db55d783bc2c069a091bf5e5b2f7b51cf7b4"
     },
     {
       "assetId": "voxel-object/procgen-locked-gate",
-      "artifact": "voxel/prefabs/procgen-locked-gate.voxel.json",
-      "contentHash": "f69ccacc55a08a92"
+      "artifact": "resources/procgen-locked-gate.voxel.json",
+      "source": "fixtures/prefab-sources/procgen-locked-gate.voxel.json",
+      "contentHash": "2bd2cfc87fbe9c0918121eac89bbfebce6b3aa3801f8ba51575f2a97493cd1dc"
     }
   ],
   "project": {
@@ -71,6 +73,7 @@
     "artifact": "scene/procgen-layout.scene.json"
   },
   "prefabRegistryArtifact": "prefabs/registry.json",
-  "prefabInstancesArtifact": "prefabs/instances.json",
-  "assetLockArtifact": "assets/lock.json"
+  "assetCatalogArtifact": "assets/catalog.json",
+  "assetLockArtifact": "assets/lock.json",
+  "provenanceArtifact": "metadata/procgen-provenance.json"
 }

@@ -87,7 +87,6 @@ to the owning conversion task.
 
 The remaining lanes are:
 
-- generated-content publication — Den #6397;
 - voxel authority — Den #6398;
 - retained inspection and viewer hosting — Den #6399;
 - removal and clean closeout — Den #6400.
@@ -104,6 +103,8 @@ npm run check:corpus-identity
 npm run typecheck
 npm run rust:check
 npm run rust:test
+npm run engine:publication:test
+npm run publish:rusty-engine-smoke
 ```
 
 Focused workflows:
@@ -120,6 +121,11 @@ npm run catalog-aware:coverage
 
 Commands containing `legacy-asha` are temporary conversion evidence, not
 approved architecture. Their exact removal tasks are recorded in the ledger.
+
+The generated-content publication adapter is an isolated Rust workspace under
+`integrations/rusty-engine-publication/`. It selects one exact public Engine
+commit through `engine-source.json`; use `./scripts/engine-revision check`
+before changing its public Engine dependencies.
 
 ## Change and verification posture
 

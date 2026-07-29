@@ -1,0 +1,84 @@
+{
+  "kind": "rusty_procgen.evidence.engine_authored_publication.v1",
+  "schemaVersion": 1,
+  "engineSource": {
+    "publicRepository": "https://github.com/FuzzySlipper/rusty-engine",
+    "commit": "db5641fc4e9d033112bc2b374a35933c3838e39c",
+    "crates": [
+      "asset-catalog",
+      "authored-scene",
+      "content-store",
+      "entity-state"
+    ]
+  },
+  "input": {
+    "candidateRef": "artifacts/samples/batch-v2/candidate-006/candidate-001-lock_key_loop.json",
+    "catalogId": "shape_catalog.2d_basic.v1",
+    "matchId": "piece_shape_match.piece_plan.geometry.candidate.first_slice.5801.14310.hybrid.14341.alternative_0",
+    "placementId": "piece_placement.piece_shape_match.piece_plan.geometry.candidate.first_slice.5801.14310.hybrid.14341.alternative_0",
+    "selectedInstances": 2
+  },
+  "output": {
+    "prefabDefinitions": 2,
+    "sceneNodes": 2,
+    "assetEntries": 2,
+    "manifestArtifacts": 7,
+    "contentSetHash": "eea36a1f6b0bc15a01b8eca244ddd730b6e4a657e19f4f1b34178f7a9d245a1c",
+    "candidateHash": "7143fa0bfabc13ca00ac62e47b40085bacc3b741cac3ea5d518c415ae8605519",
+    "provenance": {
+      "candidateRef": "artifacts/samples/batch-v2/candidate-006/candidate-001-lock_key_loop.json",
+      "catalogId": "shape_catalog.2d_basic.v1",
+      "catalogRef": "fixtures/shape-catalogs/2d-basic.json",
+      "planId": "piece_plan.geometry.candidate.first_slice.5801.14310.hybrid",
+      "planRef": "artifacts/samples/batch-v2/candidate-006/piece-plan.json",
+      "matchId": "piece_shape_match.piece_plan.geometry.candidate.first_slice.5801.14310.hybrid.14341.alternative_0",
+      "matchRef": "artifacts/samples/batch-v2/candidate-006/piece-shape-match.json",
+      "placementId": "piece_placement.piece_shape_match.piece_plan.geometry.candidate.first_slice.5801.14310.hybrid.14341.alternative_0",
+      "instances": [
+        {
+          "procgenInstanceId": "instance.piece_room_room_region_start",
+          "prefabInstanceId": 2001,
+          "pieceId": "piece.room.room_region_start",
+          "shapeId": "shape.room.flow_junction.spaced_8_exit",
+          "prefabId": 1003,
+          "matchScore": 1035,
+          "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.5801.14310.hybrid;requirement:piece.room.room_region_start"
+        },
+        {
+          "procgenInstanceId": "instance.piece_room_room_region_goal",
+          "prefabInstanceId": 2002,
+          "pieceId": "piece.room.room_region_goal",
+          "shapeId": "shape.room.standard.1_exit",
+          "prefabId": 1002,
+          "matchScore": 1049,
+          "sourceRequirementRef": "piecePlan:piece_plan.geometry.candidate.first_slice.5801.14310.hybrid;requirement:piece.room.room_region_goal"
+        }
+      ]
+    }
+  },
+  "readback": {
+    "canonicalCatalog": true,
+    "canonicalLock": true,
+    "canonicalPrefabs": true,
+    "canonicalScene": true,
+    "admittedEntities": 2,
+    "resolvedPrefabInstances": 2,
+    "contentLoadOrderVerified": true
+  },
+  "failClosedCases": [
+    "missingPrefabMapping",
+    "missingStableRole",
+    "incompatibleSourceAsset",
+    "duplicateInstanceIdentity",
+    "invalidTransform",
+    "stalePin",
+    "quotaExceeded",
+    "lateValidation"
+  ],
+  "nonClaims": [
+    "not_voxel_realization_proof",
+    "not_renderer_proof",
+    "not_navigation_proof",
+    "not_collision_proof"
+  ]
+}

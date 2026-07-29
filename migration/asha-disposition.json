@@ -15,13 +15,7 @@
       "section": "dependencies",
       "package": "@asha/contracts",
       "specifier": "file:../asha-engine/ts/packages/contracts",
-      "removalTasks": [6397, 6398, 6399]
-    },
-    {
-      "section": "dependencies",
-      "package": "@asha/game-workspace",
-      "specifier": "file:../asha-engine/ts/packages/game-workspace",
-      "removalTasks": [6397]
+      "removalTasks": [6398, 6399]
     },
     {
       "section": "dependencies",
@@ -33,14 +27,19 @@
       "section": "dependencies",
       "package": "@asha/runtime-bridge",
       "specifier": "file:../asha-engine/ts/packages/runtime-bridge",
-      "removalTasks": [6397, 6398]
+      "removalTasks": [6398]
     }
   ],
   "transitiveAshaPackages": [
     {
+      "package": "@asha/game-workspace",
+      "via": ["@asha/runtime-bridge"],
+      "removalTasks": [6398]
+    },
+    {
       "package": "@asha/native-bridge",
       "via": ["@asha/runtime-bridge"],
-      "removalTasks": [6397, 6398]
+      "removalTasks": [6398]
     },
     {
       "package": "@asha/render-projection",
@@ -60,18 +59,6 @@
   ],
   "activeAshaImports": [
     {
-      "file": "scripts/legacy-asha-prefab-publication-smoke.mjs",
-      "specifier": "@asha/game-workspace",
-      "occurrences": 1,
-      "removalTask": 6397
-    },
-    {
-      "file": "scripts/legacy-asha-prefab-publication-smoke.mjs",
-      "specifier": "@asha/runtime-bridge",
-      "occurrences": 1,
-      "removalTask": 6397
-    },
-    {
       "file": "scripts/legacy-asha-voxel-build-smoke.mjs",
       "specifier": "@asha/runtime-bridge",
       "occurrences": 1,
@@ -82,18 +69,6 @@
       "specifier": "@asha/renderer-host",
       "occurrences": 1,
       "removalTask": 6399
-    },
-    {
-      "file": "src/prefab-publishing.ts",
-      "specifier": "@asha/contracts",
-      "occurrences": 2,
-      "removalTask": 6397
-    },
-    {
-      "file": "src/prefab-publishing.ts",
-      "specifier": "@asha/game-workspace",
-      "occurrences": 1,
-      "removalTask": 6397
     },
     {
       "file": "src/voxel-extrusion.ts",
@@ -116,12 +91,6 @@
   ],
   "integrationScripts": [
     {
-      "path": "scripts/legacy-asha-prefab-publication-smoke.mjs",
-      "lane": "generated-content-publication",
-      "disposition": "replace_with_rusty_engine_authored_owners",
-      "removalTask": 6397
-    },
-    {
       "path": "scripts/legacy-asha-voxel-build-smoke.mjs",
       "lane": "voxel-authority",
       "disposition": "replace_with_direct_rusty_spatial_composition",
@@ -142,7 +111,6 @@
   ],
   "schemaFamilies": [
     "accepted_artifact.v1",
-    "asset_lock_references.v1",
     "batch_profile.v1",
     "batch_profile.v2_sample",
     "candidate.v1",
@@ -171,9 +139,8 @@
     "piece_placement.v1",
     "piece_shape_match.v1",
     "placement_policy_experiment.v1",
-    "prefab_project_bundle_publication.v1",
-    "prefab_publish_mapping.v1",
-    "published_prefab_instances.v1",
+    "engine_publish_mapping.v1",
+    "evidence.engine_authored_publication.v1",
     "pure_catalog_exhaustion.v1",
     "receipt.v1",
     "repair_report.v1",
@@ -226,9 +193,9 @@
       "disposition": "regenerated_with_rusty_identity"
     },
     {
-      "path": "artifacts/evidence/prefab-project-bundle-publication.json",
-      "ownerCommand": "npm run publish:legacy-asha-smoke",
-      "disposition": "regenerated_with_rusty_identity_pending_adapter_replacement"
+      "path": "artifacts/evidence/engine-authored-publication.json",
+      "ownerCommand": "npm run publish:rusty-engine-smoke",
+      "disposition": "published_through_exact_pinned_rusty_engine_authored_owners"
     },
     {
       "path": "artifacts/evidence/native-voxel-extrusion.json",

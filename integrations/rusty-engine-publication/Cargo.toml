@@ -1,0 +1,24 @@
+[package]
+name = "rusty-procgen-engine-publication"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[workspace]
+
+[dependencies]
+asset-catalog = { git = "https://github.com/FuzzySlipper/rusty-engine", rev = "db5641fc4e9d033112bc2b374a35933c3838e39c" }
+authored-scene = { git = "https://github.com/FuzzySlipper/rusty-engine", rev = "db5641fc4e9d033112bc2b374a35933c3838e39c" }
+content-store = { git = "https://github.com/FuzzySlipper/rusty-engine", rev = "db5641fc4e9d033112bc2b374a35933c3838e39c" }
+core-assets = { git = "https://github.com/FuzzySlipper/rusty-engine", rev = "db5641fc4e9d033112bc2b374a35933c3838e39c" }
+core-ids = { git = "https://github.com/FuzzySlipper/rusty-engine", rev = "db5641fc4e9d033112bc2b374a35933c3838e39c" }
+core-math = { git = "https://github.com/FuzzySlipper/rusty-engine", rev = "db5641fc4e9d033112bc2b374a35933c3838e39c" }
+entity-state = { git = "https://github.com/FuzzySlipper/rusty-engine", rev = "db5641fc4e9d033112bc2b374a35933c3838e39c" }
+rusty-procgen-preflight = { path = "../../procgen-rs/crates/preflight" }
+serde = { version = "1.0.219", features = ["derive"] }
+serde_json = "1.0.140"
+sha2 = "0.10.9"
+
+[[bin]]
+name = "rusty-procgen-publish-smoke"
+path = "src/main.rs"

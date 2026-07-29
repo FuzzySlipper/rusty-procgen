@@ -10,9 +10,9 @@ spatial, mesh, render, component, and service mechanisms belong in
 [`rusty-engine`](https://github.com/FuzzySlipper/rusty-engine).
 
 The repository is being converted in place from its historical Asha donor.
-Three explicitly named legacy adapter lanes remain executable while their
-Rusty Engine replacements land. Their exact packages, imports, scripts, and
-removal tasks are recorded in
+Two explicitly named legacy adapter lanes remain executable while their Rusty
+Engine replacements land. Their exact packages, imports, scripts, and removal
+tasks are recorded in
 [`migration/asha-disposition.json`](migration/asha-disposition.json); the
 default gate rejects any unledgered addition. Predecessor artifact kinds are
 not supported.
@@ -30,9 +30,9 @@ npm install
 ```
 
 Until the bounded adapter migration closes in Den #6400, the legacy
-publication, voxel-authority, and retained-renderer smokes also require the
-historical `asha-engine` checkout at `/home/dev/asha-engine`. The generator
-algorithms and Rust tests do not depend on its Rust crates.
+voxel-authority and retained-renderer smokes also require the historical
+`asha-engine` checkout at `/home/dev/asha-engine`. Generated-content
+publication and the generator algorithms do not depend on Asha.
 
 ## Verification
 
@@ -45,10 +45,12 @@ Focused checks:
 ```bash
 npm run check:migration-boundary
 npm run check:corpus-identity
+npm run engine:revision
 npm run typecheck
 npm run rust:check
 npm run rust:test
-npm run publish:legacy-asha-smoke
+npm run engine:publication:test
+npm run publish:rusty-engine-smoke
 npm run viewer:smoke
 npm run catalog:coverage
 ```
@@ -63,21 +65,23 @@ over the same owners. See
 [`docs/rust-library-api.md`](docs/rust-library-api.md) for the module map,
 public boundary, and focused verification.
 
-## Temporary legacy publication proof
+## Rusty Engine generated-content publication
 
-The temporary downstream adapter maps representative Procgen shape matches and
-placements to the predecessor prefab and project-bundle contracts:
+The explicit downstream Rust adapter maps representative Procgen shape matches
+and placements into the public Rusty Engine asset catalog, prefab registry,
+authored scene, entity admission, and atomic content publication owners:
 
 ```bash
-npm run publish:legacy-asha-smoke
+npm run publish:rusty-engine-smoke
 ```
 
-This is migration evidence scheduled for replacement by Rusty Engine
-authored-scene, content, and asset owners in Den #6397. It preserves generation
-provenance and fails closed on missing mappings/roles, incompatible assets,
-duplicate identities, and invalid transforms. See
-[`docs/legacy-asha-adapters.md`](docs/legacy-asha-adapters.md) for its explicit
-non-claims and removal boundary.
+The adapter is isolated from the normal Procgen core and selects one exact
+public Engine commit through `engine-source.json`. It preserves the
+candidate-to-placement provenance chain, reads the admitted scene back through
+strict Engine codecs, and fails before publication on missing mappings or
+roles, incompatible assets, duplicate identities, invalid transforms, stale
+pins, quotas, and late owner validation. See
+[`docs/rusty-engine-publication.md`](docs/rusty-engine-publication.md).
 
 ## Temporary legacy voxel-authority proof
 
