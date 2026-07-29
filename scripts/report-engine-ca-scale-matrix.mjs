@@ -12,6 +12,28 @@ const check = process.argv.slice(2).includes('--check');
 const benchmarkPath = 'artifacts/evidence/engine-ca-benchmark.json';
 const outputPath = 'artifacts/evidence/engine-ca-scale-matrix.json';
 const reportPath = 'docs/rusty-engine-ca-scale-baseline.md';
+const matrixDimensions = [
+  'resident_volume',
+  'initial_active_density',
+  'changed_cell_density',
+  'step_count',
+  'boundary_policy',
+  'mesh_surface_complexity',
+];
+const browserMeasurementPosture =
+  'three real Chromium first-step interaction samples per scenario; descriptive and non-gating';
+const visualSmoothness = {
+  status: 'not_measured',
+  detail:
+    'The trace has 4-6 discrete steps and no frame-pacing sampler; successful interaction is not a smoothness claim.',
+};
+const nonClaims = [
+  'Timing samples are observations from the declared hosts, never equality gates.',
+  'The five fixtures vary multiple dimensions and do not establish single-factor causality.',
+  'No memory allocation, dirty-region, GPU utilization, transfer-network, or frame-pacing measurement was taken.',
+  'Browser presentation time is interaction-to-two-animation-frames, not GPU completion time.',
+  'This bounded matrix is neither an Engine scale ceiling nor a gameplay runtime benchmark.',
+];
 const viewerReportPath = process.env.VIEWER_SMOKE_OUT === undefined
   ? join(tmpdir(), 'rusty-procgen-viewer-smoke', 'viewer-smoke-report.json')
   : join(process.env.VIEWER_SMOKE_OUT, 'viewer-smoke-report.json');
@@ -80,14 +102,7 @@ function buildScaleEvidence(evidence, bytes, scenarioSuite, viewerReport, chromi
       benchmarkConfig: evidence.config,
     },
     matrix: {
-      dimensions: [
-        'resident_volume',
-        'initial_active_density',
-        'changed_cell_density',
-        'step_count',
-        'boundary_policy',
-        'mesh_surface_complexity',
-      ],
+      dimensions: matrixDimensions,
       scenarios,
     },
     browser: {
@@ -95,8 +110,7 @@ function buildScaleEvidence(evidence, bytes, scenarioSuite, viewerReport, chromi
       operatingSystem: platform(),
       architecture: arch(),
       viewport: { width: 1_600, height: 860, deviceScaleFactor: 1 },
-      measurementPosture:
-        'three real Chromium first-step interaction samples per scenario; descriptive and non-gating',
+      measurementPosture: browserMeasurementPosture,
       representativePlayback: [
         'sparse-propagation',
         'dense-churn',
@@ -108,20 +122,10 @@ function buildScaleEvidence(evidence, bytes, scenarioSuite, viewerReport, chromi
       obsoleteResourcesReleased:
         viewerReport.caTraceTab.obsoleteResourcesReleased === true,
       boundedStepSelection: viewerReport.caTraceTab.boundedStepSelection,
-      visualSmoothness: {
-        status: 'not_measured',
-        detail:
-          'The trace has 4-6 discrete steps and no frame-pacing sampler; successful interaction is not a smoothness claim.',
-      },
+      visualSmoothness,
     },
     findings: findings(scenarios),
-    nonClaims: [
-      'Timing samples are observations from the declared hosts, never equality gates.',
-      'The five fixtures vary multiple dimensions and do not establish single-factor causality.',
-      'No memory allocation, dirty-region, GPU utilization, transfer-network, or frame-pacing measurement was taken.',
-      'Browser presentation time is interaction-to-two-animation-frames, not GPU completion time.',
-      'This bounded matrix is neither an Engine scale ceiling nor a gameplay runtime benchmark.',
-    ],
+    nonClaims,
   };
 }
 
@@ -291,15 +295,15 @@ function validateScaleEvidence(scale, benchmark, benchmarkBytes, scenarioSuite) 
     fail('scale evidence identity is invalid');
   }
   const expectedBenchmarkHash = `sha256:${sha256(benchmarkBytes)}`;
-  const expectedDimensions = [
-    'resident_volume',
-    'initial_active_density',
-    'changed_cell_density',
-    'step_count',
-    'boundary_policy',
-    'mesh_surface_complexity',
-  ];
   const expectedPlayback = benchmark.scenarios.map((scenario) => scenario.scenarioId);
+  const crossBoundary = benchmark.scenarios.find(
+    (scenario) => scenario.scenarioId === 'cross-boundary',
+  );
+  const expectedBoundedSelection = {
+    scenario: 'cross-boundary',
+    step: crossBoundary?.trace.steps.length,
+    traceHash: crossBoundary?.trace.steps.at(-1)?.traceHash,
+  };
   if (
     scale.source?.benchmarkSha256 !== expectedBenchmarkHash
     || scale.source.benchmarkKind !== benchmark.kind
@@ -315,11 +319,23 @@ function validateScaleEvidence(scale, benchmark, benchmarkBytes, scenarioSuite) 
   if (
     !Array.isArray(scale.matrix?.scenarios)
     || scale.matrix.scenarios.length !== benchmark.scenarios.length
-    || JSON.stringify(scale.matrix.dimensions) !== JSON.stringify(expectedDimensions)
+    || JSON.stringify(scale.matrix.dimensions) !== JSON.stringify(matrixDimensions)
     || JSON.stringify(scale.browser?.representativePlayback) !== JSON.stringify(expectedPlayback)
-    || scale.browser?.visualSmoothness?.status !== 'not_measured'
+    || typeof scale.browser.chromiumVersion !== 'string'
+    || scale.browser.chromiumVersion.length === 0
+    || typeof scale.browser.operatingSystem !== 'string'
+    || scale.browser.operatingSystem.length === 0
+    || typeof scale.browser.architecture !== 'string'
+    || scale.browser.architecture.length === 0
+    || JSON.stringify(scale.browser.viewport)
+      !== JSON.stringify({ width: 1_600, height: 860, deviceScaleFactor: 1 })
+    || scale.browser.measurementPosture !== browserMeasurementPosture
+    || JSON.stringify(scale.browser.visualSmoothness) !== JSON.stringify(visualSmoothness)
     || scale.browser.deterministicReset !== true
     || scale.browser.obsoleteResourcesReleased !== true
+    || JSON.stringify(scale.browser.boundedStepSelection)
+      !== JSON.stringify(expectedBoundedSelection)
+    || JSON.stringify(scale.nonClaims) !== JSON.stringify(nonClaims)
   ) {
     fail('scale evidence matrix or browser proof is incomplete');
   }
