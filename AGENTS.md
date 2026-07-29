@@ -44,6 +44,13 @@ scripts/        generators, checks, reports, smokes, and local host
 docs/           artifact, algorithm, workflow, and boundary contracts
 ```
 
+The supported Rust host surface is
+`rusty_procgen_preflight::core::ProcgenCore`. Read
+[`docs/rust-library-api.md`](docs/rust-library-api.md) before changing domain
+artifacts, deterministic behavior owners, CLI adapters, or their test routing.
+The CLI must remain a filesystem/receipt consumer of the in-memory library
+rather than a second implementation.
+
 `config/viewer-generation.json` may contain intentional local user
 experiments. Preserve unrelated value changes and never stage them as
 collateral.

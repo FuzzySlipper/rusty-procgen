@@ -1,10 +1,13 @@
-fn score_graph_command(args: ReportOutArgs) -> Result<(), String> {
+#[allow(unused_imports)]
+use crate::*;
+
+pub(crate) fn score_graph_command(args: ReportOutArgs) -> Result<(), String> {
     let candidate: Candidate = read_json(&args.state)?;
     let report = score_graph(&candidate);
     write_json(&args.out, &report)
 }
 
-fn score_graph(candidate: &Candidate) -> ScoreReport {
+pub(crate) fn score_graph(candidate: &Candidate) -> ScoreReport {
     let node_count = candidate.graph.nodes.len() as f64;
     let edge_count = candidate.graph.edges.len() as f64;
     let loop_bonus = cycle_count(candidate) as f64;
@@ -82,7 +85,7 @@ fn score_graph(candidate: &Candidate) -> ScoreReport {
     }
 }
 
-fn count_nodes_with_tag(candidate: &Candidate, tag: &str) -> usize {
+pub(crate) fn count_nodes_with_tag(candidate: &Candidate, tag: &str) -> usize {
     candidate
         .graph
         .nodes
@@ -91,7 +94,7 @@ fn count_nodes_with_tag(candidate: &Candidate, tag: &str) -> usize {
         .count()
 }
 
-fn count_edges_with_tag(candidate: &Candidate, tag: &str) -> usize {
+pub(crate) fn count_edges_with_tag(candidate: &Candidate, tag: &str) -> usize {
     candidate
         .graph
         .edges
@@ -100,7 +103,7 @@ fn count_edges_with_tag(candidate: &Candidate, tag: &str) -> usize {
         .count()
 }
 
-fn shortest_path_len(candidate: &Candidate, start: &str, goal: &str) -> Option<usize> {
+pub(crate) fn shortest_path_len(candidate: &Candidate, start: &str, goal: &str) -> Option<usize> {
     let mut adjacency: BTreeMap<&str, Vec<&str>> = BTreeMap::new();
     for edge in &candidate.graph.edges {
         adjacency
@@ -123,7 +126,11 @@ fn shortest_path_len(candidate: &Candidate, start: &str, goal: &str) -> Option<u
     None
 }
 
-fn shortest_path_nodes(candidate: &Candidate, start: &str, goal: &str) -> Option<Vec<String>> {
+pub(crate) fn shortest_path_nodes(
+    candidate: &Candidate,
+    start: &str,
+    goal: &str,
+) -> Option<Vec<String>> {
     let mut adjacency: BTreeMap<&str, Vec<&str>> = BTreeMap::new();
     for edge in &candidate.graph.edges {
         adjacency
@@ -155,11 +162,11 @@ fn shortest_path_nodes(candidate: &Candidate, start: &str, goal: &str) -> Option
     None
 }
 
-fn path_exists(candidate: &Candidate, start: &str, goal: &str) -> bool {
+pub(crate) fn path_exists(candidate: &Candidate, start: &str, goal: &str) -> bool {
     shortest_path_len(candidate, start, goal).is_some()
 }
 
-fn dominator_nodes(candidate: &Candidate) -> Vec<String> {
+pub(crate) fn dominator_nodes(candidate: &Candidate) -> Vec<String> {
     candidate
         .graph
         .nodes
@@ -171,7 +178,12 @@ fn dominator_nodes(candidate: &Candidate) -> Vec<String> {
         .collect()
 }
 
-fn path_exists_avoiding_node(candidate: &Candidate, start: &str, goal: &str, avoid: &str) -> bool {
+pub(crate) fn path_exists_avoiding_node(
+    candidate: &Candidate,
+    start: &str,
+    goal: &str,
+    avoid: &str,
+) -> bool {
     if start == avoid || goal == avoid {
         return false;
     }
@@ -200,7 +212,7 @@ fn path_exists_avoiding_node(candidate: &Candidate, start: &str, goal: &str, avo
     false
 }
 
-fn cycle_count(candidate: &Candidate) -> usize {
+pub(crate) fn cycle_count(candidate: &Candidate) -> usize {
     let node_count = candidate.graph.nodes.len();
     let edge_count = candidate.graph.edges.len();
     if node_count == 0 {
@@ -212,7 +224,7 @@ fn cycle_count(candidate: &Candidate) -> usize {
         .saturating_add(component_count)
 }
 
-fn dead_end_count(candidate: &Candidate) -> usize {
+pub(crate) fn dead_end_count(candidate: &Candidate) -> usize {
     candidate
         .graph
         .nodes
@@ -228,7 +240,7 @@ fn dead_end_count(candidate: &Candidate) -> usize {
         .count()
 }
 
-fn embed_2d_command(args: Embed2dArgs) -> Result<(), String> {
+pub(crate) fn embed_2d_command(args: Embed2dArgs) -> Result<(), String> {
     let candidate: Candidate = read_json(&args.state)?;
     let validation = validate_graph(&candidate);
     if !validation.ok {
@@ -257,7 +269,7 @@ fn embed_2d_command(args: Embed2dArgs) -> Result<(), String> {
     Ok(())
 }
 
-fn embed_2d(candidate: &Candidate, seed: u64) -> LayoutArtifact {
+pub(crate) fn embed_2d(candidate: &Candidate, seed: u64) -> LayoutArtifact {
     let depths = graph_depths(candidate);
     let mut rows_by_depth: BTreeMap<usize, usize> = BTreeMap::new();
     let mut rooms = Vec::new();
@@ -299,7 +311,7 @@ fn embed_2d(candidate: &Candidate, seed: u64) -> LayoutArtifact {
     }
 }
 
-fn graph_depths(candidate: &Candidate) -> BTreeMap<&str, usize> {
+pub(crate) fn graph_depths(candidate: &Candidate) -> BTreeMap<&str, usize> {
     let mut adjacency: BTreeMap<&str, Vec<&str>> = BTreeMap::new();
     for edge in &candidate.graph.edges {
         adjacency
@@ -321,7 +333,7 @@ fn graph_depths(candidate: &Candidate) -> BTreeMap<&str, usize> {
     depths
 }
 
-fn accept_command(args: AcceptArgs) -> Result<(), String> {
+pub(crate) fn accept_command(args: AcceptArgs) -> Result<(), String> {
     let candidate: Candidate = read_json(&args.candidate)?;
     let layout: LayoutArtifact = read_json(&args.layout)?;
     let validation: ValidationReport = read_json(&args.validation)?;

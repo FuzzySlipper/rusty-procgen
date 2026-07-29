@@ -1,4 +1,7 @@
-fn baseline_command(args: BaselineArgs) -> Result<(), String> {
+#[allow(unused_imports)]
+use crate::*;
+
+pub(crate) fn baseline_command(args: BaselineArgs) -> Result<(), String> {
     fs::create_dir_all(&args.out_dir)
         .map_err(|error| format!("failed to create {}: {error}", args.out_dir.display()))?;
     let intent_path = PathBuf::from("fixtures/intents/first-slice.intent.json");
@@ -92,7 +95,7 @@ fn baseline_command(args: BaselineArgs) -> Result<(), String> {
     Ok(())
 }
 
-fn batch_generate_command(args: BatchGenerateArgs) -> Result<(), String> {
+pub(crate) fn batch_generate_command(args: BatchGenerateArgs) -> Result<(), String> {
     fs::create_dir_all(&args.out_dir)
         .map_err(|error| format!("failed to create {}: {error}", args.out_dir.display()))?;
     let profile_path = args
@@ -327,7 +330,7 @@ fn batch_generate_command(args: BatchGenerateArgs) -> Result<(), String> {
     Ok(())
 }
 
-fn selection_rejection_code(error: &str) -> &'static str {
+pub(crate) fn selection_rejection_code(error: &str) -> &'static str {
     if error.starts_with("geometry search exhausted") {
         "selection_geometry_route_search_exhausted"
     } else if error.starts_with("invalid physical geometry plan")
@@ -353,7 +356,7 @@ fn selection_rejection_code(error: &str) -> &'static str {
     }
 }
 
-fn search_shape_realizations<T>(
+pub(crate) fn search_shape_realizations<T>(
     catalog: &ShapeCatalog,
     piece_plan: &PieceBuildPlan,
     match_args: &BuildMatchShapesArgs,
@@ -383,7 +386,10 @@ fn search_shape_realizations<T>(
     ))
 }
 
-fn write_selection_preview_artifacts(entry: &mut SelectionEntry, seed: u64) -> Result<(), String> {
+pub(crate) fn write_selection_preview_artifacts(
+    entry: &mut SelectionEntry,
+    seed: u64,
+) -> Result<(), String> {
     let artifact_path = PathBuf::from(&entry.artifact_ref);
     let run_dir = artifact_path
         .parent()
@@ -524,9 +530,7 @@ fn write_selection_preview_artifacts(entry: &mut SelectionEntry, seed: u64) -> R
         &piece_plan,
         &match_args,
         SHAPE_ALTERNATIVE_ATTEMPTS,
-        |shape_match| {
-            assemble_piece_placement(&catalog, &piece_plan, shape_match, &assemble_args)
-        },
+        |shape_match| assemble_piece_placement(&catalog, &piece_plan, shape_match, &assemble_args),
     )?;
     write_json(&shape_match_path, &shape_match)?;
     write_json(&placement_path, &placement)?;
@@ -591,7 +595,7 @@ fn write_selection_preview_artifacts(entry: &mut SelectionEntry, seed: u64) -> R
     Ok(())
 }
 
-fn load_batch_profile(path: &Path) -> Result<BatchProfile, String> {
+pub(crate) fn load_batch_profile(path: &Path) -> Result<BatchProfile, String> {
     let profile: BatchProfile = read_json(path)?;
     if profile.kind != "rusty_procgen.batch_profile.v1" {
         return Err(format!(
@@ -618,7 +622,7 @@ fn load_batch_profile(path: &Path) -> Result<BatchProfile, String> {
     Ok(profile)
 }
 
-fn batch_profile_sequence(
+pub(crate) fn batch_profile_sequence(
     profile: &BatchProfile,
     index: usize,
 ) -> Result<&BatchProfileSequence, String> {
@@ -628,7 +632,7 @@ fn batch_profile_sequence(
         .ok_or_else(|| "batch profile has no sequences".to_owned())
 }
 
-fn topology_fingerprint(candidate: &Candidate) -> String {
+pub(crate) fn topology_fingerprint(candidate: &Candidate) -> String {
     let mut lines = Vec::new();
     for node in &candidate.graph.nodes {
         let mut tags = node.tags.clone();
@@ -666,7 +670,7 @@ fn topology_fingerprint(candidate: &Candidate) -> String {
     format!("topology:{:016x}", fnv1a64(lines.join("\n").as_bytes()))
 }
 
-fn budget_checks(
+pub(crate) fn budget_checks(
     budgets: Option<&IntentBudget>,
     score: &ScoreReport,
     candidate: &Candidate,
@@ -718,11 +722,11 @@ fn budget_checks(
     checks
 }
 
-fn metric_usize(score: &ScoreReport, metric: &str) -> usize {
+pub(crate) fn metric_usize(score: &ScoreReport, metric: &str) -> usize {
     score.metrics.get(metric).copied().unwrap_or(0.0) as usize
 }
 
-fn collect_tags(candidate: &Candidate) -> Vec<String> {
+pub(crate) fn collect_tags(candidate: &Candidate) -> Vec<String> {
     let mut tags = BTreeSet::new();
     for node in &candidate.graph.nodes {
         for tag in &node.tags {

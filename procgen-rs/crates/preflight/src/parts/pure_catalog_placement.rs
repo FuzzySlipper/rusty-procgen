@@ -1,7 +1,10 @@
-const PURE_CATALOG_EXHAUSTION_MARKER: &str = "evidence=";
+#[allow(unused_imports)]
+use crate::*;
+
+pub(crate) const PURE_CATALOG_EXHAUSTION_MARKER: &str = "evidence=";
 
 #[derive(Clone, Default)]
-struct PureCatalogPlacementState {
+pub(crate) struct PureCatalogPlacementState {
     instances: Vec<PieceInstance>,
     occupied_cells: Vec<PlacementCellRef>,
     reserved_cells: Vec<PlacementCellRef>,
@@ -12,7 +15,7 @@ struct PureCatalogPlacementState {
 }
 
 #[derive(Default)]
-struct PureCatalogSearchCounters {
+pub(crate) struct PureCatalogSearchCounters {
     decisions: u32,
     backtracks: u32,
     chain_expansions: u32,
@@ -24,14 +27,14 @@ struct PureCatalogSearchCounters {
 }
 
 #[derive(Clone, Default)]
-struct PureCatalogPlacementConstraints {
+pub(crate) struct PureCatalogPlacementConstraints {
     origin_bounds: Option<CatalogGridBounds>,
     lane_constraint: Option<CatalogLaneConstraint>,
 }
 
 #[derive(Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
-struct PureCatalogFailureEvidence {
+pub(crate) struct PureCatalogFailureEvidence {
     reason: String,
     detail: String,
     piece_id: String,
@@ -49,7 +52,7 @@ struct PureCatalogFailureEvidence {
 
 #[derive(Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
-struct PureCatalogEndpointEvidence {
+pub(crate) struct PureCatalogEndpointEvidence {
     id: String,
     direction: String,
     x: Option<i32>,
@@ -58,7 +61,7 @@ struct PureCatalogEndpointEvidence {
 
 #[derive(Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
-struct PureCatalogFixedPortEvidence {
+pub(crate) struct PureCatalogFixedPortEvidence {
     neighbor_piece_id: String,
     neighbor_exit_id: String,
     cell: GridCell,
@@ -69,7 +72,7 @@ struct PureCatalogFixedPortEvidence {
 
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
-struct PureCatalogExhaustionEvidence {
+pub(crate) struct PureCatalogExhaustionEvidence {
     kind: String,
     schema_version: u32,
     failure: PureCatalogFailureEvidence,
@@ -78,7 +81,7 @@ struct PureCatalogExhaustionEvidence {
 
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
-struct PureCatalogBudgetEvidence {
+pub(crate) struct PureCatalogBudgetEvidence {
     max_decisions: u32,
     decisions: u32,
     max_backtracks: u32,
@@ -87,7 +90,7 @@ struct PureCatalogBudgetEvidence {
     chain_expansions: u32,
 }
 
-fn assemble_pure_catalog_placement(
+pub(crate) fn assemble_pure_catalog_placement(
     catalog: &ShapeCatalog,
     plan: &PieceBuildPlan,
     shape_match: &PieceShapeMatchReport,
@@ -277,7 +280,7 @@ fn assemble_pure_catalog_placement(
     Ok(placement)
 }
 
-fn consume_pure_catalog_decision(
+pub(crate) fn consume_pure_catalog_decision(
     catalog: &ShapeCatalog,
     requirement: &PieceRequirement,
     candidate: &MatchedPiece,
@@ -298,7 +301,7 @@ fn consume_pure_catalog_decision(
     true
 }
 
-fn pure_catalog_constraints(
+pub(crate) fn pure_catalog_constraints(
     requirement: &PieceRequirement,
     candidate: &MatchedPiece,
     shape: &CatalogShape,
@@ -318,10 +321,8 @@ fn pure_catalog_constraints(
             let footprint_height = transformed.iter().map(|cell| cell.y).max().unwrap_or(0) + 1;
             let min_x = x.div_euclid(CATALOG_ROUTE_PIXELS_PER_PLACEMENT_CELL);
             let min_y = y.div_euclid(CATALOG_ROUTE_PIXELS_PER_PLACEMENT_CELL);
-            let max_exclusive_x =
-                div_ceil_i32(x + width, CATALOG_ROUTE_PIXELS_PER_PLACEMENT_CELL);
-            let max_exclusive_y =
-                div_ceil_i32(y + height, CATALOG_ROUTE_PIXELS_PER_PLACEMENT_CELL);
+            let max_exclusive_x = div_ceil_i32(x + width, CATALOG_ROUTE_PIXELS_PER_PLACEMENT_CELL);
+            let max_exclusive_y = div_ceil_i32(y + height, CATALOG_ROUTE_PIXELS_PER_PLACEMENT_CELL);
             CatalogGridBounds {
                 min_x,
                 max_x: max_exclusive_x - footprint_width,
@@ -348,8 +349,7 @@ fn pure_catalog_constraints(
             x: to_x.div_euclid(CATALOG_ROUTE_PIXELS_PER_PLACEMENT_CELL),
             y: to_y.div_euclid(CATALOG_ROUTE_PIXELS_PER_PLACEMENT_CELL),
         };
-        let envelope_cells =
-            policy.minimum_clearance_cells * 2 + policy.wall_thickness_cells;
+        let envelope_cells = policy.minimum_clearance_cells * 2 + policy.wall_thickness_cells;
         CatalogLaneConstraint {
             source_hint,
             bounds: CatalogGridBounds {
@@ -369,7 +369,7 @@ fn pure_catalog_constraints(
     }
 }
 
-fn parse_geometry_rect(hint: &str) -> Option<(i32, i32, i32, i32)> {
+pub(crate) fn parse_geometry_rect(hint: &str) -> Option<(i32, i32, i32, i32)> {
     let values = hint.strip_prefix("geometryRect:")?;
     let mut parts = values.split(':').map(str::parse::<i32>);
     let parsed = (
@@ -381,14 +381,14 @@ fn parse_geometry_rect(hint: &str) -> Option<(i32, i32, i32, i32)> {
     (parts.next().is_none() && parsed.2 > 0 && parsed.3 > 0).then_some(parsed)
 }
 
-fn parse_geometry_point(hint: &str) -> Option<(i32, i32)> {
+pub(crate) fn parse_geometry_point(hint: &str) -> Option<(i32, i32)> {
     let values = hint.strip_prefix("point:")?;
     let mut parts = values.split(':').map(str::parse::<i32>);
     let parsed = (parts.next()?.ok()?, parts.next()?.ok()?);
     (parts.next().is_none()).then_some(parsed)
 }
 
-fn parse_geometry_segment(hint: &str) -> Option<(i32, i32, i32, i32)> {
+pub(crate) fn parse_geometry_segment(hint: &str) -> Option<(i32, i32, i32, i32)> {
     let values = hint.strip_prefix("segment:")?;
     let mut parts = values.split(':').map(str::parse::<i32>);
     let parsed = (
@@ -400,12 +400,12 @@ fn parse_geometry_segment(hint: &str) -> Option<(i32, i32, i32, i32)> {
     (parts.next().is_none()).then_some(parsed)
 }
 
-fn div_ceil_i32(value: i32, divisor: i32) -> i32 {
+pub(crate) fn div_ceil_i32(value: i32, divisor: i32) -> i32 {
     let quotient = value.div_euclid(divisor);
     quotient + i32::from(value.rem_euclid(divisor) != 0)
 }
 
-fn pure_catalog_origin_candidates(
+pub(crate) fn pure_catalog_origin_candidates(
     plan: &PieceBuildPlan,
     requirement: &PieceRequirement,
     candidate: &MatchedPiece,
@@ -432,7 +432,7 @@ fn pure_catalog_origin_candidates(
     origins
 }
 
-fn pure_catalog_origin_target_distance(
+pub(crate) fn pure_catalog_origin_target_distance(
     plan: &PieceBuildPlan,
     requirement: &PieceRequirement,
     candidate: &MatchedPiece,
@@ -447,14 +447,13 @@ fn pure_catalog_origin_target_distance(
                     let (dx, dy) = direction_vector(exit.direction.as_str());
                     target.x += dx;
                     target.y += dy;
-                    (origin.x + exit.x - target.x).abs()
-                        + (origin.y + exit.y - target.y).abs()
+                    (origin.x + exit.x - target.x).abs() + (origin.y + exit.y - target.y).abs()
                 })
         })
         .sum()
 }
 
-fn pure_catalog_origin_satisfies_constraints(
+pub(crate) fn pure_catalog_origin_satisfies_constraints(
     shape: &CatalogShape,
     transform: &str,
     origin: &GridCell,
@@ -476,7 +475,7 @@ fn pure_catalog_origin_satisfies_constraints(
     })
 }
 
-fn pure_catalog_origin_satisfies_constraints_with_fixed_port(
+pub(crate) fn pure_catalog_origin_satisfies_constraints_with_fixed_port(
     shape: &CatalogShape,
     transform: &str,
     origin: &GridCell,
@@ -551,7 +550,7 @@ fn pure_catalog_origin_satisfies_constraints_with_fixed_port(
         })
 }
 
-fn grid_distance_to_segment(cell: &GridCell, from: &GridCell, to: &GridCell) -> i32 {
+pub(crate) fn grid_distance_to_segment(cell: &GridCell, from: &GridCell, to: &GridCell) -> i32 {
     if from.x == to.x {
         (cell.x - from.x).abs()
             + if cell.y < from.y.min(to.y) {
@@ -576,7 +575,7 @@ fn grid_distance_to_segment(cell: &GridCell, from: &GridCell, to: &GridCell) -> 
     }
 }
 
-fn pure_catalog_generic_failure(
+pub(crate) fn pure_catalog_generic_failure(
     requirement: Option<&PieceRequirement>,
     reason: &str,
     detail: &str,
@@ -608,7 +607,7 @@ fn pure_catalog_generic_failure(
     )
 }
 
-fn pure_catalog_failure_evidence(
+pub(crate) fn pure_catalog_failure_evidence(
     requirement: &PieceRequirement,
     candidate: Option<&MatchedPiece>,
     constraints: &PureCatalogPlacementConstraints,
@@ -688,7 +687,7 @@ fn pure_catalog_failure_evidence(
 }
 
 #[allow(clippy::too_many_arguments)]
-fn search_pure_catalog_placement(
+pub(crate) fn search_pure_catalog_placement(
     catalog: &ShapeCatalog,
     plan: &PieceBuildPlan,
     requirements: &BTreeMap<&str, &PieceRequirement>,
@@ -713,9 +712,13 @@ fn search_pure_catalog_placement(
         .iter()
         .filter_map(|link| {
             if link.from_piece == next {
-                placed.get(link.to_piece.as_str()).map(|instance| (link, *instance))
+                placed
+                    .get(link.to_piece.as_str())
+                    .map(|instance| (link, *instance))
             } else if link.to_piece == next {
-                placed.get(link.from_piece.as_str()).map(|instance| (link, *instance))
+                placed
+                    .get(link.from_piece.as_str())
+                    .map(|instance| (link, *instance))
             } else {
                 None
             }
@@ -733,13 +736,14 @@ fn search_pure_catalog_placement(
             let Some(origin) = pure_catalog_anchored_origin(link, next, candidate, neighbor) else {
                 return (2_u8, 2_u8, i32::MAX, candidate.candidate_rank);
             };
-            let geometry_rank = u8::from(!pure_catalog_origin_satisfies_constraints_with_fixed_port(
-                shape,
-                candidate.transform.as_str(),
-                &origin,
-                &constraints,
-                Some((*link, *neighbor)),
-            ));
+            let geometry_rank =
+                u8::from(!pure_catalog_origin_satisfies_constraints_with_fixed_port(
+                    shape,
+                    candidate.transform.as_str(),
+                    &origin,
+                    &constraints,
+                    Some((*link, *neighbor)),
+                ));
             let closure_rank = u8::from(!pure_catalog_candidate_closes_fixed_ports(
                 next,
                 candidate,
@@ -786,7 +790,9 @@ fn search_pure_catalog_placement(
                 requirement,
                 Some(candidate),
                 &constraints,
-                linked_placed.first().map(|(link, neighbor)| (*link, *neighbor)),
+                linked_placed
+                    .first()
+                    .map(|(link, neighbor)| (*link, *neighbor)),
                 "origin_zone_empty",
                 "The serialized geometry zone cannot contain the transformed prefab footprint.",
             ));
@@ -803,7 +809,10 @@ fn search_pure_catalog_placement(
             if is_room_requirement(requirement) {
                 counters.room_origin_attempts += 1;
             } else if let Some(section) = requirement_physical_section(requirement) {
-                let expansions = counters.section_expansions.entry(section.to_owned()).or_default();
+                let expansions = counters
+                    .section_expansions
+                    .entry(section.to_owned())
+                    .or_default();
                 if *expansions
                     >= catalog
                         .catalog_search_policy
@@ -813,7 +822,9 @@ fn search_pure_catalog_placement(
                         requirement,
                         Some(candidate),
                         &constraints,
-                        linked_placed.first().map(|(link, neighbor)| (*link, *neighbor)),
+                        linked_placed
+                            .first()
+                            .map(|(link, neighbor)| (*link, *neighbor)),
                         "section_expansion_budget_exhausted",
                         "The physical section exhausted its catalog-chain expansion budget.",
                     ));
@@ -827,7 +838,9 @@ fn search_pure_catalog_placement(
                 candidate.transform.as_str(),
                 &origin,
                 &constraints,
-                linked_placed.first().map(|(link, neighbor)| (*link, *neighbor)),
+                linked_placed
+                    .first()
+                    .map(|(link, neighbor)| (*link, *neighbor)),
             ) {
                 let failure = pure_catalog_failure_evidence(
                     requirement,
@@ -877,7 +890,9 @@ fn search_pure_catalog_placement(
                     requirement,
                     Some(candidate),
                     &constraints,
-                    linked_placed.first().map(|(link, neighbor)| (*link, *neighbor)),
+                    linked_placed
+                        .first()
+                        .map(|(link, neighbor)| (*link, *neighbor)),
                     "occupancy_rejected",
                     "The candidate violates occupancy, clearance, or a protected prefab port.",
                 ));
@@ -892,17 +907,15 @@ fn search_pure_catalog_placement(
                 &constraints,
                 &mut next_state,
             );
-            rebuild_pure_catalog_exit_protection(
-                plan,
-                &catalog.placement_policy,
-                &mut next_state,
-            );
+            rebuild_pure_catalog_exit_protection(plan, &catalog.placement_policy, &mut next_state);
             if pure_catalog_has_unplanned_contact(plan, &next_state) {
                 counters.last_failure = Some(pure_catalog_failure_evidence(
                     requirement,
                     Some(candidate),
                     &constraints,
-                    linked_placed.first().map(|(link, neighbor)| (*link, *neighbor)),
+                    linked_placed
+                        .first()
+                        .map(|(link, neighbor)| (*link, *neighbor)),
                     "undeclared_contact",
                     "The candidate creates an undeclared prefab-to-prefab contact.",
                 ));
@@ -913,7 +926,9 @@ fn search_pure_catalog_placement(
                     requirement,
                     Some(candidate),
                     &constraints,
-                    linked_placed.first().map(|(link, neighbor)| (*link, *neighbor)),
+                    linked_placed
+                        .first()
+                        .map(|(link, neighbor)| (*link, *neighbor)),
                     "direct_glue_rejected",
                     "The candidate cannot directly glue every already-placed neighbor.",
                 ));
@@ -947,7 +962,7 @@ fn search_pure_catalog_placement(
     None
 }
 
-fn pure_catalog_candidate_closes_fixed_ports(
+pub(crate) fn pure_catalog_candidate_closes_fixed_ports(
     piece_id: &str,
     candidate: &MatchedPiece,
     shape: &CatalogShape,
@@ -990,7 +1005,7 @@ fn pure_catalog_candidate_closes_fixed_ports(
     })
 }
 
-fn pure_catalog_has_unplanned_contact(
+pub(crate) fn pure_catalog_has_unplanned_contact(
     plan: &PieceBuildPlan,
     state: &PureCatalogPlacementState,
 ) -> bool {
@@ -1015,14 +1030,13 @@ fn pure_catalog_has_unplanned_contact(
                 };
                 !plan.links.iter().any(|link| {
                     (link.from_piece == *owner_piece && link.to_piece == *other_piece)
-                        || (link.from_piece == *other_piece
-                            && link.to_piece == *owner_piece)
+                        || (link.from_piece == *other_piece && link.to_piece == *owner_piece)
                 })
             })
     })
 }
 
-fn select_pure_catalog_frontier<'a>(
+pub(crate) fn select_pure_catalog_frontier<'a>(
     plan: &'a PieceBuildPlan,
     requirements: &BTreeMap<&'a str, &PieceRequirement>,
     domains: &BTreeMap<&str, Vec<MatchedPiece>>,
@@ -1030,8 +1044,7 @@ fn select_pure_catalog_frontier<'a>(
 ) -> Option<&'a str> {
     if placed.is_empty() {
         if let Some(start) = plan.requirements.iter().find(|requirement| {
-            requirement.role == "start"
-                || requirement.tags.iter().any(|tag| tag == "start")
+            requirement.role == "start" || requirement.tags.iter().any(|tag| tag == "start")
         }) {
             return Some(start.piece_id.as_str());
         }
@@ -1087,7 +1100,7 @@ fn select_pure_catalog_frontier<'a>(
         })
 }
 
-fn pure_catalog_anchored_origin(
+pub(crate) fn pure_catalog_anchored_origin(
     link: &PieceLink,
     new_piece_id: &str,
     candidate: &MatchedPiece,
@@ -1116,7 +1129,7 @@ fn pure_catalog_anchored_origin(
     })
 }
 
-fn add_pure_catalog_instance(
+pub(crate) fn add_pure_catalog_instance(
     requirement: &PieceRequirement,
     candidate: &MatchedPiece,
     shape: &CatalogShape,
@@ -1185,7 +1198,7 @@ fn add_pure_catalog_instance(
     });
 }
 
-fn pure_catalog_unresolved_exits(
+pub(crate) fn pure_catalog_unresolved_exits(
     plan: &PieceBuildPlan,
     piece_id: &str,
     exit_map: &[MatchedExit],
@@ -1212,7 +1225,7 @@ fn pure_catalog_unresolved_exits(
         .collect()
 }
 
-fn rebuild_pure_catalog_exit_protection(
+pub(crate) fn rebuild_pure_catalog_exit_protection(
     plan: &PieceBuildPlan,
     policy: &PiecePlacementPolicy,
     state: &mut PureCatalogPlacementState,
@@ -1240,7 +1253,7 @@ fn rebuild_pure_catalog_exit_protection(
     }
 }
 
-fn pure_catalog_placed_links_direct(
+pub(crate) fn pure_catalog_placed_links_direct(
     plan: &PieceBuildPlan,
     state: &PureCatalogPlacementState,
 ) -> bool {
@@ -1260,7 +1273,7 @@ fn pure_catalog_placed_links_direct(
     })
 }
 
-fn pure_catalog_all_links_direct(
+pub(crate) fn pure_catalog_all_links_direct(
     plan: &PieceBuildPlan,
     state: &PureCatalogPlacementState,
 ) -> bool {
@@ -1277,7 +1290,7 @@ fn pure_catalog_all_links_direct(
         })
 }
 
-fn pure_catalog_link_is_direct(
+pub(crate) fn pure_catalog_link_is_direct(
     link: &PieceLink,
     from: &PieceInstance,
     to: &PieceInstance,
@@ -1307,7 +1320,7 @@ fn pure_catalog_link_is_direct(
             .is_some_and(|owner| owner == &from.instance_id)
 }
 
-fn pure_catalog_glue_is_direct(
+pub(crate) fn pure_catalog_glue_is_direct(
     glued: &GluedExit,
     occupied_cells: &[PlacementCellRef],
 ) -> bool {
@@ -1315,9 +1328,7 @@ fn pure_catalog_glue_is_direct(
         .iter()
         .map(|cell| ((cell.x, cell.y), cell.instance_id.as_str()))
         .collect::<BTreeMap<_, _>>();
-    glued.from_cell.x.abs_diff(glued.to_cell.x)
-        + glued.from_cell.y.abs_diff(glued.to_cell.y)
-        == 1
+    glued.from_cell.x.abs_diff(glued.to_cell.x) + glued.from_cell.y.abs_diff(glued.to_cell.y) == 1
         && opposite_direction(glued.from_direction.as_str()) == glued.to_direction
         && occupied
             .get(&(glued.from_cell.x, glued.from_cell.y))
@@ -1327,14 +1338,14 @@ fn pure_catalog_glue_is_direct(
             .is_some_and(|owner| *owner == glued.from_instance)
 }
 
-fn is_room_requirement(requirement: &PieceRequirement) -> bool {
+pub(crate) fn is_room_requirement(requirement: &PieceRequirement) -> bool {
     !matches!(
         requirement.kind.as_str(),
         "connector" | "corridor" | "bend" | "junction"
     )
 }
 
-fn requirement_physical_section(requirement: &PieceRequirement) -> Option<&str> {
+pub(crate) fn requirement_physical_section(requirement: &PieceRequirement) -> Option<&str> {
     requirement
         .source_refs
         .iter()

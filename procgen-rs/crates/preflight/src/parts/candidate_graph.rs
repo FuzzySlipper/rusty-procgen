@@ -1,4 +1,7 @@
-fn init_candidate(args: InitArgs) -> Result<(), String> {
+#[allow(unused_imports)]
+use crate::*;
+
+pub(crate) fn init_candidate(args: InitArgs) -> Result<(), String> {
     let intent: SeedIntent = read_json(&args.intent)?;
     let mut candidate = create_initial_candidate(&intent, args.seed);
     candidate.provenance.push(ProvenanceStep {
@@ -28,7 +31,7 @@ fn init_candidate(args: InitArgs) -> Result<(), String> {
     Ok(())
 }
 
-fn create_initial_candidate(intent: &SeedIntent, seed: u64) -> Candidate {
+pub(crate) fn create_initial_candidate(intent: &SeedIntent, seed: u64) -> Candidate {
     Candidate {
         kind: "rusty_procgen.candidate.v1".to_owned(),
         schema_version: 1,
@@ -67,7 +70,7 @@ fn create_initial_candidate(intent: &SeedIntent, seed: u64) -> Candidate {
     }
 }
 
-fn apply_rule(args: ApplyRuleArgs) -> Result<(), String> {
+pub(crate) fn apply_rule(args: ApplyRuleArgs) -> Result<(), String> {
     let mut candidate: Candidate = read_json(&args.state)?;
     let input_hash = hash_file(&args.state)?;
     let diagnostics = apply_graph_rule(&mut candidate, args.rule, args.seed);
@@ -126,7 +129,7 @@ fn apply_rule(args: ApplyRuleArgs) -> Result<(), String> {
     }
 }
 
-fn fork_command(args: ForkArgs) -> Result<(), String> {
+pub(crate) fn fork_command(args: ForkArgs) -> Result<(), String> {
     let candidate: Candidate = read_json(&args.state)?;
     let input_hash = hash_file(&args.state)?;
     let forked = fork_candidate(candidate, &args.label, args.seed);
@@ -154,7 +157,7 @@ fn fork_command(args: ForkArgs) -> Result<(), String> {
     Ok(())
 }
 
-fn fork_candidate(mut candidate: Candidate, label: &str, seed: u64) -> Candidate {
+pub(crate) fn fork_candidate(mut candidate: Candidate, label: &str, seed: u64) -> Candidate {
     let source_id = candidate.candidate_id.clone();
     let label_slug = slugify_label(label);
     candidate.candidate_id = format!("{}.fork.{}.{}", source_id, label_slug, seed);
@@ -171,7 +174,11 @@ fn fork_candidate(mut candidate: Candidate, label: &str, seed: u64) -> Candidate
     candidate
 }
 
-fn apply_graph_rule(candidate: &mut Candidate, rule: GraphRule, seed: u64) -> Vec<Diagnostic> {
+pub(crate) fn apply_graph_rule(
+    candidate: &mut Candidate,
+    rule: GraphRule,
+    seed: u64,
+) -> Vec<Diagnostic> {
     let mut diagnostics = Vec::new();
     match rule {
         GraphRule::LockKeyLoop => {
@@ -855,11 +862,11 @@ fn apply_graph_rule(candidate: &mut Candidate, rule: GraphRule, seed: u64) -> Ve
     diagnostics
 }
 
-fn has_node(candidate: &Candidate, node_id: &str) -> bool {
+pub(crate) fn has_node(candidate: &Candidate, node_id: &str) -> bool {
     candidate.graph.nodes.iter().any(|node| node.id == node_id)
 }
 
-fn guarded_node_item(candidate: &Candidate, node_id: &str) -> Option<String> {
+pub(crate) fn guarded_node_item(candidate: &Candidate, node_id: &str) -> Option<String> {
     let mut guard_items = candidate
         .graph
         .edges
@@ -872,11 +879,11 @@ fn guarded_node_item(candidate: &Candidate, node_id: &str) -> Option<String> {
     (guard_items.len() == 1).then(|| guard_items.remove(0))
 }
 
-fn has_edge(candidate: &Candidate, edge_id: &str) -> bool {
+pub(crate) fn has_edge(candidate: &Candidate, edge_id: &str) -> bool {
     candidate.graph.edges.iter().any(|edge| edge.id == edge_id)
 }
 
-fn graph_rules_command(args: RuleMetadataArgs) -> Result<(), String> {
+pub(crate) fn graph_rules_command(args: RuleMetadataArgs) -> Result<(), String> {
     let report = rule_metadata_report();
     if let Some(out) = args.out {
         write_json(&out, &report)
@@ -888,7 +895,7 @@ fn graph_rules_command(args: RuleMetadataArgs) -> Result<(), String> {
     }
 }
 
-fn rule_metadata_report() -> RuleMetadataReport {
+pub(crate) fn rule_metadata_report() -> RuleMetadataReport {
     RuleMetadataReport {
         kind: "rusty_procgen.rule_metadata.v1".to_owned(),
         schema_version: 1,

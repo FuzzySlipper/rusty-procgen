@@ -1,21 +1,24 @@
+#[allow(unused_imports)]
+use crate::*;
+
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 #[serde(rename_all = "camelCase")]
-struct CatalogAwareGenerationPolicy {
-    kind: String,
-    schema_version: u32,
-    max_generation_attempts: u32,
-    initial_room_slack_cells: i32,
-    room_slack_growth_cells: i32,
-    max_room_candidates: u32,
-    max_routing_states_per_section: u32,
-    route_margin_cells: i32,
-    guide_distance_weight: u32,
-    turn_penalty: u32,
+pub(crate) struct CatalogAwareGenerationPolicy {
+    pub(crate) kind: String,
+    pub(crate) schema_version: u32,
+    pub(crate) max_generation_attempts: u32,
+    pub(crate) initial_room_slack_cells: i32,
+    pub(crate) room_slack_growth_cells: i32,
+    pub(crate) max_room_candidates: u32,
+    pub(crate) max_routing_states_per_section: u32,
+    pub(crate) route_margin_cells: i32,
+    pub(crate) guide_distance_weight: u32,
+    pub(crate) turn_penalty: u32,
 }
 
 #[derive(Clone, Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
-struct CatalogAwareAttemptEvidence {
+pub(crate) struct CatalogAwareAttemptEvidence {
     attempt: u32,
     room_slack_cells: i32,
     classification: String,
@@ -28,7 +31,7 @@ struct CatalogAwareAttemptEvidence {
 
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
-struct CatalogAwareGenerationResult {
+pub(crate) struct CatalogAwareGenerationResult {
     kind: String,
     schema_version: u32,
     ok: bool,
@@ -47,7 +50,7 @@ struct CatalogAwareGenerationResult {
 }
 
 #[derive(Clone)]
-struct CatalogRoomSelection {
+pub(crate) struct CatalogRoomSelection {
     requirement: PieceRequirement,
     matched: MatchedPiece,
     shape: CatalogShape,
@@ -55,13 +58,13 @@ struct CatalogRoomSelection {
 }
 
 #[derive(Clone)]
-struct CatalogSectionTerminal {
+pub(crate) struct CatalogSectionTerminal {
     requirement: PieceRequirement,
     exit_id: String,
 }
 
 #[derive(Clone)]
-struct CatalogSectionSpec {
+pub(crate) struct CatalogSectionSpec {
     section: String,
     source_corridor: String,
     template_link: PieceLink,
@@ -71,12 +74,12 @@ struct CatalogSectionSpec {
 }
 
 #[derive(Clone)]
-struct CatalogRoutedSection {
+pub(crate) struct CatalogRoutedSection {
     spec: CatalogSectionSpec,
     cells: Vec<GridCell>,
 }
 
-enum CatalogRouteSearch {
+pub(crate) enum CatalogRouteSearch {
     Found {
         cells: Vec<GridCell>,
         states_visited: u32,
@@ -89,7 +92,9 @@ enum CatalogRouteSearch {
     },
 }
 
-fn build_realize_catalog_aware_command(args: BuildRealizeCatalogAwareArgs) -> Result<(), String> {
+pub(crate) fn build_realize_catalog_aware_command(
+    args: BuildRealizeCatalogAwareArgs,
+) -> Result<(), String> {
     let candidate = read_flow_candidate(&args.candidate)?;
     let geometry: Geometry2dArtifact = read_json(&args.geometry)?;
     let source_plan: PieceBuildPlan = read_json(&args.piece_plan)?;
@@ -195,7 +200,7 @@ fn build_realize_catalog_aware_command(args: BuildRealizeCatalogAwareArgs) -> Re
     write_json(&args.out, &result)
 }
 
-struct CatalogAwareFailure {
+pub(crate) struct CatalogAwareFailure {
     classification: String,
     stage: String,
     detail: String,
@@ -204,8 +209,8 @@ struct CatalogAwareFailure {
     routing_states: u32,
 }
 
-#[allow(clippy::type_complexity)]
-fn realize_catalog_aware_attempt(
+#[allow(clippy::too_many_arguments, clippy::type_complexity)]
+pub(crate) fn realize_catalog_aware_attempt(
     candidate: &Candidate,
     source_geometry: &Geometry2dArtifact,
     source_plan: &PieceBuildPlan,
@@ -539,7 +544,9 @@ fn realize_catalog_aware_attempt(
     ))
 }
 
-fn validate_catalog_aware_policy(policy: &CatalogAwareGenerationPolicy) -> Result<(), String> {
+pub(crate) fn validate_catalog_aware_policy(
+    policy: &CatalogAwareGenerationPolicy,
+) -> Result<(), String> {
     if policy.kind != "rusty_procgen.catalog_aware_generation_policy.v1"
         || policy.schema_version != 1
     {
@@ -572,7 +579,7 @@ fn validate_catalog_aware_policy(policy: &CatalogAwareGenerationPolicy) -> Resul
     Ok(())
 }
 
-fn catalog_exact_room_candidates(
+pub(crate) fn catalog_exact_room_candidates(
     catalog: &ShapeCatalog,
     plan: &PieceBuildPlan,
     requirement: &PieceRequirement,
@@ -594,7 +601,7 @@ fn catalog_exact_room_candidates(
         .collect()
 }
 
-fn catalog_room_origin(
+pub(crate) fn catalog_room_origin(
     requirement: &PieceRequirement,
     shape: &CatalogShape,
     transform: &str,
@@ -629,7 +636,7 @@ fn catalog_room_origin(
     }
 }
 
-fn catalog_section_specs(
+pub(crate) fn catalog_section_specs(
     plan: &PieceBuildPlan,
     geometry: &Geometry2dArtifact,
 ) -> Result<Vec<CatalogSectionSpec>, CatalogAwareFailure> {
@@ -706,7 +713,7 @@ fn catalog_section_specs(
     Ok(sections)
 }
 
-fn geometry_guide_cells(corridor: &GeometryCorridor) -> Vec<GridCell> {
+pub(crate) fn geometry_guide_cells(corridor: &GeometryCorridor) -> Vec<GridCell> {
     let mut cells = Vec::new();
     for pair in corridor.points.windows(2) {
         let mut current = GridCell {
@@ -737,7 +744,7 @@ fn geometry_guide_cells(corridor: &GeometryCorridor) -> Vec<GridCell> {
     cells
 }
 
-fn catalog_room_exit_cell(
+pub(crate) fn catalog_room_exit_cell(
     room: &CatalogRoomSelection,
     exit_id: &str,
 ) -> Result<GridCell, CatalogAwareFailure> {
@@ -763,7 +770,10 @@ fn catalog_room_exit_cell(
         })
 }
 
-fn catalog_route_bounds(geometry: &Geometry2dArtifact, margin: i32) -> CatalogGridBounds {
+pub(crate) fn catalog_route_bounds(
+    geometry: &Geometry2dArtifact,
+    margin: i32,
+) -> CatalogGridBounds {
     CatalogGridBounds {
         min_x: -margin,
         min_y: -margin,
@@ -779,7 +789,7 @@ fn catalog_route_bounds(geometry: &Geometry2dArtifact, margin: i32) -> CatalogGr
 }
 
 #[allow(clippy::too_many_arguments)]
-fn route_catalog_section(
+pub(crate) fn route_catalog_section(
     start: &GridCell,
     goal: &GridCell,
     guide: &[GridCell],
@@ -891,7 +901,7 @@ fn route_catalog_section(
     }
 }
 
-fn catalog_route_cell_blocked(
+pub(crate) fn catalog_route_cell_blocked(
     cell: &GridCell,
     start: &GridCell,
     goal: &GridCell,
@@ -923,7 +933,7 @@ fn catalog_route_cell_blocked(
 }
 
 #[allow(clippy::type_complexity)]
-fn materialize_catalog_composition(
+pub(crate) fn materialize_catalog_composition(
     source_geometry: &Geometry2dArtifact,
     source_plan: &PieceBuildPlan,
     catalog: &ShapeCatalog,
@@ -1143,7 +1153,7 @@ fn materialize_catalog_composition(
     Ok((geometry, plan, shape_match, placement))
 }
 
-fn catalog_room_exit<'a>(
+pub(crate) fn catalog_room_exit<'a>(
     room: &'a CatalogRoomSelection,
     exit_id: &str,
 ) -> Result<&'a MatchedExit, CatalogAwareFailure> {
@@ -1162,7 +1172,7 @@ fn catalog_room_exit<'a>(
         })
 }
 
-fn catalog_route_piece(
+pub(crate) fn catalog_route_piece(
     catalog: &ShapeCatalog,
     piece_id: &str,
     back_direction: &str,
@@ -1286,7 +1296,7 @@ fn catalog_route_piece(
     })
 }
 
-fn catalog_piece_instance(
+pub(crate) fn catalog_piece_instance(
     requirement: &PieceRequirement,
     matched: &MatchedPiece,
     shape: &CatalogShape,
@@ -1325,7 +1335,7 @@ fn catalog_piece_instance(
     }
 }
 
-fn append_instance_cells(
+pub(crate) fn append_instance_cells(
     instance: &PieceInstance,
     occupied: &mut Vec<PlacementCellRef>,
     reserved: &mut Vec<PlacementCellRef>,
@@ -1346,7 +1356,10 @@ fn append_instance_cells(
     }
 }
 
-fn catalog_decision(matched: &MatchedPiece, origin: GridCell) -> CatalogPlacementDecision {
+pub(crate) fn catalog_decision(
+    matched: &MatchedPiece,
+    origin: GridCell,
+) -> CatalogPlacementDecision {
     CatalogPlacementDecision {
         piece_id: matched.piece_id.clone(),
         shape_id: matched.shape_id.clone(),
@@ -1359,7 +1372,10 @@ fn catalog_decision(matched: &MatchedPiece, origin: GridCell) -> CatalogPlacemen
     }
 }
 
-fn align_geometry_room_to_catalog(geometry: &mut Geometry2dArtifact, room: &CatalogRoomSelection) {
+pub(crate) fn align_geometry_room_to_catalog(
+    geometry: &mut Geometry2dArtifact,
+    room: &CatalogRoomSelection,
+) {
     let Some(room_id) = room
         .requirement
         .source_refs
@@ -1416,7 +1432,7 @@ fn align_geometry_room_to_catalog(geometry: &mut Geometry2dArtifact, room: &Cata
     }
 }
 
-fn catalog_exit_geometry_point(exit: &MatchedExit, origin: &GridCell) -> GeometryPoint {
+pub(crate) fn catalog_exit_geometry_point(exit: &MatchedExit, origin: &GridCell) -> GeometryPoint {
     let mut x = exit.x + origin.x;
     let mut y = exit.y + origin.y;
     if exit.direction == "west" {
@@ -1431,7 +1447,7 @@ fn catalog_exit_geometry_point(exit: &MatchedExit, origin: &GridCell) -> Geometr
     }
 }
 
-fn align_geometry_corridor_to_catalog(
+pub(crate) fn align_geometry_corridor_to_catalog(
     geometry: &mut Geometry2dArtifact,
     section: &CatalogRoutedSection,
     left_origin: &GridCell,
@@ -1466,7 +1482,10 @@ fn align_geometry_corridor_to_catalog(
     }
 }
 
-fn append_orthogonal_geometry_point(points: &mut Vec<GeometryPoint>, point: GeometryPoint) {
+pub(crate) fn append_orthogonal_geometry_point(
+    points: &mut Vec<GeometryPoint>,
+    point: GeometryPoint,
+) {
     let Some(previous) = points.last() else {
         points.push(point);
         return;
@@ -1483,7 +1502,9 @@ fn append_orthogonal_geometry_point(points: &mut Vec<GeometryPoint>, point: Geom
     points.push(point);
 }
 
-fn validate_catalog_geometry_segments(geometry: &Geometry2dArtifact) -> Result<(), String> {
+pub(crate) fn validate_catalog_geometry_segments(
+    geometry: &Geometry2dArtifact,
+) -> Result<(), String> {
     for corridor in &geometry.corridors {
         for segment in corridor.points.windows(2) {
             let dx = segment[1].x - segment[0].x;
@@ -1502,7 +1523,7 @@ fn validate_catalog_geometry_segments(geometry: &Geometry2dArtifact) -> Result<(
     Ok(())
 }
 
-fn normalize_catalog_geometry_bounds(geometry: &mut Geometry2dArtifact) {
+pub(crate) fn normalize_catalog_geometry_bounds(geometry: &mut Geometry2dArtifact) {
     let max_x = geometry
         .rooms
         .iter()
@@ -1531,7 +1552,7 @@ fn normalize_catalog_geometry_bounds(geometry: &mut Geometry2dArtifact) {
     geometry.bounds.height = align_geometry(max_y + 32, GEOMETRY_ROUTE_GRID);
 }
 
-fn direction_between(from: &GridCell, to: &GridCell) -> &'static str {
+pub(crate) fn direction_between(from: &GridCell, to: &GridCell) -> &'static str {
     match (to.x - from.x, to.y - from.y) {
         (0, -1) => "north",
         (1, 0) => "east",
@@ -1541,11 +1562,11 @@ fn direction_between(from: &GridCell, to: &GridCell) -> &'static str {
     }
 }
 
-fn is_catalog_room_kind(kind: &str) -> bool {
+pub(crate) fn is_catalog_room_kind(kind: &str) -> bool {
     !matches!(kind, "connector" | "corridor" | "bend" | "junction")
 }
 
-fn catalog_generation_failure(
+pub(crate) fn catalog_generation_failure(
     stage: &str,
     detail: String,
     rooms_placed: usize,
@@ -1562,7 +1583,7 @@ fn catalog_generation_failure(
     }
 }
 
-fn catalog_validation_failure(
+pub(crate) fn catalog_validation_failure(
     stage: &str,
     report: &ValidationReport,
     rooms_placed: usize,

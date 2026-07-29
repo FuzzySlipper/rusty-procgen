@@ -1,13 +1,16 @@
+#[allow(unused_imports)]
+use crate::*;
+
 #[derive(Parser)]
 #[command(name = "rusty-procgen")]
 #[command(about = "Deterministic dungeon procgen CLI workbench")]
-struct Cli {
+pub(crate) struct Cli {
     #[command(subcommand)]
-    command: Command,
+    pub(crate) command: Command,
 }
 
 #[derive(Subcommand)]
-enum Command {
+pub(crate) enum Command {
     /// Check sibling ASHA engine checkout posture.
     Preflight(PreflightArgs),
     /// Create a minimal candidate from a seed intent.
@@ -43,33 +46,33 @@ enum Command {
 }
 
 #[derive(Args)]
-struct PreflightArgs {
+pub(crate) struct PreflightArgs {
     #[arg(default_value = ".")]
-    repo_root: PathBuf,
+    pub(crate) repo_root: PathBuf,
 }
 
 #[derive(Args)]
-struct InitArgs {
+pub(crate) struct InitArgs {
     #[arg(long)]
-    intent: PathBuf,
+    pub(crate) intent: PathBuf,
     #[arg(long)]
-    seed: u64,
+    pub(crate) seed: u64,
     #[arg(long)]
-    out: PathBuf,
+    pub(crate) out: PathBuf,
     #[arg(long)]
-    receipt: PathBuf,
+    pub(crate) receipt: PathBuf,
     #[arg(long)]
-    transcript: Option<PathBuf>,
+    pub(crate) transcript: Option<PathBuf>,
 }
 
 #[derive(Args)]
-struct GraphCommand {
+pub(crate) struct GraphCommand {
     #[command(subcommand)]
-    command: GraphSubcommand,
+    pub(crate) command: GraphSubcommand,
 }
 
 #[derive(Subcommand)]
-enum GraphSubcommand {
+pub(crate) enum GraphSubcommand {
     ApplyRule(ApplyRuleArgs),
     CompatibleRules(ReportOutArgs),
     Fork(ForkArgs),
@@ -78,41 +81,41 @@ enum GraphSubcommand {
 }
 
 #[derive(Args)]
-struct ApplyRuleArgs {
+pub(crate) struct ApplyRuleArgs {
     #[arg(long)]
-    state: PathBuf,
+    pub(crate) state: PathBuf,
     #[arg(long)]
-    rule: GraphRule,
+    pub(crate) rule: GraphRule,
     #[arg(long)]
-    seed: u64,
+    pub(crate) seed: u64,
     #[arg(long)]
-    out: PathBuf,
+    pub(crate) out: PathBuf,
     #[arg(long)]
-    receipt: PathBuf,
+    pub(crate) receipt: PathBuf,
     #[arg(long)]
-    transcript: Option<PathBuf>,
+    pub(crate) transcript: Option<PathBuf>,
 }
 
 #[derive(Args)]
-struct ForkArgs {
+pub(crate) struct ForkArgs {
     #[arg(long)]
-    state: PathBuf,
+    pub(crate) state: PathBuf,
     #[arg(long)]
-    label: String,
+    pub(crate) label: String,
     #[arg(long)]
-    seed: u64,
+    pub(crate) seed: u64,
     #[arg(long)]
-    out: PathBuf,
+    pub(crate) out: PathBuf,
     #[arg(long)]
-    receipt: PathBuf,
+    pub(crate) receipt: PathBuf,
     #[arg(long)]
-    transcript: Option<PathBuf>,
+    pub(crate) transcript: Option<PathBuf>,
 }
 
 #[derive(Clone, Copy, Debug, Deserialize, Eq, PartialEq, Serialize, ValueEnum)]
 #[value(rename_all = "snake_case")]
 #[serde(rename_all = "snake_case")]
-enum GraphRule {
+pub enum GraphRule {
     LockKeyLoop,
     OptionalTreasureDetour,
     OneWayShortcut,
@@ -126,7 +129,7 @@ enum GraphRule {
 }
 
 impl GraphRule {
-    fn as_str(self) -> &'static str {
+    pub fn as_str(self) -> &'static str {
         match self {
             GraphRule::LockKeyLoop => "lock_key_loop",
             GraphRule::OptionalTreasureDetour => "optional_treasure_detour",
@@ -143,56 +146,56 @@ impl GraphRule {
 }
 
 #[derive(Args)]
-struct ValidateCommand {
+pub(crate) struct ValidateCommand {
     #[command(subcommand)]
-    command: ValidateSubcommand,
+    pub(crate) command: ValidateSubcommand,
 }
 
 #[derive(Subcommand)]
-enum ValidateSubcommand {
+pub(crate) enum ValidateSubcommand {
     Graph(ReportOutArgs),
 }
 
 #[derive(Args)]
-struct RepairCommand {
+pub(crate) struct RepairCommand {
     #[command(subcommand)]
-    command: RepairSubcommand,
+    pub(crate) command: RepairSubcommand,
 }
 
 #[derive(Subcommand)]
-enum RepairSubcommand {
+pub(crate) enum RepairSubcommand {
     Apply(RepairApplyArgs),
     Suggest(ReportOutArgs),
 }
 
 #[derive(Args)]
-struct RepairApplyArgs {
+pub(crate) struct RepairApplyArgs {
     #[arg(long)]
-    state: PathBuf,
+    pub(crate) state: PathBuf,
     #[arg(long)]
-    action: RepairAction,
+    pub(crate) action: RepairAction,
     #[arg(long)]
-    target: Option<String>,
+    pub(crate) target: Option<String>,
     #[arg(long)]
-    seed: u64,
+    pub(crate) seed: u64,
     #[arg(long)]
-    out: PathBuf,
+    pub(crate) out: PathBuf,
     #[arg(long)]
-    receipt: PathBuf,
+    pub(crate) receipt: PathBuf,
     #[arg(long)]
-    transcript: Option<PathBuf>,
+    pub(crate) transcript: Option<PathBuf>,
 }
 
 #[derive(Clone, Copy, Debug, Deserialize, Eq, PartialEq, Serialize, ValueEnum)]
 #[value(rename_all = "snake_case")]
 #[serde(rename_all = "snake_case")]
-enum RepairAction {
+pub enum RepairAction {
     AddRejoinEdge,
     RemoveOrphanNode,
 }
 
 impl RepairAction {
-    fn as_str(self) -> &'static str {
+    pub fn as_str(self) -> &'static str {
         match self {
             RepairAction::AddRejoinEdge => "add_rejoin_edge",
             RepairAction::RemoveOrphanNode => "remove_orphan_node",
@@ -201,67 +204,67 @@ impl RepairAction {
 }
 
 #[derive(Args)]
-struct AnalyzeCommand {
+pub(crate) struct AnalyzeCommand {
     #[command(subcommand)]
-    command: AnalyzeSubcommand,
+    pub(crate) command: AnalyzeSubcommand,
 }
 
 #[derive(Subcommand)]
-enum AnalyzeSubcommand {
+pub(crate) enum AnalyzeSubcommand {
     Graph(ReportOutArgs),
 }
 
 #[derive(Args)]
-struct AnnotateCommand {
+pub(crate) struct AnnotateCommand {
     #[command(subcommand)]
-    command: AnnotateSubcommand,
+    pub(crate) command: AnnotateSubcommand,
 }
 
 #[derive(Subcommand)]
-enum AnnotateSubcommand {
+pub(crate) enum AnnotateSubcommand {
     SpatialIntent(AnnotateSpatialIntentArgs),
 }
 
 #[derive(Args)]
-struct AnnotateSpatialIntentArgs {
+pub(crate) struct AnnotateSpatialIntentArgs {
     #[arg(long)]
-    state: PathBuf,
+    pub(crate) state: PathBuf,
     #[arg(long)]
-    analysis: Option<PathBuf>,
+    pub(crate) analysis: Option<PathBuf>,
     #[arg(long)]
-    out: PathBuf,
+    pub(crate) out: PathBuf,
 }
 
 #[derive(Args)]
-struct BreakdownCommand {
+pub(crate) struct BreakdownCommand {
     #[command(subcommand)]
-    command: BreakdownSubcommand,
+    pub(crate) command: BreakdownSubcommand,
 }
 
 #[derive(Subcommand)]
-enum BreakdownSubcommand {
+pub(crate) enum BreakdownSubcommand {
     Emit(BreakdownEmitArgs),
     Validate(ReportOutArgs),
 }
 
 #[derive(Args)]
-struct BreakdownEmitArgs {
+pub(crate) struct BreakdownEmitArgs {
     #[arg(long)]
-    state: PathBuf,
+    pub(crate) state: PathBuf,
     #[arg(long)]
-    annotations: PathBuf,
+    pub(crate) annotations: PathBuf,
     #[arg(long)]
-    out: PathBuf,
+    pub(crate) out: PathBuf,
 }
 
 #[derive(Args)]
-struct GeometryCommand {
+pub(crate) struct GeometryCommand {
     #[command(subcommand)]
-    command: GeometrySubcommand,
+    pub(crate) command: GeometrySubcommand,
 }
 
 #[derive(Subcommand)]
-enum GeometrySubcommand {
+pub(crate) enum GeometrySubcommand {
     #[command(name = "plan-connections")]
     PlanConnections(PhysicalConnectionPlanArgs),
     #[command(name = "emit-2d")]
@@ -271,39 +274,39 @@ enum GeometrySubcommand {
 }
 
 #[derive(Args)]
-struct PhysicalConnectionPlanArgs {
+pub(crate) struct PhysicalConnectionPlanArgs {
     #[arg(long)]
-    candidate: PathBuf,
+    pub(crate) candidate: PathBuf,
     #[arg(long)]
-    intermediate: PathBuf,
+    pub(crate) intermediate: PathBuf,
     #[arg(long)]
-    out: PathBuf,
+    pub(crate) out: PathBuf,
 }
 
 #[derive(Args)]
-struct GeometryEmit2dArgs {
+pub(crate) struct GeometryEmit2dArgs {
     #[arg(long)]
-    candidate: PathBuf,
+    pub(crate) candidate: PathBuf,
     #[arg(long)]
-    intermediate: PathBuf,
+    pub(crate) intermediate: PathBuf,
     #[arg(long = "connection-plan")]
-    connection_plan: PathBuf,
+    pub(crate) connection_plan: PathBuf,
     #[arg(long = "layout-policy")]
-    layout_policy: Option<PathBuf>,
+    pub(crate) layout_policy: Option<PathBuf>,
     #[arg(long)]
-    seed: u64,
+    pub(crate) seed: u64,
     #[arg(long)]
-    out: PathBuf,
+    pub(crate) out: PathBuf,
 }
 
 #[derive(Args)]
-struct BuildCommand {
+pub(crate) struct BuildCommand {
     #[command(subcommand)]
-    command: BuildSubcommand,
+    pub(crate) command: BuildSubcommand,
 }
 
 #[derive(Subcommand)]
-enum BuildSubcommand {
+pub(crate) enum BuildSubcommand {
     Catalog(BuildCatalogCommand),
     #[command(name = "realize-catalog-aware")]
     RealizeCatalogAware(BuildRealizeCatalogAwareArgs),
@@ -319,60 +322,60 @@ enum BuildSubcommand {
 }
 
 #[derive(Args)]
-struct BuildRealizeCatalogAwareArgs {
+pub(crate) struct BuildRealizeCatalogAwareArgs {
     #[arg(long)]
-    candidate: PathBuf,
+    pub(crate) candidate: PathBuf,
     #[arg(long)]
-    geometry: PathBuf,
+    pub(crate) geometry: PathBuf,
     #[arg(long = "piece-plan")]
-    piece_plan: PathBuf,
+    pub(crate) piece_plan: PathBuf,
     #[arg(long)]
-    catalog: PathBuf,
+    pub(crate) catalog: PathBuf,
     #[arg(long)]
-    policy: PathBuf,
+    pub(crate) policy: PathBuf,
     #[arg(long)]
-    seed: u64,
+    pub(crate) seed: u64,
     #[arg(long)]
-    out: PathBuf,
+    pub(crate) out: PathBuf,
 }
 
 #[derive(Args)]
-struct BuildCatalogCommand {
+pub(crate) struct BuildCatalogCommand {
     #[command(subcommand)]
-    command: BuildCatalogSubcommand,
+    pub(crate) command: BuildCatalogSubcommand,
 }
 
 #[derive(Subcommand)]
-enum BuildCatalogSubcommand {
+pub(crate) enum BuildCatalogSubcommand {
     Inspect(BuildCatalogInspectArgs),
 }
 
 #[derive(Args)]
-struct BuildCatalogInspectArgs {
+pub(crate) struct BuildCatalogInspectArgs {
     #[arg(long)]
-    catalog: PathBuf,
+    pub(crate) catalog: PathBuf,
     #[arg(long)]
-    out: PathBuf,
+    pub(crate) out: PathBuf,
 }
 
 #[derive(Args)]
-struct BuildEmitPiecePlanArgs {
+pub(crate) struct BuildEmitPiecePlanArgs {
     #[arg(long)]
-    candidate: PathBuf,
+    pub(crate) candidate: PathBuf,
     #[arg(long)]
-    intermediate: PathBuf,
+    pub(crate) intermediate: PathBuf,
     #[arg(long)]
-    geometry: PathBuf,
+    pub(crate) geometry: PathBuf,
     #[arg(long, value_enum, default_value_t = CorridorRealization::Hybrid)]
-    corridor_realization: CorridorRealization,
+    pub(crate) corridor_realization: CorridorRealization,
     #[arg(long)]
-    out: PathBuf,
+    pub(crate) out: PathBuf,
 }
 
 #[derive(Clone, Copy, Debug, Default, Deserialize, Eq, PartialEq, Serialize, ValueEnum)]
 #[value(rename_all = "snake_case")]
 #[serde(rename_all = "snake_case")]
-enum CorridorRealization {
+pub enum CorridorRealization {
     Catalog,
     #[default]
     Hybrid,
@@ -380,7 +383,7 @@ enum CorridorRealization {
 }
 
 impl CorridorRealization {
-    fn as_str(self) -> &'static str {
+    pub fn as_str(self) -> &'static str {
         match self {
             Self::Catalog => "catalog",
             Self::Hybrid => "hybrid",
@@ -388,207 +391,207 @@ impl CorridorRealization {
         }
     }
 
-    fn uses_catalog_pieces(self) -> bool {
+    pub fn uses_catalog_pieces(self) -> bool {
         matches!(self, Self::Catalog | Self::Hybrid)
     }
 }
 
 #[derive(Args)]
-struct BuildMatchShapesArgs {
+pub(crate) struct BuildMatchShapesArgs {
     #[arg(long)]
-    catalog: PathBuf,
+    pub(crate) catalog: PathBuf,
     #[arg(long = "piece-plan")]
-    piece_plan: PathBuf,
+    pub(crate) piece_plan: PathBuf,
     #[arg(long)]
-    seed: u64,
+    pub(crate) seed: u64,
     #[arg(long)]
-    out: PathBuf,
+    pub(crate) out: PathBuf,
 }
 
 #[derive(Args)]
-struct BuildAssembleArgs {
+pub(crate) struct BuildAssembleArgs {
     #[arg(long)]
-    catalog: PathBuf,
+    pub(crate) catalog: PathBuf,
     #[arg(long = "piece-plan")]
-    piece_plan: PathBuf,
+    pub(crate) piece_plan: PathBuf,
     #[arg(long = "shape-match")]
-    shape_match: PathBuf,
+    pub(crate) shape_match: PathBuf,
     #[arg(long, value_enum, default_value_t = GridConnectivity::FourWay)]
-    connectivity: GridConnectivity,
+    pub(crate) connectivity: GridConnectivity,
     #[arg(long)]
-    out: PathBuf,
+    pub(crate) out: PathBuf,
 }
 
 #[derive(Args)]
-struct BuildValidateFlowArgs {
+pub(crate) struct BuildValidateFlowArgs {
     #[arg(long)]
-    candidate: PathBuf,
+    pub(crate) candidate: PathBuf,
     #[arg(long)]
-    geometry: PathBuf,
+    pub(crate) geometry: PathBuf,
     #[arg(long = "piece-plan")]
-    piece_plan: PathBuf,
+    pub(crate) piece_plan: PathBuf,
     #[arg(long = "piece-placement")]
-    piece_placement: PathBuf,
+    pub(crate) piece_placement: PathBuf,
     #[arg(long)]
-    out: PathBuf,
+    pub(crate) out: PathBuf,
 }
 
 #[derive(Clone, Copy, Debug, Deserialize, Eq, PartialEq, Serialize, ValueEnum)]
 #[serde(rename_all = "snake_case")]
-enum GridConnectivity {
+pub enum GridConnectivity {
     FourWay,
     EightWay,
 }
 
 #[derive(Args)]
-struct PreviewCommand {
+pub(crate) struct PreviewCommand {
     #[command(subcommand)]
-    command: PreviewSubcommand,
+    pub(crate) command: PreviewSubcommand,
 }
 
 #[derive(Subcommand)]
-enum PreviewSubcommand {
+pub(crate) enum PreviewSubcommand {
     Html(PreviewHtmlArgs),
 }
 
 #[derive(Args)]
-struct PreviewHtmlArgs {
+pub(crate) struct PreviewHtmlArgs {
     #[arg(long)]
-    geometry: PathBuf,
+    pub(crate) geometry: PathBuf,
     #[arg(long)]
-    validation: PathBuf,
+    pub(crate) validation: PathBuf,
     #[arg(long)]
-    out: PathBuf,
+    pub(crate) out: PathBuf,
     #[arg(long)]
-    allow_invalid: bool,
+    pub(crate) allow_invalid: bool,
 }
 
 #[derive(Args)]
-struct ScoreCommand {
+pub(crate) struct ScoreCommand {
     #[command(subcommand)]
-    command: ScoreSubcommand,
+    pub(crate) command: ScoreSubcommand,
 }
 
 #[derive(Subcommand)]
-enum ScoreSubcommand {
+pub(crate) enum ScoreSubcommand {
     Graph(ReportOutArgs),
 }
 
 #[derive(Args)]
-struct EmbedCommand {
+pub(crate) struct EmbedCommand {
     #[command(subcommand)]
-    command: EmbedSubcommand,
+    pub(crate) command: EmbedSubcommand,
 }
 
 #[derive(Subcommand)]
-enum EmbedSubcommand {
+pub(crate) enum EmbedSubcommand {
     #[command(name = "2d")]
     TwoD(Embed2dArgs),
 }
 
 #[derive(Args)]
-struct StateArg {
+pub(crate) struct StateArg {
     #[arg(long)]
-    state: PathBuf,
+    pub(crate) state: PathBuf,
 }
 
 #[derive(Args)]
-struct RuleMetadataArgs {
+pub(crate) struct RuleMetadataArgs {
     #[arg(long)]
-    out: Option<PathBuf>,
+    pub(crate) out: Option<PathBuf>,
 }
 
 #[derive(Args)]
-struct SummarizeArgs {
+pub(crate) struct SummarizeArgs {
     #[arg(long)]
-    state: PathBuf,
+    pub(crate) state: PathBuf,
     #[arg(long)]
-    json: bool,
+    pub(crate) json: bool,
     #[arg(long)]
-    out: Option<PathBuf>,
+    pub(crate) out: Option<PathBuf>,
 }
 
 #[derive(Args)]
-struct ReportOutArgs {
+pub(crate) struct ReportOutArgs {
     #[arg(long)]
-    state: PathBuf,
+    pub(crate) state: PathBuf,
     #[arg(long)]
-    out: PathBuf,
+    pub(crate) out: PathBuf,
 }
 
 #[derive(Args)]
-struct Embed2dArgs {
+pub(crate) struct Embed2dArgs {
     #[arg(long)]
-    state: PathBuf,
+    pub(crate) state: PathBuf,
     #[arg(long)]
-    seed: u64,
+    pub(crate) seed: u64,
     #[arg(long)]
-    out: PathBuf,
+    pub(crate) out: PathBuf,
     #[arg(long)]
-    receipt: PathBuf,
+    pub(crate) receipt: PathBuf,
     #[arg(long)]
-    transcript: Option<PathBuf>,
+    pub(crate) transcript: Option<PathBuf>,
 }
 
 #[derive(Args)]
-struct AcceptArgs {
+pub(crate) struct AcceptArgs {
     #[arg(long)]
-    candidate: PathBuf,
+    pub(crate) candidate: PathBuf,
     #[arg(long)]
-    layout: PathBuf,
+    pub(crate) layout: PathBuf,
     #[arg(long)]
-    validation: PathBuf,
+    pub(crate) validation: PathBuf,
     #[arg(long)]
-    score: PathBuf,
+    pub(crate) score: PathBuf,
     #[arg(long)]
-    out: PathBuf,
+    pub(crate) out: PathBuf,
     #[arg(long)]
-    receipt: PathBuf,
+    pub(crate) receipt: PathBuf,
     #[arg(long)]
-    transcript: Option<PathBuf>,
+    pub(crate) transcript: Option<PathBuf>,
 }
 
 #[derive(Args)]
-struct BaselineArgs {
+pub(crate) struct BaselineArgs {
     #[arg(long)]
-    out_dir: PathBuf,
+    pub(crate) out_dir: PathBuf,
     #[arg(long, default_value_t = 4103)]
-    seed: u64,
+    pub(crate) seed: u64,
 }
 
 #[derive(Args)]
-struct BatchCommand {
+pub(crate) struct BatchCommand {
     #[command(subcommand)]
-    command: BatchSubcommand,
+    pub(crate) command: BatchSubcommand,
 }
 
 #[derive(Subcommand)]
-enum BatchSubcommand {
+pub(crate) enum BatchSubcommand {
     Generate(BatchGenerateArgs),
 }
 
 #[derive(Args)]
-struct BatchGenerateArgs {
+pub(crate) struct BatchGenerateArgs {
     #[arg(long)]
-    out_dir: PathBuf,
+    pub(crate) out_dir: PathBuf,
     #[arg(long)]
-    profile: Option<PathBuf>,
+    pub(crate) profile: Option<PathBuf>,
     #[arg(long, default_value_t = 5201)]
-    seed: u64,
+    pub(crate) seed: u64,
     #[arg(long, default_value_t = 10)]
-    count: usize,
+    pub(crate) count: usize,
 }
 
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
-struct IntentBudget {
-    max_locked_edges: Option<usize>,
-    min_optional_branches: Option<usize>,
-    require_hub: Option<bool>,
-    require_boss: Option<bool>,
-    max_dead_ends: Option<usize>,
+pub struct IntentBudget {
+    pub max_locked_edges: Option<usize>,
+    pub min_optional_branches: Option<usize>,
+    pub require_hub: Option<bool>,
+    pub require_boss: Option<bool>,
+    pub max_dead_ends: Option<usize>,
 }
 
-const DEFAULT_BATCH_PROFILE: &str = "fixtures/batch-profiles/v2-sample.json";
+pub(crate) const DEFAULT_BATCH_PROFILE: &str = "fixtures/batch-profiles/v2-sample.json";
 #[allow(dead_code)]
-const DEFAULT_SHAPE_CATALOG: &str = "fixtures/shape-catalogs/2d-basic.json";
+pub(crate) const DEFAULT_SHAPE_CATALOG: &str = "fixtures/shape-catalogs/2d-basic.json";

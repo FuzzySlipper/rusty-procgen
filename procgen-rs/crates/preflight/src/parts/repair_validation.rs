@@ -1,4 +1,7 @@
-fn validate_graph_command(args: ReportOutArgs) -> Result<(), String> {
+#[allow(unused_imports)]
+use crate::*;
+
+pub(crate) fn validate_graph_command(args: ReportOutArgs) -> Result<(), String> {
     let candidate: Candidate = read_json(&args.state)?;
     let report = validate_graph(&candidate);
     write_json(&args.out, &report)?;
@@ -13,13 +16,13 @@ fn validate_graph_command(args: ReportOutArgs) -> Result<(), String> {
     }
 }
 
-fn repair_suggest_command(args: ReportOutArgs) -> Result<(), String> {
+pub(crate) fn repair_suggest_command(args: ReportOutArgs) -> Result<(), String> {
     let candidate: Candidate = read_json(&args.state)?;
     let report = repair_report(&candidate)?;
     write_json(&args.out, &report)
 }
 
-fn repair_apply_command(args: RepairApplyArgs) -> Result<(), String> {
+pub(crate) fn repair_apply_command(args: RepairApplyArgs) -> Result<(), String> {
     let mut candidate: Candidate = read_json(&args.state)?;
     let input_hash = hash_file(&args.state)?;
     let diagnostics = apply_repair_action(
@@ -94,7 +97,7 @@ fn repair_apply_command(args: RepairApplyArgs) -> Result<(), String> {
     }
 }
 
-fn apply_repair_action(
+pub(crate) fn apply_repair_action(
     candidate: &mut Candidate,
     action: RepairAction,
     target: Option<&str>,
@@ -122,7 +125,11 @@ fn apply_repair_action(
     }
 }
 
-fn apply_add_rejoin_edge(candidate: &mut Candidate, target: &str, seed: u64) -> Vec<Diagnostic> {
+pub(crate) fn apply_add_rejoin_edge(
+    candidate: &mut Candidate,
+    target: &str,
+    seed: u64,
+) -> Vec<Diagnostic> {
     if target == "goal" {
         return vec![fatal(
             "repair_target_invalid",
@@ -165,7 +172,7 @@ fn apply_add_rejoin_edge(candidate: &mut Candidate, target: &str, seed: u64) -> 
     Vec::new()
 }
 
-fn apply_remove_orphan_node(candidate: &mut Candidate, target: &str) -> Vec<Diagnostic> {
+pub(crate) fn apply_remove_orphan_node(candidate: &mut Candidate, target: &str) -> Vec<Diagnostic> {
     if target == "start" || target == "goal" {
         return vec![fatal(
             "repair_target_invalid",
@@ -191,7 +198,7 @@ fn apply_remove_orphan_node(candidate: &mut Candidate, target: &str) -> Vec<Diag
     Vec::new()
 }
 
-fn repair_report(candidate: &Candidate) -> Result<RepairReport, String> {
+pub(crate) fn repair_report(candidate: &Candidate) -> Result<RepairReport, String> {
     let validation = validate_graph(candidate);
     let mut suggestions: Vec<RepairSuggestion> = validation
         .diagnostics
@@ -216,7 +223,7 @@ fn repair_report(candidate: &Candidate) -> Result<RepairReport, String> {
     })
 }
 
-fn repair_suggestion_for_diagnostic(diagnostic: &Diagnostic) -> RepairSuggestion {
+pub(crate) fn repair_suggestion_for_diagnostic(diagnostic: &Diagnostic) -> RepairSuggestion {
     RepairSuggestion {
         code: diagnostic.code.clone(),
         severity: diagnostic.severity,
@@ -228,7 +235,7 @@ fn repair_suggestion_for_diagnostic(diagnostic: &Diagnostic) -> RepairSuggestion
     }
 }
 
-fn severity_rank(severity: Severity) -> u8 {
+pub(crate) fn severity_rank(severity: Severity) -> u8 {
     match severity {
         Severity::Fatal => 0,
         Severity::Warning => 1,
@@ -236,7 +243,7 @@ fn severity_rank(severity: Severity) -> u8 {
     }
 }
 
-fn suggested_actions_for_diagnostic(diagnostic: &Diagnostic) -> Vec<String> {
+pub(crate) fn suggested_actions_for_diagnostic(diagnostic: &Diagnostic) -> Vec<String> {
     match diagnostic.code.as_str() {
         "required_item_unavailable" => vec![
             "Inspect graph rules for a key/resource provider that grants the required item."
@@ -310,7 +317,7 @@ fn suggested_actions_for_diagnostic(diagnostic: &Diagnostic) -> Vec<String> {
     }
 }
 
-fn validate_graph(candidate: &Candidate) -> ValidationReport {
+pub(crate) fn validate_graph(candidate: &Candidate) -> ValidationReport {
     let mut diagnostics = Vec::new();
     let node_ids: BTreeSet<&str> = candidate
         .graph
@@ -458,7 +465,7 @@ fn validate_graph(candidate: &Candidate) -> ValidationReport {
     }
 }
 
-fn validate_v2_patterns(
+pub(crate) fn validate_v2_patterns(
     candidate: &Candidate,
     incoming: &BTreeMap<&str, usize>,
     outgoing: &BTreeMap<&str, usize>,
@@ -582,20 +589,20 @@ fn validate_v2_patterns(
     }
 }
 
-fn node_has_tag(node: &Node, tag: &str) -> bool {
+pub(crate) fn node_has_tag(node: &Node, tag: &str) -> bool {
     node.tags.iter().any(|candidate_tag| candidate_tag == tag)
 }
 
-fn edge_has_tag(edge: &Edge, tag: &str) -> bool {
+pub(crate) fn edge_has_tag(edge: &Edge, tag: &str) -> bool {
     edge.tags.iter().any(|candidate_tag| candidate_tag == tag)
 }
 
-struct Reachability<'a> {
+pub(crate) struct Reachability<'a> {
     goal_reached: bool,
     traversed_edges: BTreeSet<&'a str>,
 }
 
-fn reachable_with_items(candidate: &Candidate) -> Reachability<'_> {
+pub(crate) fn reachable_with_items(candidate: &Candidate) -> Reachability<'_> {
     let mut adjacency: BTreeMap<&str, Vec<&Edge>> = BTreeMap::new();
     for edge in &candidate.graph.edges {
         adjacency.entry(edge.from.as_str()).or_default().push(edge);

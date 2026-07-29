@@ -1,4 +1,7 @@
-fn run(cli: Cli) -> Result<(), String> {
+#[allow(unused_imports)]
+use crate::*;
+
+pub(crate) fn run(cli: Cli) -> Result<(), String> {
     match cli.command {
         Command::Preflight(args) => run_preflight_command(&args.repo_root),
         Command::Init(args) => init_candidate(args),

@@ -1,4 +1,7 @@
-fn build_assemble_command(args: BuildAssembleArgs) -> Result<(), String> {
+#[allow(unused_imports)]
+use crate::*;
+
+pub(crate) fn build_assemble_command(args: BuildAssembleArgs) -> Result<(), String> {
     let catalog: ShapeCatalog = read_json(&args.catalog)?;
     let plan: PieceBuildPlan = read_json(&args.piece_plan)?;
     let shape_match: PieceShapeMatchReport = read_json(&args.shape_match)?;
@@ -6,7 +9,7 @@ fn build_assemble_command(args: BuildAssembleArgs) -> Result<(), String> {
     write_json(&args.out, &placement)
 }
 
-fn build_validate_placement_command(args: ReportOutArgs) -> Result<(), String> {
+pub(crate) fn build_validate_placement_command(args: ReportOutArgs) -> Result<(), String> {
     let placement: PiecePlacement = read_json(&args.state)?;
     let report = validate_piece_placement(&placement);
     write_json(&args.out, &report)?;
@@ -20,7 +23,7 @@ fn build_validate_placement_command(args: ReportOutArgs) -> Result<(), String> {
     Ok(())
 }
 
-fn assemble_piece_placement(
+pub(crate) fn assemble_piece_placement(
     catalog: &ShapeCatalog,
     plan: &PieceBuildPlan,
     shape_match: &PieceShapeMatchReport,
@@ -33,17 +36,10 @@ fn assemble_piece_placement(
     let mut realization_attempts = 0_u32;
     for scale_multiplier in REALIZATION_SCALE_MULTIPLIERS {
         realization_attempts = realization_attempts.saturating_add(1);
-        match assemble_piece_placement_attempt(
-            catalog,
-            plan,
-            shape_match,
-            args,
-            scale_multiplier,
-        ) {
+        match assemble_piece_placement_attempt(catalog, plan, shape_match, args, scale_multiplier) {
             Ok(mut placement) => {
-                placement
-                    .realization_search
-                    .realization_scale_tier = u32::try_from(scale_multiplier - 1).unwrap_or(u32::MAX);
+                placement.realization_search.realization_scale_tier =
+                    u32::try_from(scale_multiplier - 1).unwrap_or(u32::MAX);
                 placement.realization_search.realization_attempts = realization_attempts;
                 return Ok(placement);
             }
@@ -61,7 +57,7 @@ fn assemble_piece_placement(
     ))
 }
 
-fn assemble_piece_placement_attempt(
+pub(crate) fn assemble_piece_placement_attempt(
     catalog: &ShapeCatalog,
     plan: &PieceBuildPlan,
     shape_match: &PieceShapeMatchReport,
@@ -147,14 +143,14 @@ fn assemble_piece_placement_attempt(
             requirement,
             geometry_scale_for_multiplier(&catalog.placement_policy, scale_multiplier),
         )
-            .or_else(|| {
-                linked_piece_origin(
-                    plan,
-                    matched,
-                    requirement,
-                    &instances,
-                    &catalog.placement_policy,
-                )
+        .or_else(|| {
+            linked_piece_origin(
+                plan,
+                matched,
+                requirement,
+                &instances,
+                &catalog.placement_policy,
+            )
         })
         .unwrap_or_else(|| {
             scaled_desired_origin_for_requirement(
@@ -286,18 +282,15 @@ fn assemble_piece_placement_attempt(
         placement.realization_search.route_attempts = route_search.route_attempts;
         placement.realization_search.route_decisions = route_search.route_decisions;
         placement.realization_search.route_backtracks = route_search.route_backtracks;
-        placement.realization_search.route_path_alternatives =
-            route_search.route_path_alternatives;
+        placement.realization_search.route_path_alternatives = route_search.route_path_alternatives;
         placement.realization_search.route_repairs = route_search.route_repairs;
-        placement.realization_search.route_blocking_owners =
-            route_search.route_blocking_owners;
-        placement.realization_search.route_budget_exhausted =
-            route_search.route_budget_exhausted;
+        placement.realization_search.route_blocking_owners = route_search.route_blocking_owners;
+        placement.realization_search.route_budget_exhausted = route_search.route_budget_exhausted;
     }
     Ok(placement)
 }
 
-fn catalog_section_contact_instances(
+pub(crate) fn catalog_section_contact_instances(
     plan: &PieceBuildPlan,
     requirement: &PieceRequirement,
     instances: &[PieceInstance],
@@ -333,7 +326,7 @@ fn catalog_section_contact_instances(
         .collect()
 }
 
-fn catalog_route_piece_origin(
+pub(crate) fn catalog_route_piece_origin(
     plan: &PieceBuildPlan,
     matched: &MatchedPiece,
     requirement: &PieceRequirement,
@@ -372,7 +365,7 @@ fn catalog_route_piece_origin(
     })
 }
 
-fn linked_piece_origin(
+pub(crate) fn linked_piece_origin(
     plan: &PieceBuildPlan,
     matched: &MatchedPiece,
     requirement: &PieceRequirement,
@@ -454,7 +447,7 @@ fn linked_piece_origin(
     anchors.into_iter().next().map(|(_, _, origin)| origin)
 }
 
-fn scaled_desired_origin_for_requirement(
+pub(crate) fn scaled_desired_origin_for_requirement(
     requirement: &PieceRequirement,
     index: usize,
     policy: &PiecePlacementPolicy,
@@ -477,20 +470,15 @@ fn scaled_desired_origin_for_requirement(
             let values = parse_i32_parts(rest);
             if values.len() == 4 {
                 return GridCell {
-                    x: rounded_ratio(
-                        (values[0] + values[2]) / 2,
-                        scale,
-                        GEOMETRY_CELL_SIZE,
-                    ),
-                    y: rounded_ratio(
-                        (values[1] + values[3]) / 2,
-                        scale,
-                        GEOMETRY_CELL_SIZE,
-                    ),
+                    x: rounded_ratio((values[0] + values[2]) / 2, scale, GEOMETRY_CELL_SIZE),
+                    y: rounded_ratio((values[1] + values[3]) / 2, scale, GEOMETRY_CELL_SIZE),
                 };
             }
         }
-        if let Some(rest) = hint.strip_prefix("bend:").or_else(|| hint.strip_prefix("point:")) {
+        if let Some(rest) = hint
+            .strip_prefix("bend:")
+            .or_else(|| hint.strip_prefix("point:"))
+        {
             let values = parse_i32_parts(rest);
             if values.len() == 2 {
                 return GridCell {
@@ -506,14 +494,15 @@ fn scaled_desired_origin_for_requirement(
     }
 }
 
-fn parse_i32_parts(value: &str) -> Vec<i32> {
+pub(crate) fn parse_i32_parts(value: &str) -> Vec<i32> {
     value
         .split(':')
         .filter_map(|part| part.parse::<i32>().ok())
         .collect()
 }
 
-fn find_available_origin(
+#[allow(clippy::too_many_arguments)]
+pub(crate) fn find_available_origin(
     shape: &CatalogShape,
     exit_map: &[MatchedExit],
     transform: &str,
@@ -553,7 +542,8 @@ fn find_available_origin(
     None
 }
 
-fn origin_available(
+#[allow(clippy::too_many_arguments)]
+pub(crate) fn origin_available(
     shape: &CatalogShape,
     exit_map: &[MatchedExit],
     transform: &str,
@@ -572,7 +562,11 @@ fn origin_available(
             && !reserved_positions.contains(&(cell.x, cell.y))
             && exit_protected_positions
                 .get(&(cell.x, cell.y))
-                .is_none_or(|owners| owners.iter().all(|owner| allowed_contact_instances.contains(owner)))
+                .is_none_or(|owners| {
+                    owners
+                        .iter()
+                        .all(|owner| allowed_contact_instances.contains(owner))
+                })
             && clearance_available(
                 (cell.x, cell.y),
                 policy.minimum_clearance_cells,
@@ -584,19 +578,25 @@ fn origin_available(
             && !reserved_positions.contains(&(cell.x, cell.y))
             && exit_protected_positions
                 .get(&(cell.x, cell.y))
-                .is_none_or(|owners| owners.iter().all(|owner| allowed_contact_instances.contains(owner)))
+                .is_none_or(|owners| {
+                    owners
+                        .iter()
+                        .all(|owner| allowed_contact_instances.contains(owner))
+                })
     }) && exit_protection.iter().all(|position| {
         occupied_positions
             .get(position)
             .is_none_or(|owner| allowed_contact_instances.contains(owner))
             && !reserved_positions.contains(position)
-            && exit_protected_positions
-                .get(position)
-                .is_none_or(|owners| owners.iter().all(|owner| allowed_contact_instances.contains(owner)))
+            && exit_protected_positions.get(position).is_none_or(|owners| {
+                owners
+                    .iter()
+                    .all(|owner| allowed_contact_instances.contains(owner))
+            })
     })
 }
 
-fn exit_route_protection(
+pub(crate) fn exit_route_protection(
     exit_map: &[MatchedExit],
     origin: &GridCell,
     occupied: &[GridCell],
@@ -632,7 +632,7 @@ fn exit_route_protection(
     protected
 }
 
-fn clearance_available(
+pub(crate) fn clearance_available(
     cell: (i32, i32),
     minimum_clearance_cells: i32,
     occupied_positions: &BTreeMap<(i32, i32), String>,
@@ -654,7 +654,7 @@ fn clearance_available(
     true
 }
 
-fn derive_glued_exits(
+pub(crate) fn derive_glued_exits(
     plan: &PieceBuildPlan,
     instances: &[PieceInstance],
 ) -> Result<Vec<GluedExit>, String> {
@@ -668,11 +668,21 @@ fn derive_glued_exits(
         let from = instances_by_piece
             .get(link.from_piece.as_str())
             .copied()
-            .ok_or_else(|| format!("link {} references missing from piece {}", link.id, link.from_piece))?;
+            .ok_or_else(|| {
+                format!(
+                    "link {} references missing from piece {}",
+                    link.id, link.from_piece
+                )
+            })?;
         let to = instances_by_piece
             .get(link.to_piece.as_str())
             .copied()
-            .ok_or_else(|| format!("link {} references missing to piece {}", link.id, link.to_piece))?;
+            .ok_or_else(|| {
+                format!(
+                    "link {} references missing to piece {}",
+                    link.id, link.to_piece
+                )
+            })?;
         let from_exit = required_instance_exit(from, link.from_exit.as_str(), link.id.as_str())?;
         let to_exit = required_instance_exit(to, link.to_exit.as_str(), link.id.as_str())?;
         if plan.corridor_realization == CorridorRealization::Catalog
@@ -720,7 +730,7 @@ fn derive_glued_exits(
     Ok(glued)
 }
 
-fn required_instance_exit<'a>(
+pub(crate) fn required_instance_exit<'a>(
     instance: &'a PieceInstance,
     requirement_exit_id: &str,
     link_id: &str,
@@ -737,13 +747,16 @@ fn required_instance_exit<'a>(
         })
 }
 
-fn consume_instance_exit(
+pub(crate) fn consume_instance_exit(
     consumed: &mut BTreeMap<(String, String), String>,
     instance: &PieceInstance,
     exit: &MatchedExit,
     link: &PieceLink,
 ) -> Result<(), String> {
-    let key = (instance.instance_id.clone(), exit.requirement_exit_id.clone());
+    let key = (
+        instance.instance_id.clone(),
+        exit.requirement_exit_id.clone(),
+    );
     if let Some(first_link) = consumed.insert(key, link.id.clone()) {
         return Err(format!(
             "instance exit {}:{} is reused by links {} and {}; shared portals require explicit junction semantics",
@@ -753,13 +766,15 @@ fn consume_instance_exit(
     Ok(())
 }
 
-fn derive_gate_portals(
+pub(crate) fn derive_gate_portals(
     plan: &PieceBuildPlan,
     glued_exits: &[GluedExit],
 ) -> Result<Vec<GatePortal>, String> {
     let mut first_link_by_section: BTreeMap<&str, &PieceLink> = BTreeMap::new();
     for link in &plan.links {
-        first_link_by_section.entry(link.source_section.as_str()).or_insert(link);
+        first_link_by_section
+            .entry(link.source_section.as_str())
+            .or_insert(link);
     }
     let glued_by_link = glued_exits
         .iter()
@@ -767,9 +782,15 @@ fn derive_gate_portals(
         .collect::<BTreeMap<_, _>>();
     let mut portals = Vec::new();
     for (source_section, link) in first_link_by_section {
-        let glued = glued_by_link.get(link.id.as_str()).copied().ok_or_else(|| {
-            format!("physical section {} has no glued portal link {}", source_section, link.id)
-        })?;
+        let glued = glued_by_link
+            .get(link.id.as_str())
+            .copied()
+            .ok_or_else(|| {
+                format!(
+                    "physical section {} has no glued portal link {}",
+                    source_section, link.id
+                )
+            })?;
         portals.push(GatePortal {
             id: format!("gate_portal.{}", slugify_label(source_section)),
             source_section: source_section.to_owned(),
@@ -799,11 +820,10 @@ fn derive_gate_portals(
     Ok(portals)
 }
 
-type SectionRoomEndpoints =
-    BTreeMap<String, BTreeMap<String, Vec<(GridCell, String)>>>;
-type RoutedSections = BTreeMap<(i32, i32), BTreeSet<String>>;
+pub(crate) type SectionRoomEndpoints = BTreeMap<String, BTreeMap<String, Vec<(GridCell, String)>>>;
+pub(crate) type RoutedSections = BTreeMap<(i32, i32), BTreeSet<String>>;
 
-fn collect_section_room_endpoints(placement: &PiecePlacement) -> SectionRoomEndpoints {
+pub(crate) fn collect_section_room_endpoints(placement: &PiecePlacement) -> SectionRoomEndpoints {
     let room_instances = placement
         .instances
         .iter()
@@ -842,18 +862,18 @@ fn collect_section_room_endpoints(placement: &PiecePlacement) -> SectionRoomEndp
     section_room_endpoints
 }
 
-const REALIZATION_SCALE_MULTIPLIERS: [i32; 4] = [1, 2, 3, 4];
+pub(crate) const REALIZATION_SCALE_MULTIPLIERS: [i32; 4] = [1, 2, 3, 4];
 
 #[derive(Clone, Copy)]
-struct PieceRouteSearchBudget {
-    compact_probe: bool,
-    order_attempts: usize,
-    path_alternatives: u32,
-    decisions: u32,
-    backtracks: u32,
+pub(crate) struct PieceRouteSearchBudget {
+    pub(crate) compact_probe: bool,
+    pub(crate) order_attempts: usize,
+    pub(crate) path_alternatives: u32,
+    pub(crate) decisions: u32,
+    pub(crate) backtracks: u32,
 }
 
-const FULL_PIECE_ROUTE_SEARCH_BUDGET: PieceRouteSearchBudget = PieceRouteSearchBudget {
+pub(crate) const FULL_PIECE_ROUTE_SEARCH_BUDGET: PieceRouteSearchBudget = PieceRouteSearchBudget {
     compact_probe: false,
     order_attempts: 4,
     path_alternatives: 4,
@@ -861,15 +881,16 @@ const FULL_PIECE_ROUTE_SEARCH_BUDGET: PieceRouteSearchBudget = PieceRouteSearchB
     backtracks: 128,
 };
 
-const COMPACT_PIECE_ROUTE_PROBE_BUDGET: PieceRouteSearchBudget = PieceRouteSearchBudget {
-    compact_probe: true,
-    order_attempts: 1,
-    path_alternatives: 1,
-    decisions: 16,
-    backtracks: 8,
-};
+pub(crate) const COMPACT_PIECE_ROUTE_PROBE_BUDGET: PieceRouteSearchBudget =
+    PieceRouteSearchBudget {
+        compact_probe: true,
+        order_attempts: 1,
+        path_alternatives: 1,
+        decisions: 16,
+        backtracks: 8,
+    };
 
-fn piece_route_search_budget(scale_multiplier: i32) -> PieceRouteSearchBudget {
+pub(crate) fn piece_route_search_budget(scale_multiplier: i32) -> PieceRouteSearchBudget {
     if scale_multiplier < 3 {
         COMPACT_PIECE_ROUTE_PROBE_BUDGET
     } else {
@@ -878,13 +899,13 @@ fn piece_route_search_budget(scale_multiplier: i32) -> PieceRouteSearchBudget {
 }
 
 #[cfg(test)]
-fn derive_connection_cells(
+pub(crate) fn derive_connection_cells(
     placement: &PiecePlacement,
 ) -> Result<(Vec<PlacementCellRef>, PieceRealizationSearchEvidence), String> {
     derive_connection_cells_with_budget(placement, FULL_PIECE_ROUTE_SEARCH_BUDGET)
 }
 
-fn derive_connection_cells_with_budget(
+pub(crate) fn derive_connection_cells_with_budget(
     placement: &PiecePlacement,
     budget: PieceRouteSearchBudget,
 ) -> Result<(Vec<PlacementCellRef>, PieceRealizationSearchEvidence), String> {
@@ -917,20 +938,13 @@ fn derive_connection_cells_with_budget(
 
     let mut last_error = "no piece route order was attempted".to_owned();
     let mut route_attempts = 0_u32;
-    for (route_order_attempt, order) in orders
-        .into_iter()
-        .take(budget.order_attempts)
-        .enumerate()
-    {
+    for (route_order_attempt, order) in orders.into_iter().take(budget.order_attempts).enumerate() {
         route_attempts += 1;
         match try_derive_connection_cells(placement, &order, budget) {
             Ok((cells, mut search)) => {
                 search.route_order_attempt = route_order_attempt as u32;
                 search.route_attempts = route_attempts;
-                return Ok((
-                    cells,
-                    search,
-                ));
+                return Ok((cells, search));
             }
             Err(error) => last_error = error,
         }
@@ -940,7 +954,7 @@ fn derive_connection_cells_with_budget(
     ))
 }
 
-fn try_derive_connection_cells(
+pub(crate) fn try_derive_connection_cells(
     placement: &PiecePlacement,
     glued_order: &[&GluedExit],
     budget: PieceRouteSearchBudget,
@@ -1030,7 +1044,7 @@ fn try_derive_connection_cells(
 }
 
 #[allow(clippy::too_many_arguments)]
-fn search_piece_connection_cells(
+pub(crate) fn search_piece_connection_cells(
     placement: &PiecePlacement,
     glued_order: &[&GluedExit],
     index: usize,
@@ -1161,9 +1175,7 @@ fn search_piece_connection_cells(
             .is_some();
             if without_routed_sections {
                 for owners in routed_sections.values() {
-                    search
-                        .route_blocking_owners
-                        .extend(owners.iter().cloned());
+                    search.route_blocking_owners.extend(owners.iter().cloned());
                 }
             }
             last_error = format!(
@@ -1267,14 +1279,17 @@ fn search_piece_connection_cells(
     search.route_blocking_owners.sort();
     search.route_blocking_owners.dedup();
     Err(if last_error.is_empty() {
-        format!("no materially distinct route alternative exists for {}", glued.id)
+        format!(
+            "no materially distinct route alternative exists for {}",
+            glued.id
+        )
     } else {
         last_error
     })
 }
 
 #[allow(clippy::too_many_arguments)]
-fn stitch_catalog_section_pieces(
+pub(crate) fn stitch_catalog_section_pieces(
     placement: &PiecePlacement,
     glued: &GluedExit,
     mut bridge: Vec<GridCell>,
@@ -1360,7 +1375,7 @@ fn stitch_catalog_section_pieces(
 }
 
 #[allow(clippy::too_many_arguments)]
-fn route_catalog_stitch(
+pub(crate) fn route_catalog_stitch(
     placement: &PiecePlacement,
     glued: &GluedExit,
     starts: &BTreeSet<(i32, i32)>,
@@ -1475,7 +1490,7 @@ fn route_catalog_stitch(
     Some(route)
 }
 
-fn collect_catalog_section_instances(
+pub(crate) fn collect_catalog_section_instances(
     placement: &PiecePlacement,
 ) -> BTreeMap<String, BTreeSet<String>> {
     let mut sections = BTreeMap::new();
@@ -1492,7 +1507,7 @@ fn collect_catalog_section_instances(
     sections
 }
 
-fn collect_catalog_section_contact_instances(
+pub(crate) fn collect_catalog_section_contact_instances(
     placement: &PiecePlacement,
 ) -> BTreeMap<String, BTreeSet<String>> {
     let mut sections = collect_catalog_section_instances(placement);
@@ -1504,7 +1519,8 @@ fn collect_catalog_section_contact_instances(
     sections
 }
 
-fn route_connection_for_mode(
+#[allow(clippy::too_many_arguments)]
+pub(crate) fn route_connection_for_mode(
     placement: &PiecePlacement,
     glued: &GluedExit,
     occupied_by_cell: &BTreeMap<(i32, i32), &str>,
@@ -1545,7 +1561,8 @@ fn route_connection_for_mode(
     }
 }
 
-fn realize_planned_lane_connection(
+#[allow(clippy::too_many_arguments)]
+pub(crate) fn realize_planned_lane_connection(
     glued: &GluedExit,
     occupied_by_cell: &BTreeMap<(i32, i32), &str>,
     reserved: &BTreeSet<(i32, i32)>,
@@ -1565,29 +1582,29 @@ fn realize_planned_lane_connection(
         section_room_endpoints,
     )?;
     let lane = rasterize_orthogonal_waypoints(&waypoints)?;
-    let direct_lane_available = lane
-        .iter()
-        .skip(1)
-        .take(lane.len().saturating_sub(2))
-        .all(|cell| {
-            bridge_position_available(
-                (cell.x, cell.y),
-                glued.from_instance.as_str(),
-                glued.to_instance.as_str(),
-                &glued.from_cell,
-                glued.from_direction.as_str(),
-                &glued.to_cell,
-                glued.to_direction.as_str(),
-                occupied_by_cell,
-                reserved,
-                wall_clearance,
-                corridor_clearance,
-                routed_sections,
-                section_room_endpoints,
-                glued.source_section.as_str(),
-                same_section_instances,
-            )
-        });
+    let direct_lane_available =
+        lane.iter()
+            .skip(1)
+            .take(lane.len().saturating_sub(2))
+            .all(|cell| {
+                bridge_position_available(
+                    (cell.x, cell.y),
+                    glued.from_instance.as_str(),
+                    glued.to_instance.as_str(),
+                    &glued.from_cell,
+                    glued.from_direction.as_str(),
+                    &glued.to_cell,
+                    glued.to_direction.as_str(),
+                    occupied_by_cell,
+                    reserved,
+                    wall_clearance,
+                    corridor_clearance,
+                    routed_sections,
+                    section_room_endpoints,
+                    glued.source_section.as_str(),
+                    same_section_instances,
+                )
+            });
     if direct_lane_available {
         return Some(lane);
     }
@@ -1611,7 +1628,7 @@ fn realize_planned_lane_connection(
     )
 }
 
-fn build_lane_distance_map(
+pub(crate) fn build_lane_distance_map(
     lane_positions: &BTreeSet<(i32, i32)>,
     envelope: i32,
 ) -> BTreeMap<(i32, i32), u32> {
@@ -1635,7 +1652,7 @@ fn build_lane_distance_map(
     distances
 }
 
-fn map_geometry_lane_to_room_exits(
+pub(crate) fn map_geometry_lane_to_room_exits(
     glued: &GluedExit,
     geometry_scale: i32,
     endpoint_escape: i32,
@@ -1691,9 +1708,8 @@ fn map_geometry_lane_to_room_exits(
         .y
         .saturating_add(to_dy.saturating_mul(to_fanout_offset));
     let mapped_first = mapped.first_mut()?;
-    let mapped_first_forward =
-        (mapped_first.x - glued.from_cell.x) * from_dx
-            + (mapped_first.y - glued.from_cell.y) * from_dy;
+    let mapped_first_forward = (mapped_first.x - glued.from_cell.x) * from_dx
+        + (mapped_first.y - glued.from_cell.y) * from_dy;
     if mapped_first_forward < endpoint_escape {
         if from_dx != 0 {
             mapped_first.x = glued.from_cell.x + from_dx * endpoint_escape;
@@ -1762,7 +1778,7 @@ fn map_geometry_lane_to_room_exits(
     Some(waypoints)
 }
 
-fn endpoint_fanout_offset(
+pub(crate) fn endpoint_fanout_offset(
     instance: &str,
     endpoint: &GridCell,
     direction: &str,
@@ -1775,13 +1791,7 @@ fn endpoint_fanout_offset(
         .filter_map(|rooms| rooms.get(instance))
         .flatten()
         .filter(|(_, peer_direction)| peer_direction == direction)
-        .map(|(cell, _)| {
-            (
-                if horizontal { cell.y } else { cell.x },
-                cell.x,
-                cell.y,
-            )
-        })
+        .map(|(cell, _)| (if horizontal { cell.y } else { cell.x }, cell.x, cell.y))
         .collect::<Vec<_>>();
     peers.sort();
     peers.dedup();
@@ -1795,27 +1805,21 @@ fn endpoint_fanout_offset(
         .saturating_mul(stride)
 }
 
-fn placement_geometry_scale(placement: &PiecePlacement) -> i32 {
-    let scale_multiplier = realization_scale_multiplier(
-        placement.realization_search.realization_scale_tier,
-    )
-    .filter(|scale_multiplier| REALIZATION_SCALE_MULTIPLIERS.contains(scale_multiplier))
-    .unwrap_or_else(|| {
-        REALIZATION_SCALE_MULTIPLIERS
-            .last()
-            .copied()
-            .unwrap_or(1)
-    });
+pub(crate) fn placement_geometry_scale(placement: &PiecePlacement) -> i32 {
+    let scale_multiplier =
+        realization_scale_multiplier(placement.realization_search.realization_scale_tier)
+            .filter(|scale_multiplier| REALIZATION_SCALE_MULTIPLIERS.contains(scale_multiplier))
+            .unwrap_or_else(|| REALIZATION_SCALE_MULTIPLIERS.last().copied().unwrap_or(1));
     geometry_scale_for_multiplier(&placement.placement_policy, scale_multiplier)
 }
 
-fn realization_scale_multiplier(realization_scale_tier: u32) -> Option<i32> {
+pub(crate) fn realization_scale_multiplier(realization_scale_tier: u32) -> Option<i32> {
     realization_scale_tier
         .checked_add(1)
         .and_then(|scale_multiplier| i32::try_from(scale_multiplier).ok())
 }
 
-fn geometry_scale_for_multiplier(
+pub(crate) fn geometry_scale_for_multiplier(
     placement_policy: &PiecePlacementPolicy,
     scale_multiplier: i32,
 ) -> i32 {
@@ -1832,7 +1836,7 @@ fn geometry_scale_for_multiplier(
     room_scale.max(clearance_scale)
 }
 
-fn rounded_ratio(value: i32, numerator: i32, denominator: i32) -> i32 {
+pub(crate) fn rounded_ratio(value: i32, numerator: i32, denominator: i32) -> i32 {
     let product = i64::from(value) * i64::from(numerator);
     let denominator = i64::from(denominator);
     let quotient = product / denominator;
@@ -1850,15 +1854,12 @@ fn rounded_ratio(value: i32, numerator: i32, denominator: i32) -> i32 {
     rounded.clamp(i64::from(i32::MIN), i64::from(i32::MAX)) as i32
 }
 
-fn normalize_orthogonal_grid_waypoints(waypoints: &mut Vec<GridCell>) {
+pub(crate) fn normalize_orthogonal_grid_waypoints(waypoints: &mut Vec<GridCell>) {
     let mut normalized = vec![waypoints[0].clone()];
     for to in waypoints.iter().skip(1) {
         let from = normalized.last().expect("normalized has a start");
         if from.x != to.x && from.y != to.y {
-            normalized.push(GridCell {
-                x: to.x,
-                y: from.y,
-            });
+            normalized.push(GridCell { x: to.x, y: from.y });
         }
         if normalized.last() != Some(to) {
             normalized.push(to.clone());
@@ -1867,7 +1868,7 @@ fn normalize_orthogonal_grid_waypoints(waypoints: &mut Vec<GridCell>) {
     *waypoints = normalized;
 }
 
-fn rasterize_orthogonal_waypoints(waypoints: &[GridCell]) -> Option<Vec<GridCell>> {
+pub(crate) fn rasterize_orthogonal_waypoints(waypoints: &[GridCell]) -> Option<Vec<GridCell>> {
     let first = waypoints.first()?.clone();
     let mut cells = vec![first];
     for pair in waypoints.windows(2) {
@@ -1891,7 +1892,7 @@ fn rasterize_orthogonal_waypoints(waypoints: &[GridCell]) -> Option<Vec<GridCell
 }
 
 #[allow(clippy::too_many_arguments)]
-fn route_bridge_cells_in_lane(
+pub(crate) fn route_bridge_cells_in_lane(
     glued: &GluedExit,
     occupied_by_cell: &BTreeMap<(i32, i32), &str>,
     reserved: &BTreeSet<(i32, i32)>,
@@ -1925,7 +1926,8 @@ fn route_bridge_cells_in_lane(
             )
         });
         for neighbor in neighbors {
-            if !seen.insert(neighbor) || (neighbor != end && !lane_distances.contains_key(&neighbor))
+            if !seen.insert(neighbor)
+                || (neighbor != end && !lane_distances.contains_key(&neighbor))
             {
                 continue;
             }
@@ -1970,10 +1972,7 @@ fn route_bridge_cells_in_lane(
     Some(path)
 }
 
-fn distance_to_lane(
-    position: (i32, i32),
-    lane_positions: &BTreeSet<(i32, i32)>,
-) -> u32 {
+pub(crate) fn distance_to_lane(position: (i32, i32), lane_positions: &BTreeSet<(i32, i32)>) -> u32 {
     lane_positions
         .iter()
         .map(|lane| position.0.abs_diff(lane.0) + position.1.abs_diff(lane.1))
@@ -1981,7 +1980,8 @@ fn distance_to_lane(
         .unwrap_or(u32::MAX)
 }
 
-fn route_instance_connection(
+#[allow(clippy::too_many_arguments)]
+pub(crate) fn route_instance_connection(
     glued: &GluedExit,
     connectivity: GridConnectivity,
     occupied_by_cell: &BTreeMap<(i32, i32), &str>,
@@ -2015,7 +2015,7 @@ fn route_instance_connection(
     )
 }
 
-fn placement_route_bounds(placement: &PiecePlacement) -> (i32, i32, i32, i32) {
+pub(crate) fn placement_route_bounds(placement: &PiecePlacement) -> (i32, i32, i32, i32) {
     let min_x = placement
         .occupied_cells
         .iter()
@@ -2047,7 +2047,7 @@ fn placement_route_bounds(placement: &PiecePlacement) -> (i32, i32, i32, i32) {
     (min_x, max_x, min_y, max_y)
 }
 
-fn piece_route_tie_key(position: (i32, i32), nonce: u32) -> u64 {
+pub(crate) fn piece_route_tie_key(position: (i32, i32), nonce: u32) -> u64 {
     let x = u64::from(position.0 as u32);
     let y = u64::from(position.1 as u32);
     x.wrapping_mul(0x9E37_79B1)
@@ -2056,7 +2056,8 @@ fn piece_route_tie_key(position: (i32, i32), nonce: u32) -> u64 {
         ^ u64::from(nonce).wrapping_mul(0xC2B2_AE3D_27D4_EB4F)
 }
 
-fn route_bridge_cells(
+#[allow(clippy::too_many_arguments)]
+pub(crate) fn route_bridge_cells(
     start: &GridCell,
     end: &GridCell,
     from_instance: &str,
@@ -2141,11 +2142,15 @@ fn route_bridge_cells(
     Some(path)
 }
 
-fn position_in_bounds(position: (i32, i32), bounds: (i32, i32, i32, i32)) -> bool {
-    position.0 >= bounds.0 && position.0 <= bounds.1 && position.1 >= bounds.2 && position.1 <= bounds.3
+pub(crate) fn position_in_bounds(position: (i32, i32), bounds: (i32, i32, i32, i32)) -> bool {
+    position.0 >= bounds.0
+        && position.0 <= bounds.1
+        && position.1 >= bounds.2
+        && position.1 <= bounds.3
 }
 
-fn bridge_position_available(
+#[allow(clippy::too_many_arguments)]
+pub(crate) fn bridge_position_available(
     position: (i32, i32),
     from_instance: &str,
     to_instance: &str,
@@ -2180,10 +2185,8 @@ fn bridge_position_available(
                     endpoint_tunnel_contains(position, from_exit, from_direction, wall_clearance)
                 } else if *owner == to_instance {
                     endpoint_tunnel_contains(position, to_exit, to_direction, wall_clearance)
-                } else if same_section_instances.contains(*owner) {
-                    true
                 } else {
-                    false
+                    same_section_instances.contains(*owner)
                 };
                 if !allowed {
                     return false;
@@ -2206,10 +2209,7 @@ fn bridge_position_available(
                             position,
                             nearby,
                             section_room_endpoints,
-                            shared_room_approach_length(
-                                corridor_clearance,
-                                wall_clearance,
-                            ),
+                            shared_room_approach_length(corridor_clearance, wall_clearance),
                         )
                     {
                         return false;
@@ -2221,18 +2221,17 @@ fn bridge_position_available(
     true
 }
 
-fn endpoint_tunnel_contains(
+pub(crate) fn endpoint_tunnel_contains(
     position: (i32, i32),
     exit: &GridCell,
     direction: &str,
     wall_clearance: i32,
 ) -> bool {
     let (dx, dy) = direction_vector(direction);
-    (0..wall_clearance)
-        .any(|step| position == (exit.x + dx * step, exit.y + dy * step))
+    (0..wall_clearance).any(|step| position == (exit.x + dx * step, exit.y + dy * step))
 }
 
-fn direction_vector(direction: &str) -> (i32, i32) {
+pub(crate) fn direction_vector(direction: &str) -> (i32, i32) {
     match direction {
         "north" => (0, -1),
         "east" => (1, 0),
@@ -2242,7 +2241,7 @@ fn direction_vector(direction: &str) -> (i32, i32) {
     }
 }
 
-fn validate_piece_placement(placement: &PiecePlacement) -> ValidationReport {
+pub(crate) fn validate_piece_placement(placement: &PiecePlacement) -> ValidationReport {
     let mut diagnostics = Vec::new();
     if placement.kind != "rusty_procgen.piece_placement.v1" {
         diagnostics.push(fatal(
@@ -2254,9 +2253,8 @@ fn validate_piece_placement(placement: &PiecePlacement) -> ValidationReport {
     }
     validate_piece_placement_policy(&placement.placement_policy, &mut diagnostics);
     validate_corridor_realization(placement, &mut diagnostics);
-    let selected_scale_multiplier = realization_scale_multiplier(
-        placement.realization_search.realization_scale_tier,
-    );
+    let selected_scale_multiplier =
+        realization_scale_multiplier(placement.realization_search.realization_scale_tier);
     let selected_route_budget = selected_scale_multiplier
         .map(piece_route_search_budget)
         .unwrap_or(FULL_PIECE_ROUTE_SEARCH_BUDGET);
@@ -2267,8 +2265,7 @@ fn validate_piece_placement(placement: &PiecePlacement) -> ValidationReport {
     if placement.realization_search.realization_attempts == 0
         || placement.realization_search.realization_attempts
             > REALIZATION_SCALE_MULTIPLIERS.len() as u32
-        || expected_realization_attempts
-            != Some(placement.realization_search.realization_attempts)
+        || expected_realization_attempts != Some(placement.realization_search.realization_attempts)
         || placement.realization_search.realization_scale_tier
             >= REALIZATION_SCALE_MULTIPLIERS.len() as u32
         || placement.realization_search.route_attempts == 0
@@ -2305,7 +2302,7 @@ fn validate_piece_placement(placement: &PiecePlacement) -> ValidationReport {
     }
 }
 
-fn validate_corridor_realization(
+pub(crate) fn validate_corridor_realization(
     placement: &PiecePlacement,
     diagnostics: &mut Vec<Diagnostic>,
 ) {
@@ -2409,8 +2406,7 @@ fn validate_corridor_realization(
                         ));
                     }
                     if instance.occupied_cells.iter().any(|cell| {
-                        grid_distance_to_segment(cell, &lane.from, &lane.to)
-                            > lane.envelope_cells
+                        grid_distance_to_segment(cell, &lane.from, &lane.to) > lane.envelope_cells
                     }) {
                         diagnostics.push(fatal(
                             "piece_catalog_lane_envelope_invalid",
@@ -2507,7 +2503,7 @@ fn validate_corridor_realization(
     }
 }
 
-fn validate_pure_catalog_contacts(
+pub(crate) fn validate_pure_catalog_contacts(
     placement: &PiecePlacement,
     diagnostics: &mut Vec<Diagnostic>,
 ) {
@@ -2521,14 +2517,8 @@ fn validate_pure_catalog_contacts(
         .iter()
         .flat_map(|glued| {
             [
-                (
-                    glued.from_instance.as_str(),
-                    glued.to_instance.as_str(),
-                ),
-                (
-                    glued.to_instance.as_str(),
-                    glued.from_instance.as_str(),
-                ),
+                (glued.from_instance.as_str(), glued.to_instance.as_str()),
+                (glued.to_instance.as_str(), glued.from_instance.as_str()),
             ]
         })
         .collect::<BTreeSet<_>>();
@@ -2557,7 +2547,7 @@ fn validate_pure_catalog_contacts(
     }
 }
 
-fn validate_placement_unplanned_contacts(
+pub(crate) fn validate_placement_unplanned_contacts(
     placement: &PiecePlacement,
     diagnostics: &mut Vec<Diagnostic>,
 ) {
@@ -2585,8 +2575,7 @@ fn validate_placement_unplanned_contacts(
                 }
                 if placement.corridor_realization.uses_catalog_pieces()
                     && section_instances.values().any(|instances| {
-                        instances.contains(&cell.instance_id)
-                            && instances.contains(*other_instance)
+                        instances.contains(&cell.instance_id) && instances.contains(*other_instance)
                     })
                 {
                     continue;
@@ -2616,7 +2605,7 @@ fn validate_placement_unplanned_contacts(
     }
 }
 
-fn sorted_pair(left: &str, right: &str) -> (String, String) {
+pub(crate) fn sorted_pair(left: &str, right: &str) -> (String, String) {
     if left <= right {
         (left.to_owned(), right.to_owned())
     } else {
@@ -2624,10 +2613,14 @@ fn sorted_pair(left: &str, right: &str) -> (String, String) {
     }
 }
 
-fn validate_placement_cells(placement: &PiecePlacement, diagnostics: &mut Vec<Diagnostic>) {
+pub(crate) fn validate_placement_cells(
+    placement: &PiecePlacement,
+    diagnostics: &mut Vec<Diagnostic>,
+) {
     let mut occupied_by_cell: BTreeMap<(i32, i32), &str> = BTreeMap::new();
     for cell in &placement.occupied_cells {
-        if let Some(existing) = occupied_by_cell.insert((cell.x, cell.y), cell.instance_id.as_str()) {
+        if let Some(existing) = occupied_by_cell.insert((cell.x, cell.y), cell.instance_id.as_str())
+        {
             diagnostics.push(fatal(
                 "piece_occupied_cell_overlap",
                 None,
@@ -2654,7 +2647,8 @@ fn validate_placement_cells(placement: &PiecePlacement, diagnostics: &mut Vec<Di
                 ));
             }
         }
-        if let Some(existing) = reserved_by_cell.insert((cell.x, cell.y), cell.instance_id.as_str()) {
+        if let Some(existing) = reserved_by_cell.insert((cell.x, cell.y), cell.instance_id.as_str())
+        {
             if existing != cell.instance_id {
                 diagnostics.push(fatal(
                     "piece_reserved_cell_overlap",
@@ -2723,15 +2717,15 @@ fn validate_placement_cells(placement: &PiecePlacement, diagnostics: &mut Vec<Di
                 })
                 .unwrap_or(false);
             if !declared_endpoint_reservation {
-            diagnostics.push(fatal(
-                "piece_connection_cell_reserved",
-                None,
-                None,
-                format!(
-                    "Connection cell {},{} for {} crosses reservation {}.",
-                    cell.x, cell.y, cell.instance_id, reserver
-                ),
-            ));
+                diagnostics.push(fatal(
+                    "piece_connection_cell_reserved",
+                    None,
+                    None,
+                    format!(
+                        "Connection cell {},{} for {} crosses reservation {}.",
+                        cell.x, cell.y, cell.instance_id, reserver
+                    ),
+                ));
             }
         }
         if let Some(glued) = connection_spec {
@@ -2759,14 +2753,11 @@ fn validate_placement_cells(placement: &PiecePlacement, diagnostics: &mut Vec<Di
                             glued.to_direction.as_str(),
                             wall_clearance,
                         )
-                    } else if placement.corridor_realization.uses_catalog_pieces()
-                        && section_instances
-                            .get(glued.source_section.as_str())
-                            .is_some_and(|instances| instances.contains(*occupier))
-                    {
-                        true
                     } else {
-                        false
+                        placement.corridor_realization.uses_catalog_pieces()
+                            && section_instances
+                                .get(glued.source_section.as_str())
+                                .is_some_and(|instances| instances.contains(*occupier))
                     };
                     if !allowed {
                         diagnostics.push(fatal(
@@ -2817,7 +2808,8 @@ fn validate_placement_cells(placement: &PiecePlacement, diagnostics: &mut Vec<Di
                         continue;
                     };
                     for nearby_owner in nearby_owners {
-                        let Some(nearby_glued) = connection_specs.get(*nearby_owner).copied() else {
+                        let Some(nearby_glued) = connection_specs.get(*nearby_owner).copied()
+                        else {
                             continue;
                         };
                         if glued.source_section == nearby_glued.source_section {
@@ -2864,113 +2856,107 @@ fn validate_placement_cells(placement: &PiecePlacement, diagnostics: &mut Vec<Di
         }
     }
     if placement.corridor_realization != CorridorRealization::Catalog {
-    for owner in declared_connection_owners {
-        if !used_connection_owners.contains(owner.as_str()) {
-            diagnostics.push(fatal(
-                "piece_glued_exit_route_missing",
-                None,
-                None,
-                format!("Declared glued exit {owner} has no routed connection cells."),
-            ));
-            continue;
-        }
-        let Some(glued) = connection_specs.get(owner.as_str()).copied() else {
-            continue;
-        };
-        let owner_cells = connection_by_owner
-            .get(owner.as_str())
-            .cloned()
-            .unwrap_or_default();
-        let from_position = (glued.from_cell.x, glued.from_cell.y);
-        let to_position = (glued.to_cell.x, glued.to_cell.y);
-        if !owner_cells.contains(&from_position) || !owner_cells.contains(&to_position) {
-            diagnostics.push(fatal(
-                "piece_connection_exit_endpoint_missing",
-                None,
-                None,
-                format!(
-                    "Connection {} must include declared exit cells {},{} and {},{}.",
-                    owner,
-                    from_position.0,
-                    from_position.1,
-                    to_position.0,
-                    to_position.1
-                ),
-            ));
-            continue;
-        }
-        let mut traversable = owner_cells.clone();
-        if placement.corridor_realization.uses_catalog_pieces() {
-            if let Some(instances) = section_instances.get(glued.source_section.as_str()) {
-                traversable.extend(
-                    placement
-                        .occupied_cells
-                        .iter()
-                        .filter(|cell| instances.contains(&cell.instance_id))
-                        .map(|cell| (cell.x, cell.y)),
-                );
+        for owner in declared_connection_owners {
+            if !used_connection_owners.contains(owner.as_str()) {
+                diagnostics.push(fatal(
+                    "piece_glued_exit_route_missing",
+                    None,
+                    None,
+                    format!("Declared glued exit {owner} has no routed connection cells."),
+                ));
+                continue;
             }
-        }
-        let mut reachable = BTreeSet::from([from_position]);
-        let mut queue = VecDeque::from([from_position]);
-        while let Some(position) = queue.pop_front() {
-            for neighbor in grid_neighbors(position, placement.grid_connectivity) {
-                if traversable.contains(&neighbor) && reachable.insert(neighbor) {
-                    queue.push_back(neighbor);
+            let Some(glued) = connection_specs.get(owner.as_str()).copied() else {
+                continue;
+            };
+            let owner_cells = connection_by_owner
+                .get(owner.as_str())
+                .cloned()
+                .unwrap_or_default();
+            let from_position = (glued.from_cell.x, glued.from_cell.y);
+            let to_position = (glued.to_cell.x, glued.to_cell.y);
+            if !owner_cells.contains(&from_position) || !owner_cells.contains(&to_position) {
+                diagnostics.push(fatal(
+                    "piece_connection_exit_endpoint_missing",
+                    None,
+                    None,
+                    format!(
+                        "Connection {} must include declared exit cells {},{} and {},{}.",
+                        owner, from_position.0, from_position.1, to_position.0, to_position.1
+                    ),
+                ));
+                continue;
+            }
+            let mut traversable = owner_cells.clone();
+            if placement.corridor_realization.uses_catalog_pieces() {
+                if let Some(instances) = section_instances.get(glued.source_section.as_str()) {
+                    traversable.extend(
+                        placement
+                            .occupied_cells
+                            .iter()
+                            .filter(|cell| instances.contains(&cell.instance_id))
+                            .map(|cell| (cell.x, cell.y)),
+                    );
                 }
             }
-        }
-        if !reachable.contains(&to_position)
-            || owner_cells.iter().any(|cell| !reachable.contains(cell))
-        {
-            diagnostics.push(fatal(
-                "piece_connection_route_disconnected",
-                None,
-                None,
-                format!("Connection {owner} is not one connected declared-exit route."),
-            ));
-        }
-        if !glued.route_points.is_empty() {
-            let lane = map_geometry_lane_to_room_exits(
-                glued,
-                placement_geometry_scale(placement),
-                placement.placement_policy.minimum_clearance_cells
-                    + placement.placement_policy.wall_thickness_cells
-                    + 1,
-                placement.placement_policy.minimum_clearance_cells,
-                &section_room_endpoints,
-            )
+            let mut reachable = BTreeSet::from([from_position]);
+            let mut queue = VecDeque::from([from_position]);
+            while let Some(position) = queue.pop_front() {
+                for neighbor in grid_neighbors(position, placement.grid_connectivity) {
+                    if traversable.contains(&neighbor) && reachable.insert(neighbor) {
+                        queue.push_back(neighbor);
+                    }
+                }
+            }
+            if !reachable.contains(&to_position)
+                || owner_cells.iter().any(|cell| !reachable.contains(cell))
+            {
+                diagnostics.push(fatal(
+                    "piece_connection_route_disconnected",
+                    None,
+                    None,
+                    format!("Connection {owner} is not one connected declared-exit route."),
+                ));
+            }
+            if !glued.route_points.is_empty() {
+                let lane = map_geometry_lane_to_room_exits(
+                    glued,
+                    placement_geometry_scale(placement),
+                    placement.placement_policy.minimum_clearance_cells
+                        + placement.placement_policy.wall_thickness_cells
+                        + 1,
+                    placement.placement_policy.minimum_clearance_cells,
+                    &section_room_endpoints,
+                )
                 .and_then(|waypoints| rasterize_orthogonal_waypoints(&waypoints))
                 .unwrap_or_default()
                 .into_iter()
                 .map(|cell| (cell.x, cell.y))
                 .collect::<BTreeSet<_>>();
-            let envelope = placement.placement_policy.minimum_clearance_cells * 2
-                + placement.placement_policy.wall_thickness_cells;
-            if lane.is_empty()
-                || owner_cells
-                    .iter()
-                    .any(|cell| distance_to_lane(*cell, &lane) > envelope as u32)
-            {
-                diagnostics.push(fatal(
-                    if placement.corridor_realization == CorridorRealization::Procedural {
-                        "piece_procedural_corridor_left_geometry_lane"
-                    } else {
-                        "piece_catalog_corridor_left_planned_lane"
-                    },
-                    None,
-                    Some(glued.source_edge.as_str()),
-                    format!(
-                        "Connection {owner} leaves its planned geometry lane envelope."
-                    ),
-                ));
+                let envelope = placement.placement_policy.minimum_clearance_cells * 2
+                    + placement.placement_policy.wall_thickness_cells;
+                if lane.is_empty()
+                    || owner_cells
+                        .iter()
+                        .any(|cell| distance_to_lane(*cell, &lane) > envelope as u32)
+                {
+                    diagnostics.push(fatal(
+                        if placement.corridor_realization == CorridorRealization::Procedural {
+                            "piece_procedural_corridor_left_geometry_lane"
+                        } else {
+                            "piece_catalog_corridor_left_planned_lane"
+                        },
+                        None,
+                        Some(glued.source_edge.as_str()),
+                        format!("Connection {owner} leaves its planned geometry lane envelope."),
+                    ));
+                }
             }
         }
     }
-    }
 }
 
-fn connection_contact_at_shared_room(
+pub(crate) fn connection_contact_at_shared_room(
     left_section: &str,
     right_section: &str,
     left_position: (i32, i32),
@@ -2995,8 +2981,8 @@ fn connection_contact_at_shared_room(
                 // Contacts remain legal only for sections declared on that
                 // same room and only while both routes stay in their outward
                 // endpoint cones.
-                let portal_span = left_cell.x.abs_diff(right_cell.x)
-                    + left_cell.y.abs_diff(right_cell.y);
+                let portal_span =
+                    left_cell.x.abs_diff(right_cell.x) + left_cell.y.abs_diff(right_cell.y);
                 let fanout_length = approach_length
                     .saturating_mul(2)
                     .saturating_add(i32::try_from(portal_span).unwrap_or(i32::MAX));
@@ -3016,17 +3002,14 @@ fn connection_contact_at_shared_room(
     })
 }
 
-fn shared_room_approach_length(
-    minimum_clearance: i32,
-    wall_thickness: i32,
-) -> i32 {
+pub(crate) fn shared_room_approach_length(minimum_clearance: i32, wall_thickness: i32) -> i32 {
     // Adjacent room exits may fan out through the protected doorway approach and
     // one wall buffer. Both section cells must independently remain in this
     // bounded region; sharing the room alone never grants a route-wide exemption.
     minimum_clearance + wall_thickness * 2
 }
 
-fn endpoint_approach_contains(
+pub(crate) fn endpoint_approach_contains(
     position: (i32, i32),
     exit: &GridCell,
     direction: &str,
@@ -3043,7 +3026,10 @@ fn endpoint_approach_contains(
     forward >= 0 && distance <= approach_length
 }
 
-fn validate_placement_links(placement: &PiecePlacement, diagnostics: &mut Vec<Diagnostic>) {
+pub(crate) fn validate_placement_links(
+    placement: &PiecePlacement,
+    diagnostics: &mut Vec<Diagnostic>,
+) {
     let instances = placement
         .instances
         .iter()
@@ -3174,12 +3160,17 @@ fn validate_placement_links(placement: &PiecePlacement, diagnostics: &mut Vec<Di
     let mut portal_ids = BTreeSet::new();
     let mut portal_edges = BTreeSet::new();
     for portal in &placement.gate_portals {
-        if !portal_ids.insert(portal.id.as_str()) || !portal_edges.insert(portal.source_edge.as_str()) {
+        if !portal_ids.insert(portal.id.as_str())
+            || !portal_edges.insert(portal.source_edge.as_str())
+        {
             diagnostics.push(fatal(
                 "piece_gate_portal_duplicate",
                 None,
                 Some(portal.source_edge.as_str()),
-                format!("Gate portal {} duplicates a portal id or source edge.", portal.id),
+                format!(
+                    "Gate portal {} duplicates a portal id or source edge.",
+                    portal.id
+                ),
             ));
         }
         let Some(glued) = glued_by_link.get(portal.link_id.as_str()).copied() else {
@@ -3187,7 +3178,10 @@ fn validate_placement_links(placement: &PiecePlacement, diagnostics: &mut Vec<Di
                 "piece_gate_portal_link_missing",
                 None,
                 Some(portal.source_edge.as_str()),
-                format!("Gate portal {} references missing link {}.", portal.id, portal.link_id),
+                format!(
+                    "Gate portal {} references missing link {}.",
+                    portal.id, portal.link_id
+                ),
             ));
             continue;
         };
@@ -3205,7 +3199,10 @@ fn validate_placement_links(placement: &PiecePlacement, diagnostics: &mut Vec<Di
                 "piece_gate_portal_metadata_mismatch",
                 None,
                 Some(portal.source_edge.as_str()),
-                format!("Gate portal {} does not match its controlling glued exit.", portal.id),
+                format!(
+                    "Gate portal {} does not match its controlling glued exit.",
+                    portal.id
+                ),
             ));
         }
         for cell in &portal.cells {
@@ -3235,7 +3232,7 @@ fn validate_placement_links(placement: &PiecePlacement, diagnostics: &mut Vec<Di
     }
 }
 
-fn validate_instance_exit_geometry(
+pub(crate) fn validate_instance_exit_geometry(
     instance: &PieceInstance,
     exit: &MatchedExit,
     glued_id: &str,
@@ -3265,17 +3262,30 @@ fn validate_instance_exit_geometry(
     }
 }
 
-fn validate_placement_reachability(placement: &PiecePlacement, diagnostics: &mut Vec<Diagnostic>) {
+pub(crate) fn validate_placement_reachability(
+    placement: &PiecePlacement,
+    diagnostics: &mut Vec<Diagnostic>,
+) {
     let starts = placement
         .instances
         .iter()
-        .filter(|instance| instance.tags.iter().any(|tag| tag == "start_marker" || tag == "start"))
+        .filter(|instance| {
+            instance
+                .tags
+                .iter()
+                .any(|tag| tag == "start_marker" || tag == "start")
+        })
         .map(|instance| instance.instance_id.as_str())
         .collect::<Vec<_>>();
     let goals = placement
         .instances
         .iter()
-        .filter(|instance| instance.tags.iter().any(|tag| tag == "goal_marker" || tag == "goal"))
+        .filter(|instance| {
+            instance
+                .tags
+                .iter()
+                .any(|tag| tag == "goal_marker" || tag == "goal")
+        })
         .map(|instance| instance.instance_id.as_str())
         .collect::<BTreeSet<_>>();
     if starts.is_empty() || goals.is_empty() {
@@ -3316,7 +3326,7 @@ fn validate_placement_reachability(placement: &PiecePlacement, diagnostics: &mut
     ));
 }
 
-fn validate_placement_grid_reachability(
+pub(crate) fn validate_placement_grid_reachability(
     placement: &PiecePlacement,
     diagnostics: &mut Vec<Diagnostic>,
 ) {
@@ -3332,7 +3342,12 @@ fn validate_placement_grid_reachability(
     let start = placement
         .instances
         .iter()
-        .find(|instance| instance.tags.iter().any(|tag| tag == "start_marker" || tag == "start"))
+        .find(|instance| {
+            instance
+                .tags
+                .iter()
+                .any(|tag| tag == "start_marker" || tag == "start")
+        })
         .and_then(|instance| instance.occupied_cells.first())
         .or_else(|| {
             placement
@@ -3379,7 +3394,7 @@ fn validate_placement_grid_reachability(
     }
 }
 
-fn grid_neighbors(cell: (i32, i32), connectivity: GridConnectivity) -> Vec<(i32, i32)> {
+pub(crate) fn grid_neighbors(cell: (i32, i32), connectivity: GridConnectivity) -> Vec<(i32, i32)> {
     let mut neighbors = vec![
         (cell.0 + 1, cell.1),
         (cell.0 - 1, cell.1),
@@ -3397,7 +3412,11 @@ fn grid_neighbors(cell: (i32, i32), connectivity: GridConnectivity) -> Vec<(i32,
     neighbors
 }
 
-fn transform_cells(cells: &[GridCell], transform: &str, origin: &GridCell) -> Vec<GridCell> {
+pub(crate) fn transform_cells(
+    cells: &[GridCell],
+    transform: &str,
+    origin: &GridCell,
+) -> Vec<GridCell> {
     let mut transformed = cells
         .iter()
         .map(|cell| {
@@ -3414,7 +3433,7 @@ fn transform_cells(cells: &[GridCell], transform: &str, origin: &GridCell) -> Ve
     transformed
 }
 
-fn transform_cell(x: i32, y: i32, transform: &str) -> (i32, i32) {
+pub(crate) fn transform_cell(x: i32, y: i32, transform: &str) -> (i32, i32) {
     match transform {
         "rotate90" => (-y, x),
         "rotate180" => (-x, -y),

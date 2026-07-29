@@ -1,4 +1,7 @@
-fn build_validate_flow_command(args: BuildValidateFlowArgs) -> Result<(), String> {
+#[allow(unused_imports)]
+use crate::*;
+
+pub(crate) fn build_validate_flow_command(args: BuildValidateFlowArgs) -> Result<(), String> {
     let candidate = read_flow_candidate(&args.candidate)?;
     let geometry: Geometry2dArtifact = read_json(&args.geometry)?;
     let plan: PieceBuildPlan = read_json(&args.piece_plan)?;
@@ -15,14 +18,18 @@ fn build_validate_flow_command(args: BuildValidateFlowArgs) -> Result<(), String
     Ok(())
 }
 
-fn read_flow_candidate(path: &Path) -> Result<Candidate, String> {
+pub(crate) fn read_flow_candidate(path: &Path) -> Result<Candidate, String> {
     let value: JsonValue = read_json(path)?;
     let candidate_value = value.get("candidate").cloned().unwrap_or(value);
-    serde_json::from_value(candidate_value)
-        .map_err(|error| format!("failed to read candidate graph from {}: {error}", path.display()))
+    serde_json::from_value(candidate_value).map_err(|error| {
+        format!(
+            "failed to read candidate graph from {}: {error}",
+            path.display()
+        )
+    })
 }
 
-fn validate_built_flow(
+pub(crate) fn validate_built_flow(
     candidate: &Candidate,
     geometry: &Geometry2dArtifact,
     plan: &PieceBuildPlan,
@@ -72,7 +79,7 @@ fn validate_built_flow(
     }
 }
 
-fn validate_flow_identity(
+pub(crate) fn validate_flow_identity(
     candidate: &Candidate,
     geometry: &Geometry2dArtifact,
     plan: &PieceBuildPlan,
@@ -119,7 +126,7 @@ fn validate_flow_identity(
     }
 }
 
-fn validate_source_edge_chains(
+pub(crate) fn validate_source_edge_chains(
     candidate: &Candidate,
     geometry: &Geometry2dArtifact,
     plan: &PieceBuildPlan,
@@ -135,13 +142,19 @@ fn validate_source_edge_chains(
     let mut corridors_by_edge: BTreeMap<&str, Vec<&GeometryCorridor>> = BTreeMap::new();
     for corridor in &geometry.corridors {
         for source_edge in &corridor.source_edges {
-            corridors_by_edge.entry(source_edge.as_str()).or_default().push(corridor);
+            corridors_by_edge
+                .entry(source_edge.as_str())
+                .or_default()
+                .push(corridor);
             if !source_edges.contains_key(source_edge.as_str()) {
                 diagnostics.push(fatal(
                     "built_flow_extra_geometry_corridor",
                     None,
                     Some(source_edge.as_str()),
-                    format!("Geometry corridor {} has no source graph edge {}.", corridor.id, source_edge),
+                    format!(
+                        "Geometry corridor {} has no source graph edge {}.",
+                        corridor.id, source_edge
+                    ),
                 ));
             }
         }
@@ -149,13 +162,19 @@ fn validate_source_edge_chains(
     let mut links_by_edge: BTreeMap<&str, Vec<&PieceLink>> = BTreeMap::new();
     for link in &plan.links {
         for source_edge in &link.source_edges {
-            links_by_edge.entry(source_edge.as_str()).or_default().push(link);
+            links_by_edge
+                .entry(source_edge.as_str())
+                .or_default()
+                .push(link);
             if !source_edges.contains_key(source_edge.as_str()) {
                 diagnostics.push(fatal(
                     "built_flow_extra_piece_link",
                     None,
                     Some(source_edge.as_str()),
-                    format!("Piece link {} has no source graph edge {}.", link.id, source_edge),
+                    format!(
+                        "Piece link {} has no source graph edge {}.",
+                        link.id, source_edge
+                    ),
                 ));
             }
         }
@@ -236,7 +255,8 @@ fn validate_source_edge_chains(
                     Some(edge.id.as_str()),
                     format!(
                         "Piece-link chain breaks between {} and {}.",
-                        links[index - 1].id, link.id
+                        links[index - 1].id,
+                        link.id
                     ),
                 ));
             }
@@ -260,7 +280,10 @@ fn validate_source_edge_chains(
                     "built_flow_glued_join_mismatch",
                     None,
                     Some(edge.id.as_str()),
-                    format!("Glued join {} does not match piece link {}.", glued.id, link.id),
+                    format!(
+                        "Glued join {} does not match piece link {}.",
+                        glued.id, link.id
+                    ),
                 ));
             }
             if edge.id == link.source_edge {
@@ -297,7 +320,7 @@ fn validate_source_edge_chains(
     }
 }
 
-fn validate_gate_portals(
+pub(crate) fn validate_gate_portals(
     candidate: &Candidate,
     placement: &PiecePlacement,
     diagnostics: &mut Vec<Diagnostic>,
@@ -312,7 +335,10 @@ fn validate_gate_portals(
     let walkable = placement_walkable_cells(placement);
     for portal in &placement.gate_portals {
         for source_edge in &portal.source_edges {
-            portals_by_edge.entry(source_edge.as_str()).or_default().push(portal);
+            portals_by_edge
+                .entry(source_edge.as_str())
+                .or_default()
+                .push(portal);
             let Some(edge) = edges.get(source_edge.as_str()).copied() else {
                 diagnostics.push(fatal(
                     "built_flow_extra_gate_portal",
@@ -334,7 +360,10 @@ fn validate_gate_portals(
                     "built_flow_gate_portal_mismatch",
                     None,
                     Some(edge.id.as_str()),
-                    format!("Portal {} does not preserve source edge traversal fields.", portal.id),
+                    format!(
+                        "Portal {} does not preserve source edge traversal fields.",
+                        portal.id
+                    ),
                 ));
             }
         }
@@ -370,13 +399,19 @@ fn validate_gate_portals(
                 "built_flow_gate_portal_count",
                 None,
                 Some(edge.id.as_str()),
-                format!("Source edge {} requires exactly one portal; found {}.", edge.id, count),
+                format!(
+                    "Source edge {} requires exactly one portal; found {}.",
+                    edge.id, count
+                ),
             ));
         }
     }
 }
 
-fn validate_physical_routes(placement: &PiecePlacement, diagnostics: &mut Vec<Diagnostic>) {
+pub(crate) fn validate_physical_routes(
+    placement: &PiecePlacement,
+    diagnostics: &mut Vec<Diagnostic>,
+) {
     let section_instances = collect_catalog_section_instances(placement);
     let occupied_by_cell = placement
         .occupied_cells
@@ -434,13 +469,19 @@ fn validate_physical_routes(placement: &PiecePlacement, diagnostics: &mut Vec<Di
                 "built_flow_physical_route_disconnected",
                 None,
                 Some(glued.source_edge.as_str()),
-                format!("Glued join {} lacks one connected physical route.", glued.id),
+                format!(
+                    "Glued join {} lacks one connected physical route.",
+                    glued.id
+                ),
             ));
         }
     }
 }
 
-fn cells_connected(cells: &BTreeSet<(i32, i32)>, connectivity: GridConnectivity) -> bool {
+pub(crate) fn cells_connected(
+    cells: &BTreeSet<(i32, i32)>,
+    connectivity: GridConnectivity,
+) -> bool {
     let Some(start) = cells.iter().next().copied() else {
         return false;
     };
@@ -456,7 +497,7 @@ fn cells_connected(cells: &BTreeSet<(i32, i32)>, connectivity: GridConnectivity)
     seen.len() == cells.len()
 }
 
-fn validate_item_progression(
+pub(crate) fn validate_item_progression(
     candidate: &Candidate,
     placement: &PiecePlacement,
     diagnostics: &mut Vec<Diagnostic>,
@@ -493,9 +534,7 @@ fn validate_item_progression(
             .graph
             .edges
             .iter()
-            .filter(|edge| {
-                source_nodes.contains(&edge.from) && edge_open_for_items(edge, &items)
-            })
+            .filter(|edge| source_nodes.contains(&edge.from) && edge_open_for_items(edge, &items))
             .map(|edge| edge.id.clone())
             .collect::<Vec<_>>();
         let open_portals = placement
@@ -532,7 +571,10 @@ fn validate_item_progression(
     progression
 }
 
-fn source_reachable_nodes(candidate: &Candidate, items: &BTreeSet<String>) -> BTreeSet<String> {
+pub(crate) fn source_reachable_nodes(
+    candidate: &Candidate,
+    items: &BTreeSet<String>,
+) -> BTreeSet<String> {
     let mut reachable = candidate
         .graph
         .nodes
@@ -553,14 +595,14 @@ fn source_reachable_nodes(candidate: &Candidate, items: &BTreeSet<String>) -> BT
     }
 }
 
-fn edge_open_for_items(edge: &Edge, items: &BTreeSet<String>) -> bool {
+pub(crate) fn edge_open_for_items(edge: &Edge, items: &BTreeSet<String>) -> bool {
     edge.required_item
         .as_ref()
         .map(|item| items.contains(item))
         .unwrap_or(true)
 }
 
-fn portal_open_for_items(portal: &GatePortal, items: &BTreeSet<String>) -> bool {
+pub(crate) fn portal_open_for_items(portal: &GatePortal, items: &BTreeSet<String>) -> bool {
     portal
         .required_item
         .as_ref()
@@ -568,7 +610,7 @@ fn portal_open_for_items(portal: &GatePortal, items: &BTreeSet<String>) -> bool 
         .unwrap_or(true)
 }
 
-fn catalog_link_route_mismatch(
+pub(crate) fn catalog_link_route_mismatch(
     corridor: &GeometryCorridor,
     links: &[&PieceLink],
     index: usize,
@@ -597,7 +639,7 @@ fn catalog_link_route_mismatch(
     index > 0 && links[index - 1].route_points.last() != link.route_points.first()
 }
 
-fn physical_reachable_nodes(
+pub(crate) fn physical_reachable_nodes(
     candidate: &Candidate,
     placement: &PiecePlacement,
     items: &BTreeSet<String>,
@@ -658,7 +700,7 @@ fn physical_reachable_nodes(
         .collect()
 }
 
-fn placement_walkable_cells(placement: &PiecePlacement) -> BTreeSet<(i32, i32)> {
+pub(crate) fn placement_walkable_cells(placement: &PiecePlacement) -> BTreeSet<(i32, i32)> {
     placement
         .occupied_cells
         .iter()

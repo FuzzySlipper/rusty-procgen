@@ -1,43 +1,45 @@
-#[cfg(test)]
-mod tests {
+#[allow(unused_imports)]
+use crate::*;
+
+fn test_intent(id: &str) -> SeedIntent {
+    SeedIntent {
+        kind: "rusty_procgen.seed_intent.v1".to_owned(),
+        id: id.to_owned(),
+        title: "Test".to_owned(),
+        target_dimension: "topology_graph".to_owned(),
+        desired_patterns: Vec::new(),
+        notes: Vec::new(),
+    }
+}
+
+fn test_connection_plan(
+    candidate: &Candidate,
+    intermediate: &IntermediateBreakdown,
+) -> PhysicalConnectionPlan {
+    plan_physical_connections(
+        candidate,
+        intermediate,
+        &PhysicalConnectionPlanArgs {
+            candidate: PathBuf::from("artifacts/test/candidate.json"),
+            intermediate: PathBuf::from("artifacts/test/intermediate-breakdown.json"),
+            out: PathBuf::from("artifacts/test/physical-connection-plan.json"),
+        },
+    )
+    .expect("physical connection plan should emit")
+}
+
+fn test_breakdown(candidate: &Candidate) -> IntermediateBreakdown {
+    let annotations = spatial_intent_report(candidate, None).expect("spatial intent report");
+    intermediate_breakdown(
+        candidate,
+        &annotations,
+        Path::new("artifacts/test/spatial-intent.json"),
+    )
+    .expect("intermediate breakdown should emit")
+}
+
+mod physical_geometry {
     use super::*;
-
-    fn test_intent(id: &str) -> SeedIntent {
-        SeedIntent {
-            kind: "rusty_procgen.seed_intent.v1".to_owned(),
-            id: id.to_owned(),
-            title: "Test".to_owned(),
-            target_dimension: "topology_graph".to_owned(),
-            desired_patterns: Vec::new(),
-            notes: Vec::new(),
-        }
-    }
-
-    fn test_connection_plan(
-        candidate: &Candidate,
-        intermediate: &IntermediateBreakdown,
-    ) -> PhysicalConnectionPlan {
-        plan_physical_connections(
-            candidate,
-            intermediate,
-            &PhysicalConnectionPlanArgs {
-                candidate: PathBuf::from("artifacts/test/candidate.json"),
-                intermediate: PathBuf::from("artifacts/test/intermediate-breakdown.json"),
-                out: PathBuf::from("artifacts/test/physical-connection-plan.json"),
-            },
-        )
-        .expect("physical connection plan should emit")
-    }
-
-    fn test_breakdown(candidate: &Candidate) -> IntermediateBreakdown {
-        let annotations = spatial_intent_report(candidate, None).expect("spatial intent report");
-        intermediate_breakdown(
-            candidate,
-            &annotations,
-            Path::new("artifacts/test/spatial-intent.json"),
-        )
-        .expect("intermediate breakdown should emit")
-    }
 
     #[test]
     fn physical_connection_plan_normalizes_reciprocal_open_edges() {
@@ -210,8 +212,7 @@ mod tests {
                 .collect(),
             style_tags: Vec::new(),
         };
-        let feasible_room =
-            room_with_sides(&["east", "east", "east", "east", "east", "east"]);
+        let feasible_room = room_with_sides(&["east", "east", "east", "east", "east", "east"]);
         let split_high_degree_room =
             room_with_sides(&["east", "east", "east", "east", "south", "south"]);
         let spacious_feasible = geometry_compactness_score(
@@ -303,14 +304,13 @@ mod tests {
     fn conflict_directed_routing_fixture_records_a_valid_repair() {
         let repo_root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../..");
         let run_dir = repo_root.join("artifacts/samples/batch-v2/candidate-000");
-        let geometry: Geometry2dArtifact = read_json(&run_dir.join("geometry-2d.json"))
-            .expect("committed hub-merge geometry");
+        let geometry: Geometry2dArtifact =
+            read_json(&run_dir.join("geometry-2d.json")).expect("committed hub-merge geometry");
         let connection_plan: PhysicalConnectionPlan =
             read_json(&run_dir.join("physical-connection-plan.json"))
                 .expect("committed hub-merge physical plan");
-        let validation: ValidationReport =
-            read_json(&run_dir.join("geometry-2d.validation.json"))
-                .expect("committed hub-merge geometry validation");
+        let validation: ValidationReport = read_json(&run_dir.join("geometry-2d.validation.json"))
+            .expect("committed hub-merge geometry validation");
 
         assert!(validation.ok);
         assert_eq!(geometry.corridors.len(), connection_plan.sections.len());
@@ -322,8 +322,10 @@ mod tests {
             .route_blocking_owners
             .iter()
             .any(|owner| owner.starts_with("section.")));
-        assert!(geometry.layout_search.route_path_alternatives
-            > u32::try_from(connection_plan.sections.len()).unwrap_or(u32::MAX));
+        assert!(
+            geometry.layout_search.route_path_alternatives
+                > u32::try_from(connection_plan.sections.len()).unwrap_or(u32::MAX)
+        );
     }
 
     #[test]
@@ -455,6 +457,10 @@ mod tests {
         assert_eq!(decoded.kind, "rusty_procgen.html_preview.v1");
         assert_eq!(decoded.html_ref, "artifacts/test/preview.html");
     }
+}
+
+mod graph {
+    use super::*;
 
     #[test]
     fn validates_lock_key_loop() {
@@ -543,12 +549,8 @@ mod tests {
     fn gated_treasure_rejoins_preserve_the_room_guard() {
         let intent = test_intent("guarded-treasure-rejoins");
         let mut candidate = create_initial_candidate(&intent, 91);
-        assert!(
-            apply_graph_rule(&mut candidate, GraphRule::GatedTreasureBranch, 92).is_empty()
-        );
-        assert!(
-            apply_graph_rule(&mut candidate, GraphRule::BranchMergeShortcut, 93).is_empty()
-        );
+        assert!(apply_graph_rule(&mut candidate, GraphRule::GatedTreasureBranch, 92).is_empty());
+        assert!(apply_graph_rule(&mut candidate, GraphRule::BranchMergeShortcut, 93).is_empty());
 
         for edge_id in ["edge.treasure_1.goal", "edge.secondary.merge_1"] {
             let edge = candidate
@@ -558,10 +560,7 @@ mod tests {
                 .find(|edge| edge.id == edge_id)
                 .expect("guarded treasure rejoin edge");
             assert_eq!(edge.traversal, TraversalKind::Locked);
-            assert_eq!(
-                edge.required_item.as_deref(),
-                Some("item.treasure_key_1")
-            );
+            assert_eq!(edge.required_item.as_deref(), Some("item.treasure_key_1"));
             assert!(edge.tags.contains(&"locked".to_owned()));
         }
     }
@@ -1017,6 +1016,10 @@ mod tests {
             .iter()
             .any(|check| check.code == "max_dead_ends" && check.ok));
     }
+}
+
+mod intermediate {
+    use super::*;
 
     #[test]
     fn spatial_intent_annotation_marks_core_intents() {
@@ -1287,6 +1290,10 @@ mod tests {
             .iter()
             .any(|diagnostic| diagnostic.code == "intermediate_3d_claim_unsupported"));
     }
+}
+
+mod geometry_artifacts {
+    use super::*;
 
     #[test]
     fn geometry_emit_2d_places_variable_non_overlapping_rooms() {
@@ -1606,6 +1613,10 @@ mod tests {
         assert!(html.contains("Validation: invalid"));
         assert!(html.contains("geometry_room_overlap"));
     }
+}
+
+mod piece_planning {
+    use super::*;
 
     #[test]
     fn piece_plan_emits_explicit_room_corridor_and_semantic_requirements() {
@@ -1689,9 +1700,8 @@ mod tests {
             .iter()
             .flat_map(|link| link.tags.iter().map(String::as_str))
             .collect::<BTreeSet<_>>();
-        for required in ["locked_threshold"] {
-            assert!(link_tags.contains(required), "{required} link tag missing");
-        }
+        let required = "locked_threshold";
+        assert!(link_tags.contains(required), "{required} link tag missing");
         assert!(
             plan.links.iter().any(|link| link.traversal == "open"),
             "normal open corridor link missing"
@@ -1771,7 +1781,6 @@ mod tests {
             Vec::new(),
             &[],
         );
-        let room_shape = room_shape;
         let mut corridor_shape = test_catalog_shape(
             "shape.corridor.unit",
             &["corridor"],
@@ -2330,6 +2339,10 @@ mod tests {
             .expect_err("unknown realization mode must fail closed");
         assert!(error.to_string().contains("unknown variant"));
     }
+}
+
+mod shape_matching {
+    use super::*;
 
     #[test]
     fn shape_matcher_rotates_exits_for_piece_requirements() {
@@ -2696,6 +2709,10 @@ mod tests {
         let score = pure_catalog_exit_alignment_score(&plan, &room, &shape, "identity", &exit_map);
         assert_eq!(score, -i32::MAX);
     }
+}
+
+mod piece_placement {
+    use super::*;
 
     #[test]
     fn piece_placement_assembles_full_stack_without_overlap() {
@@ -3027,9 +3044,7 @@ mod tests {
             .any(|diagnostic| { diagnostic.code == "piece_connection_wall_clearance_violated" }));
 
         let mut bad_search_evidence = placement.clone();
-        bad_search_evidence
-            .realization_search
-            .realization_attempts = 1;
+        bad_search_evidence.realization_search.realization_attempts = 1;
         let report = validate_piece_placement(&bad_search_evidence);
         assert!(report
             .diagnostics
@@ -3142,6 +3157,10 @@ mod tests {
             diagnostic.code == "piece_connection_section_clearance_violated"
         }));
     }
+}
+
+mod built_flow {
+    use super::*;
 
     #[test]
     fn built_flow_validation_preserves_unique_exits_portals_and_item_progression() {
@@ -3293,6 +3312,10 @@ mod tests {
                 && diagnostic.detail.contains(locked_edge.to.as_str())
         }));
     }
+}
+
+mod placement_routing {
+    use super::*;
 
     #[test]
     fn grid_connectivity_distinguishes_cardinal_and_diagonal_neighbors() {
@@ -3348,332 +3371,332 @@ mod tests {
         assert!(!route.contains(&GridCell { x: 2, y: 1 }));
         assert!(!route.contains(&GridCell { x: 4, y: 3 }));
     }
+}
 
-    fn full_stack_geometry_fixture(seed: u64) -> Geometry2dArtifact {
-        full_stack_geometry_inputs(seed).2
+fn full_stack_geometry_fixture(seed: u64) -> Geometry2dArtifact {
+    full_stack_geometry_inputs(seed).2
+}
+
+fn full_stack_geometry_inputs(seed: u64) -> (Candidate, IntermediateBreakdown, Geometry2dArtifact) {
+    let intent = test_intent("geometry-validation");
+    let mut candidate = create_initial_candidate(&intent, seed);
+    for (index, rule) in [GraphRule::LockKeyLoop].into_iter().enumerate() {
+        assert!(apply_graph_rule(&mut candidate, rule, seed + 1 + index as u64).is_empty());
     }
+    let annotations = spatial_intent_report(&candidate, None).expect("spatial intent report");
+    let intermediate = intermediate_breakdown(
+        &candidate,
+        &annotations,
+        Path::new("artifacts/test/spatial-intent.json"),
+    )
+    .expect("breakdown should encode");
+    let args = GeometryEmit2dArgs {
+        candidate: PathBuf::from("artifacts/test/candidate.json"),
+        intermediate: PathBuf::from("artifacts/test/intermediate-breakdown.json"),
+        connection_plan: PathBuf::from("artifacts/test/physical-connection-plan.json"),
+        layout_policy: None,
+        seed: seed + 20,
+        out: PathBuf::from("artifacts/test/geometry.json"),
+    };
+    let connection_plan = test_connection_plan(&candidate, &intermediate);
+    let geometry = emit_geometry_2d(
+        &candidate,
+        &intermediate,
+        &connection_plan,
+        &args,
+        seed + 20,
+    )
+    .expect("geometry should emit");
+    (candidate, intermediate, geometry)
+}
 
-    fn full_stack_geometry_inputs(
-        seed: u64,
-    ) -> (Candidate, IntermediateBreakdown, Geometry2dArtifact) {
-        let intent = test_intent("geometry-validation");
-        let mut candidate = create_initial_candidate(&intent, seed);
-        for (index, rule) in [GraphRule::LockKeyLoop].into_iter().enumerate() {
-            assert!(apply_graph_rule(&mut candidate, rule, seed + 1 + index as u64).is_empty());
-        }
-        let annotations = spatial_intent_report(&candidate, None).expect("spatial intent report");
-        let intermediate = intermediate_breakdown(
-            &candidate,
-            &annotations,
-            Path::new("artifacts/test/spatial-intent.json"),
-        )
-        .expect("breakdown should encode");
-        let args = GeometryEmit2dArgs {
-            candidate: PathBuf::from("artifacts/test/candidate.json"),
-            intermediate: PathBuf::from("artifacts/test/intermediate-breakdown.json"),
-            connection_plan: PathBuf::from("artifacts/test/physical-connection-plan.json"),
-            layout_policy: None,
-            seed: seed + 20,
-            out: PathBuf::from("artifacts/test/geometry.json"),
-        };
-        let connection_plan = test_connection_plan(&candidate, &intermediate);
-        let geometry = emit_geometry_2d(
-            &candidate,
-            &intermediate,
-            &connection_plan,
-            &args,
-            seed + 20,
-        )
-        .expect("geometry should emit");
-        (candidate, intermediate, geometry)
-    }
+fn full_stack_piece_placement_fixture(seed: u64) -> PiecePlacement {
+    full_stack_built_flow_fixture(seed).3
+}
 
-    fn full_stack_piece_placement_fixture(seed: u64) -> PiecePlacement {
-        full_stack_built_flow_fixture(seed).3
-    }
+fn full_stack_built_flow_fixture(
+    seed: u64,
+) -> (
+    Candidate,
+    Geometry2dArtifact,
+    PieceBuildPlan,
+    PiecePlacement,
+) {
+    let (candidate, intermediate, geometry) = full_stack_geometry_inputs(seed);
+    let piece_plan_args = BuildEmitPiecePlanArgs {
+        candidate: PathBuf::from("artifacts/test/candidate.json"),
+        intermediate: PathBuf::from("artifacts/test/intermediate-breakdown.json"),
+        geometry: PathBuf::from("artifacts/test/geometry.json"),
+        corridor_realization: CorridorRealization::Hybrid,
+        out: PathBuf::from("artifacts/test/piece-plan.json"),
+    };
+    let piece_plan = emit_piece_build_plan(&candidate, &intermediate, &geometry, &piece_plan_args)
+        .expect("piece plan should emit");
+    let catalog_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("../../..")
+        .join(DEFAULT_SHAPE_CATALOG);
+    let catalog: ShapeCatalog = read_json(&catalog_path).expect("shape catalog should load");
+    let match_args = test_match_args(seed + 30);
+    let shape_match = match_shapes(&catalog, &piece_plan, &match_args);
+    assert!(
+        shape_match.ok,
+        "diagnostics={:?} rejections={:?}",
+        shape_match.diagnostics, shape_match.rejections
+    );
+    let assemble_args = BuildAssembleArgs {
+        catalog: PathBuf::from("fixtures/shape-catalogs/2d-basic.json"),
+        piece_plan: PathBuf::from("artifacts/test/piece-plan.json"),
+        shape_match: PathBuf::from("artifacts/test/piece-shape-match.json"),
+        connectivity: GridConnectivity::FourWay,
+        out: PathBuf::from("artifacts/test/piece-placement.json"),
+    };
+    let placement = assemble_piece_placement(&catalog, &piece_plan, &shape_match, &assemble_args)
+        .expect("piece placement should assemble");
+    (candidate, geometry, piece_plan, placement)
+}
 
-    fn full_stack_built_flow_fixture(
-        seed: u64,
-    ) -> (
-        Candidate,
-        Geometry2dArtifact,
-        PieceBuildPlan,
-        PiecePlacement,
-    ) {
-        let (candidate, intermediate, geometry) = full_stack_geometry_inputs(seed);
-        let piece_plan_args = BuildEmitPiecePlanArgs {
-            candidate: PathBuf::from("artifacts/test/candidate.json"),
-            intermediate: PathBuf::from("artifacts/test/intermediate-breakdown.json"),
-            geometry: PathBuf::from("artifacts/test/geometry.json"),
-            corridor_realization: CorridorRealization::Hybrid,
-            out: PathBuf::from("artifacts/test/piece-plan.json"),
-        };
-        let piece_plan =
-            emit_piece_build_plan(&candidate, &intermediate, &geometry, &piece_plan_args)
-                .expect("piece plan should emit");
-        let catalog_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-            .join("../../..")
-            .join(DEFAULT_SHAPE_CATALOG);
-        let catalog: ShapeCatalog = read_json(&catalog_path).expect("shape catalog should load");
-        let match_args = test_match_args(seed + 30);
-        let shape_match = match_shapes(&catalog, &piece_plan, &match_args);
-        assert!(
-            shape_match.ok,
-            "diagnostics={:?} rejections={:?}",
-            shape_match.diagnostics, shape_match.rejections
-        );
-        let assemble_args = BuildAssembleArgs {
-            catalog: PathBuf::from("fixtures/shape-catalogs/2d-basic.json"),
-            piece_plan: PathBuf::from("artifacts/test/piece-plan.json"),
-            shape_match: PathBuf::from("artifacts/test/piece-shape-match.json"),
-            connectivity: GridConnectivity::FourWay,
-            out: PathBuf::from("artifacts/test/piece-placement.json"),
-        };
-        let placement =
-            assemble_piece_placement(&catalog, &piece_plan, &shape_match, &assemble_args)
-                .expect("piece placement should assemble");
-        (candidate, geometry, piece_plan, placement)
-    }
-
-    fn test_cardinal_path_avoiding(
-        start: (i32, i32),
-        goal: (i32, i32),
-        blocked: &BTreeSet<(i32, i32)>,
-        existing: &BTreeSet<(i32, i32)>,
-    ) -> Vec<(i32, i32)> {
-        let min_x = existing
-            .iter()
-            .map(|cell| cell.0)
-            .chain([start.0, goal.0])
-            .min()
-            .unwrap_or(0)
-            - 2;
-        let max_x = existing
-            .iter()
-            .map(|cell| cell.0)
-            .chain([start.0, goal.0])
-            .max()
-            .unwrap_or(0)
-            + 2;
-        let min_y = existing
-            .iter()
-            .map(|cell| cell.1)
-            .chain([start.1, goal.1])
-            .min()
-            .unwrap_or(0)
-            - 2;
-        let max_y = existing
-            .iter()
-            .map(|cell| cell.1)
-            .chain([start.1, goal.1])
-            .max()
-            .unwrap_or(0)
-            + 2;
-        let mut queue = VecDeque::from([start]);
-        let mut previous = BTreeMap::new();
-        let mut seen = BTreeSet::from([start]);
-        while let Some(cell) = queue.pop_front() {
-            if cell == goal {
-                let mut path = vec![goal];
-                let mut current = goal;
-                while current != start {
-                    current = previous[&current];
-                    path.push(current);
-                }
-                path.reverse();
-                return path;
+fn test_cardinal_path_avoiding(
+    start: (i32, i32),
+    goal: (i32, i32),
+    blocked: &BTreeSet<(i32, i32)>,
+    existing: &BTreeSet<(i32, i32)>,
+) -> Vec<(i32, i32)> {
+    let min_x = existing
+        .iter()
+        .map(|cell| cell.0)
+        .chain([start.0, goal.0])
+        .min()
+        .unwrap_or(0)
+        - 2;
+    let max_x = existing
+        .iter()
+        .map(|cell| cell.0)
+        .chain([start.0, goal.0])
+        .max()
+        .unwrap_or(0)
+        + 2;
+    let min_y = existing
+        .iter()
+        .map(|cell| cell.1)
+        .chain([start.1, goal.1])
+        .min()
+        .unwrap_or(0)
+        - 2;
+    let max_y = existing
+        .iter()
+        .map(|cell| cell.1)
+        .chain([start.1, goal.1])
+        .max()
+        .unwrap_or(0)
+        + 2;
+    let mut queue = VecDeque::from([start]);
+    let mut previous = BTreeMap::new();
+    let mut seen = BTreeSet::from([start]);
+    while let Some(cell) = queue.pop_front() {
+        if cell == goal {
+            let mut path = vec![goal];
+            let mut current = goal;
+            while current != start {
+                current = previous[&current];
+                path.push(current);
             }
-            for neighbor in grid_neighbors(cell, GridConnectivity::FourWay) {
-                if neighbor.0 < min_x
-                    || neighbor.0 > max_x
-                    || neighbor.1 < min_y
-                    || neighbor.1 > max_y
-                    || blocked.contains(&neighbor)
-                    || !seen.insert(neighbor)
-                {
-                    continue;
-                }
-                previous.insert(neighbor, cell);
-                queue.push_back(neighbor);
+            path.reverse();
+            return path;
+        }
+        for neighbor in grid_neighbors(cell, GridConnectivity::FourWay) {
+            if neighbor.0 < min_x
+                || neighbor.0 > max_x
+                || neighbor.1 < min_y
+                || neighbor.1 > max_y
+                || blocked.contains(&neighbor)
+                || !seen.insert(neighbor)
+            {
+                continue;
             }
-        }
-        panic!("expanded fixture bounds should permit a portal-avoiding bypass path");
-    }
-
-    fn rectangles_overlap(left: &GeometryRect, right: &GeometryRect) -> bool {
-        geometry_rectangles_overlap(left, right)
-    }
-
-    fn point_on_rect_boundary(point: &GeometryPoint, rect: &GeometryRect) -> bool {
-        geometry_point_on_rect_boundary(point, rect)
-    }
-
-    fn test_shape_catalog(shapes: Vec<CatalogShape>) -> ShapeCatalog {
-        ShapeCatalog {
-            kind: "rusty_procgen.shape_catalog.v1".to_owned(),
-            schema_version: 1,
-            catalog_id: "shape_catalog.test.v1".to_owned(),
-            cell_size: 1,
-            placement_policy: PiecePlacementPolicy::default(),
-            catalog_search_policy: CatalogSearchPolicy::default(),
-            shapes,
+            previous.insert(neighbor, cell);
+            queue.push_back(neighbor);
         }
     }
+    panic!("expanded fixture bounds should permit a portal-avoiding bypass path");
+}
 
-    fn test_catalog_shape(
-        shape_id: &str,
-        piece_kinds: &[&str],
-        allowed_transforms: &[&str],
-        exits: Vec<CatalogExit>,
-        feature_sockets: Vec<FeatureSocket>,
-        tags: &[&str],
-    ) -> CatalogShape {
-        CatalogShape {
-            shape_id: shape_id.to_owned(),
-            label: shape_id.to_owned(),
-            piece_kinds: piece_kinds.iter().map(|kind| (*kind).to_owned()).collect(),
-            footprint: vec![GridCell { x: 0, y: 0 }],
-            reserved_cells: Vec::new(),
-            exits,
-            allowed_transforms: allowed_transforms
-                .iter()
-                .map(|transform| (*transform).to_owned())
-                .collect(),
-            feature_sockets,
-            tags: tags.iter().map(|tag| (*tag).to_owned()).collect(),
-        }
+fn rectangles_overlap(left: &GeometryRect, right: &GeometryRect) -> bool {
+    geometry_rectangles_overlap(left, right)
+}
+
+fn point_on_rect_boundary(point: &GeometryPoint, rect: &GeometryRect) -> bool {
+    geometry_point_on_rect_boundary(point, rect)
+}
+
+fn test_shape_catalog(shapes: Vec<CatalogShape>) -> ShapeCatalog {
+    ShapeCatalog {
+        kind: "rusty_procgen.shape_catalog.v1".to_owned(),
+        schema_version: 1,
+        catalog_id: "shape_catalog.test.v1".to_owned(),
+        cell_size: 1,
+        placement_policy: PiecePlacementPolicy::default(),
+        catalog_search_policy: CatalogSearchPolicy::default(),
+        shapes,
     }
+}
 
-    fn test_catalog_exit(id: &str, direction: &str) -> CatalogExit {
-        let (x, y) = direction_vector(direction);
-        CatalogExit {
-            id: id.to_owned(),
-            x,
-            y,
-            direction: direction.to_owned(),
-            width: 1,
-            tags: Vec::new(),
-        }
-    }
-
-    fn test_piece_plan(requirements: Vec<PieceRequirement>) -> PieceBuildPlan {
-        PieceBuildPlan {
-            kind: "rusty_procgen.piece_build_plan.v1".to_owned(),
-            schema_version: 1,
-            plan_id: "piece_plan.test".to_owned(),
-            candidate_id: "candidate.test".to_owned(),
-            geometry_id: "geometry.test".to_owned(),
-            corridor_realization: CorridorRealization::Catalog,
-            source_candidate_ref: "artifacts/test/candidate.json".to_owned(),
-            source_intermediate_ref: "artifacts/test/intermediate.json".to_owned(),
-            source_geometry_ref: "artifacts/test/geometry.json".to_owned(),
-            requirements,
-            links: Vec::new(),
-            content_requirements: Vec::new(),
-        }
-    }
-
-    fn test_piece_requirement(
-        piece_id: &str,
-        kind: &str,
-        required_exits: Vec<PieceExitRequirement>,
-        required_sockets: Vec<String>,
-        tags: &[&str],
-    ) -> PieceRequirement {
-        PieceRequirement {
-            piece_id: piece_id.to_owned(),
-            kind: kind.to_owned(),
-            role: kind.to_owned(),
-            source_refs: Vec::new(),
-            required_exits,
-            required_sockets,
-            required_shape_tags: Vec::new(),
-            tags: tags.iter().map(|tag| (*tag).to_owned()).collect(),
-            placement_hints: Vec::new(),
-        }
-    }
-
-    fn test_piece_exit(id: &str, direction: &str) -> PieceExitRequirement {
-        PieceExitRequirement {
-            id: id.to_owned(),
-            direction: direction.to_owned(),
-            width: 1,
-            order: 0,
-            tags: Vec::new(),
-        }
-    }
-
-    fn test_piece_link(
-        id: &str,
-        from_piece: &str,
-        from_exit: &str,
-        to_piece: &str,
-        to_exit: &str,
-        source_section: &str,
-    ) -> PieceLink {
-        PieceLink {
-            id: id.to_owned(),
-            from_piece: from_piece.to_owned(),
-            from_exit: from_exit.to_owned(),
-            to_piece: to_piece.to_owned(),
-            to_exit: to_exit.to_owned(),
-            source_section: source_section.to_owned(),
-            source_corridor: "geometry.corridor.test".to_owned(),
-            source_edge: "edge.test".to_owned(),
-            source_edges: vec!["edge.test".to_owned()],
-            traversal_refs: Vec::new(),
-            source_ref: "test:piece-link".to_owned(),
-            traversal: "open".to_owned(),
-            required_item: None,
-            tags: Vec::new(),
-            route_points: Vec::new(),
-        }
-    }
-
-    fn test_match_args(seed: u64) -> BuildMatchShapesArgs {
-        BuildMatchShapesArgs {
-            catalog: PathBuf::from("fixtures/shape-catalogs/2d-basic.json"),
-            piece_plan: PathBuf::from("artifacts/test/piece-plan.json"),
-            seed,
-            out: PathBuf::from("artifacts/test/piece-shape-match.json"),
-        }
-    }
-
-    fn pure_catalog_error_evidence(error: &str) -> serde_json::Value {
-        let serialized = error
-            .rsplit_once(PURE_CATALOG_EXHAUSTION_MARKER)
-            .map(|(_, evidence)| evidence)
-            .expect("pure catalog error must include structured exhaustion evidence");
-        serde_json::from_str(serialized).expect("structured exhaustion evidence must be JSON")
-    }
-
-    fn placement_bounds(placement: &PiecePlacement) -> (i32, i32) {
-        let min_x = placement
-            .occupied_cells
+fn test_catalog_shape(
+    shape_id: &str,
+    piece_kinds: &[&str],
+    allowed_transforms: &[&str],
+    exits: Vec<CatalogExit>,
+    feature_sockets: Vec<FeatureSocket>,
+    tags: &[&str],
+) -> CatalogShape {
+    CatalogShape {
+        shape_id: shape_id.to_owned(),
+        label: shape_id.to_owned(),
+        piece_kinds: piece_kinds.iter().map(|kind| (*kind).to_owned()).collect(),
+        footprint: vec![GridCell { x: 0, y: 0 }],
+        reserved_cells: Vec::new(),
+        exits,
+        allowed_transforms: allowed_transforms
             .iter()
-            .map(|cell| cell.x)
-            .min()
-            .unwrap_or(0);
-        let max_x = placement
-            .occupied_cells
-            .iter()
-            .map(|cell| cell.x)
-            .max()
-            .unwrap_or(0);
-        let min_y = placement
-            .occupied_cells
-            .iter()
-            .map(|cell| cell.y)
-            .min()
-            .unwrap_or(0);
-        let max_y = placement
-            .occupied_cells
-            .iter()
-            .map(|cell| cell.y)
-            .max()
-            .unwrap_or(0);
-        (max_x - min_x + 1, max_y - min_y + 1)
+            .map(|transform| (*transform).to_owned())
+            .collect(),
+        feature_sockets,
+        tags: tags.iter().map(|tag| (*tag).to_owned()).collect(),
     }
+}
+
+fn test_catalog_exit(id: &str, direction: &str) -> CatalogExit {
+    let (x, y) = direction_vector(direction);
+    CatalogExit {
+        id: id.to_owned(),
+        x,
+        y,
+        direction: direction.to_owned(),
+        width: 1,
+        tags: Vec::new(),
+    }
+}
+
+fn test_piece_plan(requirements: Vec<PieceRequirement>) -> PieceBuildPlan {
+    PieceBuildPlan {
+        kind: "rusty_procgen.piece_build_plan.v1".to_owned(),
+        schema_version: 1,
+        plan_id: "piece_plan.test".to_owned(),
+        candidate_id: "candidate.test".to_owned(),
+        geometry_id: "geometry.test".to_owned(),
+        corridor_realization: CorridorRealization::Catalog,
+        source_candidate_ref: "artifacts/test/candidate.json".to_owned(),
+        source_intermediate_ref: "artifacts/test/intermediate.json".to_owned(),
+        source_geometry_ref: "artifacts/test/geometry.json".to_owned(),
+        requirements,
+        links: Vec::new(),
+        content_requirements: Vec::new(),
+    }
+}
+
+fn test_piece_requirement(
+    piece_id: &str,
+    kind: &str,
+    required_exits: Vec<PieceExitRequirement>,
+    required_sockets: Vec<String>,
+    tags: &[&str],
+) -> PieceRequirement {
+    PieceRequirement {
+        piece_id: piece_id.to_owned(),
+        kind: kind.to_owned(),
+        role: kind.to_owned(),
+        source_refs: Vec::new(),
+        required_exits,
+        required_sockets,
+        required_shape_tags: Vec::new(),
+        tags: tags.iter().map(|tag| (*tag).to_owned()).collect(),
+        placement_hints: Vec::new(),
+    }
+}
+
+fn test_piece_exit(id: &str, direction: &str) -> PieceExitRequirement {
+    PieceExitRequirement {
+        id: id.to_owned(),
+        direction: direction.to_owned(),
+        width: 1,
+        order: 0,
+        tags: Vec::new(),
+    }
+}
+
+fn test_piece_link(
+    id: &str,
+    from_piece: &str,
+    from_exit: &str,
+    to_piece: &str,
+    to_exit: &str,
+    source_section: &str,
+) -> PieceLink {
+    PieceLink {
+        id: id.to_owned(),
+        from_piece: from_piece.to_owned(),
+        from_exit: from_exit.to_owned(),
+        to_piece: to_piece.to_owned(),
+        to_exit: to_exit.to_owned(),
+        source_section: source_section.to_owned(),
+        source_corridor: "geometry.corridor.test".to_owned(),
+        source_edge: "edge.test".to_owned(),
+        source_edges: vec!["edge.test".to_owned()],
+        traversal_refs: Vec::new(),
+        source_ref: "test:piece-link".to_owned(),
+        traversal: "open".to_owned(),
+        required_item: None,
+        tags: Vec::new(),
+        route_points: Vec::new(),
+    }
+}
+
+fn test_match_args(seed: u64) -> BuildMatchShapesArgs {
+    BuildMatchShapesArgs {
+        catalog: PathBuf::from("fixtures/shape-catalogs/2d-basic.json"),
+        piece_plan: PathBuf::from("artifacts/test/piece-plan.json"),
+        seed,
+        out: PathBuf::from("artifacts/test/piece-shape-match.json"),
+    }
+}
+
+fn pure_catalog_error_evidence(error: &str) -> serde_json::Value {
+    let serialized = error
+        .rsplit_once(PURE_CATALOG_EXHAUSTION_MARKER)
+        .map(|(_, evidence)| evidence)
+        .expect("pure catalog error must include structured exhaustion evidence");
+    serde_json::from_str(serialized).expect("structured exhaustion evidence must be JSON")
+}
+
+fn placement_bounds(placement: &PiecePlacement) -> (i32, i32) {
+    let min_x = placement
+        .occupied_cells
+        .iter()
+        .map(|cell| cell.x)
+        .min()
+        .unwrap_or(0);
+    let max_x = placement
+        .occupied_cells
+        .iter()
+        .map(|cell| cell.x)
+        .max()
+        .unwrap_or(0);
+    let min_y = placement
+        .occupied_cells
+        .iter()
+        .map(|cell| cell.y)
+        .min()
+        .unwrap_or(0);
+    let max_y = placement
+        .occupied_cells
+        .iter()
+        .map(|cell| cell.y)
+        .max()
+        .unwrap_or(0);
+    (max_x - min_x + 1, max_y - min_y + 1)
+}
+
+mod batch_and_catalog {
+    use super::*;
 
     #[test]
     fn loads_default_batch_profile_fixture() {
@@ -4045,6 +4068,10 @@ mod tests {
             CatalogRouteSearch::BudgetExhausted { .. }
         ));
     }
+}
+
+mod scoring {
+    use super::*;
 
     #[test]
     fn scoring_rewards_cycles() {

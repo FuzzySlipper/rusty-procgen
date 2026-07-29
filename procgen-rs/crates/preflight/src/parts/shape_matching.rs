@@ -1,11 +1,14 @@
-fn build_match_shapes_command(args: BuildMatchShapesArgs) -> Result<(), String> {
+#[allow(unused_imports)]
+use crate::*;
+
+pub(crate) fn build_match_shapes_command(args: BuildMatchShapesArgs) -> Result<(), String> {
     let catalog: ShapeCatalog = read_json(&args.catalog)?;
     let plan: PieceBuildPlan = read_json(&args.piece_plan)?;
     let report = match_shapes(&catalog, &plan, &args);
     write_json(&args.out, &report)
 }
 
-fn match_shapes(
+pub(crate) fn match_shapes(
     catalog: &ShapeCatalog,
     plan: &PieceBuildPlan,
     args: &BuildMatchShapesArgs,
@@ -13,7 +16,7 @@ fn match_shapes(
     match_shapes_with_attempt(catalog, plan, args, 0)
 }
 
-fn match_shapes_with_attempt(
+pub(crate) fn match_shapes_with_attempt(
     catalog: &ShapeCatalog,
     plan: &PieceBuildPlan,
     args: &BuildMatchShapesArgs,
@@ -95,22 +98,22 @@ fn match_shapes_with_attempt(
     }
 }
 
-struct RequirementMatchResult {
+pub(crate) struct RequirementMatchResult {
     selected: Option<MatchedPiece>,
     rejections: Vec<ShapeMatchRejection>,
 }
 
 #[derive(Clone, Debug)]
-struct CandidateShapeMatch {
+pub(crate) struct CandidateShapeMatch {
     matched_piece: MatchedPiece,
     tie_key: u64,
 }
 
-const MAX_PURE_CATALOG_EXIT_MAPS_PER_ORIENTATION: usize = 64;
-const MAX_PURE_CATALOG_ENUMERATED_EXIT_MAPS_PER_ORIENTATION: usize = 512;
-const MAX_PURE_CATALOG_SPECIALIZED_ALIGNMENT_ERROR: i32 = 2;
+pub(crate) const MAX_PURE_CATALOG_EXIT_MAPS_PER_ORIENTATION: usize = 64;
+pub(crate) const MAX_PURE_CATALOG_ENUMERATED_EXIT_MAPS_PER_ORIENTATION: usize = 512;
+pub(crate) const MAX_PURE_CATALOG_SPECIALIZED_ALIGNMENT_ERROR: i32 = 2;
 
-fn pure_catalog_match_candidates(
+pub(crate) fn pure_catalog_match_candidates(
     catalog: &ShapeCatalog,
     requirement: &PieceRequirement,
     plan: &PieceBuildPlan,
@@ -271,7 +274,7 @@ fn pure_catalog_match_candidates(
         .collect()
 }
 
-fn match_exit_variants_with_direction_offset(
+pub(crate) fn match_exit_variants_with_direction_offset(
     requirement: &PieceRequirement,
     transformed_exits: &[CatalogExit],
     direction_offset: u8,
@@ -299,7 +302,7 @@ fn match_exit_variants_with_direction_offset(
 }
 
 #[allow(clippy::too_many_arguments)]
-fn append_exit_map_variants(
+pub(crate) fn append_exit_map_variants(
     required_exits: &[&PieceExitRequirement],
     transformed_exits: &[CatalogExit],
     direction_offset: u8,
@@ -357,7 +360,7 @@ fn append_exit_map_variants(
     }
 }
 
-fn pure_catalog_exit_alignment_score(
+pub(crate) fn pure_catalog_exit_alignment_score(
     plan: &PieceBuildPlan,
     requirement: &PieceRequirement,
     shape: &CatalogShape,
@@ -397,7 +400,7 @@ fn pure_catalog_exit_alignment_score(
         .saturating_neg()
 }
 
-fn pure_catalog_minimum_room_alignment_error(
+pub(crate) fn pure_catalog_minimum_room_alignment_error(
     plan: &PieceBuildPlan,
     requirement: &PieceRequirement,
     shape: &CatalogShape,
@@ -450,7 +453,7 @@ fn pure_catalog_minimum_room_alignment_error(
         .unwrap_or(i32::MAX / 2)
 }
 
-fn pure_catalog_linked_exit_target(
+pub(crate) fn pure_catalog_linked_exit_target(
     plan: &PieceBuildPlan,
     requirement: &PieceRequirement,
     exit_id: &str,
@@ -493,7 +496,7 @@ fn pure_catalog_linked_exit_target(
     })
 }
 
-fn pure_catalog_exit_map_key(exit_map: &[MatchedExit]) -> Vec<(&str, &str)> {
+pub(crate) fn pure_catalog_exit_map_key(exit_map: &[MatchedExit]) -> Vec<(&str, &str)> {
     let mut key = exit_map
         .iter()
         .map(|exit| {
@@ -507,7 +510,7 @@ fn pure_catalog_exit_map_key(exit_map: &[MatchedExit]) -> Vec<(&str, &str)> {
     key
 }
 
-fn rotate_direction_steps(direction: &str, steps: u8) -> &'static str {
+pub(crate) fn rotate_direction_steps(direction: &str, steps: u8) -> &'static str {
     let directions = ["north", "east", "south", "west"];
     let index = directions
         .iter()
@@ -516,7 +519,7 @@ fn rotate_direction_steps(direction: &str, steps: u8) -> &'static str {
     directions[(index + usize::from(steps)) % directions.len()]
 }
 
-fn pure_catalog_transform_signature(
+pub(crate) fn pure_catalog_transform_signature(
     shape: &CatalogShape,
     transform: &str,
     exit_map: &[MatchedExit],
@@ -549,7 +552,7 @@ fn pure_catalog_transform_signature(
     format!("{}:{footprint:?}:{exits:?}", shape.shape_id)
 }
 
-fn match_requirement(
+pub(crate) fn match_requirement(
     catalog: &ShapeCatalog,
     requirement: &PieceRequirement,
     plan: &PieceBuildPlan,
@@ -651,7 +654,7 @@ fn match_requirement(
     }
 }
 
-fn static_shape_rejection_reasons(
+pub(crate) fn static_shape_rejection_reasons(
     shape: &CatalogShape,
     requirement: &PieceRequirement,
 ) -> Vec<String> {
@@ -708,7 +711,7 @@ fn static_shape_rejection_reasons(
     reasons
 }
 
-fn transformed_catalog_exits(shape: &CatalogShape, transform: &str) -> Vec<CatalogExit> {
+pub(crate) fn transformed_catalog_exits(shape: &CatalogShape, transform: &str) -> Vec<CatalogExit> {
     let transformed_footprint = shape
         .footprint
         .iter()
@@ -741,7 +744,7 @@ fn transformed_catalog_exits(shape: &CatalogShape, transform: &str) -> Vec<Catal
         .collect()
 }
 
-fn transform_direction(direction: &str, transform: &str) -> &'static str {
+pub(crate) fn transform_direction(direction: &str, transform: &str) -> &'static str {
     let steps = match transform {
         "identity" => 0,
         "rotate90" => 1,
@@ -775,7 +778,7 @@ fn transform_direction(direction: &str, transform: &str) -> &'static str {
     directions[(index + steps) % directions.len()]
 }
 
-fn match_exits(
+pub(crate) fn match_exits(
     requirement: &PieceRequirement,
     transformed_exits: &[CatalogExit],
 ) -> Option<Vec<MatchedExit>> {
@@ -802,9 +805,7 @@ fn match_exits(
                     .cmp(&catalog_exit_order(right))
                     .then_with(|| left.id.cmp(&right.id))
             });
-        let Some((index, catalog_exit)) = candidate else {
-            return None;
-        };
+        let (index, catalog_exit) = candidate?;
         used.insert(index);
         mapped.push(MatchedExit {
             requirement_exit_id: required_exit.id.clone(),
@@ -818,7 +819,7 @@ fn match_exits(
     Some(mapped)
 }
 
-fn catalog_exit_order(exit: &CatalogExit) -> i32 {
+pub(crate) fn catalog_exit_order(exit: &CatalogExit) -> i32 {
     match exit.direction.as_str() {
         "north" | "south" => exit.x,
         "east" | "west" => exit.y,
@@ -826,11 +827,11 @@ fn catalog_exit_order(exit: &CatalogExit) -> i32 {
     }
 }
 
-fn exit_width_compatible(required_width: i32, catalog_width: i32) -> bool {
+pub(crate) fn exit_width_compatible(required_width: i32, catalog_width: i32) -> bool {
     required_width > 0 && catalog_width > 0
 }
 
-fn exit_rejection_reason(
+pub(crate) fn exit_rejection_reason(
     shape: &CatalogShape,
     requirement: &PieceRequirement,
     transformed_exits: &[CatalogExit],
@@ -852,7 +853,10 @@ fn exit_rejection_reason(
     )
 }
 
-fn match_sockets(requirement: &PieceRequirement, shape: &CatalogShape) -> Vec<MatchedSocket> {
+pub(crate) fn match_sockets(
+    requirement: &PieceRequirement,
+    shape: &CatalogShape,
+) -> Vec<MatchedSocket> {
     requirement
         .required_sockets
         .iter()
@@ -870,7 +874,7 @@ fn match_sockets(requirement: &PieceRequirement, shape: &CatalogShape) -> Vec<Ma
         .collect()
 }
 
-fn shape_match_score(
+pub(crate) fn shape_match_score(
     shape: &CatalogShape,
     requirement: &PieceRequirement,
     exit_map: &[MatchedExit],
@@ -890,7 +894,7 @@ fn shape_match_score(
     score
 }
 
-fn stable_match_tie_key(
+pub(crate) fn stable_match_tie_key(
     seed: u64,
     requirement: &PieceRequirement,
     shape: &CatalogShape,

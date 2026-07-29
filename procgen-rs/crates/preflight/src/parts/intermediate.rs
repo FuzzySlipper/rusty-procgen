@@ -1,4 +1,9 @@
-fn annotate_spatial_intent_command(args: AnnotateSpatialIntentArgs) -> Result<(), String> {
+#[allow(unused_imports)]
+use crate::*;
+
+pub(crate) fn annotate_spatial_intent_command(
+    args: AnnotateSpatialIntentArgs,
+) -> Result<(), String> {
     let candidate: Candidate = read_json(&args.state)?;
     if let Some(analysis) = args.analysis.as_deref() {
         let _: GraphAnalysisReport = read_json(analysis)?;
@@ -7,7 +12,7 @@ fn annotate_spatial_intent_command(args: AnnotateSpatialIntentArgs) -> Result<()
     write_json(&args.out, &report)
 }
 
-fn spatial_intent_report(
+pub(crate) fn spatial_intent_report(
     candidate: &Candidate,
     analysis_ref: Option<&Path>,
 ) -> Result<SpatialIntentReport, String> {
@@ -89,14 +94,14 @@ fn spatial_intent_report(
     })
 }
 
-fn breakdown_emit_command(args: BreakdownEmitArgs) -> Result<(), String> {
+pub(crate) fn breakdown_emit_command(args: BreakdownEmitArgs) -> Result<(), String> {
     let candidate: Candidate = read_json(&args.state)?;
     let annotations: SpatialIntentReport = read_json(&args.annotations)?;
     let breakdown = intermediate_breakdown(&candidate, &annotations, &args.annotations)?;
     write_json(&args.out, &breakdown)
 }
 
-fn intermediate_breakdown(
+pub(crate) fn intermediate_breakdown(
     candidate: &Candidate,
     annotations: &SpatialIntentReport,
     annotation_path: &Path,
@@ -210,7 +215,7 @@ fn intermediate_breakdown(
     })
 }
 
-fn region_role(node: &Node, intents: &BTreeSet<&str>) -> String {
+pub(crate) fn region_role(node: &Node, intents: &BTreeSet<&str>) -> String {
     if node.kind == NodeKind::Start {
         "start".to_owned()
     } else if node.kind == NodeKind::Goal {
@@ -230,7 +235,7 @@ fn region_role(node: &Node, intents: &BTreeSet<&str>) -> String {
     }
 }
 
-fn geometry_role(node: &Node, role: &str, intents: &BTreeSet<&str>) -> String {
+pub(crate) fn geometry_role(node: &Node, role: &str, intents: &BTreeSet<&str>) -> String {
     match role {
         "start" => "entry".to_owned(),
         "goal" => "destination".to_owned(),
@@ -247,7 +252,7 @@ fn geometry_role(node: &Node, role: &str, intents: &BTreeSet<&str>) -> String {
     }
 }
 
-fn footprint_class(node: &Node, role: &str, intents: &BTreeSet<&str>) -> String {
+pub(crate) fn footprint_class(node: &Node, role: &str, intents: &BTreeSet<&str>) -> String {
     match role {
         "landmark_hub" => "hub".to_owned(),
         "boss_gate" => "threshold_large".to_owned(),
@@ -266,7 +271,7 @@ fn footprint_class(node: &Node, role: &str, intents: &BTreeSet<&str>) -> String 
     }
 }
 
-fn scale_band(node: &Node, role: &str, intents: &BTreeSet<&str>) -> String {
+pub(crate) fn scale_band(node: &Node, role: &str, intents: &BTreeSet<&str>) -> String {
     match role {
         "landmark_hub" | "boss_gate" => "large".to_owned(),
         "pressure" | "start" | "goal" | "gate" => "medium".to_owned(),
@@ -283,7 +288,7 @@ fn scale_band(node: &Node, role: &str, intents: &BTreeSet<&str>) -> String {
     }
 }
 
-fn anchor_quality(role: &str, anchor_node: Option<&str>) -> String {
+pub(crate) fn anchor_quality(role: &str, anchor_node: Option<&str>) -> String {
     if anchor_node.is_none() {
         "derived".to_owned()
     } else if matches!(role, "start" | "goal" | "landmark_hub" | "boss_gate") {
@@ -293,7 +298,7 @@ fn anchor_quality(role: &str, anchor_node: Option<&str>) -> String {
     }
 }
 
-fn entrance_expectations(
+pub(crate) fn entrance_expectations(
     node: &Node,
     role: &str,
     intents: &BTreeSet<&str>,
@@ -329,7 +334,7 @@ fn entrance_expectations(
     dedupe_strings(expectations)
 }
 
-fn constraint_for_intent(
+pub(crate) fn constraint_for_intent(
     annotation: &SpatialIntentAnnotation,
     intent: &str,
 ) -> Option<IntermediateConstraint> {
@@ -344,7 +349,7 @@ fn constraint_for_intent(
     })
 }
 
-fn constraint_code_for_intent(intent: &str) -> Option<&'static str> {
+pub(crate) fn constraint_code_for_intent(intent: &str) -> Option<&'static str> {
     Some(match intent {
         "visible_before_reachable" => "preserve_lock_preview",
         "gated_connector" => "preserve_gated_connector",
@@ -362,7 +367,7 @@ fn constraint_code_for_intent(intent: &str) -> Option<&'static str> {
     })
 }
 
-fn constraint_refs_by_target(
+pub(crate) fn constraint_refs_by_target(
     constraints: &[IntermediateConstraint],
 ) -> BTreeMap<&str, Vec<String>> {
     let mut refs: BTreeMap<&str, Vec<String>> = BTreeMap::new();
@@ -378,7 +383,7 @@ fn constraint_refs_by_target(
     refs
 }
 
-fn connector_affordances(edge: &Edge, intents: &[String]) -> Vec<String> {
+pub(crate) fn connector_affordances(edge: &Edge, intents: &[String]) -> Vec<String> {
     let mut affordances = Vec::new();
     if edge.traversal == TraversalKind::Locked || edge.required_item.is_some() {
         affordances.push("locked_threshold".to_owned());
@@ -414,7 +419,7 @@ fn connector_affordances(edge: &Edge, intents: &[String]) -> Vec<String> {
     dedupe_strings(affordances)
 }
 
-fn traversal_hint(edge: &Edge) -> String {
+pub(crate) fn traversal_hint(edge: &Edge) -> String {
     match edge.traversal {
         TraversalKind::Open => {
             if edge.required_item.is_some() {
@@ -429,7 +434,7 @@ fn traversal_hint(edge: &Edge) -> String {
     }
 }
 
-fn breakdown_validate_command(args: ReportOutArgs) -> Result<(), String> {
+pub(crate) fn breakdown_validate_command(args: ReportOutArgs) -> Result<(), String> {
     let breakdown: IntermediateBreakdown = read_json(&args.state)?;
     let report = validate_intermediate_breakdown(&breakdown);
     write_json(&args.out, &report)?;

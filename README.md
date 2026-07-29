@@ -53,6 +53,16 @@ npm run viewer:smoke
 npm run catalog:coverage
 ```
 
+## Rust library
+
+`rusty-procgen-preflight` exposes the deterministic generator as a library as
+well as the `rusty-procgen` binary. Downstream Rust hosts use the
+filesystem-free `ProcgenCore` facade for typed graph, geometry, catalog,
+placement, and validation operations; the CLI is a thin path/receipt adapter
+over the same owners. See
+[`docs/rust-library-api.md`](docs/rust-library-api.md) for the module map,
+public boundary, and focused verification.
+
 ## Temporary legacy publication proof
 
 The temporary downstream adapter maps representative Procgen shape matches and

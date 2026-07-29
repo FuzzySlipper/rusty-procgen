@@ -1,4 +1,7 @@
-fn build_emit_piece_plan_command(args: BuildEmitPiecePlanArgs) -> Result<(), String> {
+#[allow(unused_imports)]
+use crate::*;
+
+pub(crate) fn build_emit_piece_plan_command(args: BuildEmitPiecePlanArgs) -> Result<(), String> {
     let candidate: Candidate = read_json(&args.candidate)?;
     let intermediate: IntermediateBreakdown = read_json(&args.intermediate)?;
     let geometry: Geometry2dArtifact = read_json(&args.geometry)?;
@@ -6,7 +9,7 @@ fn build_emit_piece_plan_command(args: BuildEmitPiecePlanArgs) -> Result<(), Str
     write_json(&args.out, &plan)
 }
 
-fn emit_piece_build_plan(
+pub(crate) fn emit_piece_build_plan(
     candidate: &Candidate,
     intermediate: &IntermediateBreakdown,
     geometry: &Geometry2dArtifact,
@@ -150,13 +153,7 @@ fn emit_piece_build_plan(
                     false,
                     &mut requirements,
                 )?;
-                link_hybrid_corridor(
-                    corridor,
-                    edge,
-                    &from_piece,
-                    &to_piece,
-                    &mut links,
-                );
+                link_hybrid_corridor(corridor, edge, &from_piece, &to_piece, &mut links);
                 let _ = corridor_pieces;
             }
             CorridorRealization::Procedural => {
@@ -185,7 +182,7 @@ fn emit_piece_build_plan(
     })
 }
 
-fn validate_piece_plan_inputs(
+pub(crate) fn validate_piece_plan_inputs(
     candidate: &Candidate,
     intermediate: &IntermediateBreakdown,
     geometry: &Geometry2dArtifact,
@@ -211,7 +208,7 @@ fn validate_piece_plan_inputs(
     Ok(())
 }
 
-fn geometry_contents_by_room(
+pub(crate) fn geometry_contents_by_room(
     geometry: &Geometry2dArtifact,
 ) -> BTreeMap<&str, Vec<&GeometryContent>> {
     let mut by_room: BTreeMap<&str, Vec<&GeometryContent>> = BTreeMap::new();
@@ -224,11 +221,11 @@ fn geometry_contents_by_room(
     by_room
 }
 
-fn piece_id_for_room(room: &GeometryRoom) -> String {
+pub(crate) fn piece_id_for_room(room: &GeometryRoom) -> String {
     format!("piece.room.{}", slugify_label(room.id.as_str()))
 }
 
-fn piece_kind_for_room(room: &GeometryRoom, contents: &[&GeometryContent]) -> String {
+pub(crate) fn piece_kind_for_room(room: &GeometryRoom, contents: &[&GeometryContent]) -> String {
     if room.role == "boss_gate" || room.geometry_role == "boss_threshold" {
         "boss".to_owned()
     } else if room.role == "gate" || room.geometry_role == "threshold" {
@@ -254,8 +251,8 @@ fn piece_kind_for_room(room: &GeometryRoom, contents: &[&GeometryContent]) -> St
     } else if room.role == "resource"
         || room.geometry_role.contains("resource")
         || contents
-        .iter()
-        .any(|content| content.kind == "resource_clue")
+            .iter()
+            .any(|content| content.kind == "resource_clue")
     {
         "resource".to_owned()
     } else if contents.iter().any(|content| content.kind == "key_pickup") {
@@ -265,7 +262,7 @@ fn piece_kind_for_room(room: &GeometryRoom, contents: &[&GeometryContent]) -> St
     }
 }
 
-fn room_source_refs(room: &GeometryRoom) -> Vec<String> {
+pub(crate) fn room_source_refs(room: &GeometryRoom) -> Vec<String> {
     let mut refs = vec![
         format!("geometryRoom:{}", room.id),
         format!("region:{}", room.source_region),
@@ -278,12 +275,15 @@ fn room_source_refs(room: &GeometryRoom) -> Vec<String> {
     refs
 }
 
-fn room_placement_hints(
+pub(crate) fn room_placement_hints(
     room: &GeometryRoom,
     region: Option<&IntermediateRegion>,
 ) -> Vec<String> {
     let mut hints = vec![
-        format!("geometryRect:{}:{}:{}:{}", room.rect.x, room.rect.y, room.rect.width, room.rect.height),
+        format!(
+            "geometryRect:{}:{}:{}:{}",
+            room.rect.x, room.rect.y, room.rect.width, room.rect.height
+        ),
         format!("footprintClass:{}", room.footprint_class),
     ];
     if let Some(region) = region {
@@ -293,7 +293,7 @@ fn room_placement_hints(
     dedupe_strings(hints)
 }
 
-fn room_exit_requirements(
+pub(crate) fn room_exit_requirements(
     room: &GeometryRoom,
     geometry: &Geometry2dArtifact,
 ) -> Vec<PieceExitRequirement> {
@@ -324,7 +324,7 @@ fn room_exit_requirements(
     exits
 }
 
-fn corridor_endpoint_order(
+pub(crate) fn corridor_endpoint_order(
     corridor: &GeometryCorridor,
     from: bool,
     direction: &str,
@@ -342,7 +342,7 @@ fn corridor_endpoint_order(
 }
 
 #[derive(Clone, Debug)]
-struct CatalogRouteSegment {
+pub(crate) struct CatalogRouteSegment {
     from: GeometryPoint,
     to: GeometryPoint,
     direction: String,
@@ -351,22 +351,22 @@ struct CatalogRouteSegment {
 }
 
 #[derive(Clone, Debug)]
-struct CatalogRoutePiece {
+pub(crate) struct CatalogRoutePiece {
     piece_id: String,
     inbound_exit: String,
     outbound_exit: String,
 }
 
-const MAX_CATALOG_ROUTE_PIECES_PER_SECTION: usize = 64;
-const CATALOG_ROUTE_PIXELS_PER_PLACEMENT_CELL: i32 = 6;
-const CATALOG_SMALL_BEND_ALLOWANCE_CELLS: i32 = 4;
-const CATALOG_LARGE_BEND_THRESHOLD_CELLS: i32 = 16;
-const CATALOG_TIGHT_BEND_THRESHOLD_CELLS: i32 = 3;
-const PURE_CATALOG_TIGHT_BEND_AXIS_CELLS: i32 = 1;
-const PURE_CATALOG_SMALL_BEND_AXIS_CELLS: i32 = 2;
-const PURE_CATALOG_LARGE_BEND_AXIS_CELLS: i32 = 3;
+pub(crate) const MAX_CATALOG_ROUTE_PIECES_PER_SECTION: usize = 64;
+pub(crate) const CATALOG_ROUTE_PIXELS_PER_PLACEMENT_CELL: i32 = 6;
+pub(crate) const CATALOG_SMALL_BEND_ALLOWANCE_CELLS: i32 = 4;
+pub(crate) const CATALOG_LARGE_BEND_THRESHOLD_CELLS: i32 = 16;
+pub(crate) const CATALOG_TIGHT_BEND_THRESHOLD_CELLS: i32 = 3;
+pub(crate) const PURE_CATALOG_TIGHT_BEND_AXIS_CELLS: i32 = 1;
+pub(crate) const PURE_CATALOG_SMALL_BEND_AXIS_CELLS: i32 = 2;
+pub(crate) const PURE_CATALOG_LARGE_BEND_AXIS_CELLS: i32 = 3;
 
-fn emit_corridor_piece_requirements(
+pub(crate) fn emit_corridor_piece_requirements(
     corridor: &GeometryCorridor,
     connector: Option<&IntermediateConnector>,
     edge: Option<&Edge>,
@@ -385,12 +385,16 @@ fn emit_corridor_piece_requirements(
         let starts_at_bend = segment_index > 0;
         let ends_at_bend = segment_index + 1 < segments.len();
         let reserved_cells = if pure_catalog {
-            let start_allowance = starts_at_bend
-                .then(|| catalog_bend_axis_cells(&segments[segment_index - 1], segment))
-                .unwrap_or(0);
-            let end_allowance = ends_at_bend
-                .then(|| catalog_bend_axis_cells(segment, &segments[segment_index + 1]))
-                .unwrap_or(0);
+            let start_allowance = if starts_at_bend {
+                catalog_bend_axis_cells(&segments[segment_index - 1], segment)
+            } else {
+                0
+            };
+            let end_allowance = if ends_at_bend {
+                catalog_bend_axis_cells(segment, &segments[segment_index + 1])
+            } else {
+                0
+            };
             start_allowance + end_allowance
         } else {
             i32::from(starts_at_bend) * CATALOG_SMALL_BEND_ALLOWANCE_CELLS
@@ -416,15 +420,16 @@ fn emit_corridor_piece_requirements(
             )
         })?;
         for (tile_index, span) in straight_spans.iter().enumerate() {
-            let anchor = interpolate_segment_anchor(
-                segment,
-                tile_index + 1,
-                straight_spans.len() + 1,
-            );
+            let anchor =
+                interpolate_segment_anchor(segment, tile_index + 1, straight_spans.len() + 1);
             pieces.push(push_catalog_route_piece(
                 corridor,
                 "corridor",
-                format!("segment_{:02}.tile_{:02}", segment_index + 1, tile_index + 1),
+                format!(
+                    "segment_{:02}.tile_{:02}",
+                    segment_index + 1,
+                    tile_index + 1
+                ),
                 opposite_direction(segment.direction.as_str()).to_owned(),
                 segment.direction.clone(),
                 span.tag(),
@@ -473,7 +478,7 @@ fn emit_corridor_piece_requirements(
     Ok(pieces)
 }
 
-fn catalog_bend_axis_cells(
+pub(crate) fn catalog_bend_axis_cells(
     incoming: &CatalogRouteSegment,
     outgoing: &CatalogRouteSegment,
 ) -> i32 {
@@ -484,7 +489,7 @@ fn catalog_bend_axis_cells(
     }
 }
 
-fn catalog_bend_family(
+pub(crate) fn catalog_bend_family(
     incoming: &CatalogRouteSegment,
     outgoing: &CatalogRouteSegment,
 ) -> &'static str {
@@ -501,14 +506,14 @@ fn catalog_bend_family(
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
-enum CatalogStraightSpan {
+pub(crate) enum CatalogStraightSpan {
     Short,
     Medium,
     Long,
 }
 
 impl CatalogStraightSpan {
-    fn tag(self) -> &'static str {
+    pub(crate) fn tag(self) -> &'static str {
         match self {
             Self::Short => "span_short",
             Self::Medium => "span_medium",
@@ -518,7 +523,7 @@ impl CatalogStraightSpan {
 }
 
 #[cfg(test)]
-fn catalog_straight_spans(
+pub(crate) fn catalog_straight_spans(
     mut target_cells: i32,
 ) -> Result<Vec<CatalogStraightSpan>, i32> {
     let mut spans = Vec::new();
@@ -540,7 +545,7 @@ fn catalog_straight_spans(
     }
 }
 
-fn hybrid_catalog_straight_spans(
+pub(crate) fn hybrid_catalog_straight_spans(
     target_cells: i32,
 ) -> Result<Vec<CatalogStraightSpan>, i32> {
     if target_cells <= 0 {
@@ -556,7 +561,7 @@ fn hybrid_catalog_straight_spans(
     Ok(vec![span])
 }
 
-fn pure_catalog_straight_spans(
+pub(crate) fn pure_catalog_straight_spans(
     mut target_cells: i32,
 ) -> Result<Vec<CatalogStraightSpan>, i32> {
     let mut spans = Vec::new();
@@ -578,7 +583,9 @@ fn pure_catalog_straight_spans(
     }
 }
 
-fn catalog_route_segments(corridor: &GeometryCorridor) -> Result<Vec<CatalogRouteSegment>, String> {
+pub(crate) fn catalog_route_segments(
+    corridor: &GeometryCorridor,
+) -> Result<Vec<CatalogRouteSegment>, String> {
     let mut points = Vec::new();
     for point in &corridor.points {
         if points.last() != Some(point) {
@@ -605,11 +612,10 @@ fn catalog_route_segments(corridor: &GeometryCorridor) -> Result<Vec<CatalogRout
             continue;
         };
         let pixels = (to.x - from.x).abs() + (to.y - from.y).abs();
-        let target_cells =
-            (pixels + CATALOG_ROUTE_PIXELS_PER_PLACEMENT_CELL - 1)
-                / CATALOG_ROUTE_PIXELS_PER_PLACEMENT_CELL;
-        let direct_target_cells = target_cells
-            + i32::from(pixels % CATALOG_ROUTE_PIXELS_PER_PLACEMENT_CELL == 0);
+        let target_cells = (pixels + CATALOG_ROUTE_PIXELS_PER_PLACEMENT_CELL - 1)
+            / CATALOG_ROUTE_PIXELS_PER_PLACEMENT_CELL;
+        let direct_target_cells =
+            target_cells + i32::from(pixels % CATALOG_ROUTE_PIXELS_PER_PLACEMENT_CELL == 0);
         segments.push(CatalogRouteSegment {
             from: from.clone(),
             to: to.clone(),
@@ -627,7 +633,7 @@ fn catalog_route_segments(corridor: &GeometryCorridor) -> Result<Vec<CatalogRout
     Ok(segments)
 }
 
-fn interpolate_segment_anchor(
+pub(crate) fn interpolate_segment_anchor(
     segment: &CatalogRouteSegment,
     numerator: usize,
     denominator: usize,
@@ -636,16 +642,14 @@ fn interpolate_segment_anchor(
     let denominator = denominator.max(1) as i64;
     GeometryPoint {
         x: (i64::from(segment.from.x)
-            + i64::from(segment.to.x - segment.from.x) * numerator / denominator)
-            as i32,
+            + i64::from(segment.to.x - segment.from.x) * numerator / denominator) as i32,
         y: (i64::from(segment.from.y)
-            + i64::from(segment.to.y - segment.from.y) * numerator / denominator)
-            as i32,
+            + i64::from(segment.to.y - segment.from.y) * numerator / denominator) as i32,
     }
 }
 
 #[allow(clippy::too_many_arguments)]
-fn push_catalog_route_piece(
+pub(crate) fn push_catalog_route_piece(
     corridor: &GeometryCorridor,
     kind: &str,
     suffix: String,
@@ -719,7 +723,7 @@ fn push_catalog_route_piece(
     }
 }
 
-fn link_pure_catalog_corridor(
+pub(crate) fn link_pure_catalog_corridor(
     corridor: &GeometryCorridor,
     edge: Option<&Edge>,
     from_room: &str,
@@ -733,7 +737,11 @@ fn link_pure_catalog_corridor(
         links.push(catalog_piece_link(
             corridor,
             edge,
-            format!("piece_link.{}.catalog.{:02}", slugify_label(corridor.id.as_str()), index + 1),
+            format!(
+                "piece_link.{}.catalog.{:02}",
+                slugify_label(corridor.id.as_str()),
+                index + 1
+            ),
             from_piece,
             from_exit,
             piece.piece_id.clone(),
@@ -759,7 +767,7 @@ fn link_pure_catalog_corridor(
     ));
 }
 
-fn link_hybrid_corridor(
+pub(crate) fn link_hybrid_corridor(
     corridor: &GeometryCorridor,
     edge: Option<&Edge>,
     from_piece: &str,
@@ -769,10 +777,7 @@ fn link_hybrid_corridor(
     links.push(catalog_piece_link(
         corridor,
         edge,
-        format!(
-            "piece_link.{}.catalog",
-            slugify_label(corridor.id.as_str())
-        ),
+        format!("piece_link.{}.catalog", slugify_label(corridor.id.as_str())),
         from_piece.to_owned(),
         room_corridor_exit_id(corridor, true),
         to_piece.to_owned(),
@@ -782,7 +787,7 @@ fn link_hybrid_corridor(
 }
 
 #[allow(clippy::too_many_arguments)]
-fn catalog_piece_link(
+pub(crate) fn catalog_piece_link(
     corridor: &GeometryCorridor,
     edge: Option<&Edge>,
     id: String,
@@ -805,10 +810,7 @@ fn catalog_piece_link(
         traversal_refs: corridor.traversal_refs.clone(),
         source_ref: format!(
             "physicalSection:{};geometryCorridor:{};connector:{};edge:{}",
-            corridor.physical_section,
-            corridor.id,
-            corridor.source_connector,
-            corridor.source_edge
+            corridor.physical_section, corridor.id, corridor.source_connector, corridor.source_edge
         ),
         traversal: edge
             .map(|source_edge| source_edge.traversal.as_str().to_owned())
@@ -819,7 +821,7 @@ fn catalog_piece_link(
     }
 }
 
-fn corridor_distance_at_point(
+pub(crate) fn corridor_distance_at_point(
     corridor: &GeometryCorridor,
     point: &GeometryPoint,
 ) -> Option<i64> {
@@ -828,21 +830,14 @@ fn corridor_distance_at_point(
         let from = &pair[0];
         let to = &pair[1];
         let on_segment = if from.x == to.x {
-            point.x == from.x
-                && point.y >= from.y.min(to.y)
-                && point.y <= from.y.max(to.y)
+            point.x == from.x && point.y >= from.y.min(to.y) && point.y <= from.y.max(to.y)
         } else if from.y == to.y {
-            point.y == from.y
-                && point.x >= from.x.min(to.x)
-                && point.x <= from.x.max(to.x)
+            point.y == from.y && point.x >= from.x.min(to.x) && point.x <= from.x.max(to.x)
         } else {
             false
         };
         if on_segment {
-            return Some(
-                distance
-                    + i64::from((point.x - from.x).abs() + (point.y - from.y).abs()),
-            );
+            return Some(distance + i64::from((point.x - from.x).abs() + (point.y - from.y).abs()));
         }
         distance += i64::from((to.x - from.x).abs() + (to.y - from.y).abs());
     }
@@ -853,7 +848,7 @@ fn corridor_distance_at_point(
         .map(|_| distance)
 }
 
-fn link_procedural_corridor(
+pub(crate) fn link_procedural_corridor(
     corridor: &GeometryCorridor,
     edge: Option<&Edge>,
     from_piece: &str,
@@ -876,10 +871,7 @@ fn link_procedural_corridor(
         traversal_refs: corridor.traversal_refs.clone(),
         source_ref: format!(
             "physicalSection:{};geometryCorridor:{};connector:{};edge:{}",
-            corridor.physical_section,
-            corridor.id,
-            corridor.source_connector,
-            corridor.source_edge
+            corridor.physical_section, corridor.id, corridor.source_connector, corridor.source_edge
         ),
         traversal: edge
             .map(|source_edge| source_edge.traversal.as_str().to_owned())
@@ -890,13 +882,13 @@ fn link_procedural_corridor(
     });
 }
 
-fn room_corridor_exit_id(corridor: &GeometryCorridor, start: bool) -> String {
-    let direction = corridor_endpoint_direction(corridor, start)
-        .unwrap_or_else(|| "unknown".to_owned());
+pub(crate) fn room_corridor_exit_id(corridor: &GeometryCorridor, start: bool) -> String {
+    let direction =
+        corridor_endpoint_direction(corridor, start).unwrap_or_else(|| "unknown".to_owned());
     format!("exit.{}.{}", slugify_label(corridor.id.as_str()), direction)
 }
 
-fn corridor_source_refs(
+pub(crate) fn corridor_source_refs(
     corridor: &GeometryCorridor,
     connector: Option<&IntermediateConnector>,
     edge: Option<&Edge>,
@@ -907,8 +899,18 @@ fn corridor_source_refs(
         format!("room:{}", corridor.from_room),
         format!("room:{}", corridor.to_room),
     ];
-    refs.extend(corridor.source_connectors.iter().map(|value| format!("connector:{value}")));
-    refs.extend(corridor.source_edges.iter().map(|value| format!("edge:{value}")));
+    refs.extend(
+        corridor
+            .source_connectors
+            .iter()
+            .map(|value| format!("connector:{value}")),
+    );
+    refs.extend(
+        corridor
+            .source_edges
+            .iter()
+            .map(|value| format!("edge:{value}")),
+    );
     if let Some(connector) = connector {
         refs.extend(
             connector
@@ -923,7 +925,7 @@ fn corridor_source_refs(
     dedupe_strings(refs)
 }
 
-fn corridor_tags(
+pub(crate) fn corridor_tags(
     corridor: &GeometryCorridor,
     connector: Option<&IntermediateConnector>,
     edge: Option<&Edge>,
@@ -948,7 +950,10 @@ fn corridor_tags(
     dedupe_strings(tags)
 }
 
-fn corridor_endpoint_direction(corridor: &GeometryCorridor, start: bool) -> Option<String> {
+pub(crate) fn corridor_endpoint_direction(
+    corridor: &GeometryCorridor,
+    start: bool,
+) -> Option<String> {
     if corridor.points.len() < 2 {
         return None;
     }
@@ -960,7 +965,7 @@ fn corridor_endpoint_direction(corridor: &GeometryCorridor, start: bool) -> Opti
     }
 }
 
-fn direction_between_points(from: &GeometryPoint, to: &GeometryPoint) -> Option<String> {
+pub(crate) fn direction_between_points(from: &GeometryPoint, to: &GeometryPoint) -> Option<String> {
     let dx = to.x - from.x;
     let dy = to.y - from.y;
     if dx.abs() >= dy.abs() && dx != 0 {
@@ -972,7 +977,7 @@ fn direction_between_points(from: &GeometryPoint, to: &GeometryPoint) -> Option<
     }
 }
 
-fn opposite_direction(direction: &str) -> &'static str {
+pub(crate) fn opposite_direction(direction: &str) -> &'static str {
     match direction {
         "north" => "south",
         "east" => "west",
@@ -982,7 +987,7 @@ fn opposite_direction(direction: &str) -> &'static str {
     }
 }
 
-fn socket_for_content_kind(kind: &str) -> String {
+pub(crate) fn socket_for_content_kind(kind: &str) -> String {
     match kind {
         "boss_threshold" => "boss_space".to_owned(),
         "hazard" => "hazard_zone".to_owned(),

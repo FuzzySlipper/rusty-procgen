@@ -1,11 +1,16 @@
-fn physical_connection_plan_command(args: PhysicalConnectionPlanArgs) -> Result<(), String> {
+#[allow(unused_imports)]
+use crate::*;
+
+pub(crate) fn physical_connection_plan_command(
+    args: PhysicalConnectionPlanArgs,
+) -> Result<(), String> {
     let candidate: Candidate = read_json(&args.candidate)?;
     let intermediate: IntermediateBreakdown = read_json(&args.intermediate)?;
     let plan = plan_physical_connections(&candidate, &intermediate, &args)?;
     write_json(&args.out, &plan)
 }
 
-fn plan_physical_connections(
+pub(crate) fn plan_physical_connections(
     candidate: &Candidate,
     intermediate: &IntermediateBreakdown,
     args: &PhysicalConnectionPlanArgs,
@@ -24,9 +29,15 @@ fn plan_physical_connections(
         .collect::<BTreeMap<_, _>>();
     let mut grouped: BTreeMap<String, Vec<(&IntermediateConnector, &Edge)>> = BTreeMap::new();
     for connector in &intermediate.connectors {
-        let edge = edges.get(connector.edge_id.as_str()).copied().ok_or_else(|| {
-            format!("connector {} references missing edge {}", connector.id, connector.edge_id)
-        })?;
+        let edge = edges
+            .get(connector.edge_id.as_str())
+            .copied()
+            .ok_or_else(|| {
+                format!(
+                    "connector {} references missing edge {}",
+                    connector.id, connector.edge_id
+                )
+            })?;
         let mergeable_open = edge.traversal == TraversalKind::Open
             && edge.required_item.is_none()
             && connector.traversal_hint == "open";
@@ -119,15 +130,21 @@ fn plan_physical_connections(
     })
 }
 
-fn geometry_emit_2d_command(args: GeometryEmit2dArgs) -> Result<(), String> {
+pub(crate) fn geometry_emit_2d_command(args: GeometryEmit2dArgs) -> Result<(), String> {
     let candidate: Candidate = read_json(&args.candidate)?;
     let intermediate: IntermediateBreakdown = read_json(&args.intermediate)?;
     let connection_plan: PhysicalConnectionPlan = read_json(&args.connection_plan)?;
-    let geometry = emit_geometry_2d(&candidate, &intermediate, &connection_plan, &args, args.seed)?;
+    let geometry = emit_geometry_2d(
+        &candidate,
+        &intermediate,
+        &connection_plan,
+        &args,
+        args.seed,
+    )?;
     write_json(&args.out, &geometry)
 }
 
-fn geometry_validate_2d_command(args: ReportOutArgs) -> Result<(), String> {
+pub(crate) fn geometry_validate_2d_command(args: ReportOutArgs) -> Result<(), String> {
     let geometry: Geometry2dArtifact = read_json(&args.state)?;
     let report = validate_geometry_2d(&geometry);
     write_json(&args.out, &report)?;
@@ -142,7 +159,7 @@ fn geometry_validate_2d_command(args: ReportOutArgs) -> Result<(), String> {
     }
 }
 
-fn preview_html_command(args: PreviewHtmlArgs) -> Result<(), String> {
+pub(crate) fn preview_html_command(args: PreviewHtmlArgs) -> Result<(), String> {
     let geometry: Geometry2dArtifact = read_json(&args.geometry)?;
     let validation: ValidationReport = read_json(&args.validation)?;
     validate_preview_inputs(&geometry, &validation, args.allow_invalid)?;
@@ -155,7 +172,7 @@ fn preview_html_command(args: PreviewHtmlArgs) -> Result<(), String> {
     write_text(&args.out, &html)
 }
 
-fn validate_preview_inputs(
+pub(crate) fn validate_preview_inputs(
     geometry: &Geometry2dArtifact,
     validation: &ValidationReport,
     allow_invalid: bool,
@@ -179,7 +196,7 @@ fn validate_preview_inputs(
     Ok(())
 }
 
-fn render_geometry_preview_html(
+pub(crate) fn render_geometry_preview_html(
     geometry: &Geometry2dArtifact,
     validation: &ValidationReport,
     geometry_ref: &str,
@@ -366,7 +383,7 @@ svg {{ display: block; min-width: {}px; min-height: {}px; background: #151b22; b
     )
 }
 
-fn room_label(room: &GeometryRoom) -> String {
+pub(crate) fn room_label(room: &GeometryRoom) -> String {
     if room.role == room.geometry_role {
         room.role.clone()
     } else {
@@ -374,7 +391,7 @@ fn room_label(room: &GeometryRoom) -> String {
     }
 }
 
-fn room_fill(room: &GeometryRoom) -> &'static str {
+pub(crate) fn room_fill(room: &GeometryRoom) -> &'static str {
     match room.role.as_str() {
         "start" | "goal" => "#1f5f89",
         "gate" | "boss_gate" => "#725124",
@@ -388,7 +405,7 @@ fn room_fill(room: &GeometryRoom) -> &'static str {
     }
 }
 
-fn severity_label(severity: Severity) -> &'static str {
+pub(crate) fn severity_label(severity: Severity) -> &'static str {
     match severity {
         Severity::Info => "info",
         Severity::Warning => "warning",
@@ -396,7 +413,7 @@ fn severity_label(severity: Severity) -> &'static str {
     }
 }
 
-fn css_token(value: &str) -> String {
+pub(crate) fn css_token(value: &str) -> String {
     let token = slugify_label(value).replace('_', "-");
     if token.is_empty() {
         "unknown".to_owned()
@@ -405,18 +422,18 @@ fn css_token(value: &str) -> String {
     }
 }
 
-fn escape_html(value: &str) -> String {
+pub(crate) fn escape_html(value: &str) -> String {
     value
         .replace('&', "&amp;")
         .replace('<', "&lt;")
         .replace('>', "&gt;")
 }
 
-fn escape_attr(value: &str) -> String {
+pub(crate) fn escape_attr(value: &str) -> String {
     escape_html(value).replace('"', "&quot;")
 }
 
-fn validate_geometry_2d(geometry: &Geometry2dArtifact) -> ValidationReport {
+pub(crate) fn validate_geometry_2d(geometry: &Geometry2dArtifact) -> ValidationReport {
     let mut diagnostics = Vec::new();
     if geometry.kind != "rusty_procgen.geometry_2d.v1" {
         diagnostics.push(fatal(
@@ -443,17 +460,11 @@ fn validate_geometry_2d(geometry: &Geometry2dArtifact) -> ValidationReport {
         ));
     }
     match validate_geometry_layout_policy(&geometry.layout_policy) {
-        Err(error) => diagnostics.push(fatal(
-            "geometry_layout_policy_invalid",
-            None,
-            None,
-            error,
-        )),
+        Err(error) => diagnostics.push(fatal("geometry_layout_policy_invalid", None, None, error)),
         Ok(()) => {
             let search = &geometry.layout_search;
             if search.spacing_tier >= geometry.layout_policy.max_spacing_tiers
-                || search.room_order_attempt
-                    >= geometry.layout_policy.room_order_attempts_per_tier
+                || search.room_order_attempt >= geometry.layout_policy.room_order_attempts_per_tier
                 || search.port_order_attempt >= GEOMETRY_PORT_ORDER_COUNT
                 || search.route_order_attempt >= GEOMETRY_ROUTE_ORDER_COUNT
                 || search.search_attempts == 0
@@ -465,11 +476,8 @@ fn validate_geometry_2d(geometry: &Geometry2dArtifact) -> ValidationReport {
                     None,
                     "Geometry layout search evidence exceeds its policy tier, ordering, or attempt bounds.",
                 ));
-            } else if geometry_spacing_for_tier(
-                &geometry.layout_policy,
-                search.spacing_tier,
-            )
-            .is_ok_and(|expected| expected != search.effective_spacing)
+            } else if geometry_spacing_for_tier(&geometry.layout_policy, search.spacing_tier)
+                .is_ok_and(|expected| expected != search.effective_spacing)
             {
                 diagnostics.push(fatal(
                     "geometry_layout_search_spacing_mismatch",
@@ -518,7 +526,10 @@ fn validate_geometry_2d(geometry: &Geometry2dArtifact) -> ValidationReport {
                     "geometry_room_port_span_reused",
                     room.source_nodes.first().map(String::as_str),
                     None,
-                    format!("Room {} reuses doorway position {},{}.", room.id, port.point.x, port.point.y),
+                    format!(
+                        "Room {} reuses doorway position {},{}.",
+                        room.id, port.point.x, port.point.y
+                    ),
                 ));
             }
             if !room_port_sections.insert(port.section_id.as_str()) {
@@ -526,7 +537,10 @@ fn validate_geometry_2d(geometry: &Geometry2dArtifact) -> ValidationReport {
                     "geometry_room_port_section_duplicate",
                     room.source_nodes.first().map(String::as_str),
                     None,
-                    format!("Room {} has duplicate ports for section {}.", room.id, port.section_id),
+                    format!(
+                        "Room {} has duplicate ports for section {}.",
+                        room.id, port.section_id
+                    ),
                 ));
             }
         }
@@ -634,7 +648,11 @@ fn validate_geometry_2d(geometry: &Geometry2dArtifact) -> ValidationReport {
                 .map(|reference| reference.connector_id.as_str())
                 .collect::<BTreeSet<_>>();
             if traversal_edges
-                != corridor.source_edges.iter().map(String::as_str).collect::<BTreeSet<_>>()
+                != corridor
+                    .source_edges
+                    .iter()
+                    .map(String::as_str)
+                    .collect::<BTreeSet<_>>()
                 || traversal_connectors
                     != corridor
                         .source_connectors
@@ -690,27 +708,24 @@ fn validate_geometry_2d(geometry: &Geometry2dArtifact) -> ValidationReport {
                     ),
                 ));
             }
-            if !from_room
-                .ports
-                .iter()
-                .any(|port| port.id == corridor.from_port && port.section_id == corridor.physical_section)
-                || !to_room
-                    .ports
-                    .iter()
-                    .any(|port| port.id == corridor.to_port && port.section_id == corridor.physical_section)
-            {
+            if !from_room.ports.iter().any(|port| {
+                port.id == corridor.from_port && port.section_id == corridor.physical_section
+            }) || !to_room.ports.iter().any(|port| {
+                port.id == corridor.to_port && port.section_id == corridor.physical_section
+            }) {
                 diagnostics.push(fatal(
                     "geometry_corridor_port_mismatch",
                     None,
                     Some(corridor.id.as_str()),
-                    format!("Corridor {} does not identify its planned terminal ports.", corridor.id),
+                    format!(
+                        "Corridor {} does not identify its planned terminal ports.",
+                        corridor.id
+                    ),
                 ));
             }
             for traversal in &corridor.traversal_refs {
-                let terminal_pair = sorted_pair(
-                    traversal.from_region.as_str(),
-                    traversal.to_region.as_str(),
-                );
+                let terminal_pair =
+                    sorted_pair(traversal.from_region.as_str(), traversal.to_region.as_str());
                 let room_pair = sorted_pair(
                     from_room.source_region.as_str(),
                     to_room.source_region.as_str(),
@@ -730,11 +745,17 @@ fn validate_geometry_2d(geometry: &Geometry2dArtifact) -> ValidationReport {
                     rooms_by_region.get(traversal.from_region.as_str()),
                     rooms_by_region.get(traversal.to_region.as_str()),
                 ) {
-                    adjacency.entry(source.id.as_str()).or_default().push(target.id.as_str());
+                    adjacency
+                        .entry(source.id.as_str())
+                        .or_default()
+                        .push(target.id.as_str());
                 }
             }
         }
-        if corridor.traversal_refs.iter().any(|reference| reference.traversal == "locked")
+        if corridor
+            .traversal_refs
+            .iter()
+            .any(|reference| reference.traversal == "locked")
             && !corridor
                 .semantic_tags
                 .iter()
@@ -747,7 +768,10 @@ fn validate_geometry_2d(geometry: &Geometry2dArtifact) -> ValidationReport {
                 "Locked corridors must preserve locked_threshold semantics.",
             ));
         }
-        if corridor.traversal_refs.iter().any(|reference| reference.traversal == "hidden")
+        if corridor
+            .traversal_refs
+            .iter()
+            .any(|reference| reference.traversal == "hidden")
             && !corridor
                 .semantic_tags
                 .iter()
@@ -819,9 +843,7 @@ fn validate_geometry_2d(geometry: &Geometry2dArtifact) -> ValidationReport {
         geometry.layout_search.embedding_id.as_str(),
     );
     if geometry.layout_search.valid_layout_candidates == 0
-        || geometry
-            .layout_search
-            .compactness_portal_capacity_penalty
+        || geometry.layout_search.compactness_portal_capacity_penalty
             != compactness.portal_capacity_penalty
         || geometry.layout_search.compactness_envelope_area != compactness.envelope_area
         || geometry
@@ -854,7 +876,7 @@ fn validate_geometry_2d(geometry: &Geometry2dArtifact) -> ValidationReport {
     }
 }
 
-fn validate_geometry_content_anchors(
+pub(crate) fn validate_geometry_content_anchors(
     geometry: &Geometry2dArtifact,
     rooms_by_id: &BTreeMap<&str, &GeometryRoom>,
     diagnostics: &mut Vec<Diagnostic>,
@@ -894,7 +916,7 @@ fn validate_geometry_content_anchors(
     }
 }
 
-fn validate_geometry_reachability(
+pub(crate) fn validate_geometry_reachability(
     geometry: &Geometry2dArtifact,
     adjacency: &BTreeMap<&str, Vec<&str>>,
     diagnostics: &mut Vec<Diagnostic>,
@@ -956,14 +978,14 @@ fn validate_geometry_reachability(
     }
 }
 
-fn geometry_rectangles_overlap(left: &GeometryRect, right: &GeometryRect) -> bool {
+pub(crate) fn geometry_rectangles_overlap(left: &GeometryRect, right: &GeometryRect) -> bool {
     left.x < right.x + right.width
         && left.x + left.width > right.x
         && left.y < right.y + right.height
         && left.y + left.height > right.y
 }
 
-fn geometry_point_on_rect_boundary(point: &GeometryPoint, rect: &GeometryRect) -> bool {
+pub(crate) fn geometry_point_on_rect_boundary(point: &GeometryPoint, rect: &GeometryRect) -> bool {
     let on_vertical = (point.x == rect.x || point.x == rect.x + rect.width)
         && point.y >= rect.y
         && point.y <= rect.y + rect.height;
@@ -973,7 +995,7 @@ fn geometry_point_on_rect_boundary(point: &GeometryPoint, rect: &GeometryRect) -
     on_vertical || on_horizontal
 }
 
-fn validate_exclusive_geometry_routes(
+pub(crate) fn validate_exclusive_geometry_routes(
     geometry: &Geometry2dArtifact,
     rooms_by_id: &BTreeMap<&str, &GeometryRoom>,
     diagnostics: &mut Vec<Diagnostic>,
@@ -994,7 +1016,10 @@ fn validate_exclusive_geometry_routes(
                         "geometry_corridor_room_intrusion",
                         room.source_nodes.first().map(String::as_str),
                         Some(corridor.id.as_str()),
-                        format!("Physical section {} enters unrelated room {}.", corridor.physical_section, room.id),
+                        format!(
+                            "Physical section {} enters unrelated room {}.",
+                            corridor.physical_section, room.id
+                        ),
                     ));
                 }
             }
@@ -1007,17 +1032,26 @@ fn validate_exclusive_geometry_routes(
                         "geometry_physical_section_overlap",
                         None,
                         Some(corridor.id.as_str()),
-                        format!("Physical sections {} and {} overlap at {},{}.", other, corridor.physical_section, point.x, point.y),
+                        format!(
+                            "Physical sections {} and {} overlap at {},{}.",
+                            other, corridor.physical_section, point.x, point.y
+                        ),
                     ));
                 }
             }
-            route_cells.push(((point.x, point.y), corridor.physical_section.as_str(), corridor.width));
+            route_cells.push((
+                (point.x, point.y),
+                corridor.physical_section.as_str(),
+                corridor.width,
+            ));
         }
     }
     let mut reported = BTreeSet::new();
     for (position, section, width) in route_cells {
-        let max_radius = align_geometry(width / 2 + 10 + GEOMETRY_CORRIDOR_SEPARATION, GEOMETRY_ROUTE_GRID)
-            / GEOMETRY_ROUTE_GRID;
+        let max_radius = align_geometry(
+            width / 2 + 10 + GEOMETRY_CORRIDOR_SEPARATION,
+            GEOMETRY_ROUTE_GRID,
+        ) / GEOMETRY_ROUTE_GRID;
         for dy in -max_radius..=max_radius {
             for dx in -max_radius..=max_radius {
                 let Some((other_section, other_width)) = cells.get(&(
@@ -1038,7 +1072,10 @@ fn validate_exclusive_geometry_routes(
                             "geometry_physical_section_contact",
                             None,
                             None,
-                            format!("Unrelated physical sections {} and {} violate separation.", pair.0, pair.1),
+                            format!(
+                                "Unrelated physical sections {} and {} violate separation.",
+                                pair.0, pair.1
+                            ),
                         ));
                     }
                 }
@@ -1048,7 +1085,7 @@ fn validate_exclusive_geometry_routes(
     let _ = rooms_by_id;
 }
 
-fn rasterize_geometry_corridor(corridor: &GeometryCorridor) -> Vec<GeometryPoint> {
+pub(crate) fn rasterize_geometry_corridor(corridor: &GeometryCorridor) -> Vec<GeometryPoint> {
     let mut cells = Vec::new();
     for segment in corridor.points.windows(2) {
         let from = &segment[0];
@@ -1056,30 +1093,36 @@ fn rasterize_geometry_corridor(corridor: &GeometryCorridor) -> Vec<GeometryPoint
         let dx = (to.x - from.x).signum() * GEOMETRY_ROUTE_GRID;
         let dy = (to.y - from.y).signum() * GEOMETRY_ROUTE_GRID;
         let mut cursor = (from.x, from.y);
-        cells.push(GeometryPoint { x: cursor.0, y: cursor.1 });
+        cells.push(GeometryPoint {
+            x: cursor.0,
+            y: cursor.1,
+        });
         while cursor != (to.x, to.y) {
             cursor = (cursor.0 + dx, cursor.1 + dy);
-            cells.push(GeometryPoint { x: cursor.0, y: cursor.1 });
+            cells.push(GeometryPoint {
+                x: cursor.0,
+                y: cursor.1,
+            });
         }
     }
     dedupe_points(cells)
 }
 
-const GEOMETRY_ROUTE_GRID: i32 = 8;
-const GEOMETRY_PORT_MARGIN: i32 = 32;
-const GEOMETRY_PORT_SPACING: i32 = 48;
-const GEOMETRY_CORRIDOR_SEPARATION: i32 = 8;
-const GEOMETRY_MAX_CORRIDOR_HALF_WIDTH: i32 = 10;
-const GEOMETRY_ROUTE_ORDER_COUNT: u32 = 4;
-const GEOMETRY_PORT_ORDER_COUNT: u32 = 2;
-const GEOMETRY_PATH_ALTERNATIVES: u32 = 8;
-const GEOMETRY_ROUTE_DECISION_BUDGET: u32 = 256;
-const GEOMETRY_ROUTE_BACKTRACK_BUDGET: u32 = 128;
-const GEOMETRY_PATH_EXPANSION_BUDGET: u32 = 4_096;
-const GEOMETRY_CONFLICT_REPAIR_BUDGET: u32 = 2;
+pub(crate) const GEOMETRY_ROUTE_GRID: i32 = 8;
+pub(crate) const GEOMETRY_PORT_MARGIN: i32 = 32;
+pub(crate) const GEOMETRY_PORT_SPACING: i32 = 48;
+pub(crate) const GEOMETRY_CORRIDOR_SEPARATION: i32 = 8;
+pub(crate) const GEOMETRY_MAX_CORRIDOR_HALF_WIDTH: i32 = 10;
+pub(crate) const GEOMETRY_ROUTE_ORDER_COUNT: u32 = 4;
+pub(crate) const GEOMETRY_PORT_ORDER_COUNT: u32 = 2;
+pub(crate) const GEOMETRY_PATH_ALTERNATIVES: u32 = 8;
+pub(crate) const GEOMETRY_ROUTE_DECISION_BUDGET: u32 = 256;
+pub(crate) const GEOMETRY_ROUTE_BACKTRACK_BUDGET: u32 = 128;
+pub(crate) const GEOMETRY_PATH_EXPANSION_BUDGET: u32 = 4_096;
+pub(crate) const GEOMETRY_CONFLICT_REPAIR_BUDGET: u32 = 2;
 
 #[derive(Clone, Debug)]
-struct PhysicalPortDemand {
+pub(crate) struct PhysicalPortDemand {
     section_id: String,
     side: String,
     width: i32,
@@ -1087,13 +1130,13 @@ struct PhysicalPortDemand {
 }
 
 #[derive(Clone, Copy, Debug, Eq, Ord, PartialEq, PartialOrd)]
-struct TopologyPoint {
+pub(crate) struct TopologyPoint {
     x: i32,
     y: i32,
 }
 
 #[derive(Clone, Debug)]
-struct TopologyEmbedding {
+pub(crate) struct TopologyEmbedding {
     positions: BTreeMap<String, TopologyPoint>,
     embedding_id: String,
     faces: u32,
@@ -1103,15 +1146,15 @@ struct TopologyEmbedding {
 }
 
 #[derive(Debug)]
-struct GeometryPlacementResult {
-    rooms: Vec<GeometryRoom>,
-    corridors: Vec<GeometryCorridor>,
-    bounds: GeometryBounds,
-    search: GeometryLayoutSearchEvidence,
+pub(crate) struct GeometryPlacementResult {
+    pub(crate) rooms: Vec<GeometryRoom>,
+    pub(crate) corridors: Vec<GeometryCorridor>,
+    pub(crate) bounds: GeometryBounds,
+    pub(crate) search: GeometryLayoutSearchEvidence,
 }
 
 #[derive(Clone, Debug, Eq, Ord, PartialEq, PartialOrd)]
-struct GeometryCompactnessScore {
+pub(crate) struct GeometryCompactnessScore {
     portal_capacity_penalty: u32,
     envelope_area: i64,
     routed_shell_cost: i64,
@@ -1122,10 +1165,10 @@ struct GeometryCompactnessScore {
 }
 
 #[derive(Clone, Debug, Default)]
-struct PhysicalRouteSearchEvidence {
-    decisions: u32,
+pub(crate) struct PhysicalRouteSearchEvidence {
+    pub(crate) decisions: u32,
     backtracks: u32,
-    path_alternatives: u32,
+    pub(crate) path_alternatives: u32,
     repairs: u32,
     deepest_routed: usize,
     blocking_owners: BTreeSet<String>,
@@ -1137,7 +1180,7 @@ struct PhysicalRouteSearchEvidence {
 }
 
 #[derive(Debug, Default)]
-struct PhysicalPathAlternatives {
+pub(crate) struct PhysicalPathAlternatives {
     paths: Vec<Vec<GeometryPoint>>,
     blocking_owners: BTreeSet<String>,
     grid_expansions: u32,
@@ -1145,13 +1188,13 @@ struct PhysicalPathAlternatives {
 }
 
 #[derive(Debug)]
-struct PreparedPhysicalSectionRoutes<'a> {
+pub(crate) struct PreparedPhysicalSectionRoutes<'a> {
     section: &'a PhysicalConnectionSection,
     paths: Vec<Vec<GeometryPoint>>,
 }
 
 #[derive(Debug)]
-enum GeometryPlacementAttemptError {
+pub(crate) enum GeometryPlacementAttemptError {
     Invalid(String),
     RoutesUnavailable {
         attempted_orders: u32,
@@ -1160,15 +1203,37 @@ enum GeometryPlacementAttemptError {
 }
 
 #[derive(Debug)]
-enum PhysicalRouteAttemptError {
+pub(crate) enum PhysicalRouteAttemptError {
     Invalid(String),
     Unavailable(String),
 }
 
-fn emit_geometry_2d(
+pub(crate) fn emit_geometry_2d(
     candidate: &Candidate,
     intermediate: &IntermediateBreakdown,
     connection_plan: &PhysicalConnectionPlan,
+    args: &GeometryEmit2dArgs,
+    seed: u64,
+) -> Result<Geometry2dArtifact, String> {
+    let layout_policy = match &args.layout_policy {
+        Some(path) => read_json(path)?,
+        None => default_geometry_layout_policy(),
+    };
+    emit_geometry_2d_with_policy(
+        candidate,
+        intermediate,
+        connection_plan,
+        &layout_policy,
+        args,
+        seed,
+    )
+}
+
+pub(crate) fn emit_geometry_2d_with_policy(
+    candidate: &Candidate,
+    intermediate: &IntermediateBreakdown,
+    connection_plan: &PhysicalConnectionPlan,
+    layout_policy: &GeometryLayoutPolicy,
     args: &GeometryEmit2dArgs,
     seed: u64,
 ) -> Result<Geometry2dArtifact, String> {
@@ -1183,18 +1248,10 @@ fn emit_geometry_2d(
     {
         return Err("physical connection plan does not match the supplied candidate".to_owned());
     }
-    let layout_policy = match &args.layout_policy {
-        Some(path) => read_json(path)?,
-        None => default_geometry_layout_policy(),
-    };
-    validate_geometry_layout_policy(&layout_policy)?;
+    validate_geometry_layout_policy(layout_policy)?;
     let region_specs = ordered_geometry_region_specs(candidate, intermediate);
-    let placement = place_and_route_physical_geometry(
-        &region_specs,
-        connection_plan,
-        seed,
-        &layout_policy,
-    )?;
+    let placement =
+        place_and_route_physical_geometry(&region_specs, connection_plan, seed, layout_policy)?;
     let contents = geometry_contents(candidate, intermediate, &placement.rooms);
     Ok(Geometry2dArtifact {
         kind: "rusty_procgen.geometry_2d.v1".to_owned(),
@@ -1206,7 +1263,7 @@ fn emit_geometry_2d(
         source_intermediate_ref: display_path(&args.intermediate),
         source_connection_plan_ref: display_path(&args.connection_plan),
         connection_plan_id: connection_plan.plan_id.clone(),
-        layout_policy,
+        layout_policy: layout_policy.clone(),
         layout_search: placement.search,
         bounds: placement.bounds,
         rooms: placement.rooms,
@@ -1216,7 +1273,7 @@ fn emit_geometry_2d(
     })
 }
 
-fn ordered_geometry_region_specs<'a>(
+pub(crate) fn ordered_geometry_region_specs<'a>(
     candidate: &Candidate,
     intermediate: &'a IntermediateBreakdown,
 ) -> Vec<(usize, String, String, &'a IntermediateRegion)> {
@@ -1243,7 +1300,7 @@ fn ordered_geometry_region_specs<'a>(
     region_specs
 }
 
-fn default_geometry_layout_policy() -> GeometryLayoutPolicy {
+pub(crate) fn default_geometry_layout_policy() -> GeometryLayoutPolicy {
     GeometryLayoutPolicy {
         kind: "rusty_procgen.geometry_layout_policy.v1".to_owned(),
         schema_version: 1,
@@ -1259,9 +1316,12 @@ fn default_geometry_layout_policy() -> GeometryLayoutPolicy {
     }
 }
 
-fn validate_geometry_layout_policy(policy: &GeometryLayoutPolicy) -> Result<(), String> {
+pub(crate) fn validate_geometry_layout_policy(policy: &GeometryLayoutPolicy) -> Result<(), String> {
     if policy.kind != "rusty_procgen.geometry_layout_policy.v1" || policy.schema_version != 1 {
-        return Err("unsupported geometry layout policy; expected rusty_procgen.geometry_layout_policy.v1".to_owned());
+        return Err(
+            "unsupported geometry layout policy; expected rusty_procgen.geometry_layout_policy.v1"
+                .to_owned(),
+        );
     }
     for (label, value, minimum, maximum) in [
         ("initialRoomMargin", policy.initial_room_margin, 32, 1_024),
@@ -1306,11 +1366,7 @@ fn validate_geometry_layout_policy(policy: &GeometryLayoutPolicy) -> Result<(), 
             policy.initial_column_gap,
             policy.column_gap_growth,
         ),
-        (
-            "rowGap",
-            policy.initial_row_gap,
-            policy.row_gap_growth,
-        ),
+        ("rowGap", policy.initial_row_gap, policy.row_gap_growth),
     ] {
         let final_value = initial
             .checked_add(
@@ -1328,7 +1384,7 @@ fn validate_geometry_layout_policy(policy: &GeometryLayoutPolicy) -> Result<(), 
     Ok(())
 }
 
-fn geometry_spacing_for_tier(
+pub(crate) fn geometry_spacing_for_tier(
     policy: &GeometryLayoutPolicy,
     tier: u32,
 ) -> Result<GeometrySpacing, String> {
@@ -1353,7 +1409,7 @@ fn geometry_spacing_for_tier(
     Ok(spacing)
 }
 
-fn geometry_compactness_score(
+pub(crate) fn geometry_compactness_score(
     bounds: &GeometryBounds,
     rooms: &[GeometryRoom],
     corridors: &[GeometryCorridor],
@@ -1396,7 +1452,7 @@ fn geometry_compactness_score(
     }
 }
 
-fn refresh_geometry_compactness_evidence(geometry: &mut Geometry2dArtifact) {
+pub(crate) fn refresh_geometry_compactness_evidence(geometry: &mut Geometry2dArtifact) {
     let compactness = geometry_compactness_score(
         &geometry.bounds,
         &geometry.rooms,
@@ -1414,7 +1470,7 @@ fn refresh_geometry_compactness_evidence(geometry: &mut Geometry2dArtifact) {
         u32::try_from(compactness.bend_count).unwrap_or(u32::MAX);
 }
 
-fn geometry_portal_capacity_penalty(rooms: &[GeometryRoom]) -> u32 {
+pub(crate) fn geometry_portal_capacity_penalty(rooms: &[GeometryRoom]) -> u32 {
     rooms
         .iter()
         .map(|room| {
@@ -1427,7 +1483,7 @@ fn geometry_portal_capacity_penalty(rooms: &[GeometryRoom]) -> u32 {
         .fold(0_u32, u32::saturating_add)
 }
 
-fn portal_capacity_penalty_for_counts(counts: &BTreeMap<&str, usize>) -> u32 {
+pub(crate) fn portal_capacity_penalty_for_counts(counts: &BTreeMap<&str, usize>) -> u32 {
     if counts.values().copied().max().unwrap_or(0) < 3 {
         return 0;
     }
@@ -1441,10 +1497,7 @@ fn portal_capacity_penalty_for_counts(counts: &BTreeMap<&str, usize>) -> u32 {
         for right in multi_sides.iter().skip(index + 1) {
             let opposite = matches!(
                 (*left, *right),
-                ("north", "south")
-                    | ("south", "north")
-                    | ("east", "west")
-                    | ("west", "east")
+                ("north", "south") | ("south", "north") | ("east", "west") | ("west", "east")
             );
             if !opposite {
                 penalty = penalty.saturating_add(1);
@@ -1454,7 +1507,7 @@ fn portal_capacity_penalty_for_counts(counts: &BTreeMap<&str, usize>) -> u32 {
     penalty
 }
 
-fn place_and_route_physical_geometry(
+pub(crate) fn place_and_route_physical_geometry(
     base_specs: &[(usize, String, String, &IntermediateRegion)],
     connection_plan: &PhysicalConnectionPlan,
     seed: u64,
@@ -1538,88 +1591,89 @@ fn place_and_route_physical_geometry(
                     route_attempt_limit,
                     topology_embedding.as_ref(),
                 ) {
-                Ok((
-                    rooms,
-                    corridors,
-                    bounds,
-                    port_order_attempt,
-                    route_order_attempt,
-                    attempted_orders,
-                    route_evidence,
-                )) => {
-                    search_attempts += attempted_orders;
-                    valid_layout_candidates = valid_layout_candidates.saturating_add(1);
-                    let embedding_kind = topology_embedding
-                        .as_ref()
-                        .map(|_| "planar_rotation")
-                        .unwrap_or("depth_columns")
-                        .to_owned();
-                    let embedding_id = topology_embedding
-                        .as_ref()
-                        .map(|embedding| embedding.embedding_id.clone())
-                        .unwrap_or_else(|| "depth-columns.v1".to_owned());
-                    let score = geometry_compactness_score(
-                        &bounds,
-                        &rooms,
-                        &corridors,
-                        embedding_id.as_str(),
-                    );
-                    let result = GeometryPlacementResult {
+                    Ok((
                         rooms,
                         corridors,
                         bounds,
-                        search: GeometryLayoutSearchEvidence {
-                            spacing_tier,
-                            room_order_attempt,
-                            port_order_attempt,
-                            route_order_attempt,
-                            search_attempts,
-                            effective_spacing: spacing.clone(),
-                            embedding_kind,
-                            embedding_id,
-                            embedding_faces: topology_embedding
-                                .as_ref()
-                                .map(|embedding| embedding.faces)
-                                .unwrap_or(0),
-                            embedding_target_faces: topology_embedding
-                                .as_ref()
-                                .map(|embedding| embedding.target_faces)
-                                .unwrap_or(0),
-                            embedding_search_steps: topology_embedding
-                                .as_ref()
-                                .map(|embedding| embedding.search_steps)
-                                .unwrap_or(0),
-                            route_decisions: route_evidence.decisions,
-                            route_backtracks: route_evidence.backtracks,
-                            route_path_alternatives: route_evidence.path_alternatives,
-                            route_repairs: route_evidence.repairs,
-                            route_grid_expansions: route_evidence.grid_expansions,
-                            route_path_expansion_exhaustions: route_evidence
-                                .path_expansion_exhaustions,
-                            route_last_failed_section: route_evidence.last_failed_section.clone(),
-                            route_blocking_owners: route_evidence
-                                .blocking_owners
-                                .iter()
-                                .cloned()
-                                .collect(),
-                            valid_layout_candidates: 0,
-                            compactness_portal_capacity_penalty: score
-                                .portal_capacity_penalty,
-                            compactness_envelope_area: score.envelope_area,
-                            compactness_corridor_centerline_length: score
-                                .corridor_centerline_length,
-                            compactness_routed_shell_cost: score.routed_shell_cost,
-                            compactness_bend_count: u32::try_from(score.bend_count)
-                                .unwrap_or(u32::MAX),
-                        },
-                    };
-                    if best_valid
-                        .as_ref()
-                        .is_none_or(|(best_score, _)| score < *best_score)
-                    {
-                        best_valid = Some((score, result));
+                        port_order_attempt,
+                        route_order_attempt,
+                        attempted_orders,
+                        route_evidence,
+                    )) => {
+                        search_attempts += attempted_orders;
+                        valid_layout_candidates = valid_layout_candidates.saturating_add(1);
+                        let embedding_kind = topology_embedding
+                            .as_ref()
+                            .map(|_| "planar_rotation")
+                            .unwrap_or("depth_columns")
+                            .to_owned();
+                        let embedding_id = topology_embedding
+                            .as_ref()
+                            .map(|embedding| embedding.embedding_id.clone())
+                            .unwrap_or_else(|| "depth-columns.v1".to_owned());
+                        let score = geometry_compactness_score(
+                            &bounds,
+                            &rooms,
+                            &corridors,
+                            embedding_id.as_str(),
+                        );
+                        let result = GeometryPlacementResult {
+                            rooms,
+                            corridors,
+                            bounds,
+                            search: GeometryLayoutSearchEvidence {
+                                spacing_tier,
+                                room_order_attempt,
+                                port_order_attempt,
+                                route_order_attempt,
+                                search_attempts,
+                                effective_spacing: spacing.clone(),
+                                embedding_kind,
+                                embedding_id,
+                                embedding_faces: topology_embedding
+                                    .as_ref()
+                                    .map(|embedding| embedding.faces)
+                                    .unwrap_or(0),
+                                embedding_target_faces: topology_embedding
+                                    .as_ref()
+                                    .map(|embedding| embedding.target_faces)
+                                    .unwrap_or(0),
+                                embedding_search_steps: topology_embedding
+                                    .as_ref()
+                                    .map(|embedding| embedding.search_steps)
+                                    .unwrap_or(0),
+                                route_decisions: route_evidence.decisions,
+                                route_backtracks: route_evidence.backtracks,
+                                route_path_alternatives: route_evidence.path_alternatives,
+                                route_repairs: route_evidence.repairs,
+                                route_grid_expansions: route_evidence.grid_expansions,
+                                route_path_expansion_exhaustions: route_evidence
+                                    .path_expansion_exhaustions,
+                                route_last_failed_section: route_evidence
+                                    .last_failed_section
+                                    .clone(),
+                                route_blocking_owners: route_evidence
+                                    .blocking_owners
+                                    .iter()
+                                    .cloned()
+                                    .collect(),
+                                valid_layout_candidates: 0,
+                                compactness_portal_capacity_penalty: score.portal_capacity_penalty,
+                                compactness_envelope_area: score.envelope_area,
+                                compactness_corridor_centerline_length: score
+                                    .corridor_centerline_length,
+                                compactness_routed_shell_cost: score.routed_shell_cost,
+                                compactness_bend_count: u32::try_from(score.bend_count)
+                                    .unwrap_or(u32::MAX),
+                            },
+                        };
+                        if best_valid
+                            .as_ref()
+                            .is_none_or(|(best_score, _)| score < *best_score)
+                        {
+                            best_valid = Some((score, result));
+                        }
                     }
-                }
                     Err(GeometryPlacementAttemptError::Invalid(error)) => {
                         return Err(format!("invalid physical geometry plan: {error}"));
                     }
@@ -1653,7 +1707,7 @@ fn place_and_route_physical_geometry(
     ))
 }
 
-fn geometry_layout_order_key(id: &str, seed: u64, attempt: u64) -> u64 {
+pub(crate) fn geometry_layout_order_key(id: &str, seed: u64, attempt: u64) -> u64 {
     let mut value = seed ^ attempt.wrapping_mul(0x9E37_79B9_7F4A_7C15);
     for byte in id.bytes() {
         value ^= u64::from(byte);
@@ -1664,18 +1718,18 @@ fn geometry_layout_order_key(id: &str, seed: u64, attempt: u64) -> u64 {
 }
 
 #[derive(Debug)]
-struct TopologyRng {
+pub(crate) struct TopologyRng {
     state: u64,
 }
 
 impl TopologyRng {
-    fn new(seed: u64) -> Self {
+    pub(crate) fn new(seed: u64) -> Self {
         Self {
             state: seed ^ 0xA076_1D64_78BD_642F,
         }
     }
 
-    fn next_u64(&mut self) -> u64 {
+    pub(crate) fn next_u64(&mut self) -> u64 {
         let mut value = self.state;
         value ^= value >> 12;
         value ^= value << 25;
@@ -1684,7 +1738,7 @@ impl TopologyRng {
         value.wrapping_mul(0x2545_F491_4F6C_DD1D)
     }
 
-    fn index(&mut self, length: usize) -> usize {
+    pub(crate) fn index(&mut self, length: usize) -> usize {
         if length <= 1 {
             0
         } else {
@@ -1692,7 +1746,7 @@ impl TopologyRng {
         }
     }
 
-    fn shuffle<T>(&mut self, values: &mut [T]) {
+    pub(crate) fn shuffle<T>(&mut self, values: &mut [T]) {
         for index in (1..values.len()).rev() {
             let other = self.index(index + 1);
             values.swap(index, other);
@@ -1700,7 +1754,7 @@ impl TopologyRng {
     }
 }
 
-fn find_topology_embedding(
+pub(crate) fn find_topology_embedding(
     plan: &PhysicalConnectionPlan,
     seed: u64,
     spacing_tier: u32,
@@ -1735,7 +1789,10 @@ fn find_topology_embedding(
                 section.id
             ));
         }
-        rotation.entry(left.clone()).or_default().push(right.clone());
+        rotation
+            .entry(left.clone())
+            .or_default()
+            .push(right.clone());
         rotation.entry(right).or_default().push(left);
     }
     for neighbors in rotation.values_mut() {
@@ -1816,12 +1873,10 @@ fn find_topology_embedding(
         hash_json(&rotation)
             .map_err(|error| format!("topology embedding witness hash failed: {error}"))?
     );
-    let (raw_positions, terminal_bars) = topology_embedding_positions(
-        &rotation,
-        &faces,
-        seed ^ nonce,
-    )
-    .map_err(|error| format!("topology embedding {embedding_id} drawing failed: {error}"))?;
+    let (raw_positions, terminal_bars) =
+        topology_embedding_positions(&rotation, &faces, seed ^ nonce).map_err(|error| {
+            format!("topology embedding {embedding_id} drawing failed: {error}")
+        })?;
     let positions = improve_topology_drawing_clearance(
         &rotation,
         if terminal_bars {
@@ -1842,7 +1897,7 @@ fn find_topology_embedding(
     })
 }
 
-fn orient_topology_terminals(
+pub(crate) fn orient_topology_terminals(
     positions: BTreeMap<String, TopologyPoint>,
 ) -> BTreeMap<String, TopologyPoint> {
     let Some(start) = positions.get("region.start").copied() else {
@@ -1875,9 +1930,7 @@ fn orient_topology_terminals(
         .collect::<BTreeMap<_, _>>();
     let nonterminal_x = oriented
         .iter()
-        .filter(|(region, _)| {
-            region.as_str() != "region.start" && region.as_str() != "region.goal"
-        })
+        .filter(|(region, _)| region.as_str() != "region.start" && region.as_str() != "region.goal")
         .map(|(_, point)| point.x)
         .collect::<Vec<_>>();
     let minimum = nonterminal_x.iter().min().copied();
@@ -1900,7 +1953,7 @@ fn orient_topology_terminals(
     oriented
 }
 
-fn topology_reachable_regions(
+pub(crate) fn topology_reachable_regions(
     start: &str,
     rotation: &BTreeMap<String, Vec<String>>,
 ) -> BTreeSet<String> {
@@ -1916,7 +1969,7 @@ fn topology_reachable_regions(
     reachable
 }
 
-fn topology_embedding_faces(
+pub(crate) fn topology_embedding_faces(
     rotation: &BTreeMap<String, Vec<String>>,
 ) -> Result<Vec<Vec<String>>, String> {
     let half_edge_count = rotation.values().map(Vec::len).sum::<usize>();
@@ -1973,7 +2026,7 @@ fn topology_embedding_faces(
     Ok(faces)
 }
 
-fn topology_embedding_positions(
+pub(crate) fn topology_embedding_positions(
     rotation: &BTreeMap<String, Vec<String>>,
     faces: &[Vec<String>],
     seed: u64,
@@ -2095,13 +2148,9 @@ fn topology_embedding_positions(
                 &scored_right,
                 *right_terminal_bars,
             ))
+            .then_with(|| right_ratio.total_cmp(&left_ratio))
             .then_with(|| {
-                right_ratio
-            .total_cmp(&left_ratio)
-            })
-            .then_with(|| {
-                topology_drawing_span(&scored_left)
-                    .total_cmp(&topology_drawing_span(&scored_right))
+                topology_drawing_span(&scored_left).total_cmp(&topology_drawing_span(&scored_right))
             })
             .then_with(|| left.cmp(right))
             .then_with(|| left_terminal_bars.cmp(right_terminal_bars))
@@ -2114,7 +2163,7 @@ fn topology_embedding_positions(
     })
 }
 
-fn topology_separator_band_positions(
+pub(crate) fn topology_separator_band_positions(
     rotation: &BTreeMap<String, Vec<String>>,
 ) -> Option<BTreeMap<String, TopologyPoint>> {
     const BAND_STEP: i32 = 1_000;
@@ -2202,7 +2251,12 @@ fn topology_separator_band_positions(
         return Some(positions);
     }
     let mut rng = TopologyRng::new(geometry_layout_order_key(
-        rotation.keys().map(String::as_str).collect::<Vec<_>>().join("|").as_str(),
+        rotation
+            .keys()
+            .map(String::as_str)
+            .collect::<Vec<_>>()
+            .join("|")
+            .as_str(),
         rotation.values().map(Vec::len).sum::<usize>() as u64,
         0,
     ));
@@ -2229,7 +2283,7 @@ fn topology_separator_band_positions(
     None
 }
 
-fn topology_graph_distances(
+pub(crate) fn topology_graph_distances(
     start: &str,
     rotation: &BTreeMap<String, Vec<String>>,
 ) -> BTreeMap<String, usize> {
@@ -2248,7 +2302,7 @@ fn topology_graph_distances(
     distances
 }
 
-fn harmonic_topology_positions(
+pub(crate) fn harmonic_topology_positions(
     rotation: &BTreeMap<String, Vec<String>>,
     outer: &[String],
 ) -> Result<BTreeMap<String, (f64, f64)>, String> {
@@ -2299,7 +2353,7 @@ fn harmonic_topology_positions(
     Ok(positions)
 }
 
-fn solve_topology_linear_system(
+pub(crate) fn solve_topology_linear_system(
     mut matrix: Vec<Vec<f64>>,
     mut values: Vec<f64>,
 ) -> Result<Vec<f64>, String> {
@@ -2320,8 +2374,8 @@ fn solve_topology_linear_system(
         matrix.swap(pivot, best);
         values.swap(pivot, best);
         let divisor = matrix[pivot][pivot];
-        for column in pivot..matrix.len() {
-            matrix[pivot][column] /= divisor;
+        for value in matrix[pivot].iter_mut().skip(pivot) {
+            *value /= divisor;
         }
         values[pivot] /= divisor;
         for row in 0..matrix.len() {
@@ -2332,8 +2386,13 @@ fn solve_topology_linear_system(
             if factor.abs() < 1.0e-12 {
                 continue;
             }
-            for column in pivot..matrix.len() {
-                matrix[row][column] -= factor * matrix[pivot][column];
+            let pivot_values = matrix[pivot].clone();
+            for (value, pivot_value) in matrix[row]
+                .iter_mut()
+                .skip(pivot)
+                .zip(pivot_values.iter().skip(pivot))
+            {
+                *value -= factor * pivot_value;
             }
             values[row] -= factor * values[pivot];
         }
@@ -2341,7 +2400,7 @@ fn solve_topology_linear_system(
     Ok(values)
 }
 
-fn attach_topology_leaves(
+pub(crate) fn attach_topology_leaves(
     positions: &mut BTreeMap<String, (f64, f64)>,
     removed: &[(String, String)],
     seed: u64,
@@ -2353,9 +2412,7 @@ fn attach_topology_leaves(
         };
         let (sum_x, sum_y) = positions
             .values()
-            .fold((0.0, 0.0), |(sum_x, sum_y), (x, y)| {
-                (sum_x + x, sum_y + y)
-            });
+            .fold((0.0, 0.0), |(sum_x, sum_y), (x, y)| (sum_x + x, sum_y + y));
         let count = positions.len().max(1) as f64;
         let mut angle = (parent_y - sum_y / count).atan2(parent_x - sum_x / count);
         if !angle.is_finite()
@@ -2378,7 +2435,7 @@ fn attach_topology_leaves(
     }
 }
 
-fn quantize_topology_positions(
+pub(crate) fn quantize_topology_positions(
     positions: &BTreeMap<String, (f64, f64)>,
 ) -> BTreeMap<String, TopologyPoint> {
     positions
@@ -2395,7 +2452,7 @@ fn quantize_topology_positions(
         .collect()
 }
 
-fn validate_topology_drawing(
+pub(crate) fn validate_topology_drawing(
     rotation: &BTreeMap<String, Vec<String>>,
     positions: &BTreeMap<String, TopologyPoint>,
 ) -> Result<(), String> {
@@ -2410,7 +2467,7 @@ fn validate_topology_drawing(
     Ok(())
 }
 
-fn validate_topology_drawing_combinatorial(
+pub(crate) fn validate_topology_drawing_combinatorial(
     rotation: &BTreeMap<String, Vec<String>>,
     positions: &BTreeMap<String, TopologyPoint>,
 ) -> Result<(), String> {
@@ -2452,12 +2509,8 @@ fn validate_topology_drawing_combinatorial(
             let other_right_point = positions
                 .get(*other_right)
                 .expect("topology edge endpoint should have a position");
-            if topology_segments_cross(
-                left_point,
-                right_point,
-                other_left_point,
-                other_right_point,
-            ) {
+            if topology_segments_cross(left_point, right_point, other_left_point, other_right_point)
+            {
                 return Err(format!(
                     "topology drawing crosses {left}--{right} with {other_left}--{other_right}"
                 ));
@@ -2477,7 +2530,7 @@ fn validate_topology_drawing_combinatorial(
     Ok(())
 }
 
-fn topology_drawing_span(positions: &BTreeMap<String, TopologyPoint>) -> f64 {
+pub(crate) fn topology_drawing_span(positions: &BTreeMap<String, TopologyPoint>) -> f64 {
     let minimum_x = positions.values().map(|point| point.x).min().unwrap_or(0);
     let maximum_x = positions.values().map(|point| point.x).max().unwrap_or(0);
     let minimum_y = positions.values().map(|point| point.y).min().unwrap_or(0);
@@ -2485,7 +2538,7 @@ fn topology_drawing_span(positions: &BTreeMap<String, TopologyPoint>) -> f64 {
     f64::from((maximum_x - minimum_x).max(maximum_y - minimum_y).max(1))
 }
 
-fn topology_portal_capacity_penalty(
+pub(crate) fn topology_portal_capacity_penalty(
     rotation: &BTreeMap<String, Vec<String>>,
     positions: &BTreeMap<String, TopologyPoint>,
     terminal_bars: bool,
@@ -2507,7 +2560,11 @@ fn topology_portal_capacity_penalty(
                 let dx = other.x - point.x;
                 let dy = other.y - point.y;
                 let side = if dx.abs() >= dy.abs() {
-                    if dx >= 0 { "east" } else { "west" }
+                    if dx >= 0 {
+                        "east"
+                    } else {
+                        "west"
+                    }
                 } else if dy >= 0 {
                     "south"
                 } else {
@@ -2520,7 +2577,7 @@ fn topology_portal_capacity_penalty(
         .fold(0_u32, u32::saturating_add)
 }
 
-fn improve_topology_drawing_clearance(
+pub(crate) fn improve_topology_drawing_clearance(
     rotation: &BTreeMap<String, Vec<String>>,
     positions: BTreeMap<String, TopologyPoint>,
     seed: u64,
@@ -2536,9 +2593,7 @@ fn improve_topology_drawing_clearance(
     }
     let regions = positions
         .keys()
-        .filter(|region| {
-            region.as_str() != "region.start" && region.as_str() != "region.goal"
-        })
+        .filter(|region| region.as_str() != "region.start" && region.as_str() != "region.goal")
         .cloned()
         .collect::<Vec<_>>();
     if regions.is_empty() {
@@ -2546,16 +2601,16 @@ fn improve_topology_drawing_clearance(
     }
     let mut rng = TopologyRng::new(seed ^ 0xD1B5_4A32_D192_ED03);
     let mut best = positions;
-    let mut best_ratio = topology_drawing_clearance(rotation, &best).unwrap_or(0.0)
-        / topology_drawing_span(&best);
+    let mut best_ratio =
+        topology_drawing_clearance(rotation, &best).unwrap_or(0.0) / topology_drawing_span(&best);
     for attempt in 0..32_768_u32 {
         let mut candidate = best.clone();
         let region = &regions[rng.index(regions.len())];
         let span = topology_drawing_span(&best).round().max(1.0) as i32;
         let divisor = 6_i32.saturating_add(i32::try_from(attempt / 2_048).unwrap_or(i32::MAX));
         let radius = (span / divisor).max(span / 128).max(1);
-        let offset_span = usize::try_from(radius.saturating_mul(2).saturating_add(1))
-            .unwrap_or(usize::MAX);
+        let offset_span =
+            usize::try_from(radius.saturating_mul(2).saturating_add(1)).unwrap_or(usize::MAX);
         let dx = i32::try_from(rng.index(offset_span)).unwrap_or(i32::MAX) - radius;
         let dy = i32::try_from(rng.index(offset_span)).unwrap_or(i32::MAX) - radius;
         let point = candidate
@@ -2580,7 +2635,7 @@ fn improve_topology_drawing_clearance(
     best
 }
 
-fn topology_drawing_clearance(
+pub(crate) fn topology_drawing_clearance(
     rotation: &BTreeMap<String, Vec<String>>,
     positions: &BTreeMap<String, TopologyPoint>,
 ) -> Result<f64, String> {
@@ -2624,7 +2679,7 @@ fn topology_drawing_clearance(
     }
 }
 
-fn topology_point_segment_distance(
+pub(crate) fn topology_point_segment_distance(
     point: &TopologyPoint,
     left: &TopologyPoint,
     right: &TopologyPoint,
@@ -2644,7 +2699,7 @@ fn topology_point_segment_distance(
     (f64::from(point.x) - closest_x).hypot(f64::from(point.y) - closest_y)
 }
 
-fn topology_orientation(
+pub(crate) fn topology_orientation(
     left: &TopologyPoint,
     middle: &TopologyPoint,
     right: &TopologyPoint,
@@ -2653,7 +2708,7 @@ fn topology_orientation(
         - i64::from(middle.y - left.y) * i64::from(right.x - left.x)
 }
 
-fn topology_segments_cross(
+pub(crate) fn topology_segments_cross(
     left: &TopologyPoint,
     right: &TopologyPoint,
     other_left: &TopologyPoint,
@@ -2664,11 +2719,10 @@ fn topology_segments_cross(
     let second_left = topology_orientation(other_left, other_right, left);
     let second_right = topology_orientation(other_left, other_right, right);
     (first_left > 0 && first_right < 0 || first_left < 0 && first_right > 0)
-        && (second_left > 0 && second_right < 0
-            || second_left < 0 && second_right > 0)
+        && (second_left > 0 && second_right < 0 || second_left < 0 && second_right > 0)
 }
 
-fn topology_point_on_segment(
+pub(crate) fn topology_point_on_segment(
     point: &TopologyPoint,
     left: &TopologyPoint,
     right: &TopologyPoint,
@@ -2680,7 +2734,8 @@ fn topology_point_on_segment(
         && point.y <= left.y.max(right.y)
 }
 
-fn place_and_route_physical_geometry_attempt(
+#[allow(clippy::type_complexity)]
+pub(crate) fn place_and_route_physical_geometry_attempt(
     region_specs: &[(usize, String, String, &IntermediateRegion)],
     connection_plan: &PhysicalConnectionPlan,
     spacing: &GeometrySpacing,
@@ -2779,7 +2834,7 @@ fn place_and_route_physical_geometry_attempt(
     })
 }
 
-fn place_geometry_rooms(
+pub(crate) fn place_geometry_rooms(
     region_specs: &[(usize, String, String, &IntermediateRegion)],
     spacing: &GeometrySpacing,
     port_demands: &BTreeMap<String, Vec<PhysicalPortDemand>>,
@@ -2823,13 +2878,11 @@ fn place_geometry_rooms(
             .map(Vec::as_slice)
             .unwrap_or_default();
         let (width, height) = connection_aware_room_size(region, demands);
-        let x = *column_origins
-            .get(&depth)
-            .ok_or_else(|| {
-                GeometryPlacementAttemptError::Invalid(format!(
-                    "missing room column for graph depth {depth}"
-                ))
-            })?;
+        let x = *column_origins.get(&depth).ok_or_else(|| {
+            GeometryPlacementAttemptError::Invalid(format!(
+                "missing room column for graph depth {depth}"
+            ))
+        })?;
         let y = *next_y_by_depth.entry(depth).or_insert(spacing.room_margin);
         next_y_by_depth.insert(depth, y + height + spacing.row_gap);
         rooms.push(GeometryRoom {
@@ -2855,7 +2908,7 @@ fn place_geometry_rooms(
     Ok((rooms, bounds))
 }
 
-fn place_geometry_rooms_from_topology(
+pub(crate) fn place_geometry_rooms_from_topology(
     region_specs: &[(usize, String, String, &IntermediateRegion)],
     spacing: &GeometrySpacing,
     port_demands: &BTreeMap<String, Vec<PhysicalPortDemand>>,
@@ -2880,9 +2933,10 @@ fn place_geometry_rooms_from_topology(
         .iter()
         .enumerate()
         .flat_map(|(index, left)| {
-            points.iter().skip(index + 1).map(move |right| {
-                i64::from((left.x - right.x).abs().max((left.y - right.y).abs()))
-            })
+            points
+                .iter()
+                .skip(index + 1)
+                .map(move |right| i64::from((left.x - right.x).abs().max((left.y - right.y).abs())))
         })
         .filter(|distance| *distance > 0)
         .min()
@@ -2926,16 +2980,15 @@ fn place_geometry_rooms_from_topology(
             .filter(|demand| matches!(demand.side.as_str(), "east" | "west"))
             .map(|demand| demand.opposite_order)
             .collect::<Vec<_>>();
-        let terminal_vertical_span = topology_terminal_bars.then_some(()).and_then(|()| matches!(
-            region.id.as_str(),
-            "region.start" | "region.goal"
-        )
-        .then(|| {
-            let minimum = vertical_orders.iter().min().copied()?;
-            let maximum = vertical_orders.iter().max().copied()?;
-            (minimum != maximum).then_some((minimum, maximum))
-        })
-        .flatten());
+        let terminal_vertical_span = topology_terminal_bars.then_some(()).and_then(|()| {
+            matches!(region.id.as_str(), "region.start" | "region.goal")
+                .then(|| {
+                    let minimum = vertical_orders.iter().min().copied()?;
+                    let maximum = vertical_orders.iter().max().copied()?;
+                    (minimum != maximum).then_some((minimum, maximum))
+                })
+                .flatten()
+        });
         let topology_y = if let Some((minimum, maximum)) = terminal_vertical_span {
             let mapped_span = (f64::from(maximum - minimum) * scale).round() as i32;
             height = align_geometry(
@@ -2950,8 +3003,14 @@ fn place_geometry_rooms_from_topology(
             + f64::from(point.x - minimum_x) * scale;
         let center_y = f64::from(spacing.room_margin + maximum_dimension / 2)
             + (topology_y - f64::from(minimum_y)) * scale;
-        let x = align_geometry((center_x - f64::from(width) / 2.0).round() as i32, GEOMETRY_ROUTE_GRID);
-        let y = align_geometry((center_y - f64::from(height) / 2.0).round() as i32, GEOMETRY_ROUTE_GRID);
+        let x = align_geometry(
+            (center_x - f64::from(width) / 2.0).round() as i32,
+            GEOMETRY_ROUTE_GRID,
+        );
+        let y = align_geometry(
+            (center_y - f64::from(height) / 2.0).round() as i32,
+            GEOMETRY_ROUTE_GRID,
+        );
         rooms.push(GeometryRoom {
             id: room_id(region.id.as_str()),
             source_region: region.id.clone(),
@@ -2975,7 +3034,7 @@ fn place_geometry_rooms_from_topology(
     Ok((rooms, bounds))
 }
 
-fn physical_port_demands(
+pub(crate) fn physical_port_demands(
     plan: &PhysicalConnectionPlan,
     depths: &BTreeMap<&str, usize>,
     orders: &BTreeMap<&str, usize>,
@@ -2987,7 +3046,10 @@ fn physical_port_demands(
     let mut demands = BTreeMap::<String, Vec<PhysicalPortDemand>>::new();
     for section in &plan.sections {
         if section.topology != "corridor_2" || section.terminal_regions.len() != 2 {
-            return Err(format!("unsupported physical section topology on {}", section.id));
+            return Err(format!(
+                "unsupported physical section topology on {}",
+                section.id
+            ));
         }
         let left = section.terminal_regions[0].as_str();
         let right = section.terminal_regions[1].as_str();
@@ -3050,30 +3112,36 @@ fn physical_port_demands(
                     i32::try_from(left_order).unwrap_or(i32::MAX),
                 )
             };
-        demands.entry(left.to_owned()).or_default().push(PhysicalPortDemand {
-            section_id: section.id.clone(),
-            side: left_side.to_owned(),
-            width: section.width,
-            opposite_order: left_opposite_order,
-        });
-        demands.entry(right.to_owned()).or_default().push(PhysicalPortDemand {
-            section_id: section.id.clone(),
-            side: right_side.to_owned(),
-            width: section.width,
-            opposite_order: right_opposite_order,
-        });
+        demands
+            .entry(left.to_owned())
+            .or_default()
+            .push(PhysicalPortDemand {
+                section_id: section.id.clone(),
+                side: left_side.to_owned(),
+                width: section.width,
+                opposite_order: left_opposite_order,
+            });
+        demands
+            .entry(right.to_owned())
+            .or_default()
+            .push(PhysicalPortDemand {
+                section_id: section.id.clone(),
+                side: right_side.to_owned(),
+                width: section.width,
+                opposite_order: right_opposite_order,
+            });
     }
     for room_demands in demands.values_mut() {
         room_demands.sort_by(|left, right| {
-            left.side.cmp(&right.side).then_with(|| {
-                compare_physical_port_demands(left, right, seed, port_order_attempt)
-            })
+            left.side
+                .cmp(&right.side)
+                .then_with(|| compare_physical_port_demands(left, right, seed, port_order_attempt))
         });
     }
     Ok(demands)
 }
 
-fn topology_port_sides(
+pub(crate) fn topology_port_sides(
     left: &TopologyPoint,
     right: &TopologyPoint,
     attempt: u32,
@@ -3101,8 +3169,7 @@ fn topology_port_sides(
             }
         }
         _ => {
-            let variant =
-                geometry_layout_order_key(section_id, seed, u64::from(attempt)) % 3;
+            let variant = geometry_layout_order_key(section_id, seed, u64::from(attempt)) % 3;
             match variant {
                 0 => {
                     if dx.abs() < dy.abs() {
@@ -3118,7 +3185,7 @@ fn topology_port_sides(
     }
 }
 
-fn topology_terminal_port_sides(
+pub(crate) fn topology_terminal_port_sides(
     left: &str,
     right: &str,
     positions: &BTreeMap<String, TopologyPoint>,
@@ -3149,7 +3216,7 @@ fn topology_terminal_port_sides(
 }
 
 #[allow(clippy::too_many_arguments)]
-fn physical_port_sides(
+pub(crate) fn physical_port_sides(
     left_depth: usize,
     right_depth: usize,
     left_order: usize,
@@ -3192,7 +3259,7 @@ fn physical_port_sides(
     }
 }
 
-fn compare_physical_port_demands(
+pub(crate) fn compare_physical_port_demands(
     left: &PhysicalPortDemand,
     right: &PhysicalPortDemand,
     seed: u64,
@@ -3224,7 +3291,7 @@ fn compare_physical_port_demands(
     }
 }
 
-fn connection_aware_room_size(
+pub(crate) fn connection_aware_room_size(
     region: &IntermediateRegion,
     demands: &[PhysicalPortDemand],
 ) -> (i32, i32) {
@@ -3233,7 +3300,11 @@ fn connection_aware_room_size(
     let horizontal = count("north").max(count("south"));
     let vertical = count("east").max(count("west"));
     let span = |ports: i32| {
-        if ports == 0 { 0 } else { GEOMETRY_PORT_MARGIN * 2 + (ports - 1) * GEOMETRY_PORT_SPACING }
+        if ports == 0 {
+            0
+        } else {
+            GEOMETRY_PORT_MARGIN * 2 + (ports - 1) * GEOMETRY_PORT_SPACING
+        }
     };
     (
         align_geometry(base_width.max(span(horizontal)), GEOMETRY_ROUTE_GRID * 2),
@@ -3241,11 +3312,11 @@ fn connection_aware_room_size(
     )
 }
 
-fn align_geometry(value: i32, grid: i32) -> i32 {
+pub(crate) fn align_geometry(value: i32, grid: i32) -> i32 {
     ((value + grid - 1) / grid) * grid
 }
 
-fn assign_physical_room_ports(
+pub(crate) fn assign_physical_room_ports(
     rooms: &mut [GeometryRoom],
     demands: &BTreeMap<String, Vec<PhysicalPortDemand>>,
     topology_scale: Option<f64>,
@@ -3266,9 +3337,7 @@ fn assign_physical_room_ports(
                 .map(|demand| demand.opposite_order)
                 .fold(None::<(i32, i32)>, |bounds, order| {
                     Some(match bounds {
-                        Some((minimum, maximum)) => {
-                            (minimum.min(order), maximum.max(order))
-                        }
+                        Some((minimum, maximum)) => (minimum.min(order), maximum.max(order)),
                         None => (order, order),
                     })
                 });
@@ -3288,9 +3357,8 @@ fn assign_physical_room_ports(
                     let offsets = side_demands
                         .iter()
                         .map(|demand| {
-                            let mapped =
-                                ((f64::from(demand.opposite_order) - midpoint) * scale).round()
-                                    as i32;
+                            let mapped = ((f64::from(demand.opposite_order) - midpoint) * scale)
+                                .round() as i32;
                             align_geometry_nearest(
                                 mapped.clamp(
                                     -half_span + GEOMETRY_PORT_MARGIN,
@@ -3300,26 +3368,40 @@ fn assign_physical_room_ports(
                             )
                         })
                         .collect::<Vec<_>>();
-                    (offsets.iter().copied().collect::<BTreeSet<_>>().len()
-                        == offsets.len())
-                    .then_some(offsets)
+                    (offsets.iter().copied().collect::<BTreeSet<_>>().len() == offsets.len())
+                        .then_some(offsets)
                 });
             for (index, demand) in side_demands.into_iter().enumerate() {
-                let fixed_offset =
-                    (index as i32 * 2 - (count - 1)) * GEOMETRY_PORT_SPACING / 2;
+                let fixed_offset = (index as i32 * 2 - (count - 1)) * GEOMETRY_PORT_SPACING / 2;
                 let offset = mapped_offsets
                     .as_ref()
                     .and_then(|offsets| offsets.get(index).copied())
                     .unwrap_or(fixed_offset);
                 let point = match side {
-                    "north" => GeometryPoint { x: room.rect.x + room.rect.width / 2 + offset, y: room.rect.y },
-                    "east" => GeometryPoint { x: room.rect.x + room.rect.width, y: room.rect.y + room.rect.height / 2 + offset },
-                    "south" => GeometryPoint { x: room.rect.x + room.rect.width / 2 + offset, y: room.rect.y + room.rect.height },
-                    "west" => GeometryPoint { x: room.rect.x, y: room.rect.y + room.rect.height / 2 + offset },
+                    "north" => GeometryPoint {
+                        x: room.rect.x + room.rect.width / 2 + offset,
+                        y: room.rect.y,
+                    },
+                    "east" => GeometryPoint {
+                        x: room.rect.x + room.rect.width,
+                        y: room.rect.y + room.rect.height / 2 + offset,
+                    },
+                    "south" => GeometryPoint {
+                        x: room.rect.x + room.rect.width / 2 + offset,
+                        y: room.rect.y + room.rect.height,
+                    },
+                    "west" => GeometryPoint {
+                        x: room.rect.x,
+                        y: room.rect.y + room.rect.height / 2 + offset,
+                    },
                     _ => return Err(format!("unsupported room port side {side}")),
                 };
                 room.ports.push(GeometryRoomPort {
-                    id: format!("port.{}.{}", slugify_label(room.id.as_str()), slugify_label(demand.section_id.as_str())),
+                    id: format!(
+                        "port.{}.{}",
+                        slugify_label(room.id.as_str()),
+                        slugify_label(demand.section_id.as_str())
+                    ),
                     section_id: demand.section_id.clone(),
                     side: side.to_owned(),
                     point,
@@ -3331,11 +3413,11 @@ fn assign_physical_room_ports(
     Ok(())
 }
 
-fn align_geometry_nearest(value: i32, grid: i32) -> i32 {
+pub(crate) fn align_geometry_nearest(value: i32, grid: i32) -> i32 {
     (f64::from(value) / f64::from(grid)).round() as i32 * grid
 }
 
-fn geometry_contents(
+pub(crate) fn geometry_contents(
     candidate: &Candidate,
     intermediate: &IntermediateBreakdown,
     rooms: &[GeometryRoom],
@@ -3378,7 +3460,7 @@ fn geometry_contents(
     contents
 }
 
-fn content_annotation_for_node(
+pub(crate) fn content_annotation_for_node(
     node: &Node,
     room: &GeometryRoom,
     region: Option<&IntermediateRegion>,
@@ -3420,7 +3502,7 @@ fn content_annotation_for_node(
     Some((kind.to_owned(), label.to_owned(), dedupe_strings(tags)))
 }
 
-fn route_physical_sections(
+pub(crate) fn route_physical_sections(
     plan: &PhysicalConnectionPlan,
     rooms: &[GeometryRoom],
     bounds: &GeometryBounds,
@@ -3428,12 +3510,7 @@ fn route_physical_sections(
     order_nonce: u32,
     max_attempts: u32,
 ) -> Result<
-    (
-        Vec<GeometryCorridor>,
-        u32,
-        u32,
-        PhysicalRouteSearchEvidence,
-    ),
+    (Vec<GeometryCorridor>, u32, u32, PhysicalRouteSearchEvidence),
     GeometryPlacementAttemptError,
 > {
     let rooms_by_region = rooms
@@ -3450,7 +3527,9 @@ fn route_physical_sections(
         let right_distance = right_rooms
             .map(|(from, to)| geometry_room_distance(from, to))
             .unwrap_or(0);
-        right_distance.cmp(&left_distance).then_with(|| left.id.cmp(&right.id))
+        right_distance
+            .cmp(&left_distance)
+            .then_with(|| left.id.cmp(&right.id))
     });
     let mut distance_orders = vec![sections.clone()];
     let mut reversed = sections.clone();
@@ -3469,9 +3548,12 @@ fn route_physical_sections(
     let mut separator_order = sections.clone();
     separator_order.sort_by(|left, right| {
         let terminal_rank = |section: &PhysicalConnectionSection| {
-            u8::from(section.terminal_regions.iter().any(|region| {
-                region == "region.start" || region == "region.goal"
-            }))
+            u8::from(
+                section
+                    .terminal_regions
+                    .iter()
+                    .any(|region| region == "region.start" || region == "region.goal"),
+            )
         };
         let constrained_rank = |section: &PhysicalConnectionSection| {
             u8::from(
@@ -3496,7 +3578,7 @@ fn route_physical_sections(
             ],
             0_u32,
         )
-    } else if order_nonce % GEOMETRY_PORT_ORDER_COUNT == 0 {
+    } else if order_nonce.is_multiple_of(GEOMETRY_PORT_ORDER_COUNT) {
         (distance_orders, 0_u32)
     } else {
         (vec![seeded, separator_order], 2_u32)
@@ -3526,7 +3608,7 @@ fn route_physical_sections(
     })
 }
 
-fn section_rooms<'a>(
+pub(crate) fn section_rooms<'a>(
     section: &PhysicalConnectionSection,
     rooms: &BTreeMap<&str, &'a GeometryRoom>,
 ) -> Option<(&'a GeometryRoom, &'a GeometryRoom)> {
@@ -3539,26 +3621,25 @@ fn section_rooms<'a>(
     ))
 }
 
-fn geometry_room_distance(left: &GeometryRoom, right: &GeometryRoom) -> u32 {
+pub(crate) fn geometry_room_distance(left: &GeometryRoom, right: &GeometryRoom) -> u32 {
     let left = rect_center(&left.rect);
     let right = rect_center(&right.rect);
     left.x.abs_diff(right.x) + left.y.abs_diff(right.y)
 }
 
-fn try_route_physical_sections(
+pub(crate) fn try_route_physical_sections(
     sections: &[&PhysicalConnectionSection],
     rooms_by_region: &BTreeMap<&str, &GeometryRoom>,
     rooms: &[GeometryRoom],
     bounds: &GeometryBounds,
 ) -> Result<(Vec<GeometryCorridor>, PhysicalRouteSearchEvidence), PhysicalRouteAttemptError> {
     for section in sections {
-        let (from_room, to_room) = section_rooms(section, rooms_by_region)
-            .ok_or_else(|| {
-                PhysicalRouteAttemptError::Invalid(format!(
-                    "section {} references missing terminal room",
-                    section.id
-                ))
-            })?;
+        let (from_room, to_room) = section_rooms(section, rooms_by_region).ok_or_else(|| {
+            PhysicalRouteAttemptError::Invalid(format!(
+                "section {} references missing terminal room",
+                section.id
+            ))
+        })?;
         let from_port = from_room
             .ports
             .iter()
@@ -3669,7 +3750,11 @@ fn try_route_physical_sections(
             .iter()
             .find(|port| port.section_id == section.id)
             .expect("validated target port should remain available");
-        let source_connector = section.source_connectors.first().cloned().unwrap_or_default();
+        let source_connector = section
+            .source_connectors
+            .first()
+            .cloned()
+            .unwrap_or_default();
         let source_edge = section.source_edges.first().cloned().unwrap_or_default();
         let traversal_hint = if section
             .traversal_refs
@@ -3706,7 +3791,7 @@ fn try_route_physical_sections(
     Ok((corridors, evidence))
 }
 
-fn merge_physical_route_evidence(
+pub(crate) fn merge_physical_route_evidence(
     target: &mut PhysicalRouteSearchEvidence,
     source: &PhysicalRouteSearchEvidence,
 ) {
@@ -3732,7 +3817,7 @@ fn merge_physical_route_evidence(
 }
 
 #[allow(clippy::too_many_arguments)]
-fn search_physical_section_routes<'a>(
+pub(crate) fn search_physical_section_routes<'a>(
     sections: &[&'a PhysicalConnectionSection],
     rooms_by_region: &BTreeMap<&str, &GeometryRoom>,
     rooms: &[GeometryRoom],
@@ -3814,7 +3899,8 @@ fn search_physical_section_routes<'a>(
     )
 }
 
-fn search_prepared_physical_section_routes<'a>(
+#[allow(clippy::too_many_arguments)]
+pub(crate) fn search_prepared_physical_section_routes<'a>(
     sections: &[PreparedPhysicalSectionRoutes<'a>],
     remaining: Vec<usize>,
     rooms_by_region: &BTreeMap<&str, &GeometryRoom>,
@@ -3962,7 +4048,7 @@ fn search_prepared_physical_section_routes<'a>(
 }
 
 #[allow(clippy::too_many_arguments)]
-fn route_physical_section_alternatives(
+pub(crate) fn route_physical_section_alternatives(
     from_room: &GeometryRoom,
     from_port: &GeometryRoomPort,
     to_room: &GeometryRoom,
@@ -4224,7 +4310,7 @@ fn route_physical_section_alternatives(
     result
 }
 
-fn geometry_port_escape_point(port: &GeometryRoomPort, clearance: i32) -> GeometryPoint {
+pub(crate) fn geometry_port_escape_point(port: &GeometryRoomPort, clearance: i32) -> GeometryPoint {
     let (dx, dy) = direction_vector(port.side.as_str());
     let steps = align_geometry(clearance, GEOMETRY_ROUTE_GRID) / GEOMETRY_ROUTE_GRID + 1;
     GeometryPoint {
@@ -4233,7 +4319,7 @@ fn geometry_port_escape_point(port: &GeometryRoomPort, clearance: i32) -> Geomet
     }
 }
 
-fn rasterize_geometry_staircase_route(
+pub(crate) fn rasterize_geometry_staircase_route(
     start: &GeometryPoint,
     start_escape: &GeometryPoint,
     end_escape: &GeometryPoint,
@@ -4284,15 +4370,13 @@ fn rasterize_geometry_staircase_route(
     dedupe_points(path)
 }
 
-fn exclude_geometry_route_band(
+pub(crate) fn exclude_geometry_route_band(
     path: &[GeometryPoint],
     center: usize,
     excluded: &mut BTreeSet<(i32, i32)>,
 ) {
     let start = center.saturating_sub(4).max(1);
-    let end = center
-        .saturating_add(5)
-        .min(path.len().saturating_sub(1));
+    let end = center.saturating_add(5).min(path.len().saturating_sub(1));
     for point in path.iter().take(end).skip(start) {
         for dy in -2_i32..=2 {
             for dx in -2_i32..=2 {
@@ -4307,7 +4391,7 @@ fn exclude_geometry_route_band(
     }
 }
 
-fn rasterize_topology_waypoints(waypoints: &[GeometryPoint]) -> Vec<GeometryPoint> {
+pub(crate) fn rasterize_topology_waypoints(waypoints: &[GeometryPoint]) -> Vec<GeometryPoint> {
     let mut path = Vec::new();
     for segment in waypoints.windows(2) {
         let from = &segment[0];
@@ -4336,7 +4420,7 @@ fn rasterize_topology_waypoints(waypoints: &[GeometryPoint]) -> Vec<GeometryPoin
 }
 
 #[allow(clippy::too_many_arguments)]
-fn route_physical_section(
+pub(crate) fn route_physical_section(
     from_room: &GeometryRoom,
     from_port: &GeometryRoomPort,
     to_room: &GeometryRoom,
@@ -4402,18 +4486,18 @@ fn route_physical_section(
         for neighbor in neighbors {
             let neighbor_position = (neighbor.0, neighbor.1);
             if !geometry_route_available(
-                    neighbor_position,
-                    from_room,
-                    from_port,
-                    to_room,
-                    to_port,
-                    width,
-                    rooms,
-                    reserved,
-                    excluded,
-                    bounds,
-                    blocking_owners,
-                ) {
+                neighbor_position,
+                from_room,
+                from_port,
+                to_room,
+                to_port,
+                width,
+                rooms,
+                reserved,
+                excluded,
+                bounds,
+                blocking_owners,
+            ) {
                 continue;
             }
             let turn_cost =
@@ -4453,12 +4537,12 @@ fn route_physical_section(
     Some(path)
 }
 
-fn geometry_route_heuristic(position: (i32, i32), end: (i32, i32)) -> u32 {
+pub(crate) fn geometry_route_heuristic(position: (i32, i32), end: (i32, i32)) -> u32 {
     (position.0.abs_diff(end.0) + position.1.abs_diff(end.1))
         / u32::try_from(GEOMETRY_ROUTE_GRID).expect("positive route grid")
 }
 
-fn geometry_route_tie_key(position: (i32, i32), nonce: u32) -> u64 {
+pub(crate) fn geometry_route_tie_key(position: (i32, i32), nonce: u32) -> u64 {
     let x = u64::from(position.0 as u32);
     let y = u64::from(position.1 as u32);
     x.wrapping_mul(0x9E37_79B1)
@@ -4468,7 +4552,7 @@ fn geometry_route_tie_key(position: (i32, i32), nonce: u32) -> u64 {
 }
 
 #[allow(clippy::too_many_arguments)]
-fn geometry_route_available(
+pub(crate) fn geometry_route_available(
     position: (i32, i32),
     from_room: &GeometryRoom,
     from_port: &GeometryRoomPort,
@@ -4502,11 +4586,10 @@ fn geometry_route_available(
         if !blocked {
             return true;
         }
-        let approach =
-            (room.id == from_room.id
-                && geometry_port_approach_contains(position, from_port, clearance))
-                || (room.id == to_room.id
-                    && geometry_port_approach_contains(position, to_port, clearance));
+        let approach = (room.id == from_room.id
+            && geometry_port_approach_contains(position, from_port, clearance))
+            || (room.id == to_room.id
+                && geometry_port_approach_contains(position, to_port, clearance));
         if !approach {
             blocking_owners.insert(format!("room:{}", room.source_region));
         }
@@ -4514,7 +4597,7 @@ fn geometry_route_available(
     })
 }
 
-fn geometry_port_approach_contains(
+pub(crate) fn geometry_port_approach_contains(
     position: (i32, i32),
     port: &GeometryRoomPort,
     clearance: i32,
@@ -4530,15 +4613,13 @@ fn geometry_port_approach_contains(
     })
 }
 
-fn reserve_geometry_route(
+pub(crate) fn reserve_geometry_route(
     path: &[GeometryPoint],
     width: i32,
     section_id: &str,
     reserved: &mut BTreeMap<(i32, i32), String>,
 ) {
-    let required = width / 2
-        + GEOMETRY_CORRIDOR_SEPARATION
-        + GEOMETRY_MAX_CORRIDOR_HALF_WIDTH;
+    let required = width / 2 + GEOMETRY_CORRIDOR_SEPARATION + GEOMETRY_MAX_CORRIDOR_HALF_WIDTH;
     let radius = required.saturating_sub(1) / GEOMETRY_ROUTE_GRID;
     for point in path {
         for dy in -radius..=radius {
@@ -4556,7 +4637,7 @@ fn reserve_geometry_route(
     }
 }
 
-fn compress_geometry_route(path: Vec<GeometryPoint>) -> Vec<GeometryPoint> {
+pub(crate) fn compress_geometry_route(path: Vec<GeometryPoint>) -> Vec<GeometryPoint> {
     if path.len() <= 2 {
         return path;
     }
@@ -4575,14 +4656,14 @@ fn compress_geometry_route(path: Vec<GeometryPoint>) -> Vec<GeometryPoint> {
     dedupe_points(compressed)
 }
 
-fn rect_center(rect: &GeometryRect) -> GeometryPoint {
+pub(crate) fn rect_center(rect: &GeometryRect) -> GeometryPoint {
     GeometryPoint {
         x: rect.x + rect.width / 2,
         y: rect.y + rect.height / 2,
     }
 }
 
-fn dedupe_points(points: Vec<GeometryPoint>) -> Vec<GeometryPoint> {
+pub(crate) fn dedupe_points(points: Vec<GeometryPoint>) -> Vec<GeometryPoint> {
     let mut deduped = Vec::new();
     for point in points {
         if !deduped
@@ -4595,7 +4676,7 @@ fn dedupe_points(points: Vec<GeometryPoint>) -> Vec<GeometryPoint> {
     deduped
 }
 
-fn corridor_width(connector: &IntermediateConnector) -> i32 {
+pub(crate) fn corridor_width(connector: &IntermediateConnector) -> i32 {
     if connector
         .affordances
         .iter()
@@ -4625,14 +4706,14 @@ fn corridor_width(connector: &IntermediateConnector) -> i32 {
     }
 }
 
-fn corridor_semantic_tags(connector: &IntermediateConnector) -> Vec<String> {
+pub(crate) fn corridor_semantic_tags(connector: &IntermediateConnector) -> Vec<String> {
     let mut tags = vec![connector.traversal_hint.clone()];
     tags.extend(connector.intents.clone());
     tags.extend(connector.affordances.clone());
     dedupe_strings(tags)
 }
 
-fn room_size_for_region(region: &IntermediateRegion) -> (i32, i32) {
+pub(crate) fn room_size_for_region(region: &IntermediateRegion) -> (i32, i32) {
     match (region.scale_band.as_str(), region.footprint_class.as_str()) {
         ("large", "hub") => (152, 112),
         ("large", _) => (144, 104),
@@ -4652,7 +4733,7 @@ fn room_size_for_region(region: &IntermediateRegion) -> (i32, i32) {
     }
 }
 
-fn geometry_room_style_tags(region: &IntermediateRegion) -> Vec<String> {
+pub(crate) fn geometry_room_style_tags(region: &IntermediateRegion) -> Vec<String> {
     let mut tags = vec![
         region.role.clone(),
         region.geometry_role.clone(),
@@ -4662,7 +4743,11 @@ fn geometry_room_style_tags(region: &IntermediateRegion) -> Vec<String> {
     dedupe_strings(tags)
 }
 
-fn geometry_bounds(rooms: &[GeometryRoom], grid: i32, room_margin: i32) -> GeometryBounds {
+pub(crate) fn geometry_bounds(
+    rooms: &[GeometryRoom],
+    grid: i32,
+    room_margin: i32,
+) -> GeometryBounds {
     let width = rooms
         .iter()
         .map(|room| room.rect.x + room.rect.width)
@@ -4682,6 +4767,6 @@ fn geometry_bounds(rooms: &[GeometryRoom], grid: i32, room_margin: i32) -> Geome
     }
 }
 
-fn room_id(region_id: &str) -> String {
+pub(crate) fn room_id(region_id: &str) -> String {
     format!("room.{}", slugify_label(region_id))
 }

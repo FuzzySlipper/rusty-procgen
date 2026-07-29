@@ -1,11 +1,14 @@
-fn read_json<T: for<'de> Deserialize<'de>>(path: &Path) -> Result<T, String> {
+#[allow(unused_imports)]
+use crate::*;
+
+pub(crate) fn read_json<T: for<'de> Deserialize<'de>>(path: &Path) -> Result<T, String> {
     let text = fs::read_to_string(path)
         .map_err(|error| format!("failed to read {}: {error}", path.display()))?;
     serde_json::from_str(&text)
         .map_err(|error| format!("failed to parse {}: {error}", path.display()))
 }
 
-fn write_json<T: Serialize>(path: &Path, value: &T) -> Result<(), String> {
+pub(crate) fn write_json<T: Serialize>(path: &Path, value: &T) -> Result<(), String> {
     if let Some(parent) = path.parent() {
         fs::create_dir_all(parent)
             .map_err(|error| format!("failed to create {}: {error}", parent.display()))?;
@@ -16,7 +19,7 @@ fn write_json<T: Serialize>(path: &Path, value: &T) -> Result<(), String> {
         .map_err(|error| format!("failed to write {}: {error}", path.display()))
 }
 
-fn write_text(path: &Path, text: &str) -> Result<(), String> {
+pub(crate) fn write_text(path: &Path, text: &str) -> Result<(), String> {
     if let Some(parent) = path.parent() {
         fs::create_dir_all(parent)
             .map_err(|error| format!("failed to create {}: {error}", parent.display()))?;
@@ -24,7 +27,7 @@ fn write_text(path: &Path, text: &str) -> Result<(), String> {
     fs::write(path, text).map_err(|error| format!("failed to write {}: {error}", path.display()))
 }
 
-fn append_transcript(
+pub(crate) fn append_transcript(
     path: Option<&Path>,
     command: &str,
     state: Option<&Path>,
@@ -56,7 +59,7 @@ fn append_transcript(
         .map_err(|error| format!("failed to write transcript {}: {error}", path.display()))
 }
 
-fn receipt(
+pub(crate) fn receipt(
     command: &str,
     seed: Option<u64>,
     input_hash: Option<&str>,
@@ -77,19 +80,19 @@ fn receipt(
     }
 }
 
-fn hash_file(path: &Path) -> Result<String, String> {
+pub(crate) fn hash_file(path: &Path) -> Result<String, String> {
     let bytes =
         fs::read(path).map_err(|error| format!("failed to read {}: {error}", path.display()))?;
     Ok(format!("fnv1a64:{:016x}", fnv1a64(&bytes)))
 }
 
-fn hash_json<T: Serialize>(value: &T) -> Result<String, String> {
+pub(crate) fn hash_json<T: Serialize>(value: &T) -> Result<String, String> {
     let bytes = serde_json::to_vec(value)
         .map_err(|error| format!("failed to encode hash input: {error}"))?;
     Ok(format!("fnv1a64:{:016x}", fnv1a64(&bytes)))
 }
 
-fn fnv1a64(bytes: &[u8]) -> u64 {
+pub(crate) fn fnv1a64(bytes: &[u8]) -> u64 {
     let mut hash = 0xcbf29ce484222325u64;
     for byte in bytes {
         hash ^= u64::from(*byte);
@@ -98,11 +101,11 @@ fn fnv1a64(bytes: &[u8]) -> u64 {
     hash
 }
 
-fn stable_suffix(seed: u64) -> String {
+pub(crate) fn stable_suffix(seed: u64) -> String {
     format!("{:04x}", seed & 0xffff)
 }
 
-fn slugify_label(label: &str) -> String {
+pub(crate) fn slugify_label(label: &str) -> String {
     let mut slug = String::new();
     let mut last_was_separator = false;
     for character in label.chars().flat_map(char::to_lowercase) {
@@ -124,7 +127,7 @@ fn slugify_label(label: &str) -> String {
     }
 }
 
-fn fatal(
+pub(crate) fn fatal(
     code: &str,
     node: Option<&str>,
     edge: Option<&str>,
@@ -140,7 +143,7 @@ fn fatal(
     }
 }
 
-fn fatal_with_hint(
+pub(crate) fn fatal_with_hint(
     code: &str,
     node: Option<&str>,
     edge: Option<&str>,
@@ -157,7 +160,7 @@ fn fatal_with_hint(
     }
 }
 
-fn warning_with_hint(
+pub(crate) fn warning_with_hint(
     code: &str,
     node: Option<&str>,
     edge: Option<&str>,
@@ -174,7 +177,6 @@ fn warning_with_hint(
     }
 }
 
-fn display_path(path: &Path) -> String {
+pub(crate) fn display_path(path: &Path) -> String {
     path.to_string_lossy().into_owned()
 }
-

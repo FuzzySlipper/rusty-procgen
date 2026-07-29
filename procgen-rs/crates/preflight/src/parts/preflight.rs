@@ -1,4 +1,7 @@
-fn run_preflight_command(repo_root: &Path) -> Result<(), String> {
+#[allow(unused_imports)]
+use crate::*;
+
+pub(crate) fn run_preflight_command(repo_root: &Path) -> Result<(), String> {
     let summary = run_preflight(repo_root)?;
     println!(
         "rusty-procgen preflight OK: engine source {}, rust lane {}",
@@ -8,12 +11,12 @@ fn run_preflight_command(repo_root: &Path) -> Result<(), String> {
 }
 
 #[derive(Debug, PartialEq, Eq)]
-struct PreflightSummary {
+pub(crate) struct PreflightSummary {
     engine_source: String,
     rust_dir: String,
 }
 
-fn run_preflight(repo_root: &Path) -> Result<PreflightSummary, String> {
+pub(crate) fn run_preflight(repo_root: &Path) -> Result<PreflightSummary, String> {
     let engine_source = "../asha-engine";
     reject_private_engine_path("engine source", engine_source)?;
 
@@ -31,7 +34,7 @@ fn run_preflight(repo_root: &Path) -> Result<PreflightSummary, String> {
     })
 }
 
-fn reject_private_engine_path(label: &str, value: &str) -> Result<(), String> {
+pub(crate) fn reject_private_engine_path(label: &str, value: &str) -> Result<(), String> {
     let forbidden_fragments = vec![
         format!("{}/{}", "../asha-engine", "engine-rs"),
         format!("{}/{}", "../asha-engine", "ts/packages"),

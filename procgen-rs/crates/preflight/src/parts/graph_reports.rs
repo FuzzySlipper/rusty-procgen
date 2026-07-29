@@ -1,4 +1,7 @@
-fn summarize_candidate(args: SummarizeArgs) -> Result<(), String> {
+#[allow(unused_imports)]
+use crate::*;
+
+pub(crate) fn summarize_candidate(args: SummarizeArgs) -> Result<(), String> {
     let candidate: Candidate = read_json(&args.state)?;
     let report = validate_graph(&candidate);
     let score = score_graph(&candidate);
@@ -24,7 +27,7 @@ fn summarize_candidate(args: SummarizeArgs) -> Result<(), String> {
     Ok(())
 }
 
-fn graph_summary_report(
+pub(crate) fn graph_summary_report(
     candidate: &Candidate,
     validation: &ValidationReport,
     score: &ScoreReport,
@@ -102,13 +105,13 @@ fn graph_summary_report(
     })
 }
 
-fn analyze_graph_command(args: ReportOutArgs) -> Result<(), String> {
+pub(crate) fn analyze_graph_command(args: ReportOutArgs) -> Result<(), String> {
     let candidate: Candidate = read_json(&args.state)?;
     let report = analyze_graph(&candidate)?;
     write_json(&args.out, &report)
 }
 
-fn analyze_graph(candidate: &Candidate) -> Result<GraphAnalysisReport, String> {
+pub(crate) fn analyze_graph(candidate: &Candidate) -> Result<GraphAnalysisReport, String> {
     let critical_path = shortest_path_nodes(candidate, "start", "goal").unwrap_or_default();
     let dominators = dominator_nodes(candidate);
     let optional_branches = candidate
@@ -212,13 +215,15 @@ fn analyze_graph(candidate: &Candidate) -> Result<GraphAnalysisReport, String> {
     })
 }
 
-fn compatible_rules_command(args: ReportOutArgs) -> Result<(), String> {
+pub(crate) fn compatible_rules_command(args: ReportOutArgs) -> Result<(), String> {
     let candidate: Candidate = read_json(&args.state)?;
     let report = compatible_rules_report(&candidate)?;
     write_json(&args.out, &report)
 }
 
-fn compatible_rules_report(candidate: &Candidate) -> Result<RuleCompatibilityReport, String> {
+pub(crate) fn compatible_rules_report(
+    candidate: &Candidate,
+) -> Result<RuleCompatibilityReport, String> {
     Ok(RuleCompatibilityReport {
         kind: "rusty_procgen.rule_compatibility.v1".to_owned(),
         schema_version: 1,
@@ -231,7 +236,7 @@ fn compatible_rules_report(candidate: &Candidate) -> Result<RuleCompatibilityRep
     })
 }
 
-fn all_graph_rules() -> Vec<GraphRule> {
+pub(crate) fn all_graph_rules() -> Vec<GraphRule> {
     vec![
         GraphRule::LockKeyLoop,
         GraphRule::OptionalTreasureDetour,
@@ -246,7 +251,7 @@ fn all_graph_rules() -> Vec<GraphRule> {
     ]
 }
 
-fn rule_compatibility(candidate: &Candidate, rule: GraphRule) -> RuleCompatibility {
+pub(crate) fn rule_compatibility(candidate: &Candidate, rule: GraphRule) -> RuleCompatibility {
     let mut status = "applicable".to_owned();
     let mut reasons = Vec::new();
     let mut recommended_actions = Vec::new();

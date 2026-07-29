@@ -1,4 +1,7 @@
-fn write_intermediate_artifacts(
+#[allow(unused_imports)]
+use crate::*;
+
+pub(crate) fn write_intermediate_artifacts(
     candidate: &Candidate,
     run_dir: &Path,
 ) -> Result<(IntermediateArtifactRefs, ValidationReport), String> {
@@ -35,7 +38,9 @@ fn write_intermediate_artifacts(
     ))
 }
 
-fn validate_intermediate_breakdown(breakdown: &IntermediateBreakdown) -> ValidationReport {
+pub(crate) fn validate_intermediate_breakdown(
+    breakdown: &IntermediateBreakdown,
+) -> ValidationReport {
     let mut diagnostics = Vec::new();
     let region_ids = breakdown
         .regions
@@ -245,7 +250,7 @@ fn validate_intermediate_breakdown(breakdown: &IntermediateBreakdown) -> Validat
     }
 }
 
-fn region_has_unsupported_3d_claim(region: &IntermediateRegion) -> bool {
+pub(crate) fn region_has_unsupported_3d_claim(region: &IntermediateRegion) -> bool {
     [
         region.geometry_role.as_str(),
         region.footprint_class.as_str(),
@@ -256,7 +261,7 @@ fn region_has_unsupported_3d_claim(region: &IntermediateRegion) -> bool {
     .any(contains_unsupported_3d_claim)
 }
 
-fn connector_has_unsupported_3d_claim(connector: &IntermediateConnector) -> bool {
+pub(crate) fn connector_has_unsupported_3d_claim(connector: &IntermediateConnector) -> bool {
     connector
         .affordances
         .iter()
@@ -265,11 +270,10 @@ fn connector_has_unsupported_3d_claim(connector: &IntermediateConnector) -> bool
         .any(contains_unsupported_3d_claim)
 }
 
-fn contains_unsupported_3d_claim(value: &str) -> bool {
+pub(crate) fn contains_unsupported_3d_claim(value: &str) -> bool {
     value.contains("vertical")
         || value.contains("3d")
         || value.contains("three_d")
         || value.contains("stair")
         || value.contains("shaft")
 }
-

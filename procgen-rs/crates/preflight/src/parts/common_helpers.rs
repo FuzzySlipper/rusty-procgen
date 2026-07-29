@@ -1,8 +1,11 @@
-fn region_id(node_id: &str) -> String {
+#[allow(unused_imports)]
+use crate::*;
+
+pub(crate) fn region_id(node_id: &str) -> String {
     format!("region.{}", slugify_label(node_id))
 }
 
-fn dedupe_strings(values: Vec<String>) -> Vec<String> {
+pub(crate) fn dedupe_strings(values: Vec<String>) -> Vec<String> {
     values
         .into_iter()
         .collect::<BTreeSet<_>>()

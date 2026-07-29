@@ -1,10 +1,16 @@
-fn build_catalog_inspect_command(args: BuildCatalogInspectArgs) -> Result<(), String> {
+#[allow(unused_imports)]
+use crate::*;
+
+pub(crate) fn build_catalog_inspect_command(args: BuildCatalogInspectArgs) -> Result<(), String> {
     let catalog: ShapeCatalog = read_json(&args.catalog)?;
     let report = inspect_shape_catalog(&catalog, &args.catalog);
     write_json(&args.out, &report)
 }
 
-fn inspect_shape_catalog(catalog: &ShapeCatalog, catalog_path: &Path) -> CatalogInspectionReport {
+pub(crate) fn inspect_shape_catalog(
+    catalog: &ShapeCatalog,
+    catalog_path: &Path,
+) -> CatalogInspectionReport {
     let mut piece_kinds = BTreeSet::new();
     let mut feature_sockets = BTreeSet::new();
     let mut exit_directions = BTreeSet::new();
@@ -18,7 +24,10 @@ fn inspect_shape_catalog(catalog: &ShapeCatalog, catalog_path: &Path) -> Catalog
             "catalog_kind_invalid",
             None,
             None,
-            format!("Expected rusty_procgen.shape_catalog.v1, got {}.", catalog.kind),
+            format!(
+                "Expected rusty_procgen.shape_catalog.v1, got {}.",
+                catalog.kind
+            ),
         ));
     }
     if catalog.cell_size <= 0 {
@@ -131,7 +140,7 @@ fn inspect_shape_catalog(catalog: &ShapeCatalog, catalog_path: &Path) -> Catalog
     }
 }
 
-fn validate_catalog_search_policy(
+pub(crate) fn validate_catalog_search_policy(
     policy: &CatalogSearchPolicy,
     diagnostics: &mut Vec<Diagnostic>,
 ) {
@@ -152,7 +161,7 @@ fn validate_catalog_search_policy(
     }
 }
 
-fn validate_piece_placement_policy(
+pub(crate) fn validate_piece_placement_policy(
     policy: &PiecePlacementPolicy,
     diagnostics: &mut Vec<Diagnostic>,
 ) {
