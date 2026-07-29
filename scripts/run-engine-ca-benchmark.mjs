@@ -10,7 +10,7 @@ const allowedDirtyPaths = new Set([
   'artifacts/evidence/engine-ca-benchmark.json',
 ]);
 const status = capture('git', ['status', '--porcelain=v1'], repoRoot)
-  .trim()
+  .trimEnd()
   .split('\n')
   .filter(Boolean);
 const unexpected = status.filter((line) => !allowedDirtyPaths.has(line.slice(3)));
