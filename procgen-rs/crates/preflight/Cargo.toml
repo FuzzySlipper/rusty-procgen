@@ -8,6 +8,10 @@ publish = false
 name = "rusty-procgen"
 path = "src/main.rs"
 
+[[bin]]
+name = "generate-ca-fixtures"
+path = "src/bin/generate_ca_fixtures.rs"
+
 [dependencies]
 clap = { workspace = true }
 serde = { workspace = true }

@@ -16,6 +16,8 @@ pub const CA_MAX_VOLUME: u64 = 1_048_576;
 pub const CA_MAX_SEED_CELLS: usize = 4_096;
 pub const CA_MAX_STEPS: u32 = 4_096;
 pub const CA_MAX_SCENARIOS: usize = 32;
+pub const CA_MAX_CELL_STEPS_PER_SCENARIO: u64 = 1_048_576;
+pub const CA_MAX_CELL_STEPS_PER_SUITE: u64 = 2_097_152;
 
 const CA_MAX_ID_LENGTH: usize = 96;
 
@@ -161,6 +163,16 @@ impl CaScenario {
                 limit: CA_MAX_STEPS,
             });
         }
+        let cell_steps = volume
+            .checked_mul(u64::from(self.steps))
+            .ok_or(CaError::CellStepEstimateOverflow)?;
+        if cell_steps > CA_MAX_CELL_STEPS_PER_SCENARIO {
+            return Err(CaError::CellStepQuotaExceeded {
+                scenario_id: self.id.clone(),
+                cell_steps,
+                limit: CA_MAX_CELL_STEPS_PER_SCENARIO,
+            });
+        }
         if self.initial_cells.len() > CA_MAX_SEED_CELLS {
             return Err(CaError::SeedQuotaExceeded {
                 count: self.initial_cells.len(),
@@ -205,8 +217,23 @@ impl CaScenarioSuite {
             });
         }
         let mut ids = BTreeSet::new();
+        let mut suite_cell_steps = 0_u64;
         for scenario in &self.scenarios {
             scenario.validate()?;
+            let scenario_cell_steps = scenario
+                .bounds
+                .volume()?
+                .checked_mul(u64::from(scenario.steps))
+                .ok_or(CaError::CellStepEstimateOverflow)?;
+            suite_cell_steps = suite_cell_steps
+                .checked_add(scenario_cell_steps)
+                .ok_or(CaError::CellStepEstimateOverflow)?;
+            if suite_cell_steps > CA_MAX_CELL_STEPS_PER_SUITE {
+                return Err(CaError::SuiteCellStepQuotaExceeded {
+                    cell_steps: suite_cell_steps,
+                    limit: CA_MAX_CELL_STEPS_PER_SUITE,
+                });
+            }
             if !ids.insert(scenario.id.clone()) {
                 return Err(CaError::DuplicateScenarioId {
                     id: scenario.id.clone(),
@@ -549,6 +576,16 @@ pub enum CaError {
         steps: u32,
         limit: u32,
     },
+    CellStepEstimateOverflow,
+    CellStepQuotaExceeded {
+        scenario_id: String,
+        cell_steps: u64,
+        limit: u64,
+    },
+    SuiteCellStepQuotaExceeded {
+        cell_steps: u64,
+        limit: u64,
+    },
     SeedQuotaExceeded {
         count: usize,
         limit: usize,
@@ -594,6 +631,9 @@ impl CaError {
             Self::VolumeOverflow => "volume_overflow",
             Self::VolumeQuotaExceeded { .. } => "volume_quota_exceeded",
             Self::StepQuotaExceeded { .. } => "step_quota_exceeded",
+            Self::CellStepEstimateOverflow => "cell_step_estimate_overflow",
+            Self::CellStepQuotaExceeded { .. } => "cell_step_quota_exceeded",
+            Self::SuiteCellStepQuotaExceeded { .. } => "suite_cell_step_quota_exceeded",
             Self::SeedQuotaExceeded { .. } => "seed_quota_exceeded",
             Self::ScenarioQuotaExceeded { .. } => "scenario_quota_exceeded",
             Self::DuplicateScenarioId { .. } => "duplicate_scenario_id",
@@ -633,6 +673,21 @@ impl Display for CaError {
             Self::StepQuotaExceeded { steps, limit } => {
                 write!(formatter, "step count {steps} is outside 1..={limit}")
             }
+            Self::CellStepEstimateOverflow => {
+                write!(formatter, "cell-step workload estimate does not fit u64")
+            }
+            Self::CellStepQuotaExceeded {
+                scenario_id,
+                cell_steps,
+                limit,
+            } => write!(
+                formatter,
+                "scenario {scenario_id} cell-step workload {cell_steps} exceeds {limit}"
+            ),
+            Self::SuiteCellStepQuotaExceeded { cell_steps, limit } => write!(
+                formatter,
+                "suite cell-step workload {cell_steps} exceeds {limit}"
+            ),
             Self::SeedQuotaExceeded { count, limit } => {
                 write!(formatter, "seed count {count} exceeds {limit}")
             }

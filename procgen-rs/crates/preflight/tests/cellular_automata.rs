@@ -1,7 +1,8 @@
 use rusty_procgen_preflight::cellular_automata::{
     run_ca_scenario, CaAutomaton, CaBoundaryPolicy, CaBounds, CaCellState, CaCoord, CaError,
     CaNeighborhood, CaRule, CaScenario, CaScenarioSuite, CaSeedCell, CaWorkloadClass,
-    CA_DELTA_FIXTURE_SET_KIND, CA_MAX_SEED_CELLS, CA_MAX_STEPS,
+    CA_DELTA_FIXTURE_SET_KIND, CA_MAX_CELL_STEPS_PER_SCENARIO, CA_MAX_CELL_STEPS_PER_SUITE,
+    CA_MAX_SEED_CELLS, CA_MAX_STEPS,
 };
 
 fn checked_suite() -> CaScenarioSuite {
@@ -15,6 +16,27 @@ fn sparse_scenario() -> CaScenario {
         .into_iter()
         .find(|scenario| scenario.id == "sparse-propagation")
         .expect("sparse scenario")
+}
+
+fn dense_scenario(id: &str, volume: i32, steps: u32) -> CaScenario {
+    CaScenario {
+        id: id.to_owned(),
+        workload: CaWorkloadClass::DenseChurn,
+        seed: 11,
+        bounds: CaBounds {
+            min: CaCoord { x: 0, y: 0, z: 0 },
+            max_exclusive: CaCoord {
+                x: volume,
+                y: 1,
+                z: 1,
+            },
+        },
+        neighborhood: CaNeighborhood::VonNeumann6,
+        boundary: CaBoundaryPolicy::FixedEmpty,
+        rule: CaRule::ParityChurnV1,
+        steps,
+        initial_cells: Vec::new(),
+    }
 }
 
 #[test]
@@ -209,6 +231,59 @@ fn malformed_bounds_overflow_and_quotas_reject_typed() {
             .code(),
         "seed_quota_exceeded"
     );
+}
+
+#[test]
+fn aggregate_cell_step_quotas_bound_retained_work_before_generation() {
+    let exact_scenario = dense_scenario(
+        "exact-scenario-cell-step-limit",
+        i32::try_from(CA_MAX_CELL_STEPS_PER_SCENARIO / 4).expect("bounded dimension"),
+        4,
+    );
+    exact_scenario
+        .validate()
+        .expect("exact scenario cell-step limit");
+
+    let mut one_over_scenario = exact_scenario.clone();
+    one_over_scenario.id = "over-scenario-cell-step-limit".to_owned();
+    one_over_scenario.bounds.max_exclusive.x += 1;
+    assert!(matches!(
+        one_over_scenario.validate(),
+        Err(CaError::CellStepQuotaExceeded {
+            cell_steps,
+            limit: CA_MAX_CELL_STEPS_PER_SCENARIO,
+            ..
+        }) if cell_steps == CA_MAX_CELL_STEPS_PER_SCENARIO + 4
+    ));
+
+    let half_suite_limit =
+        i32::try_from(CA_MAX_CELL_STEPS_PER_SUITE / 2 / 4).expect("bounded dimension");
+    let exact_suite = CaScenarioSuite {
+        kind: "rusty_procgen.ca_scenario_suite.v1".to_owned(),
+        schema_version: 1,
+        scenarios: vec![
+            dense_scenario("exact-suite-a", half_suite_limit, 4),
+            dense_scenario("exact-suite-b", half_suite_limit, 4),
+        ],
+    };
+    exact_suite.validate().expect("exact suite cell-step limit");
+
+    let mut one_over_suite = exact_suite;
+    one_over_suite
+        .scenarios
+        .push(dense_scenario("over-suite", 1, 1));
+    assert!(matches!(
+        one_over_suite.validate(),
+        Err(CaError::SuiteCellStepQuotaExceeded {
+            cell_steps,
+            limit: CA_MAX_CELL_STEPS_PER_SUITE,
+        }) if cell_steps == CA_MAX_CELL_STEPS_PER_SUITE + 1
+    ));
+
+    assert!(matches!(
+        one_over_suite.generate_delta_fixtures(),
+        Err(CaError::SuiteCellStepQuotaExceeded { .. })
+    ));
 }
 
 #[test]

@@ -20,6 +20,13 @@ domain. Both publish lexicographically ordered cell deltas with previous/current
 state, touched bounds, state counts, evaluated/active/changed counts, a delta
 hash, a state hash, and a cumulative scenario hash.
 
+Admission also checks the aggregate `volume * steps` cell-step capacity before
+any trace is materialized. A scenario may declare at most 1,048,576 cell-steps,
+and a complete suite at most 2,097,152. This deliberately conservative measure
+bounds both full-domain evaluation work and the maximum retained delta count
+without depending on rule-specific behavior. Products and checked sums reject
+overflow, and a rejected suite cannot reach the fixture publication step.
+
 The checked suite at `fixtures/ca/scenarios.v1.json` covers sparse propagation,
 dense churn, wrapped cross-boundary activity, a large resident domain with a
 small hot region, and high-surface-area churn. Its exact generated traces live

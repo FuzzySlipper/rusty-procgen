@@ -27,7 +27,7 @@ fn run() -> Result<(), String> {
         .unwrap_or_else(|| PathBuf::from("fixtures/ca/delta-traces.v1.json"));
     if arguments.next().is_some() {
         return Err(
-            "usage: generate_ca_fixtures [--check] [scenario-suite] [delta-fixtures]".to_owned(),
+            "usage: generate-ca-fixtures [--check] [scenario-suite] [delta-fixtures]".to_owned(),
         );
     }
 
