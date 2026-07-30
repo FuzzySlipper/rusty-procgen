@@ -236,6 +236,7 @@ interface DecodedResult {
 
 interface MutableAttemptState {
   readonly attempt: number;
+  readonly roomSlackCells: number;
   readonly domains: Map<string, Set<string>>;
   readonly rooms: Map<string, CatalogGenerationRoomPlacement>;
   readonly routes: Map<string, CatalogGenerationRoute>;
@@ -941,6 +942,7 @@ function validateEventSequence(
       }
       current = {
         attempt,
+        roomSlackCells: event.body.roomSlackCells,
         domains: new Map(),
         rooms: new Map(),
         routes: new Map(),
@@ -1139,7 +1141,7 @@ function applyAttemptEvent(
       const expected = required(result.attempts, state.attempt, 'result attempt');
       const observed: CatalogAwareAttemptEvidence = {
         attempt: state.attempt,
-        roomSlackCells: expected.roomSlackCells,
+        roomSlackCells: state.roomSlackCells,
         classification: body.classification,
         stage: body.stage,
         detail: body.detail,
@@ -1240,6 +1242,77 @@ function validateSelectedOutput(
   if (JSON.stringify(actualSections) !== JSON.stringify(expectedSections)) {
     fail('trace.selectedAttempt.routes', 'does not match the selected result sections');
   }
+  const expectedRoutes = selectedResultRoutes(placement, expectedSections);
+  const actualRoutes = [...attempt.finalRoutes]
+    .map((route) => ({ sectionId: route.sectionId, cells: route.cells }))
+    .sort((left, right) => left.sectionId.localeCompare(right.sectionId));
+  if (JSON.stringify(actualRoutes) !== JSON.stringify(expectedRoutes)) {
+    fail('trace.selectedAttempt.routes', 'does not match the selected result route cells');
+  }
+}
+
+function selectedResultRoutes(
+  placement: Readonly<Record<string, unknown>>,
+  expectedSections: readonly string[],
+): readonly {
+  readonly sectionId: string;
+  readonly cells: readonly CatalogGridCell[];
+}[] {
+  const bySection = new Map<string, { readonly tile: number; readonly cell: CatalogGridCell }[]>();
+  array(placement.instances, 'result.placement.instances').forEach((instance, index) => {
+    const path = `result.placement.instances[${index}]`;
+    const item = record(instance, path);
+    if (item.role !== 'catalog_route') {
+      return;
+    }
+    const pieceId = nonEmptyString(item.pieceId, `${path}.pieceId`);
+    const tileMatch = /\.tile_(\d+)$/.exec(pieceId);
+    if (tileMatch === null) {
+      fail(`${path}.pieceId`, 'catalog route has no ordered tile suffix');
+    }
+    const sourceSections = array(item.sourceRefs, `${path}.sourceRefs`)
+      .map((source, sourceIndex) =>
+        nonEmptyString(source, `${path}.sourceRefs[${sourceIndex}]`))
+      .filter((source) => source.startsWith('physicalSection:'));
+    if (sourceSections.length !== 1) {
+      fail(`${path}.sourceRefs`, 'catalog route must name exactly one physical section');
+    }
+    const sectionId = required(sourceSections, 0, 'catalog route section')
+      .slice('physicalSection:'.length);
+    const routes = bySection.get(sectionId) ?? [];
+    routes.push({
+      tile: Number(required(tileMatch, 1, 'catalog route tile')),
+      cell: decodeCell(item.origin, `${path}.origin`),
+    });
+    bySection.set(sectionId, routes);
+  });
+  const actualSections = [...bySection.keys()].sort();
+  if (JSON.stringify(actualSections) !== JSON.stringify(expectedSections)) {
+    fail(
+      'result.placement.instances',
+      'catalog route instances do not match the selected result sections',
+    );
+  }
+  return actualSections.map((sectionId) => {
+    const routeTiles = bySection.get(sectionId);
+    if (routeTiles === undefined) {
+      fail('result.placement.instances', `missing catalog route ${sectionId}`);
+    }
+    const tiles = routeTiles
+      .sort((left, right) => left.tile - right.tile);
+    tiles.forEach((tile, index) => {
+      if (tile.tile !== index + 1) {
+        fail(
+          'result.placement.instances',
+          `${sectionId} catalog route tile ${tile.tile} is out of sequence`,
+        );
+      }
+    });
+    return {
+      sectionId,
+      cells: tiles.map((tile) => tile.cell),
+    };
+  });
 }
 
 function decodePlacementInstance(
