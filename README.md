@@ -103,8 +103,10 @@ browser CA runtime.
 `rusty-procgen-preflight` exposes the deterministic generator as a library as
 well as the `rusty-procgen` binary. Downstream Rust hosts use the
 filesystem-free `ProcgenCore` facade for typed graph, geometry, catalog,
-placement, and validation operations; the CLI is a thin path/receipt adapter
-over the same owners. See
+placement, catalog-aware bounded retry, and validation operations; the CLI is
+a thin path/receipt adapter over the same owners. Catalog-aware callers supply
+typed inputs and inert provenance labels and receive the same attempt evidence
+and accepted artifact chain as the CLI without filesystem access. See
 [`docs/rust-library-api.md`](docs/rust-library-api.md) for the module map,
 public boundary, and focused verification.
 

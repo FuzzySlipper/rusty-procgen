@@ -42,13 +42,23 @@ Library consumers should use `rusty_procgen_preflight::core::ProcgenCore`.
 Its methods accept and return typed values and never read or write files. The
 facade covers candidate generation, graph rules, analysis, annotations,
 intermediate layout, geometry, piece planning, catalog matching, bounded
-placement, built-flow validation, scoring, and stable hashes.
+placement, catalog-aware generation, built-flow validation, scoring, and stable
+hashes.
 
 Failed graph-rule application is fail-atomic: `RuleDisposition::Rejected`
 returns a candidate with the same canonical hash as the input. Generated
 artifacts retain `memory/...` references where the file-oriented artifact
 contract requires a provenance label; those labels do not cause filesystem
 access.
+
+`ProcgenCore::realize_catalog_aware` owns the bounded retry composition used by
+the `build realize-catalog-aware` command. Callers provide typed candidate,
+geometry, catalog piece-plan, shape-catalog, policy, and provenance-label
+values. The result records every attempted slack tier and returns either the
+complete accepted geometry/plan/match/placement/flow chain or the final typed
+classification (`catalog_coverage_gap`, `generation_infeasibility`, or
+`search_budget_exhaustion`). The runner does not mutate any caller value and
+does not interpret provenance labels as paths.
 
 The CLI uses the same deterministic behavior owners and adds only explicit
 path reads/writes, receipt emission, transcripts, and exit status. A library
@@ -58,8 +68,12 @@ Engine or presentation dependencies.
 ## Verification
 
 Focused public-consumer coverage lives in
-`procgen-rs/crates/preflight/tests/core_api.rs`. Unit tests are grouped by
-graph, intermediate, geometry, planning, matching, placement, built-flow,
+`procgen-rs/crates/preflight/tests/core_api.rs` and
+`procgen-rs/crates/preflight/tests/catalog_aware_core.rs`. The catalog-aware
+test runs from an empty working directory, proves input non-mutation and
+deterministic repetition, and compares the public result with the actual CLI
+for success and each exhaustion class. Unit tests are grouped by graph,
+intermediate, geometry, planning, matching, placement, built-flow,
 catalog/batch, and scoring owners.
 
 Run:

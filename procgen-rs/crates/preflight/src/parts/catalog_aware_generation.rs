@@ -3,50 +3,88 @@ use crate::*;
 
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub(crate) struct CatalogAwareGenerationPolicy {
-    pub(crate) kind: String,
-    pub(crate) schema_version: u32,
-    pub(crate) max_generation_attempts: u32,
-    pub(crate) initial_room_slack_cells: i32,
-    pub(crate) room_slack_growth_cells: i32,
-    pub(crate) max_room_candidates: u32,
-    pub(crate) max_routing_states_per_section: u32,
-    pub(crate) route_margin_cells: i32,
-    pub(crate) guide_distance_weight: u32,
-    pub(crate) turn_penalty: u32,
+pub struct CatalogAwareGenerationPolicy {
+    pub kind: String,
+    pub schema_version: u32,
+    pub max_generation_attempts: u32,
+    pub initial_room_slack_cells: i32,
+    pub room_slack_growth_cells: i32,
+    pub max_room_candidates: u32,
+    pub max_routing_states_per_section: u32,
+    pub route_margin_cells: i32,
+    pub guide_distance_weight: u32,
+    pub turn_penalty: u32,
 }
 
-#[derive(Clone, Debug, Serialize)]
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub(crate) struct CatalogAwareAttemptEvidence {
-    attempt: u32,
-    room_slack_cells: i32,
-    classification: String,
-    stage: String,
-    detail: String,
-    rooms_placed: usize,
-    sections_routed: usize,
-    routing_states: u32,
+pub struct CatalogAwareAttemptEvidence {
+    pub attempt: u32,
+    pub room_slack_cells: i32,
+    pub classification: String,
+    pub stage: String,
+    pub detail: String,
+    pub rooms_placed: usize,
+    pub sections_routed: usize,
+    pub routing_states: u32,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub(crate) struct CatalogAwareGenerationResult {
-    kind: String,
-    schema_version: u32,
-    ok: bool,
-    candidate_id: String,
-    policy: CatalogAwareGenerationPolicy,
-    attempts: Vec<CatalogAwareAttemptEvidence>,
-    selected_attempt: Option<u32>,
-    exhausted_classification: Option<String>,
-    geometry: Option<Geometry2dArtifact>,
-    geometry_validation: Option<ValidationReport>,
-    piece_plan: Option<PieceBuildPlan>,
-    shape_match: Option<PieceShapeMatchReport>,
-    placement: Option<PiecePlacement>,
-    placement_validation: Option<ValidationReport>,
-    built_flow_validation: Option<BuiltFlowValidationReport>,
+pub struct CatalogAwareGenerationResult {
+    pub kind: String,
+    pub schema_version: u32,
+    pub ok: bool,
+    pub candidate_id: String,
+    pub policy: CatalogAwareGenerationPolicy,
+    pub attempts: Vec<CatalogAwareAttemptEvidence>,
+    pub selected_attempt: Option<u32>,
+    pub exhausted_classification: Option<String>,
+    pub geometry: Option<Geometry2dArtifact>,
+    pub geometry_validation: Option<ValidationReport>,
+    pub piece_plan: Option<PieceBuildPlan>,
+    pub shape_match: Option<PieceShapeMatchReport>,
+    pub placement: Option<PiecePlacement>,
+    pub placement_validation: Option<ValidationReport>,
+    pub built_flow_validation: Option<BuiltFlowValidationReport>,
+}
+
+/// Stable artifact labels used by the filesystem-free catalog-aware runner.
+///
+/// The labels are copied into provenance fields only. The runner never opens
+/// or writes the referenced paths.
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct CatalogAwareGenerationProvenance {
+    pub candidate_ref: String,
+    pub geometry_ref: String,
+    pub piece_plan_ref: String,
+    pub catalog_ref: String,
+    pub result_ref: String,
+}
+
+/// Borrowed inputs for one deterministic catalog-aware generation run.
+#[derive(Clone, Copy, Debug)]
+pub(crate) struct CatalogAwareGenerationInput<'a> {
+    pub candidate: &'a Candidate,
+    pub source_geometry: &'a Geometry2dArtifact,
+    pub source_plan: &'a PieceBuildPlan,
+    pub catalog: &'a ShapeCatalog,
+    pub policy: &'a CatalogAwareGenerationPolicy,
+    pub provenance: &'a CatalogAwareGenerationProvenance,
+    pub seed: u64,
+}
+
+/// Complete accepted value produced by one catalog-aware attempt.
+#[derive(Debug)]
+pub(crate) struct CatalogAwareAttemptOutcome {
+    pub(crate) geometry: Geometry2dArtifact,
+    pub(crate) geometry_validation: ValidationReport,
+    pub(crate) piece_plan: PieceBuildPlan,
+    pub(crate) shape_match: PieceShapeMatchReport,
+    pub(crate) placement: PiecePlacement,
+    pub(crate) placement_validation: ValidationReport,
+    pub(crate) built_flow_validation: BuiltFlowValidationReport,
+    pub(crate) routing_states: u32,
 }
 
 #[derive(Clone)]
@@ -100,16 +138,39 @@ pub(crate) fn build_realize_catalog_aware_command(
     let source_plan: PieceBuildPlan = read_json(&args.piece_plan)?;
     let catalog: ShapeCatalog = read_json(&args.catalog)?;
     let policy: CatalogAwareGenerationPolicy = read_json(&args.policy)?;
-    validate_catalog_aware_policy(&policy)?;
-    if source_plan.corridor_realization != CorridorRealization::Catalog {
+    let provenance = CatalogAwareGenerationProvenance {
+        candidate_ref: display_path(&args.candidate),
+        geometry_ref: display_path(&args.geometry),
+        piece_plan_ref: display_path(&args.piece_plan),
+        catalog_ref: display_path(&args.catalog),
+        result_ref: display_path(&args.out),
+    };
+    let result = run_catalog_aware_generation(CatalogAwareGenerationInput {
+        candidate: &candidate,
+        source_geometry: &geometry,
+        source_plan: &source_plan,
+        catalog: &catalog,
+        policy: &policy,
+        provenance: &provenance,
+        seed: args.seed,
+    })?;
+    write_json(&args.out, &result)
+}
+
+/// Run bounded catalog-aware generation without filesystem access.
+pub(crate) fn run_catalog_aware_generation(
+    input: CatalogAwareGenerationInput<'_>,
+) -> Result<CatalogAwareGenerationResult, String> {
+    validate_catalog_aware_policy(input.policy)?;
+    if input.source_plan.corridor_realization != CorridorRealization::Catalog {
         return Err("catalog-aware generation requires a catalog piece plan".to_owned());
     }
     let mut result = CatalogAwareGenerationResult {
         kind: "rusty_procgen.catalog_aware_generation.v1".to_owned(),
         schema_version: 1,
         ok: false,
-        candidate_id: candidate.candidate_id.clone(),
-        policy: policy.clone(),
+        candidate_id: input.candidate.candidate_id.clone(),
+        policy: input.policy.clone(),
         attempts: Vec::new(),
         selected_attempt: None,
         exhausted_classification: None,
@@ -122,32 +183,15 @@ pub(crate) fn build_realize_catalog_aware_command(
         built_flow_validation: None,
     };
     let mut final_classification = "generation_infeasibility".to_owned();
-    for attempt in 0..policy.max_generation_attempts {
-        let slack = policy.initial_room_slack_cells.saturating_add(
-            policy
+    for attempt in 0..input.policy.max_generation_attempts {
+        let slack = input.policy.initial_room_slack_cells.saturating_add(
+            input
+                .policy
                 .room_slack_growth_cells
                 .saturating_mul(i32::try_from(attempt).unwrap_or(i32::MAX)),
         );
-        match realize_catalog_aware_attempt(
-            &candidate,
-            &geometry,
-            &source_plan,
-            &catalog,
-            &policy,
-            &args,
-            attempt,
-            slack,
-        ) {
-            Ok((
-                realized_geometry,
-                geometry_validation,
-                plan,
-                shape_match,
-                placement,
-                placement_validation,
-                built_flow_validation,
-                routing_states,
-            )) => {
+        match realize_catalog_aware_attempt(input, attempt, slack) {
+            Ok(outcome) => {
                 result.ok = true;
                 result.selected_attempt = Some(attempt);
                 result.attempts.push(CatalogAwareAttemptEvidence {
@@ -157,26 +201,28 @@ pub(crate) fn build_realize_catalog_aware_command(
                     stage: "complete".to_owned(),
                     detail: "Catalog rooms and direct-glue corridor chains passed all validators."
                         .to_owned(),
-                    rooms_placed: placement
+                    rooms_placed: outcome
+                        .placement
                         .instances
                         .iter()
                         .filter(|instance| is_catalog_room_kind(instance.requirement_kind.as_str()))
                         .count(),
-                    sections_routed: plan
+                    sections_routed: outcome
+                        .piece_plan
                         .links
                         .iter()
                         .map(|link| link.source_section.as_str())
                         .collect::<BTreeSet<_>>()
                         .len(),
-                    routing_states,
+                    routing_states: outcome.routing_states,
                 });
-                result.geometry = Some(realized_geometry);
-                result.geometry_validation = Some(geometry_validation);
-                result.piece_plan = Some(plan);
-                result.shape_match = Some(shape_match);
-                result.placement = Some(placement);
-                result.placement_validation = Some(placement_validation);
-                result.built_flow_validation = Some(built_flow_validation);
+                result.geometry = Some(outcome.geometry);
+                result.geometry_validation = Some(outcome.geometry_validation);
+                result.piece_plan = Some(outcome.piece_plan);
+                result.shape_match = Some(outcome.shape_match);
+                result.placement = Some(outcome.placement);
+                result.placement_validation = Some(outcome.placement_validation);
+                result.built_flow_validation = Some(outcome.built_flow_validation);
                 break;
             }
             Err(failure) => {
@@ -197,42 +243,26 @@ pub(crate) fn build_realize_catalog_aware_command(
     if !result.ok {
         result.exhausted_classification = Some(final_classification);
     }
-    write_json(&args.out, &result)
+    Ok(result)
 }
 
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub(crate) struct CatalogAwareFailure {
-    classification: String,
-    stage: String,
-    detail: String,
-    rooms_placed: usize,
-    sections_routed: usize,
-    routing_states: u32,
+    pub(crate) classification: String,
+    pub(crate) stage: String,
+    pub(crate) detail: String,
+    pub(crate) rooms_placed: usize,
+    pub(crate) sections_routed: usize,
+    pub(crate) routing_states: u32,
 }
 
-#[allow(clippy::too_many_arguments, clippy::type_complexity)]
 pub(crate) fn realize_catalog_aware_attempt(
-    candidate: &Candidate,
-    source_geometry: &Geometry2dArtifact,
-    source_plan: &PieceBuildPlan,
-    catalog: &ShapeCatalog,
-    policy: &CatalogAwareGenerationPolicy,
-    args: &BuildRealizeCatalogAwareArgs,
+    input: CatalogAwareGenerationInput<'_>,
     attempt: u32,
     room_slack_cells: i32,
-) -> Result<
-    (
-        Geometry2dArtifact,
-        ValidationReport,
-        PieceBuildPlan,
-        PieceShapeMatchReport,
-        PiecePlacement,
-        ValidationReport,
-        BuiltFlowValidationReport,
-        u32,
-    ),
-    CatalogAwareFailure,
-> {
-    let room_requirements = source_plan
+) -> Result<CatalogAwareAttemptOutcome, CatalogAwareFailure> {
+    let room_requirements = input
+        .source_plan
         .requirements
         .iter()
         .filter(|requirement| is_room_requirement(requirement))
@@ -243,11 +273,11 @@ pub(crate) fn realize_catalog_aware_attempt(
     let mut reserved = BTreeSet::<(i32, i32)>::new();
     for requirement in room_requirements {
         let candidates = catalog_exact_room_candidates(
-            catalog,
-            source_plan,
+            input.catalog,
+            input.source_plan,
             &requirement,
-            args.seed,
-            policy.max_room_candidates,
+            input.seed,
+            input.policy.max_room_candidates,
         );
         let Some(matched) = candidates
             .get(attempt as usize % candidates.len().max(1))
@@ -272,7 +302,8 @@ pub(crate) fn realize_catalog_aware_attempt(
                 routing_states: 0,
             });
         };
-        let shape = catalog
+        let shape = input
+            .catalog
             .shapes
             .iter()
             .find(|shape| shape.shape_id == matched.shape_id)
@@ -326,12 +357,12 @@ pub(crate) fn realize_catalog_aware_attempt(
             origin,
         });
     }
-    let sections = catalog_section_specs(source_plan, source_geometry)?;
+    let sections = catalog_section_specs(input.source_plan, input.source_geometry)?;
     let room_by_piece = rooms
         .iter()
         .map(|room| (room.requirement.piece_id.as_str(), room))
         .collect::<BTreeMap<_, _>>();
-    let bounds = catalog_route_bounds(source_geometry, policy.route_margin_cells);
+    let bounds = catalog_route_bounds(input.source_geometry, input.policy.route_margin_cells);
     let mut routed = Vec::new();
     let mut total_states = 0_u32;
     let mut sections_by_length = sections;
@@ -379,9 +410,9 @@ pub(crate) fn realize_catalog_aware_attempt(
                 left_room.requirement.piece_id.as_str(),
                 right_room.requirement.piece_id.as_str(),
             ],
-            catalog.placement_policy.minimum_clearance_cells,
+            input.catalog.placement_policy.minimum_clearance_cells,
             &bounds,
-            policy,
+            input.policy,
         );
         let (cells, states) = match route {
             CatalogRouteSearch::Found {
@@ -420,7 +451,7 @@ pub(crate) fn realize_catalog_aware_attempt(
                         start.y,
                         goal.x,
                         goal.y,
-                        policy.max_routing_states_per_section,
+                        input.policy.max_routing_states_per_section,
                     ),
                     rooms_placed: rooms.len(),
                     sections_routed: routed.len(),
@@ -438,12 +469,13 @@ pub(crate) fn realize_catalog_aware_attempt(
         routed.push(CatalogRoutedSection { spec, cells });
     }
     let (mut geometry, plan, shape_match, mut placement) = materialize_catalog_composition(
-        source_geometry,
-        source_plan,
-        catalog,
+        input.source_geometry,
+        input.source_plan,
+        input.catalog,
         &rooms,
         &routed,
-        args,
+        input.seed,
+        input.provenance,
     )?;
     normalize_catalog_geometry_bounds(&mut geometry);
     refresh_geometry_compactness_evidence(&mut geometry);
@@ -509,14 +541,14 @@ pub(crate) fn realize_catalog_aware_attempt(
         ));
     }
     let flow_args = BuildValidateFlowArgs {
-        candidate: args.candidate.clone(),
-        geometry: args.geometry.clone(),
-        piece_plan: args.piece_plan.clone(),
-        piece_placement: args.out.clone(),
-        out: args.out.clone(),
+        candidate: PathBuf::from(&input.provenance.candidate_ref),
+        geometry: PathBuf::from(&input.provenance.geometry_ref),
+        piece_plan: PathBuf::from(&input.provenance.piece_plan_ref),
+        piece_placement: PathBuf::from(&input.provenance.result_ref),
+        out: PathBuf::from(&input.provenance.result_ref),
     };
     let built_flow_validation =
-        validate_built_flow(candidate, &geometry, &plan, &placement, &flow_args);
+        validate_built_flow(input.candidate, &geometry, &plan, &placement, &flow_args);
     if !built_flow_validation.ok {
         return Err(CatalogAwareFailure {
             classification: "generation_infeasibility".to_owned(),
@@ -532,16 +564,16 @@ pub(crate) fn realize_catalog_aware_attempt(
             routing_states: total_states,
         });
     }
-    Ok((
+    Ok(CatalogAwareAttemptOutcome {
         geometry,
         geometry_validation,
-        plan,
+        piece_plan: plan,
         shape_match,
         placement,
         placement_validation,
         built_flow_validation,
-        total_states,
-    ))
+        routing_states: total_states,
+    })
 }
 
 pub(crate) fn validate_catalog_aware_policy(
@@ -932,14 +964,14 @@ pub(crate) fn catalog_route_cell_blocked(
     false
 }
 
-#[allow(clippy::type_complexity)]
 pub(crate) fn materialize_catalog_composition(
     source_geometry: &Geometry2dArtifact,
     source_plan: &PieceBuildPlan,
     catalog: &ShapeCatalog,
     rooms: &[CatalogRoomSelection],
     routed: &[CatalogRoutedSection],
-    args: &BuildRealizeCatalogAwareArgs,
+    seed: u64,
+    provenance: &CatalogAwareGenerationProvenance,
 ) -> Result<
     (
         Geometry2dArtifact,
@@ -1037,7 +1069,7 @@ pub(crate) fn materialize_catalog_composition(
                 back_direction,
                 forward_direction,
                 &section.spec,
-                args.seed,
+                seed,
             )?;
             let input_exit = requirement.required_exits[0].id.clone();
             let output_exit = requirement.required_exits[1].id.clone();
@@ -1088,16 +1120,13 @@ pub(crate) fn materialize_catalog_composition(
     let shape_match = PieceShapeMatchReport {
         kind: "rusty_procgen.piece_shape_match.v1".to_owned(),
         schema_version: 1,
-        match_id: format!(
-            "piece_shape_match.{}.{}.catalog_aware",
-            plan.plan_id, args.seed
-        ),
+        match_id: format!("piece_shape_match.{}.{}.catalog_aware", plan.plan_id, seed),
         plan_id: plan.plan_id.clone(),
         catalog_id: catalog.catalog_id.clone(),
-        seed: args.seed,
+        seed,
         alternative_attempt: 0,
-        source_plan_ref: display_path(&args.piece_plan),
-        source_catalog_ref: display_path(&args.catalog),
+        source_plan_ref: provenance.piece_plan_ref.clone(),
+        source_catalog_ref: provenance.catalog_ref.clone(),
         ok: true,
         unmatched_count: 0,
         matches: matched_pieces,
@@ -1112,9 +1141,9 @@ pub(crate) fn materialize_catalog_composition(
         catalog_id: catalog.catalog_id.clone(),
         match_id: shape_match.match_id.clone(),
         corridor_realization: CorridorRealization::Catalog,
-        source_plan_ref: display_path(&args.piece_plan),
-        source_catalog_ref: display_path(&args.catalog),
-        source_match_ref: format!("{}:catalog-aware", display_path(&args.out)),
+        source_plan_ref: provenance.piece_plan_ref.clone(),
+        source_catalog_ref: provenance.catalog_ref.clone(),
+        source_match_ref: format!("{}:catalog-aware", provenance.result_ref),
         cell_size: catalog.cell_size,
         grid_connectivity: GridConnectivity::FourWay,
         placement_policy: catalog.placement_policy.clone(),

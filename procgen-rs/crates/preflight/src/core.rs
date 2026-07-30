@@ -8,20 +8,24 @@ use std::path::{Path, PathBuf};
 
 use serde::Serialize;
 
+pub use crate::catalog_aware_generation::{
+    CatalogAwareAttemptEvidence, CatalogAwareGenerationPolicy, CatalogAwareGenerationProvenance,
+    CatalogAwareGenerationResult,
+};
 use crate::{
     analyze_graph, apply_graph_rule, assemble_piece_placement, compatible_rules_report,
     create_initial_candidate, default_geometry_layout_policy, embed_2d,
     emit_geometry_2d_with_policy, emit_piece_build_plan, fork_candidate, hash_json,
     inspect_shape_catalog, intermediate_breakdown, match_shapes, plan_physical_connections,
-    realization_scale_multiplier, repair_report, score_graph, spatial_intent_report,
-    validate_built_flow, validate_geometry_2d, validate_geometry_layout_policy, validate_graph,
-    validate_intermediate_breakdown, validate_piece_placement, BuildAssembleArgs,
-    BuildEmitPiecePlanArgs, BuildMatchShapesArgs, BuildValidateFlowArgs, Candidate,
-    CatalogInspectionReport, Diagnostic, Geometry2dArtifact, GeometryEmit2dArgs,
-    GeometryLayoutPolicy, GraphAnalysisReport, IntermediateBreakdown, LayoutArtifact,
-    PhysicalConnectionPlan, PhysicalConnectionPlanArgs, PieceBuildPlan, PiecePlacement,
-    PieceShapeMatchReport, RepairReport, RuleCompatibilityReport, ScoreReport, SeedIntent,
-    Severity, ShapeCatalog, SpatialIntentReport, ValidationReport,
+    realization_scale_multiplier, repair_report, run_catalog_aware_generation, score_graph,
+    spatial_intent_report, validate_built_flow, validate_geometry_2d,
+    validate_geometry_layout_policy, validate_graph, validate_intermediate_breakdown,
+    validate_piece_placement, BuildAssembleArgs, BuildEmitPiecePlanArgs, BuildMatchShapesArgs,
+    BuildValidateFlowArgs, Candidate, CatalogAwareGenerationInput, CatalogInspectionReport,
+    Diagnostic, Geometry2dArtifact, GeometryEmit2dArgs, GeometryLayoutPolicy, GraphAnalysisReport,
+    IntermediateBreakdown, LayoutArtifact, PhysicalConnectionPlan, PhysicalConnectionPlanArgs,
+    PieceBuildPlan, PiecePlacement, PieceShapeMatchReport, RepairReport, RuleCompatibilityReport,
+    ScoreReport, SeedIntent, Severity, ShapeCatalog, SpatialIntentReport, ValidationReport,
 };
 
 pub use crate::{CorridorRealization, GraphRule, GridConnectivity, RepairAction};
@@ -237,6 +241,26 @@ impl ProcgenCore {
                 out: PathBuf::from(MEMORY_PLACEMENT),
             },
         )
+    }
+
+    pub fn realize_catalog_aware(
+        candidate: &Candidate,
+        source_geometry: &Geometry2dArtifact,
+        source_plan: &PieceBuildPlan,
+        catalog: &ShapeCatalog,
+        policy: &CatalogAwareGenerationPolicy,
+        provenance: &CatalogAwareGenerationProvenance,
+        seed: u64,
+    ) -> Result<CatalogAwareGenerationResult, String> {
+        run_catalog_aware_generation(CatalogAwareGenerationInput {
+            candidate,
+            source_geometry,
+            source_plan,
+            catalog,
+            policy,
+            provenance,
+            seed,
+        })
     }
 
     pub fn validate_placement(placement: &PiecePlacement) -> ValidationReport {
