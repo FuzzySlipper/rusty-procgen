@@ -527,6 +527,9 @@ async function svgReadout(cdp) {
   return await evaluateCdp(cdp, `(() => {
     const svg = document.querySelector('#generation-trace-svg');
     const rect = svg.getBoundingClientRect();
+    const stageRect = svg.closest('.generation-trace-stage')?.getBoundingClientRect();
+    const panelRect = svg.closest('.generation-trace-panel')?.getBoundingClientRect();
+    const layoutRect = svg.closest('.layout-panel')?.getBoundingClientRect();
     return {
       childCount: svg.childElementCount,
       viewBox: svg.getAttribute('viewBox') ?? '',
@@ -536,6 +539,9 @@ async function svgReadout(cdp) {
       right: rect.right,
       viewportWidth: document.documentElement.clientWidth,
       documentWidth: document.documentElement.scrollWidth,
+      stageWidth: stageRect?.width ?? 0,
+      panelWidth: panelRect?.width ?? 0,
+      layoutWidth: layoutRect?.width ?? 0,
     };
   })()`);
 }
