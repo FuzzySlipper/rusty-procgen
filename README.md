@@ -115,24 +115,26 @@ public boundary, and focused verification.
 
 The optional traced entry point returns the unchanged result beside a bounded,
 hash-closed semantic decision trace. It records room and route commitments,
-validation outcomes, and selection evidence without retaining pathfinder
-frontier churn. The checked replay contract, CLI `--trace-out` path, quotas, and
-fixture owner are documented in
+validation outcomes, hard outcome-limit decisions, and deterministic selection
+comparisons without retaining pathfinder frontier churn. The checked replay
+contract, CLI `--trace-out` path, quotas, and fixture owner are documented in
 [`docs/catalog-generation-traces.md`](docs/catalog-generation-traces.md).
 
 The viewer's `Generation Trace` tab strictly decodes those Rust-owned result
 and trace pairs before mounting an SVG. It can step backward or forward,
 seek by decision or stage, switch failed attempts, and compare accepted with
-bounded-exhausted outcomes while showing room reservations, conflicts, route
-guides, committed routes, effective policy, metrics, and final output identity.
-Catalog-mode configuration rebuilds replace the view with their exact live
-pair; TypeScript never reruns generation or pathfinding.
+bounded-exhausted and best-admissible outcomes while showing room reservations,
+conflicts, route guides, committed routes, effective policy, hard-limit
+decisions, attempt comparisons, metrics, and final output identity. Catalog-mode
+configuration rebuilds replace the view with their exact live pair; TypeScript
+never reruns generation, pathfinding, or selection.
 
-The checked compact-versus-sprawling corpus and the 20-setting influence matrix
+The checked compact-versus-sprawling corpus and the 26-setting influence matrix
 are documented in
 [`docs/generation-control-characterization.md`](docs/generation-control-characterization.md).
 They distinguish settings that change a decision from values that are merely
-bound or unused by the selected attempt.
+bound or unused by the selected attempt and record the controlled-generation
+before/after measurements.
 
 ## Rusty Engine generated-content publication
 
@@ -279,10 +281,14 @@ The corridor-realization setting has three explicit whole-build modes.
 to the generated room zones, and then searches one-cell straight/bend chains
 between their exact exits. Every room and corridor cell belongs to a selected
 catalog shape, exits glue directly, and generated connection cells are
-forbidden. The versioned policy controls bounded room alternatives, slack
-escalation, route margin, guide/turn costs, and per-section state budgets.
+forbidden. The versioned policy controls bounded room alternatives, room
+compaction, route margin, guide/turn costs, per-section state budgets, hard
+outcome limits, and one explicit selection preference.
 Failures distinguish generation infeasibility, missing catalog vocabulary, and
-search-budget exhaustion. `hybrid` preserves the
+search-budget exhaustion. A successful outcome that misses a hard placement
+limit is rejected before publication. Otherwise Rust selects the first outcome
+that satisfies the configured preference, or the deterministic best admissible
+outcome after the bounded attempt budget. `hybrid` preserves the
 earlier behavior, covering planned route segments with bounded
 short/medium/long straight families and sized bend prefabs while route cells
 fill uncovered gaps. `procedural` keeps catalog-backed room and feature pieces but
@@ -322,6 +328,14 @@ is 6/9 candidates and 4/6 topology fingerprints, while strict pure-catalog
 assembly remains 0/9. Every recorded catalog-aware success has a stable
 repeated build ID, zero generated connection cells, and successful geometry,
 placement, and built-flow validation.
+
+The workbench configuration is
+`rusty_procgen.viewer_generation_config.v2`. It exposes catalog room
+compaction, four hard final-placement limits, and a primary preference over
+placement span, area, or routed catalog cells. A version-1 workbench file is
+migrated in memory with explicit defaults; only a successful rebuild persists
+the version-2 form. Rejected rebuilds do not mutate the file. Checked evidence
+uses tracked policy fixtures rather than `config/viewer-generation.json`.
 
 A separate geometry-layout panel controls the earlier room distribution pass:
 initial outer/column/row spacing, per-tier growth, spacing-tier count, and room

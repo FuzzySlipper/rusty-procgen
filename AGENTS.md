@@ -75,8 +75,15 @@ pathfinding authority.
 Tracked compactness/sprawl characterization is owned by
 `fixtures/generation-control/characterization-v1.json`,
 `scripts/report-generation-control-characterization.mjs`, and
-`docs/generation-control-characterization.md`. It must remain independent of
-the mutable viewer workbench and must not change generation behavior.
+`docs/generation-control-characterization.md`. The tracked suite and generated
+report must remain independent of the mutable viewer workbench. Generation
+behavior changes require explicit before/after measurements, deterministic
+fixture regeneration, and review rather than an unexplained evidence rewrite.
+
+Catalog-aware outcome control is owned by the Rust v2 policy/result contract.
+Hard placement limits reject outcomes; bounded preferences select among
+otherwise valid outcomes. TypeScript and the viewer may strictly decode,
+persist, and explain those decisions, but may not rerank or regenerate them.
 
 `config/viewer-generation.json` may contain intentional local user
 experiments. Preserve unrelated value changes and never stage them as

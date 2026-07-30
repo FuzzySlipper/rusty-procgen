@@ -9,14 +9,15 @@ an authority that may change the selected result.
 
 ## Contract
 
-`rusty_procgen.catalog_generation_trace.v1` binds:
+`rusty_procgen.catalog_generation_trace.v2` binds:
 
 - canonical hashes of the candidate, source geometry, catalog piece plan,
   catalog, generation policy, and inert provenance labels;
 - the effective generation policy, seed, and trace limits;
 - monotonically indexed events with exact previous/event hash links;
-- the exact generation-result hash and an explicit first-success or exhausted
-  selection reason.
+- the exact generation-result hash, per-attempt outcome evaluation, and an
+  explicit preference-satisfied, best-admissible, or exhausted selection
+  reason.
 
 The structural hashes use the repository's canonical compact-JSON FNV-1a
 contract. They detect drift and ordinary tampering and make deterministic
@@ -40,7 +41,8 @@ Events retain semantic decisions rather than search implementation churn:
 - section start/goal/guide/bounds and the committed route or typed failed
   result;
 - geometry, placement, and built-flow validation outcomes;
-- attempt classification and final selection/exhaustion.
+- measured final-placement outcomes, hard-limit misses, deterministic
+  comparison decisions, and final selection/exhaustion.
 
 Pathfinder frontier states are deliberately excluded. Routing work remains
 bounded by `maxRoutingStatesPerSection`; the trace records the visited-state
@@ -115,10 +117,12 @@ pnpm run catalog-trace:fixtures:check
 The generator creates intermediate plans in an isolated temporary directory and
 publishes exact result/trace pairs for:
 
-- an accepted default-policy run with 51 events, 55,432 compact event-body
-  bytes, and 2,353 visual cells;
-- a four-attempt route-budget exhaustion with 90 events, 93,578 compact
-  event-body bytes, and 3,080 visual cells.
+- a preference-satisfied default-policy run with 102 events, 110,900 compact
+  event-body bytes, and 4,686 visual cells;
+- a four-attempt route-budget exhaustion with 90 events, 93,593 compact
+  event-body bytes, and 3,080 visual cells;
+- a four-attempt run that selects the deterministic best admissible outcome
+  with 188 events, 210,330 compact event-body bytes, and 8,870 visual cells.
 
 Keeping the result beside each trace lets a host independently recompute the
 final output hash and prove that a selected attempt's rooms and routed sections
@@ -129,6 +133,36 @@ The browser outcome selector also includes two tracked characterization pairs:
 the rejected tight-spacing `5201` run and the accepted compact `5801` run.
 Their owner, reproducibility contract, and stage metrics are documented in
 [Generation Control Characterization](generation-control-characterization.md).
+
+## Outcome policy and selection
+
+The version-2 policy separates validity from preference:
+
+- `outcomeConstraints` owns hard maxima for placement width, placement height,
+  placement area, and routed catalog cells;
+- `outcomePreferences` chooses one primary metric—placement span, placement
+  area, or routed catalog cells—and a preferred maximum.
+
+Each otherwise successful attempt is measured after geometry, placement, and
+built-flow validation. A hard-limit miss produces typed
+`outcome_constraint_miss` evidence and cannot become the selected result.
+Admissible outcomes are compared lexicographically:
+
+- span preference: span, area, routed cells, bends, routing states, attempt;
+- area preference: area, span, routed cells, bends, routing states, attempt;
+- routed-cell preference: routed cells, span, area, bends, routing states,
+  attempt.
+
+The first admissible attempt meeting the preference ends the bounded search.
+If none meets it, the runner exhausts the configured attempt budget and
+publishes the deterministic best admissible outcome. If no attempt is
+admissible, generation rejects with its typed failure evidence and publishes
+no accepted artifact.
+
+`roomCompactionCells` is an attempt input, not a score or validity rule. It
+moves selected room origins inward toward the geometry center before catalog
+routing. Later attempts may therefore improve the measured outcome, remain
+unchanged, or become infeasible; the trace shows which occurred.
 
 ## Browser playback
 
@@ -141,19 +175,20 @@ pair before changing the visible SVG:
   hash;
 - the root and every previous/event hash link are recomputed;
 - event-body bytes and visual cells are independently recounted;
-- attempt order, effective slack, room-domain/placement membership, route
-  endpoints and cardinal continuity, validation stages, attempt metrics, and
-  final selection are checked;
+- attempt order, effective compaction, room-domain/placement membership, route
+  endpoints and cardinal continuity, validation stages, measured outcomes,
+  hard-limit decisions, comparison ordering, and final selection are checked;
 - the result hash is recomputed and a successful selected attempt is compared
   with the ordinary placement and piece-plan sections.
 
-The UI replays only admitted semantic events. It supports accepted/exhausted
-run selection, failed-attempt switching, play/pause, single-decision forward
-and back, reset, bounded seek, and previous/next stage navigation. Room
+The UI replays only admitted semantic events. It supports
+preference-satisfied, best-admissible, and exhausted run selection,
+failed-attempt switching, play/pause, single-decision forward and back, reset,
+bounded seek, and previous/next stage navigation. Room
 occupied/reserved cells, current conflicts, route guides/endpoints, and
 committed routes are SVG observations of the retained trace. Policy values,
-classification, metrics, event identity, and output hash remain visible beside
-the projection.
+hard limits, preference, classification, metrics, comparison, event identity,
+and output hash remain visible beside the projection.
 
 Catalog-mode configuration rebuilds return their paired Rust result and trace
 through the existing request revision guard. A successful run and a typed
@@ -161,6 +196,15 @@ attempt-budget exhaustion are both inspectable; the latter does not persist its
 rejected configuration. Strict decode completes before trace replacement, and
 an older request cannot publish after a newer generation-config revision.
 Non-catalog rebuilds do not synthesize a catalog trace.
+
+The workbench configuration schema is
+`rusty_procgen.viewer_generation_config.v2`. Reading a version-1 workbench
+config performs an explicit in-memory migration with compaction defaults
+`0 + attempt * 1`, hard maxima `4096 / 4096 / 16777216 / 1048576`, and a
+placement-span preference of `286`. A successful rebuild persists version 2
+with no migration marker. A rejected rebuild preserves the original bytes.
+Checked fixtures use tracked policy files and never read the mutable workbench
+configuration.
 
 Before invoking the traced runner, the viewer host replaces scratch-directory
 provenance in its generated geometry and piece plan with the checked candidate
@@ -175,8 +219,9 @@ pnpm run catalog-trace:smoke
 pnpm run catalog-trace:viewer:smoke
 ```
 
-The first command checks strict cross-language decode, accepted/exhausted
-replay, and malformed/tampered/mismatched rejection. The second uses real
+The first command checks strict cross-language decode, preference-satisfied,
+best-admissible and exhausted replay, plus malformed/tampered/mismatched
+rejection. The second uses real
 Chromium for keyboard and pointer controls, back/seek/reset/stage navigation,
 attempt and outcome switching, mobile sizing, final result agreement,
 tamper-before-mount behavior, live accepted/exhausted rebuild replacement, and
@@ -189,4 +234,6 @@ to remain guarded.
 This contract does not add pausing/resuming generation, callbacks, a scheduler,
 an event bus, a generic procgen framework, browser authority, or per-frontier
 pathfinding playback. The browser cannot change the generation result or resume
-an attempt; controls only replay already admitted Rust decisions.
+an attempt; controls only replay already admitted Rust decisions. The bounded
+preference is not a proof of a globally minimal layout or a performance
+optimization claim.

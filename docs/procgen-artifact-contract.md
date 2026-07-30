@@ -375,6 +375,55 @@ Validation uses kind `rusty_procgen.validation.piece_placement.v1`.
 
 See `docs/piece-assembly-contract.md`.
 
+## Catalog-Aware Generation Policy
+
+Kind: `rusty_procgen.catalog_aware_generation_policy.v2`
+
+The policy bounds attempts, room candidates, per-section routing states, route
+margin, guide and turn costs, and the room-compaction sequence. It also owns:
+
+- hard `outcomeConstraints` for final placement width, height, area, and routed
+  catalog cells;
+- one `outcomePreferences` primary metric (`placement_span`,
+  `placement_area`, or `routed_catalog_cells`) and preferred maximum.
+
+Hard constraints are admission rules, not score penalties. Preferences select
+among otherwise valid outcomes and do not bypass geometry, placement, or
+built-flow validation.
+
+## Catalog-Aware Generation Result
+
+Result kind: `rusty_procgen.catalog_aware_generation.v2`
+
+Exhaustion kind: `rusty_procgen.catalog_aware_generation_exhaustion.v2`
+
+Each attempt records its compaction input, typed stage/classification, bounded
+work metrics, and optional final outcome. A final outcome records placement
+width, height, span, area, routed catalog cells, bends, routing states, every
+hard-limit miss, preference satisfaction, and the comparison against the
+current incumbent.
+
+The first admissible outcome meeting the preference is selected. If none meets
+it, the deterministic best admissible outcome is selected after the attempt
+budget is exhausted. If no attempt is admissible, the result is a typed
+exhaustion and no accepted artifact is published.
+
+## Catalog Generation Trace
+
+Kind: `rusty_procgen.catalog_generation_trace.v2`
+
+The trace is a bounded sibling diagnostic artifact for the exact catalog-aware
+operation. It binds canonical input hashes, the complete included policy,
+semantic room/route/validation/outcome/comparison events, the exact result
+hash, and hash-linked event order. It is replay evidence, not mutable
+generation authority or a resumable session.
+
+Rust replay reruns the exact typed generation request and requires complete
+event equality. The strict TypeScript boundary recomputes the included policy,
+event chain, quotas, visible semantic metrics, comparisons, and result
+agreement before mounting. See
+[`catalog-generation-traces.md`](catalog-generation-traces.md).
+
 ## Accepted Artifact
 
 Kind: `rusty_procgen.accepted_artifact.v1`

@@ -14,6 +14,15 @@ not a complete game runtime.
   replacement, controls, picking, resize, stale-work suppression, and disposal
   in Chromium; it does not own dungeon or gameplay truth and is not a
   performance certification.
+- Catalog-aware outcome control has four explicit hard metrics and one bounded
+  preference. It is not an arbitrary constraint language or general optimizer.
+  Room compaction moves selected room origins inward and may make later attempts
+  infeasible; neither compaction nor best-admissible selection proves a globally
+  minimal layout.
+- Generation traces retain semantic decisions, not pathfinder frontier states.
+  They support exact bounded replay and diagnosis but are not pausable generator
+  sessions, performance profiles, or evidence that a preference is attainable
+  for every seed.
 - Downstream games remain responsible for full gameplay execution, persistence,
   encounter meaning, and presentation policy.
 - Cellular-automata workloads are a separate post-conversion campaign. The

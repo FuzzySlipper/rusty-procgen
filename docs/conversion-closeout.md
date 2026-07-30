@@ -44,9 +44,23 @@ pnpm run batch:sample
 pnpm run geometry:recovery:report
 pnpm run catalog:coverage
 pnpm run catalog-aware:coverage
+pnpm run catalog-trace:fixtures:check
+pnpm run generation-control:report:check
 pnpm run publish:rusty-engine-smoke
 pnpm run voxel:rusty-engine-smoke
 ```
+
+The legacy-named catalog-aware coverage fixture is a tracked input and is
+explicitly migrated through the current policy boundary. Controlled-generation
+trace fixtures and characterization instead use
+`fixtures/policies/viewer-generation-default.v2.json`. Neither evidence owner
+reads `config/viewer-generation.json`.
+
+The post-conversion controlled-generation surface remains downstream:
+Procgen Rust owns room compaction, final-placement constraints, deterministic
+preference selection, and their semantic trace. Rusty Engine remains limited to
+the exact public publication, spatial, and renderer mechanisms composed by the
+named integrations.
 
 ## Scope
 

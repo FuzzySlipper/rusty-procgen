@@ -18,49 +18,53 @@
       "status": "rejected",
       "classification": "search_budget_exhaustion",
       "evidence": {
-        "kind": "rusty_procgen.catalog_aware_generation_exhaustion.v1",
-        "schemaVersion": 1,
+        "kind": "rusty_procgen.catalog_aware_generation_exhaustion.v2",
+        "schemaVersion": 2,
         "classification": "search_budget_exhaustion",
         "attempts": [
           {
             "attempt": 0,
-            "roomSlackCells": 0,
+            "roomCompactionCells": 0,
             "classification": "search_budget_exhaustion",
             "stage": "section_routing",
             "detail": "Catalog-cell routing for section section.region_hub_central_1.region_start.open from 130,443 to 39,290 exhausted its 200000-state budget.",
             "roomsPlaced": 12,
             "sectionsRouted": 2,
-            "routingStates": 211318
+            "routingStates": 211318,
+            "outcome": null
           },
           {
             "attempt": 1,
-            "roomSlackCells": 4,
+            "roomCompactionCells": 1,
             "classification": "search_budget_exhaustion",
             "stage": "section_routing",
-            "detail": "Catalog-cell routing for section section.region_hub_central_1.region_start.open from 130,443 to 39,290 exhausted its 200000-state budget.",
+            "detail": "Catalog-cell routing for section section.region_hub_central_1.region_start.open from 129,442 to 40,289 exhausted its 200000-state budget.",
             "roomsPlaced": 12,
             "sectionsRouted": 2,
-            "routingStates": 210394
+            "routingStates": 209348,
+            "outcome": null
           },
           {
             "attempt": 2,
-            "roomSlackCells": 8,
+            "roomCompactionCells": 2,
             "classification": "search_budget_exhaustion",
             "stage": "section_routing",
-            "detail": "Catalog-cell routing for section section.region_hub_central_1.region_start.open from 130,443 to 39,291 exhausted its 200000-state budget.",
+            "detail": "Catalog-cell routing for section section.region_hub_central_1.region_start.open from 128,441 to 41,288 exhausted its 200000-state budget.",
             "roomsPlaced": 12,
             "sectionsRouted": 2,
-            "routingStates": 211283
+            "routingStates": 208168,
+            "outcome": null
           },
           {
             "attempt": 3,
-            "roomSlackCells": 12,
+            "roomCompactionCells": 3,
             "classification": "search_budget_exhaustion",
             "stage": "section_routing",
-            "detail": "Catalog-cell routing for section section.region_hub_central_1.region_start.open from 130,443 to 39,291 exhausted its 200000-state budget.",
+            "detail": "Catalog-cell routing for section section.region_hub_central_1.region_start.open from 127,440 to 42,287 exhausted its 200000-state budget.",
             "roomsPlaced": 12,
             "sectionsRouted": 2,
-            "routingStates": 210359
+            "routingStates": 207804,
+            "outcome": null
           }
         ]
       }
@@ -70,37 +74,95 @@
       "topologyFingerprint": "topology:418e96fe6aa81a3a",
       "status": "success",
       "classification": "catalog_aware_exact_assembly",
-      "buildId": "e9ba7ff9c577661258853f8406443bd76bddb805534ec7cd3b9d419a7e1bc6a3",
-      "instanceCount": 950,
+      "buildId": "9e093e484ec73cff8d3b6841742b9c20f9bf38330e3446a11eacab4d871f5411",
+      "instanceCount": 930,
       "connectionCellCount": 0,
       "placementValidationOk": true,
       "builtFlowValidationOk": true,
       "catalogAwareGeneration": {
         "policy": {
-          "kind": "rusty_procgen.catalog_aware_generation_policy.v1",
-          "schemaVersion": 1,
+          "kind": "rusty_procgen.catalog_aware_generation_policy.v2",
+          "schemaVersion": 2,
           "maxGenerationAttempts": 4,
-          "initialRoomSlackCells": 0,
-          "roomSlackGrowthCells": 4,
+          "initialRoomCompactionCells": 0,
+          "roomCompactionGrowthCells": 1,
           "maxRoomCandidates": 16,
           "maxRoutingStatesPerSection": 200000,
           "routeMarginCells": 48,
           "guideDistanceWeight": 4,
-          "turnPenalty": 3
+          "turnPenalty": 3,
+          "outcomeConstraints": {
+            "maxPlacementWidthCells": 4096,
+            "maxPlacementHeightCells": 4096,
+            "maxPlacementAreaCells": 16777216,
+            "maxRoutedCatalogCells": 1048576
+          },
+          "outcomePreferences": {
+            "primaryMetric": "placement_span",
+            "preferredMaximum": 286
+          }
         },
         "attempts": [
           {
             "attempt": 0,
-            "roomSlackCells": 0,
-            "classification": "success",
-            "stage": "complete",
-            "detail": "Catalog rooms and direct-glue corridor chains passed all validators.",
+            "roomCompactionCells": 0,
+            "classification": "admissible",
+            "stage": "outcome_selection",
+            "detail": "Validated catalog outcome was compared by placement_span_cells.",
             "roomsPlaced": 9,
             "sectionsRouted": 13,
-            "routingStates": 42442
+            "routingStates": 42442,
+            "outcome": {
+              "metrics": {
+                "placementWidthCells": 178,
+                "placementHeightCells": 111,
+                "placementSpanCells": 289,
+                "placementAreaCells": 19758,
+                "routedCatalogCells": 941,
+                "routeBends": 82,
+                "routingStates": 42442
+              },
+              "constraintMisses": [],
+              "admissible": true,
+              "preferenceSatisfied": false,
+              "comparison": {
+                "incumbentAttempt": null,
+                "ordering": "first_admissible",
+                "decisiveMetric": "placement_span_cells"
+              }
+            }
+          },
+          {
+            "attempt": 1,
+            "roomCompactionCells": 1,
+            "classification": "admissible",
+            "stage": "outcome_selection",
+            "detail": "Validated catalog outcome was compared by placement_span_cells.",
+            "roomsPlaced": 9,
+            "sectionsRouted": 13,
+            "routingStates": 37483,
+            "outcome": {
+              "metrics": {
+                "placementWidthCells": 176,
+                "placementHeightCells": 110,
+                "placementSpanCells": 286,
+                "placementAreaCells": 19360,
+                "routedCatalogCells": 921,
+                "routeBends": 72,
+                "routingStates": 37483
+              },
+              "constraintMisses": [],
+              "admissible": true,
+              "preferenceSatisfied": true,
+              "comparison": {
+                "incumbentAttempt": 0,
+                "ordering": "new_incumbent",
+                "decisiveMetric": "placement_span_cells"
+              }
+            }
           }
         ],
-        "selectedAttempt": 0
+        "selectedAttempt": 1
       }
     },
     {
@@ -108,37 +170,95 @@
       "topologyFingerprint": "topology:418e96fe6aa81a3a",
       "status": "success",
       "classification": "catalog_aware_exact_assembly",
-      "buildId": "958dcd65c0a9b98f9e58d624496622bf687e845519e1af83d0d4e6c31dc89b02",
-      "instanceCount": 950,
+      "buildId": "0f095f7a5cc168785acd86011ff0d41caa1bbe8287e1ae78a0ab6b56a205c99c",
+      "instanceCount": 930,
       "connectionCellCount": 0,
       "placementValidationOk": true,
       "builtFlowValidationOk": true,
       "catalogAwareGeneration": {
         "policy": {
-          "kind": "rusty_procgen.catalog_aware_generation_policy.v1",
-          "schemaVersion": 1,
+          "kind": "rusty_procgen.catalog_aware_generation_policy.v2",
+          "schemaVersion": 2,
           "maxGenerationAttempts": 4,
-          "initialRoomSlackCells": 0,
-          "roomSlackGrowthCells": 4,
+          "initialRoomCompactionCells": 0,
+          "roomCompactionGrowthCells": 1,
           "maxRoomCandidates": 16,
           "maxRoutingStatesPerSection": 200000,
           "routeMarginCells": 48,
           "guideDistanceWeight": 4,
-          "turnPenalty": 3
+          "turnPenalty": 3,
+          "outcomeConstraints": {
+            "maxPlacementWidthCells": 4096,
+            "maxPlacementHeightCells": 4096,
+            "maxPlacementAreaCells": 16777216,
+            "maxRoutedCatalogCells": 1048576
+          },
+          "outcomePreferences": {
+            "primaryMetric": "placement_span",
+            "preferredMaximum": 286
+          }
         },
         "attempts": [
           {
             "attempt": 0,
-            "roomSlackCells": 0,
-            "classification": "success",
-            "stage": "complete",
-            "detail": "Catalog rooms and direct-glue corridor chains passed all validators.",
+            "roomCompactionCells": 0,
+            "classification": "admissible",
+            "stage": "outcome_selection",
+            "detail": "Validated catalog outcome was compared by placement_span_cells.",
             "roomsPlaced": 9,
             "sectionsRouted": 13,
-            "routingStates": 42442
+            "routingStates": 42442,
+            "outcome": {
+              "metrics": {
+                "placementWidthCells": 178,
+                "placementHeightCells": 111,
+                "placementSpanCells": 289,
+                "placementAreaCells": 19758,
+                "routedCatalogCells": 941,
+                "routeBends": 82,
+                "routingStates": 42442
+              },
+              "constraintMisses": [],
+              "admissible": true,
+              "preferenceSatisfied": false,
+              "comparison": {
+                "incumbentAttempt": null,
+                "ordering": "first_admissible",
+                "decisiveMetric": "placement_span_cells"
+              }
+            }
+          },
+          {
+            "attempt": 1,
+            "roomCompactionCells": 1,
+            "classification": "admissible",
+            "stage": "outcome_selection",
+            "detail": "Validated catalog outcome was compared by placement_span_cells.",
+            "roomsPlaced": 9,
+            "sectionsRouted": 13,
+            "routingStates": 37483,
+            "outcome": {
+              "metrics": {
+                "placementWidthCells": 176,
+                "placementHeightCells": 110,
+                "placementSpanCells": 286,
+                "placementAreaCells": 19360,
+                "routedCatalogCells": 921,
+                "routeBends": 72,
+                "routingStates": 37483
+              },
+              "constraintMisses": [],
+              "admissible": true,
+              "preferenceSatisfied": true,
+              "comparison": {
+                "incumbentAttempt": 0,
+                "ordering": "new_incumbent",
+                "decisiveMetric": "placement_span_cells"
+              }
+            }
           }
         ],
-        "selectedAttempt": 0
+        "selectedAttempt": 1
       }
     },
     {
@@ -147,49 +267,53 @@
       "status": "rejected",
       "classification": "search_budget_exhaustion",
       "evidence": {
-        "kind": "rusty_procgen.catalog_aware_generation_exhaustion.v1",
-        "schemaVersion": 1,
+        "kind": "rusty_procgen.catalog_aware_generation_exhaustion.v2",
+        "schemaVersion": 2,
         "classification": "search_budget_exhaustion",
         "attempts": [
           {
             "attempt": 0,
-            "roomSlackCells": 0,
+            "roomCompactionCells": 0,
             "classification": "search_budget_exhaustion",
             "stage": "section_routing",
             "detail": "Catalog-cell routing for section section.region_gate_locked_1.region_start.open from 152,96 to 43,282 exhausted its 200000-state budget.",
             "roomsPlaced": 9,
             "sectionsRouted": 1,
-            "routingStates": 372773
+            "routingStates": 372773,
+            "outcome": null
           },
           {
             "attempt": 1,
-            "roomSlackCells": 4,
+            "roomCompactionCells": 1,
             "classification": "search_budget_exhaustion",
             "stage": "section_routing",
-            "detail": "Catalog-cell routing for section section.region_gate_locked_1.region_start.open from 152,96 to 43,283 exhausted its 200000-state budget.",
+            "detail": "Catalog-cell routing for section section.region_gate_locked_1.region_start.open from 151,97 to 44,281 exhausted its 200000-state budget.",
             "roomsPlaced": 9,
             "sectionsRouted": 1,
-            "routingStates": 370746
+            "routingStates": 372599,
+            "outcome": null
           },
           {
             "attempt": 2,
-            "roomSlackCells": 8,
+            "roomCompactionCells": 2,
             "classification": "search_budget_exhaustion",
             "stage": "section_routing",
-            "detail": "Catalog-cell routing for section section.region_gate_locked_1.region_start.open from 152,96 to 43,275 exhausted its 200000-state budget.",
+            "detail": "Catalog-cell routing for section section.region_gate_locked_1.region_start.open from 150,98 to 45,280 exhausted its 200000-state budget.",
             "roomsPlaced": 9,
             "sectionsRouted": 1,
-            "routingStates": 372773
+            "routingStates": 372539,
+            "outcome": null
           },
           {
             "attempt": 3,
-            "roomSlackCells": 12,
+            "roomCompactionCells": 3,
             "classification": "search_budget_exhaustion",
             "stage": "section_routing",
-            "detail": "Catalog-cell routing for section section.region_gate_locked_1.region_start.open from 152,99 to 43,282 exhausted its 200000-state budget.",
+            "detail": "Catalog-cell routing for section section.region_gate_locked_1.region_start.open from 149,99 to 46,279 exhausted its 200000-state budget.",
             "roomsPlaced": 9,
             "sectionsRouted": 1,
-            "routingStates": 373148
+            "routingStates": 372492,
+            "outcome": null
           }
         ]
       }
@@ -200,49 +324,53 @@
       "status": "rejected",
       "classification": "search_budget_exhaustion",
       "evidence": {
-        "kind": "rusty_procgen.catalog_aware_generation_exhaustion.v1",
-        "schemaVersion": 1,
+        "kind": "rusty_procgen.catalog_aware_generation_exhaustion.v2",
+        "schemaVersion": 2,
         "classification": "search_budget_exhaustion",
         "attempts": [
           {
             "attempt": 0,
-            "roomSlackCells": 0,
+            "roomCompactionCells": 0,
             "classification": "search_budget_exhaustion",
             "stage": "section_routing",
             "detail": "Catalog-cell routing for section section.region_gate_locked_1.region_start.open from 152,96 to 43,282 exhausted its 200000-state budget.",
             "roomsPlaced": 9,
             "sectionsRouted": 1,
-            "routingStates": 372773
+            "routingStates": 372773,
+            "outcome": null
           },
           {
             "attempt": 1,
-            "roomSlackCells": 4,
+            "roomCompactionCells": 1,
             "classification": "search_budget_exhaustion",
             "stage": "section_routing",
-            "detail": "Catalog-cell routing for section section.region_gate_locked_1.region_start.open from 152,96 to 43,283 exhausted its 200000-state budget.",
+            "detail": "Catalog-cell routing for section section.region_gate_locked_1.region_start.open from 151,97 to 44,281 exhausted its 200000-state budget.",
             "roomsPlaced": 9,
             "sectionsRouted": 1,
-            "routingStates": 370746
+            "routingStates": 372599,
+            "outcome": null
           },
           {
             "attempt": 2,
-            "roomSlackCells": 8,
+            "roomCompactionCells": 2,
             "classification": "search_budget_exhaustion",
             "stage": "section_routing",
-            "detail": "Catalog-cell routing for section section.region_gate_locked_1.region_start.open from 152,96 to 43,275 exhausted its 200000-state budget.",
+            "detail": "Catalog-cell routing for section section.region_gate_locked_1.region_start.open from 150,98 to 45,280 exhausted its 200000-state budget.",
             "roomsPlaced": 9,
             "sectionsRouted": 1,
-            "routingStates": 372773
+            "routingStates": 372539,
+            "outcome": null
           },
           {
             "attempt": 3,
-            "roomSlackCells": 12,
+            "roomCompactionCells": 3,
             "classification": "search_budget_exhaustion",
             "stage": "section_routing",
-            "detail": "Catalog-cell routing for section section.region_gate_locked_1.region_start.open from 152,99 to 43,282 exhausted its 200000-state budget.",
+            "detail": "Catalog-cell routing for section section.region_gate_locked_1.region_start.open from 149,99 to 46,279 exhausted its 200000-state budget.",
             "roomsPlaced": 9,
             "sectionsRouted": 1,
-            "routingStates": 373148
+            "routingStates": 372492,
+            "outcome": null
           }
         ]
       }
@@ -252,37 +380,135 @@
       "topologyFingerprint": "topology:93f72844c48d0e47",
       "status": "success",
       "classification": "catalog_aware_exact_assembly",
-      "buildId": "0c79bf7d38cb7eba847e781da62b43b10ded66306978715e3cdacce355a2e1b1",
-      "instanceCount": 1067,
+      "buildId": "37c10959eff802da5f815e6936391a69ace5836696311e5315bd1fca653f7624",
+      "instanceCount": 1009,
       "connectionCellCount": 0,
       "placementValidationOk": true,
       "builtFlowValidationOk": true,
       "catalogAwareGeneration": {
         "policy": {
-          "kind": "rusty_procgen.catalog_aware_generation_policy.v1",
-          "schemaVersion": 1,
+          "kind": "rusty_procgen.catalog_aware_generation_policy.v2",
+          "schemaVersion": 2,
           "maxGenerationAttempts": 4,
-          "initialRoomSlackCells": 0,
-          "roomSlackGrowthCells": 4,
+          "initialRoomCompactionCells": 0,
+          "roomCompactionGrowthCells": 1,
           "maxRoomCandidates": 16,
           "maxRoutingStatesPerSection": 200000,
           "routeMarginCells": 48,
           "guideDistanceWeight": 4,
-          "turnPenalty": 3
+          "turnPenalty": 3,
+          "outcomeConstraints": {
+            "maxPlacementWidthCells": 4096,
+            "maxPlacementHeightCells": 4096,
+            "maxPlacementAreaCells": 16777216,
+            "maxRoutedCatalogCells": 1048576
+          },
+          "outcomePreferences": {
+            "primaryMetric": "placement_span",
+            "preferredMaximum": 286
+          }
         },
         "attempts": [
           {
             "attempt": 0,
-            "roomSlackCells": 0,
-            "classification": "success",
-            "stage": "complete",
-            "detail": "Catalog rooms and direct-glue corridor chains passed all validators.",
+            "roomCompactionCells": 0,
+            "classification": "admissible",
+            "stage": "outcome_selection",
+            "detail": "Validated catalog outcome was compared by placement_span_cells.",
             "roomsPlaced": 9,
             "sectionsRouted": 13,
-            "routingStates": 44039
+            "routingStates": 44039,
+            "outcome": {
+              "metrics": {
+                "placementWidthCells": 164,
+                "placementHeightCells": 170,
+                "placementSpanCells": 334,
+                "placementAreaCells": 27880,
+                "routedCatalogCells": 1058,
+                "routeBends": 76,
+                "routingStates": 44039
+              },
+              "constraintMisses": [],
+              "admissible": true,
+              "preferenceSatisfied": false,
+              "comparison": {
+                "incumbentAttempt": null,
+                "ordering": "first_admissible",
+                "decisiveMetric": "placement_span_cells"
+              }
+            }
+          },
+          {
+            "attempt": 1,
+            "roomCompactionCells": 1,
+            "classification": "admissible",
+            "stage": "outcome_selection",
+            "detail": "Validated catalog outcome was compared by placement_span_cells.",
+            "roomsPlaced": 9,
+            "sectionsRouted": 13,
+            "routingStates": 38246,
+            "outcome": {
+              "metrics": {
+                "placementWidthCells": 162,
+                "placementHeightCells": 169,
+                "placementSpanCells": 331,
+                "placementAreaCells": 27378,
+                "routedCatalogCells": 1034,
+                "routeBends": 74,
+                "routingStates": 38246
+              },
+              "constraintMisses": [],
+              "admissible": true,
+              "preferenceSatisfied": false,
+              "comparison": {
+                "incumbentAttempt": 0,
+                "ordering": "new_incumbent",
+                "decisiveMetric": "placement_span_cells"
+              }
+            }
+          },
+          {
+            "attempt": 2,
+            "roomCompactionCells": 2,
+            "classification": "admissible",
+            "stage": "outcome_selection",
+            "detail": "Validated catalog outcome was compared by placement_span_cells.",
+            "roomsPlaced": 9,
+            "sectionsRouted": 13,
+            "routingStates": 32444,
+            "outcome": {
+              "metrics": {
+                "placementWidthCells": 160,
+                "placementHeightCells": 168,
+                "placementSpanCells": 328,
+                "placementAreaCells": 26880,
+                "routedCatalogCells": 1000,
+                "routeBends": 58,
+                "routingStates": 32444
+              },
+              "constraintMisses": [],
+              "admissible": true,
+              "preferenceSatisfied": false,
+              "comparison": {
+                "incumbentAttempt": 1,
+                "ordering": "new_incumbent",
+                "decisiveMetric": "placement_span_cells"
+              }
+            }
+          },
+          {
+            "attempt": 3,
+            "roomCompactionCells": 3,
+            "classification": "search_budget_exhaustion",
+            "stage": "section_routing",
+            "detail": "Catalog-cell routing for section section.region_key_gate_1.region_start.open from 145,172 to 92,188 exhausted its 200000-state budget.",
+            "roomsPlaced": 9,
+            "sectionsRouted": 6,
+            "routingStates": 219080,
+            "outcome": null
           }
         ],
-        "selectedAttempt": 0
+        "selectedAttempt": 2
       }
     },
     {
@@ -290,34 +516,63 @@
       "topologyFingerprint": "topology:75da51af2e5b93b4",
       "status": "success",
       "classification": "catalog_aware_exact_assembly",
-      "buildId": "51f1d8f5a5d8ae5eae2982bf09e4ac1a8c614c1cf5f7ad79f499174a857d62c0",
+      "buildId": "a6ed13ed1f32a0ce06a9758a7d318d301ce7bbcc86942058b6793dfa3246a284",
       "instanceCount": 437,
       "connectionCellCount": 0,
       "placementValidationOk": true,
       "builtFlowValidationOk": true,
       "catalogAwareGeneration": {
         "policy": {
-          "kind": "rusty_procgen.catalog_aware_generation_policy.v1",
-          "schemaVersion": 1,
+          "kind": "rusty_procgen.catalog_aware_generation_policy.v2",
+          "schemaVersion": 2,
           "maxGenerationAttempts": 4,
-          "initialRoomSlackCells": 0,
-          "roomSlackGrowthCells": 4,
+          "initialRoomCompactionCells": 0,
+          "roomCompactionGrowthCells": 1,
           "maxRoomCandidates": 16,
           "maxRoutingStatesPerSection": 200000,
           "routeMarginCells": 48,
           "guideDistanceWeight": 4,
-          "turnPenalty": 3
+          "turnPenalty": 3,
+          "outcomeConstraints": {
+            "maxPlacementWidthCells": 4096,
+            "maxPlacementHeightCells": 4096,
+            "maxPlacementAreaCells": 16777216,
+            "maxRoutedCatalogCells": 1048576
+          },
+          "outcomePreferences": {
+            "primaryMetric": "placement_span",
+            "preferredMaximum": 286
+          }
         },
         "attempts": [
           {
             "attempt": 0,
-            "roomSlackCells": 0,
-            "classification": "success",
-            "stage": "complete",
-            "detail": "Catalog rooms and direct-glue corridor chains passed all validators.",
+            "roomCompactionCells": 0,
+            "classification": "admissible",
+            "stage": "outcome_selection",
+            "detail": "Validated catalog outcome was compared by placement_span_cells.",
             "roomsPlaced": 8,
             "sectionsRouted": 10,
-            "routingStates": 12871
+            "routingStates": 12871,
+            "outcome": {
+              "metrics": {
+                "placementWidthCells": 184,
+                "placementHeightCells": 35,
+                "placementSpanCells": 219,
+                "placementAreaCells": 6440,
+                "routedCatalogCells": 429,
+                "routeBends": 60,
+                "routingStates": 12871
+              },
+              "constraintMisses": [],
+              "admissible": true,
+              "preferenceSatisfied": true,
+              "comparison": {
+                "incumbentAttempt": null,
+                "ordering": "first_admissible",
+                "decisiveMetric": "placement_span_cells"
+              }
+            }
           }
         ],
         "selectedAttempt": 0
@@ -328,34 +583,63 @@
       "topologyFingerprint": "topology:75da51af2e5b93b4",
       "status": "success",
       "classification": "catalog_aware_exact_assembly",
-      "buildId": "94e93471ba26e2cc0dd33dd9fd1fef1c2fbe48cdf43d568adbe9be5903ed7881",
+      "buildId": "6f83042803e39e12083043d5d107e04a092a89681e207a59bbe027158e6ef9cf",
       "instanceCount": 437,
       "connectionCellCount": 0,
       "placementValidationOk": true,
       "builtFlowValidationOk": true,
       "catalogAwareGeneration": {
         "policy": {
-          "kind": "rusty_procgen.catalog_aware_generation_policy.v1",
-          "schemaVersion": 1,
+          "kind": "rusty_procgen.catalog_aware_generation_policy.v2",
+          "schemaVersion": 2,
           "maxGenerationAttempts": 4,
-          "initialRoomSlackCells": 0,
-          "roomSlackGrowthCells": 4,
+          "initialRoomCompactionCells": 0,
+          "roomCompactionGrowthCells": 1,
           "maxRoomCandidates": 16,
           "maxRoutingStatesPerSection": 200000,
           "routeMarginCells": 48,
           "guideDistanceWeight": 4,
-          "turnPenalty": 3
+          "turnPenalty": 3,
+          "outcomeConstraints": {
+            "maxPlacementWidthCells": 4096,
+            "maxPlacementHeightCells": 4096,
+            "maxPlacementAreaCells": 16777216,
+            "maxRoutedCatalogCells": 1048576
+          },
+          "outcomePreferences": {
+            "primaryMetric": "placement_span",
+            "preferredMaximum": 286
+          }
         },
         "attempts": [
           {
             "attempt": 0,
-            "roomSlackCells": 0,
-            "classification": "success",
-            "stage": "complete",
-            "detail": "Catalog rooms and direct-glue corridor chains passed all validators.",
+            "roomCompactionCells": 0,
+            "classification": "admissible",
+            "stage": "outcome_selection",
+            "detail": "Validated catalog outcome was compared by placement_span_cells.",
             "roomsPlaced": 8,
             "sectionsRouted": 10,
-            "routingStates": 12871
+            "routingStates": 12871,
+            "outcome": {
+              "metrics": {
+                "placementWidthCells": 184,
+                "placementHeightCells": 35,
+                "placementSpanCells": 219,
+                "placementAreaCells": 6440,
+                "routedCatalogCells": 429,
+                "routeBends": 60,
+                "routingStates": 12871
+              },
+              "constraintMisses": [],
+              "admissible": true,
+              "preferenceSatisfied": true,
+              "comparison": {
+                "incumbentAttempt": null,
+                "ordering": "first_admissible",
+                "decisiveMetric": "placement_span_cells"
+              }
+            }
           }
         ],
         "selectedAttempt": 0
@@ -366,34 +650,63 @@
       "topologyFingerprint": "topology:9cb0a811896f1cf7",
       "status": "success",
       "classification": "catalog_aware_exact_assembly",
-      "buildId": "1a93ed2bbb1fbd1c43928a7fb0480662caaa76386b55d547448c48948559d985",
+      "buildId": "c0afca8266243027a22fc33be8c2f2628aada51e5acffdc456717648f5229c53",
       "instanceCount": 143,
       "connectionCellCount": 0,
       "placementValidationOk": true,
       "builtFlowValidationOk": true,
       "catalogAwareGeneration": {
         "policy": {
-          "kind": "rusty_procgen.catalog_aware_generation_policy.v1",
-          "schemaVersion": 1,
+          "kind": "rusty_procgen.catalog_aware_generation_policy.v2",
+          "schemaVersion": 2,
           "maxGenerationAttempts": 4,
-          "initialRoomSlackCells": 0,
-          "roomSlackGrowthCells": 4,
+          "initialRoomCompactionCells": 0,
+          "roomCompactionGrowthCells": 1,
           "maxRoomCandidates": 16,
           "maxRoutingStatesPerSection": 200000,
           "routeMarginCells": 48,
           "guideDistanceWeight": 4,
-          "turnPenalty": 3
+          "turnPenalty": 3,
+          "outcomeConstraints": {
+            "maxPlacementWidthCells": 4096,
+            "maxPlacementHeightCells": 4096,
+            "maxPlacementAreaCells": 16777216,
+            "maxRoutedCatalogCells": 1048576
+          },
+          "outcomePreferences": {
+            "primaryMetric": "placement_span",
+            "preferredMaximum": 286
+          }
         },
         "attempts": [
           {
             "attempt": 0,
-            "roomSlackCells": 0,
-            "classification": "success",
-            "stage": "complete",
-            "detail": "Catalog rooms and direct-glue corridor chains passed all validators.",
+            "roomCompactionCells": 0,
+            "classification": "admissible",
+            "stage": "outcome_selection",
+            "detail": "Validated catalog outcome was compared by placement_span_cells.",
             "roomsPlaced": 4,
             "sectionsRouted": 4,
-            "routingStates": 5512
+            "routingStates": 5512,
+            "outcome": {
+              "metrics": {
+                "placementWidthCells": 94,
+                "placementHeightCells": 35,
+                "placementSpanCells": 129,
+                "placementAreaCells": 3290,
+                "routedCatalogCells": 139,
+                "routeBends": 18,
+                "routingStates": 5512
+              },
+              "constraintMisses": [],
+              "admissible": true,
+              "preferenceSatisfied": true,
+              "comparison": {
+                "incumbentAttempt": null,
+                "ordering": "first_admissible",
+                "decisiveMetric": "placement_span_cells"
+              }
+            }
           }
         ],
         "selectedAttempt": 0

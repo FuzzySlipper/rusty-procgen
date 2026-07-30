@@ -502,16 +502,23 @@ Build, Voxel, and Voxel 3D show one generation configuration form backed by
 `config/viewer-generation.json`. Every editable field has a `value` and
 `defaultValue`. The form edits compact-first room margin, column/row gaps,
 per-tier growth, bounded search tiers and room orders, placement clearance,
-route wall buffer, catalog-aware retry/routing policy, and
+route wall buffer, catalog-aware retry/routing policy, room compaction, hard
+outcome limits, one bounded selection preference, and
 `catalog`/`hybrid`/`procedural` corridor realization together. `catalog` is
 strict prefab-only assembly: catalog rooms are aligned first, then
 deterministic one-cell straight/bend chains are searched between exact room
 exits. It may reject with an explicit generation-infeasibility,
 catalog-coverage-gap, or search-budget-exhaustion classification; `hybrid` is
 the former prefab-plus-routed-gap behavior.
-Schema v1 keeps the 8-unit route grid, `contactPolicy=glued_exits_only`,
+The placement-policy schema v1 keeps the 8-unit route grid,
+`contactPolicy=glued_exits_only`,
 `doorwayWidthCells=1`, `preservePieceBoundaries=true`, physical-section
 exclusivity, and built-flow validation fixed.
+
+The workbench configuration itself is
+`rusty_procgen.viewer_generation_config.v2`. A version-1 file is migrated in
+memory with explicit version-2 defaults. Only a successful rebuild persists
+the migrated form; rejection preserves the original bytes.
 
 Apply and rebuild posts the selected candidate ID and exact versioned config to
 the local viewer server. The server derives all artifact refs and deterministic
@@ -532,8 +539,14 @@ tracked configuration.
 
 Catalog corridor mode uses the versioned `catalogAwareGenerationPolicy` from
 the same configuration file. Its bounded attempts can vary room candidates and
-room-zone slack; its guide-biased route search composes only catalog pieces and
-never emits procedural connection cells. Procedural mode keeps room/feature
+move selected room origins inward by the configured compaction sequence; its
+guide-biased route search composes only catalog pieces and never emits
+procedural connection cells. Each valid outcome is measured against hard final
+placement width, height, area, and routed-cell limits. Admissible outcomes are
+ranked by the selected span, area, or routed-cell preference, with explicit
+tie-breakers. The first preference-satisfying outcome stops the bounded search;
+otherwise the best admissible outcome is published after exhaustion.
+Procedural mode keeps room/feature
 prefabs, omits connector/corridor/bend instances, and constrains each direct
 physical-section route to its planned geometry-lane envelope. All modes produce
 matching placement and built-flow proof, so Voxel 3D door progression remains
@@ -549,6 +562,33 @@ This uses the tracked
 `fixtures/policies/catalog-aware-coverage-config.v1.json` in an isolated
 configuration copy, repeats successful builds to prove a stable build ID, and writes
 `artifacts/evidence/catalog-aware-generation-coverage.json`.
+
+Reproduce the three semantic trace outcomes and the complete configuration
+influence report with:
+
+```bash
+pnpm run catalog-trace:fixtures:check
+pnpm run generation-control:report:check
+```
+
+The trace fixtures cover preference-satisfied selection, deterministic
+best-admissible selection, and typed bounded exhaustion. The characterization
+suite probes all 26 editable settings from
+`fixtures/policies/viewer-generation-default.v2.json`, records exact
+before/after metrics, and never reads the mutable workbench config.
+
+When diagnosing a sprawling result, inspect the trace in this order:
+
+1. confirm whether the attempt passed every hard outcome limit;
+2. compare placement span/area and routed cells rather than geometry size alone;
+3. inspect which compaction attempt changed room origins and route decisions;
+4. check the comparison event and final selection reason;
+5. only then adjust the tracked policy fixture or a local workbench value.
+
+Hard limits are admission rules. The preferred maximum is a bounded selection
+target, not a promise. If an accepted regression needs to become checked
+evidence, add it to the tracked fixture owner and regenerate through the owning
+command; do not copy a mutable workbench file into `artifacts/`.
 
 ## Verification
 
@@ -577,6 +617,13 @@ contracts can be checked separately:
 
 ```bash
 pnpm run policy:smoke
+```
+
+The strict trace boundary and real browser playback can be checked separately:
+
+```bash
+pnpm run catalog-trace:smoke
+pnpm run catalog-trace:viewer:smoke
 ```
 
 The standalone HTML preview smoke alias is:

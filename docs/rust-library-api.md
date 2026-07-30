@@ -55,14 +55,23 @@ access.
 `ProcgenCore::realize_catalog_aware` owns the bounded retry composition used by
 the `build realize-catalog-aware` command. Callers provide typed candidate,
 geometry, catalog piece-plan, shape-catalog, policy, and provenance-label
-values. The result records every attempted slack tier and returns either the
-complete accepted geometry/plan/match/placement/flow chain or the final typed
-classification (`catalog_coverage_gap`, `generation_infeasibility`, or
-`search_budget_exhaustion`). The runner does not mutate any caller value and
-does not interpret provenance labels as paths.
+values. The result records every attempted room compaction, measured outcome,
+hard-limit decision, and selection comparison. It returns either the complete
+accepted geometry/plan/match/placement/flow chain or the final typed
+classification (`catalog_coverage_gap`, `generation_infeasibility`,
+`search_budget_exhaustion`, or `outcome_constraint_miss`). The runner does not
+mutate any caller value and does not interpret provenance labels as paths.
+
+`CatalogAwareOutcomeConstraints` owns hard maxima for final placement width,
+height, area, and routed catalog cells. `CatalogAwareOutcomePreferences` owns
+one bounded primary metric and preferred maximum. The first admissible outcome
+meeting that preference ends the search; otherwise Rust publishes the
+deterministic best admissible outcome after the attempt budget is exhausted.
+These are dungeon-tooling decisions local to Procgen, not a generic Engine
+optimization service.
 
 `ProcgenCore::realize_catalog_aware_traced` returns that unchanged result beside
-a bounded `rusty_procgen.catalog_generation_trace.v1` sibling artifact.
+a bounded `rusty_procgen.catalog_generation_trace.v2` sibling artifact.
 `replay_catalog_generation_trace` verifies the exact input/result binding and
 reconstructs the committed room and route states. See
 [`catalog-generation-traces.md`](catalog-generation-traces.md) for event,
