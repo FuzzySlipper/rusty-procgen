@@ -921,7 +921,9 @@ body {
 .generation-trace-stage {
   display: grid;
   grid-template-columns: minmax(480px, 1fr) minmax(310px, 390px);
+  width: 100%;
   min-width: 0;
+  max-width: 100%;
   min-height: 560px;
   border: 1px solid var(--border);
   border-radius: 6px;
