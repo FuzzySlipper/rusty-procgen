@@ -330,6 +330,135 @@ fn semantic_trace_is_bounded_hash_closed_replayable_and_cli_equivalent() {
         &fixture,
         "trace_selected_rooms_mismatch",
     );
+    let mut rechained_slack_tamper = first.trace.clone();
+    match &mut rechained_slack_tamper.events[1].body {
+        CatalogGenerationTraceEventBody::AttemptStarted { room_slack_cells } => {
+            *room_slack_cells += 1;
+        }
+        other => panic!("expected attempt start, got {other:?}"),
+    }
+    rechain_trace(&mut rechained_slack_tamper);
+    assert_trace_rejected(
+        &rechained_slack_tamper,
+        &first.result,
+        &fixture,
+        "trace_authoritative_event_mismatch",
+    );
+    let mut rechained_domain_tamper = first.trace.clone();
+    let candidate = rechained_domain_tamper
+        .events
+        .iter_mut()
+        .find_map(|event| match &mut event.body {
+            CatalogGenerationTraceEventBody::RoomDomainEvaluated { candidates, .. } => {
+                candidates.first_mut()
+            }
+            _ => None,
+        })
+        .expect("room-domain candidate");
+    candidate.score += 1;
+    rechain_trace(&mut rechained_domain_tamper);
+    assert_trace_rejected(
+        &rechained_domain_tamper,
+        &first.result,
+        &fixture,
+        "trace_authoritative_event_mismatch",
+    );
+    let mut rechained_conflict_tamper = first.trace.clone();
+    let domain_index = rechained_conflict_tamper
+        .events
+        .iter()
+        .position(|event| {
+            matches!(
+                event.body,
+                CatalogGenerationTraceEventBody::RoomDomainEvaluated { .. }
+            )
+        })
+        .expect("room domain event");
+    let (piece_id, conflicting_cells) = match (
+        &rechained_conflict_tamper.events[domain_index].body,
+        &rechained_conflict_tamper.events[domain_index + 1].body,
+    ) {
+        (
+            CatalogGenerationTraceEventBody::RoomDomainEvaluated { piece_id, .. },
+            CatalogGenerationTraceEventBody::RoomPlaced { placement },
+        ) => (piece_id.clone(), vec![placement.occupied_cells[0].clone()]),
+        other => panic!("expected adjacent domain/placement events, got {other:?}"),
+    };
+    let mut conflict_event = rechained_conflict_tamper.events[domain_index].clone();
+    conflict_event.body = CatalogGenerationTraceEventBody::RoomConflict {
+        piece_id,
+        conflicting_cells,
+    };
+    rechained_conflict_tamper
+        .events
+        .insert(domain_index + 1, conflict_event);
+    for (index, event) in rechained_conflict_tamper.events.iter_mut().enumerate() {
+        event.index = u32::try_from(index).expect("trace event index");
+    }
+    rechained_conflict_tamper.visual_cell_count += 1;
+    rechain_trace(&mut rechained_conflict_tamper);
+    assert_trace_rejected(
+        &rechained_conflict_tamper,
+        &first.result,
+        &fixture,
+        "trace_authoritative_event_mismatch",
+    );
+    let mut rechained_start_tamper = first.trace.clone();
+    let guide = rechained_start_tamper
+        .events
+        .iter_mut()
+        .find_map(|event| match &mut event.body {
+            CatalogGenerationTraceEventBody::SectionRoutingStarted { guide, .. } => Some(guide),
+            _ => None,
+        })
+        .expect("section-routing start");
+    guide.reverse();
+    rechain_trace(&mut rechained_start_tamper);
+    assert_trace_rejected(
+        &rechained_start_tamper,
+        &first.result,
+        &fixture,
+        "trace_authoritative_event_mismatch",
+    );
+    let mut rechained_route_tamper = first.trace.clone();
+    let route =
+        rechained_route_tamper
+            .events
+            .iter_mut()
+            .find_map(|event| match &mut event.body {
+                CatalogGenerationTraceEventBody::SectionRoutingFinished {
+                    status, cells, ..
+                } if status == "found" => Some(cells),
+                _ => None,
+            })
+            .expect("found routed section");
+    route.reverse();
+    rechain_trace(&mut rechained_route_tamper);
+    assert_trace_rejected(
+        &rechained_route_tamper,
+        &first.result,
+        &fixture,
+        "trace_authoritative_event_mismatch",
+    );
+    let mut rechained_validation_tamper = first.trace.clone();
+    let subject_hash = rechained_validation_tamper
+        .events
+        .iter_mut()
+        .find_map(|event| match &mut event.body {
+            CatalogGenerationTraceEventBody::ValidationCompleted { subject_hash, .. } => {
+                Some(subject_hash)
+            }
+            _ => None,
+        })
+        .expect("validation event");
+    *subject_hash = "fnv1a64:3333333333333333".to_owned();
+    rechain_trace(&mut rechained_validation_tamper);
+    assert_trace_rejected(
+        &rechained_validation_tamper,
+        &first.result,
+        &fixture,
+        "trace_selected_validation_mismatch",
+    );
 
     let root = unique_temp_dir();
     fs::create_dir_all(&root).expect("create CLI fixture");
@@ -444,6 +573,75 @@ fn semantic_trace_is_bounded_hash_closed_replayable_and_cli_equivalent() {
         fs::read(&trace_path).expect("read trace sentinel"),
         trace_sentinel
     );
+
+    fs::write(&result_path, result_sentinel).expect("restore result sentinel");
+    fs::write(&trace_path, trace_sentinel).expect("restore trace sentinel");
+    let trace_directory = root.join("trace-directory");
+    fs::create_dir(&trace_directory).expect("create invalid trace destination");
+    let invalid_destination = run_traced_cli(
+        &candidate_path,
+        &geometry_path,
+        &plan_path,
+        &catalog_path,
+        &policy_path,
+        fixture.seed,
+        &result_path,
+        &trace_directory,
+        &exact_limits,
+    );
+    assert!(!invalid_destination.status.success());
+    assert!(String::from_utf8_lossy(&invalid_destination.stderr).contains("must be a file target"));
+    assert_eq!(
+        fs::read(&result_path).expect("read result after trace destination failure"),
+        result_sentinel
+    );
+    assert!(trace_directory.is_dir());
+
+    let same_destination = run_traced_cli(
+        &candidate_path,
+        &geometry_path,
+        &plan_path,
+        &catalog_path,
+        &policy_path,
+        fixture.seed,
+        &result_path,
+        &result_path,
+        &exact_limits,
+    );
+    assert!(!same_destination.status.success());
+    assert!(String::from_utf8_lossy(&same_destination.stderr)
+        .contains("--trace-out must differ from --out"));
+    assert_eq!(
+        fs::read(&result_path).expect("read exact-alias result"),
+        result_sentinel
+    );
+
+    #[cfg(unix)]
+    {
+        let hard_link_trace = root.join("trace-hard-link.json");
+        fs::hard_link(&result_path, &hard_link_trace).expect("create trace hard link");
+        let hard_link_alias = run_traced_cli(
+            &candidate_path,
+            &geometry_path,
+            &plan_path,
+            &catalog_path,
+            &policy_path,
+            fixture.seed,
+            &result_path,
+            &hard_link_trace,
+            &exact_limits,
+        );
+        assert!(!hard_link_alias.status.success());
+        assert!(String::from_utf8_lossy(&hard_link_alias.stderr).contains("must be distinct"));
+        assert_eq!(
+            fs::read(&result_path).expect("read hard-link result"),
+            result_sentinel
+        );
+        assert_eq!(
+            fs::read(&hard_link_trace).expect("read hard-link trace"),
+            result_sentinel
+        );
+    }
     fs::remove_dir_all(root).expect("remove CLI fixture");
 }
 
@@ -491,4 +689,54 @@ fn exhausted_trace_closes_every_attempt_and_preserves_typed_selection() {
         .attempts
         .iter()
         .all(|attempt| attempt.classification == "search_budget_exhaustion"));
+    let mut rechained_failed_attempt = run.trace.clone();
+    match &mut rechained_failed_attempt.events[1].body {
+        CatalogGenerationTraceEventBody::AttemptStarted { room_slack_cells } => {
+            *room_slack_cells += 1;
+        }
+        other => panic!("expected exhausted attempt start, got {other:?}"),
+    }
+    rechain_trace(&mut rechained_failed_attempt);
+    let error = replay_catalog_generation_trace(&rechained_failed_attempt, &run.result, request())
+        .expect_err("re-chained failed-attempt evidence must reject");
+    assert_eq!(error.code, "trace_authoritative_event_mismatch");
+}
+
+#[allow(clippy::too_many_arguments)]
+fn run_traced_cli(
+    candidate_path: &Path,
+    geometry_path: &Path,
+    plan_path: &Path,
+    catalog_path: &Path,
+    policy_path: &Path,
+    seed: u64,
+    result_path: &Path,
+    trace_path: &Path,
+    limits: &CatalogGenerationTraceLimits,
+) -> std::process::Output {
+    Command::new(env!("CARGO_BIN_EXE_rusty-procgen"))
+        .args(["build", "realize-catalog-aware", "--candidate"])
+        .arg(candidate_path)
+        .arg("--geometry")
+        .arg(geometry_path)
+        .arg("--piece-plan")
+        .arg(plan_path)
+        .arg("--catalog")
+        .arg(catalog_path)
+        .arg("--policy")
+        .arg(policy_path)
+        .arg("--seed")
+        .arg(seed.to_string())
+        .arg("--out")
+        .arg(result_path)
+        .arg("--trace-out")
+        .arg(trace_path)
+        .arg("--trace-max-events")
+        .arg(limits.max_events.to_string())
+        .arg("--trace-max-event-body-bytes")
+        .arg(limits.max_event_body_bytes.to_string())
+        .arg("--trace-max-visual-cells")
+        .arg(limits.max_visual_cells.to_string())
+        .output()
+        .expect("run traced CLI")
 }

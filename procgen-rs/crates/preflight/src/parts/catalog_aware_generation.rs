@@ -167,8 +167,7 @@ pub(crate) fn build_realize_catalog_aware_command(
             },
         )
         .map_err(|error| error.to_string())?;
-        write_json(&args.out, &run.result)?;
-        write_json(trace_out, &run.trace)
+        write_json_pair_atomic(&args.out, &run.result, trace_out, &run.trace)
     } else {
         let result = run_catalog_aware_generation(input)?;
         write_json(&args.out, &result)
@@ -190,6 +189,28 @@ pub(crate) fn run_catalog_aware_generation_traced(
     input: CatalogAwareGenerationInput<'_>,
     limits: CatalogGenerationTraceLimits,
 ) -> Result<CatalogAwareGenerationRun, CatalogGenerationTraceError> {
+    let run = record_catalog_aware_generation_trace(input, limits)?;
+    replay_catalog_generation_trace(
+        &run.trace,
+        &run.result,
+        CatalogGenerationTraceRequest {
+            candidate: input.candidate,
+            source_geometry: input.source_geometry,
+            source_plan: input.source_plan,
+            catalog: input.catalog,
+            generation_policy: input.policy,
+            provenance: input.provenance,
+            seed: input.seed,
+            trace_limits: run.trace.limits.clone(),
+        },
+    )?;
+    Ok(run)
+}
+
+pub(crate) fn record_catalog_aware_generation_trace(
+    input: CatalogAwareGenerationInput<'_>,
+    limits: CatalogGenerationTraceLimits,
+) -> Result<CatalogAwareGenerationRun, CatalogGenerationTraceError> {
     let mut recorder = CatalogGenerationTraceRecorder::new(input, limits)?;
     let result =
         run_catalog_aware_generation_recording(input, &mut recorder).map_err(
@@ -204,20 +225,6 @@ pub(crate) fn run_catalog_aware_generation_traced(
             },
         )?;
     let trace = recorder.finish(&result)?;
-    replay_catalog_generation_trace(
-        &trace,
-        &result,
-        CatalogGenerationTraceRequest {
-            candidate: input.candidate,
-            source_geometry: input.source_geometry,
-            source_plan: input.source_plan,
-            catalog: input.catalog,
-            generation_policy: input.policy,
-            provenance: input.provenance,
-            seed: input.seed,
-            trace_limits: trace.limits.clone(),
-        },
-    )?;
     Ok(CatalogAwareGenerationRun { result, trace })
 }
 

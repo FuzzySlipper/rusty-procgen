@@ -61,7 +61,12 @@ Use `replay_catalog_generation_trace` to validate exact inputs, policy, limits,
 root, event order, every chain link and event body, result hash, and selection
 evidence. Replay applies room and route deltas to a bounded in-memory state,
 emits a state hash/metric frame after every event, and retains one reconstructed
-room/route state per completed attempt.
+room/route state per completed attempt. Because an internally re-chained
+artifact cannot authenticate its own changed semantic facts, replay also
+performs a deterministic authoritative rerun from the supplied typed inputs and
+requires the complete event sequence to match. This closes selected and failed
+attempts alike, including room domains/conflicts, routing witnesses and ordered
+routes, validation facts, and attempt settings.
 
 The existing `ProcgenCore::realize_catalog_aware` remains the result-only
 surface and produces byte-identical results.
@@ -85,7 +90,10 @@ pnpm run procgen -- build realize-catalog-aware \
 Optional `--trace-max-events`, `--trace-max-event-body-bytes`, and
 `--trace-max-visual-cells` values select stricter admitted limits. The CLI only
 loads typed inputs, supplies inert labels, invokes the shared runner, and writes
-the already validated values.
+the already validated values. Result and trace bytes are encoded and staged
+together; distinct non-aliasing targets are required, and a staging, backup, or
+commit failure restores both prior destinations rather than publishing a
+mixed-generation pair.
 
 The checked candidate-000 trace is owned by:
 

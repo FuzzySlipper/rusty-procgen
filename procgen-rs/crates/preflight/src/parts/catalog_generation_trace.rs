@@ -810,6 +810,36 @@ pub fn replay_catalog_generation_trace(
         ));
     }
     machine.finish(trace, &expected_selection)?;
+    let authoritative = record_catalog_aware_generation_trace(input, trace.limits.clone())?;
+    let authoritative_output_hash = hash_json(&authoritative.result).map_err(|detail| {
+        CatalogGenerationTraceError::new("trace_output_hash_failed", detail, None, None)
+    })?;
+    if authoritative_output_hash != output_hash {
+        return Err(trace_validation_error(
+            "trace_authoritative_result_mismatch",
+            "supplied result does not match a deterministic rerun of the generation inputs",
+        ));
+    }
+    if authoritative.trace != *trace {
+        let mismatch = authoritative
+            .trace
+            .events
+            .iter()
+            .zip(trace.events.iter())
+            .position(|(expected, observed)| expected != observed)
+            .map_or_else(
+                || "trace envelope differs from the deterministic rerun".to_owned(),
+                |index| {
+                    format!(
+                        "trace event {index} differs from the deterministic authoritative rerun"
+                    )
+                },
+            );
+        return Err(trace_validation_error(
+            "trace_authoritative_event_mismatch",
+            mismatch,
+        ));
+    }
     Ok(CatalogGenerationReplay {
         frames,
         attempts,
