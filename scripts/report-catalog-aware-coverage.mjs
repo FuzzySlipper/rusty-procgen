@@ -62,7 +62,9 @@ try {
         connectionCellCount: first.result.placement.connectionCells.length,
         placementValidationOk: first.result.placementValidation.ok,
         builtFlowValidationOk: first.result.builtFlowValidation.ok,
-        catalogAwareGeneration: first.result.catalogAwareGeneration,
+        catalogAwareGeneration: summarizeCatalogAwareGeneration(
+          first.result.catalogAwareGeneration,
+        ),
       });
     } else {
       if (
@@ -81,7 +83,7 @@ try {
         topologyFingerprint: entry.topologyFingerprint,
         status: 'rejected',
         classification: first.result.evidence.classification,
-        evidence: first.result.evidence,
+        evidence: summarizeCatalogAwareExhaustion(first.result.evidence),
       });
     }
   }
@@ -118,6 +120,23 @@ try {
   server.kill('SIGTERM');
   await waitForChildExit(server);
   await rm(tempDir, { recursive: true, force: true });
+}
+
+function summarizeCatalogAwareGeneration(generation) {
+  return {
+    policy: generation.policy,
+    attempts: generation.attempts,
+    selectedAttempt: generation.selectedAttempt,
+  };
+}
+
+function summarizeCatalogAwareExhaustion(evidence) {
+  return {
+    kind: evidence.kind,
+    schemaVersion: evidence.schemaVersion,
+    classification: evidence.classification,
+    attempts: evidence.attempts,
+  };
 }
 
 function assertExactCatalogBuild(candidateId, result) {
