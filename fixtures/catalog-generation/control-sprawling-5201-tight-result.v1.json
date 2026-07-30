@@ -1,0 +1,69 @@
+{
+  "kind": "rusty_procgen.catalog_aware_generation.v1",
+  "schemaVersion": 1,
+  "ok": false,
+  "candidateId": "candidate.first_slice.5201",
+  "policy": {
+    "kind": "rusty_procgen.catalog_aware_generation_policy.v1",
+    "schemaVersion": 1,
+    "maxGenerationAttempts": 4,
+    "initialRoomSlackCells": 0,
+    "roomSlackGrowthCells": 4,
+    "maxRoomCandidates": 16,
+    "maxRoutingStatesPerSection": 200000,
+    "routeMarginCells": 48,
+    "guideDistanceWeight": 4,
+    "turnPenalty": 3
+  },
+  "attempts": [
+    {
+      "attempt": 0,
+      "roomSlackCells": 0,
+      "classification": "generation_infeasibility",
+      "stage": "section_routing",
+      "detail": "No catalog-cell route satisfied section section.region_goal.region_hub_central_1.open from 96,111 to 179,95 in bounds -48,-48..258,247.",
+      "roomsPlaced": 9,
+      "sectionsRouted": 5,
+      "routingStates": 132410
+    },
+    {
+      "attempt": 1,
+      "roomSlackCells": 4,
+      "classification": "generation_infeasibility",
+      "stage": "section_routing",
+      "detail": "No catalog-cell route satisfied section section.region_goal.region_hub_central_1.open from 96,111 to 179,93 in bounds -48,-48..258,247.",
+      "roomsPlaced": 9,
+      "sectionsRouted": 5,
+      "routingStates": 128073
+    },
+    {
+      "attempt": 2,
+      "roomSlackCells": 8,
+      "classification": "generation_infeasibility",
+      "stage": "section_routing",
+      "detail": "No catalog-cell route satisfied section section.region_goal.region_junction_merge_1.open from 89,118 to 28,170 in bounds -48,-48..258,247.",
+      "roomsPlaced": 9,
+      "sectionsRouted": 3,
+      "routingStates": 110370
+    },
+    {
+      "attempt": 3,
+      "roomSlackCells": 12,
+      "classification": "generation_infeasibility",
+      "stage": "section_routing",
+      "detail": "No catalog-cell route satisfied section section.region_goal.region_junction_merge_1.open from 93,118 to 28,170 in bounds -48,-48..258,247.",
+      "roomsPlaced": 9,
+      "sectionsRouted": 3,
+      "routingStates": 98737
+    }
+  ],
+  "selectedAttempt": null,
+  "exhaustedClassification": "generation_infeasibility",
+  "geometry": null,
+  "geometryValidation": null,
+  "piecePlan": null,
+  "shapeMatch": null,
+  "placement": null,
+  "placementValidation": null,
+  "builtFlowValidation": null
+}

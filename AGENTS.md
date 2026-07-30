@@ -72,6 +72,11 @@ Strict TypeScript admission is owned by `src/catalog-generation-trace.ts`; the
 observational SVG lifecycle and controls are owned by
 `viewer/generation-trace-viewer.ts`. Neither may acquire search, selection, or
 pathfinding authority.
+Tracked compactness/sprawl characterization is owned by
+`fixtures/generation-control/characterization-v1.json`,
+`scripts/report-generation-control-characterization.mjs`, and
+`docs/generation-control-characterization.md`. It must remain independent of
+the mutable viewer workbench and must not change generation behavior.
 
 `config/viewer-generation.json` may contain intentional local user
 experiments. Preserve unrelated value changes and never stage them as
@@ -140,6 +145,7 @@ pnpm run catalog-aware:coverage
 pnpm run catalog-trace:fixtures:check
 pnpm run catalog-trace:smoke
 pnpm run catalog-trace:viewer:smoke
+pnpm run generation-control:report:check
 ```
 
 The publication, spatial, and CA benchmark adapters are isolated Rust workspaces under

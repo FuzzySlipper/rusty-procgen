@@ -125,6 +125,11 @@ final output hash and prove that a selected attempt's rooms and routed sections
 match the ordinary generator output. Fixture regeneration never reads
 `config/viewer-generation.json`.
 
+The browser outcome selector also includes two tracked characterization pairs:
+the rejected tight-spacing `5201` run and the accepted compact `5801` run.
+Their owner, reproducibility contract, and stage metrics are documented in
+[Generation Control Characterization](generation-control-characterization.md).
+
 ## Browser playback
 
 The viewer's `Generation Trace` tab consumes the checked result/trace pairs

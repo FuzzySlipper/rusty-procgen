@@ -54,13 +54,23 @@ try {
     .then((response) => response.json());
   const accepted = fixtureBundle.runs.find((run) => run.id === 'accepted-default');
   const exhausted = fixtureBundle.runs.find((run) => run.id === 'exhausted-route-budget');
+  const controlRejected = fixtureBundle.runs.find(
+    (run) => run.id === 'control-tight-5201-rejected',
+  );
+  const controlCompact = fixtureBundle.runs.find(
+    (run) => run.id === 'control-tight-5801-accepted',
+  );
   if (
     accepted?.result?.ok !== true
     || accepted.trace?.events?.length !== 51
     || exhausted?.result?.ok !== false
     || exhausted.trace?.events?.length !== 90
+    || controlRejected?.result?.ok !== false
+    || controlRejected.result.candidateId !== 'candidate.first_slice.5201'
+    || controlCompact?.result?.ok !== true
+    || controlCompact.result.candidateId !== 'candidate.first_slice.5801'
   ) {
-    throw new Error('generation trace evidence endpoint did not return both bounded outcomes');
+    throw new Error('generation trace evidence endpoint did not return all bounded outcomes');
   }
   const batch = await fetch(`${baseUrl}/api/batches/v2`).then((response) => response.json());
   const candidateId = batch.accepted?.find(
@@ -75,6 +85,8 @@ try {
     chromium,
     accepted,
     exhausted,
+    controlRejected,
+    controlCompact,
     fixtureBundle,
     candidateId,
   );
@@ -87,7 +99,15 @@ try {
   await rm(configPath, { force: true });
 }
 
-async function exerciseViewer(chromium, accepted, exhausted, fixtureBundle, candidateId) {
+async function exerciseViewer(
+  chromium,
+  accepted,
+  exhausted,
+  controlRejected,
+  controlCompact,
+  fixtureBundle,
+  candidateId,
+) {
   const profileDir = join(outDir, 'chromium-profile');
   await rm(profileDir, { recursive: true, force: true, maxRetries: 5, retryDelay: 100 });
   const cdpPort = port + 1000;
@@ -203,6 +223,63 @@ async function exerciseViewer(chromium, accepted, exhausted, fixtureBundle, cand
       throw new Error(`exhausted final trace state diverged: ${JSON.stringify(exhaustedFinal)}`);
     }
 
+    await select(cdp, '#generation-trace-run', 'control-tight-5201-rejected');
+    await waitForDatasetValue(cdp, 'runId', 'control-tight-5201-rejected');
+    const tightRejected = await dataset(cdp);
+    const tightRejectedAttempts = await evaluateCdp(
+      cdp,
+      `document.querySelector('#generation-trace-attempt')?.options.length`,
+    );
+    if (
+      tightRejected.candidateId !== 'candidate.first_slice.5201'
+      || tightRejected.selection !== 'exhausted'
+      || tightRejectedAttempts !== 4
+      || tightRejected.outputHash !== controlRejected.trace.finalOutputHash
+    ) {
+      throw new Error(`tight 5201 rejection trace diverged: ${JSON.stringify({
+        tightRejected,
+        tightRejectedAttempts,
+      })}`);
+    }
+    const mostAdvancedRejected = controlRejected.result.attempts.reduce(
+      (selected, attempt) =>
+        attempt.sectionsRouted > selected.sectionsRouted ? attempt : selected,
+    );
+    await select(
+      cdp,
+      '#generation-trace-attempt',
+      String(mostAdvancedRejected.attempt),
+    );
+    await waitForDatasetNumber(cdp, 'attempt', mostAdvancedRejected.attempt);
+    await seekToEnd(cdp);
+    const tightRejectedFinal = await dataset(cdp);
+    if (
+      tightRejectedFinal.roomCount !== mostAdvancedRejected.roomsPlaced
+      || tightRejectedFinal.routeCount !== mostAdvancedRejected.sectionsRouted
+      || tightRejectedFinal.eventType !== 'attempt_finished'
+    ) {
+      throw new Error(
+        `tight 5201 failed attempt projection diverged: ${JSON.stringify(tightRejectedFinal)}`,
+      );
+    }
+    await captureScreenshot(cdp, 'generation-trace-tight-rejected.png');
+
+    await select(cdp, '#generation-trace-run', 'control-tight-5801-accepted');
+    await waitForDatasetValue(cdp, 'runId', 'control-tight-5801-accepted');
+    await seekToEnd(cdp);
+    const tightCompact = await dataset(cdp);
+    if (
+      tightCompact.candidateId !== 'candidate.first_slice.5801'
+      || tightCompact.selection !== 'attempt-0'
+      || tightCompact.roomCount !== 4
+      || tightCompact.routeCount !== 4
+      || tightCompact.outputHash !== controlCompact.trace.finalOutputHash
+      || tightCompact.finalMatchesResult !== true
+    ) {
+      throw new Error(`tight 5801 compact trace diverged: ${JSON.stringify(tightCompact)}`);
+    }
+    await captureScreenshot(cdp, 'generation-trace-tight-compact.png');
+
     await evaluateCdp(cdp, `(() => {
       const run = document.querySelector('#generation-trace-run');
       if (!(run instanceof HTMLSelectElement)) return false;
@@ -241,20 +318,7 @@ async function exerciseViewer(chromium, accepted, exhausted, fixtureBundle, cand
       deviceScaleFactor: 1,
       mobile: false,
     });
-    await evaluateCdp(
-      cdp,
-      `document.querySelector('#generation-trace-panel')?.scrollIntoView({ block: 'start' })`,
-    );
-    await delay(100);
-    const screenshot = await cdp.send('Page.captureScreenshot', {
-      format: 'png',
-      fromSurface: true,
-    });
-    const screenshotPath = join(outDir, 'generation-trace-desktop.png');
-    await writeFile(screenshotPath, screenshot.data, 'base64');
-    if ((await stat(screenshotPath)).size < 5_000) {
-      throw new Error('generation trace screenshot is too small to prove visible playback');
-    }
+    await captureScreenshot(cdp, 'generation-trace-desktop.png');
 
     const tampered = structuredClone(fixtureBundle);
     tampered.runs[0].trace.events[1].body.roomSlackCells += 1;
@@ -352,6 +416,13 @@ async function exerciseViewer(chromium, accepted, exhausted, fixtureBundle, cand
         outputHash: exhaustedFinal.outputHash,
         attempts: exhaustedAttemptOptions,
       },
+      characterized: {
+        rejectedCandidate: tightRejected.candidateId,
+        rejectedAttempts: tightRejectedAttempts,
+        compactCandidate: tightCompact.candidateId,
+        compactRooms: tightCompact.roomCount,
+        compactRoutes: tightCompact.routeCount,
+      },
       keyboardStageFrame: stageFrame,
       tamperedTraceRejectedBeforeMount: true,
       liveRebuilds: {
@@ -403,6 +474,23 @@ async function svgReadout(cdp) {
       height: rect.height,
     };
   })()`);
+}
+
+async function captureScreenshot(cdp, fileName) {
+  await evaluateCdp(
+    cdp,
+    `document.querySelector('#generation-trace-panel')?.scrollIntoView({ block: 'start' })`,
+  );
+  await delay(100);
+  const screenshot = await cdp.send('Page.captureScreenshot', {
+    format: 'png',
+    fromSurface: true,
+  });
+  const screenshotPath = join(outDir, fileName);
+  await writeFile(screenshotPath, screenshot.data, 'base64');
+  if ((await stat(screenshotPath)).size < 5_000) {
+    throw new Error(`${fileName} is too small to prove visible playback`);
+  }
 }
 
 async function submitCatalogRebuild(cdp, attempts, routeStates) {

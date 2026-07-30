@@ -31,6 +31,18 @@ const catalogGenerationRuns = [
     result: join(repoRoot, 'fixtures/catalog-generation/candidate-000-exhausted-result.v1.json'),
     trace: join(repoRoot, 'fixtures/catalog-generation/candidate-000-exhausted-trace.v1.json'),
   },
+  {
+    id: 'control-tight-5201-rejected',
+    label: 'Rejected · 5201 · tight initial spacing',
+    result: join(repoRoot, 'fixtures/catalog-generation/control-sprawling-5201-tight-result.v1.json'),
+    trace: join(repoRoot, 'fixtures/catalog-generation/control-sprawling-5201-tight-trace.v1.json'),
+  },
+  {
+    id: 'control-tight-5801-accepted',
+    label: 'Compact · 5801 · tight initial spacing',
+    result: join(repoRoot, 'fixtures/catalog-generation/control-compact-5801-tight-result.v1.json'),
+    trace: join(repoRoot, 'fixtures/catalog-generation/control-compact-5801-tight-trace.v1.json'),
+  },
 ];
 
 const routes = new Map([

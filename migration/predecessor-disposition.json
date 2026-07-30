@@ -142,6 +142,8 @@
     "repository_identity.v1",
     "catalog_generation_trace.v1",
     "catalog_generation_trace_bundle.v1",
+    "generation_control_characterization_suite.v1",
+    "evidence.generation_control_characterization.v1",
     "ca_scenario_suite.v1",
     "ca_delta_fixture_set.v1",
     "evidence.engine_ca_benchmark.v1",
@@ -173,6 +175,11 @@
       "path": "artifacts/evidence/catalog-aware-generation-coverage.json",
       "ownerCommand": "pnpm run catalog-aware:coverage",
       "disposition": "regenerated_with_current_identity"
+    },
+    {
+      "path": "artifacts/evidence/generation-control-characterization.v1.json",
+      "ownerCommand": "pnpm run generation-control:report",
+      "disposition": "checked_no_behavior_change_trace_characterization"
     },
     {
       "path": "artifacts/evidence/engine-authored-publication.json",

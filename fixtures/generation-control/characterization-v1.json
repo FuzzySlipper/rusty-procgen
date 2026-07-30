@@ -1,0 +1,150 @@
+{
+  "kind": "rusty_procgen.generation_control_characterization_suite.v1",
+  "schemaVersion": 1,
+  "sourceSelectionRef": "artifacts/samples/batch-v2/selection-report.json",
+  "sourceBaseConfigRef": "fixtures/policies/catalog-aware-coverage-config.v1.json",
+  "namedRuns": [
+    {
+      "id": "sprawling-default-5201",
+      "label": "Sprawling · 5201 · catalog defaults",
+      "candidateId": "candidate.first_slice.5201",
+      "generateFromConfig": false,
+      "expectedOutcome": "accepted",
+      "overrides": [],
+      "resultRef": "fixtures/catalog-generation/candidate-000-result.v1.json",
+      "traceRef": "fixtures/catalog-generation/candidate-000-trace.v1.json"
+    },
+    {
+      "id": "sprawling-tight-5201",
+      "label": "Rejected · 5201 · tight initial spacing",
+      "candidateId": "candidate.first_slice.5201",
+      "generateFromConfig": true,
+      "expectedOutcome": "rejected",
+      "overrides": [
+        {
+          "path": "geometryLayoutPolicy.initialRoomMargin.value",
+          "value": 32
+        },
+        {
+          "path": "geometryLayoutPolicy.initialColumnGap.value",
+          "value": 32
+        },
+        {
+          "path": "geometryLayoutPolicy.initialRowGap.value",
+          "value": 32
+        }
+      ],
+      "resultRef": "fixtures/catalog-generation/control-sprawling-5201-tight-result.v1.json",
+      "traceRef": "fixtures/catalog-generation/control-sprawling-5201-tight-trace.v1.json"
+    },
+    {
+      "id": "compact-tight-5801",
+      "label": "Compact · 5801 · tight initial spacing",
+      "candidateId": "candidate.first_slice.5801",
+      "generateFromConfig": true,
+      "expectedOutcome": "accepted",
+      "overrides": [
+        {
+          "path": "geometryLayoutPolicy.initialRoomMargin.value",
+          "value": 32
+        },
+        {
+          "path": "geometryLayoutPolicy.initialColumnGap.value",
+          "value": 32
+        },
+        {
+          "path": "geometryLayoutPolicy.initialRowGap.value",
+          "value": 32
+        }
+      ],
+      "resultRef": "fixtures/catalog-generation/control-compact-5801-tight-result.v1.json",
+      "traceRef": "fixtures/catalog-generation/control-compact-5801-tight-trace.v1.json"
+    }
+  ],
+  "influenceMatrix": {
+    "candidateId": "candidate.first_slice.5201",
+    "baselineRunId": "sprawling-default-5201",
+    "probes": [
+      {
+        "path": "geometryLayoutPolicy.initialRoomMargin.value",
+        "value": 88
+      },
+      {
+        "path": "geometryLayoutPolicy.initialColumnGap.value",
+        "value": 136
+      },
+      {
+        "path": "geometryLayoutPolicy.initialRowGap.value",
+        "value": 56
+      },
+      {
+        "path": "geometryLayoutPolicy.roomMarginGrowth.value",
+        "value": 40
+      },
+      {
+        "path": "geometryLayoutPolicy.columnGapGrowth.value",
+        "value": 64
+      },
+      {
+        "path": "geometryLayoutPolicy.rowGapGrowth.value",
+        "value": 32
+      },
+      {
+        "path": "geometryLayoutPolicy.maxSpacingTiers.value",
+        "value": 4
+      },
+      {
+        "path": "geometryLayoutPolicy.roomOrderAttemptsPerTier.value",
+        "value": 3
+      },
+      {
+        "path": "geometryLayoutPolicy.maxSearchAttempts.value",
+        "value": 79
+      },
+      {
+        "path": "placementPolicy.minimumClearanceCells.value",
+        "value": 4
+      },
+      {
+        "path": "placementPolicy.wallThicknessCells.value",
+        "value": 2
+      },
+      {
+        "path": "catalogAwareGenerationPolicy.maxGenerationAttempts.value",
+        "value": 3
+      },
+      {
+        "path": "catalogAwareGenerationPolicy.initialRoomSlackCells.value",
+        "value": 1
+      },
+      {
+        "path": "catalogAwareGenerationPolicy.roomSlackGrowthCells.value",
+        "value": 3
+      },
+      {
+        "path": "catalogAwareGenerationPolicy.maxRoomCandidates.value",
+        "value": 15
+      },
+      {
+        "path": "catalogAwareGenerationPolicy.maxRoutingStatesPerSection.value",
+        "value": 180000
+      },
+      {
+        "path": "catalogAwareGenerationPolicy.routeMarginCells.value",
+        "value": 40
+      },
+      {
+        "path": "catalogAwareGenerationPolicy.guideDistanceWeight.value",
+        "value": 3
+      },
+      {
+        "path": "catalogAwareGenerationPolicy.turnPenalty.value",
+        "value": 2
+      },
+      {
+        "path": "corridorRealization.value",
+        "value": "hybrid"
+      }
+    ]
+  }
+}

@@ -128,6 +128,12 @@ guides, committed routes, effective policy, metrics, and final output identity.
 Catalog-mode configuration rebuilds replace the view with their exact live
 pair; TypeScript never reruns generation or pathfinding.
 
+The checked compact-versus-sprawling corpus and the 20-setting influence matrix
+are documented in
+[`docs/generation-control-characterization.md`](docs/generation-control-characterization.md).
+They distinguish settings that change a decision from values that are merely
+bound or unused by the selected attempt.
+
 ## Rusty Engine generated-content publication
 
 The explicit downstream Rust adapter maps representative Procgen shape matches
