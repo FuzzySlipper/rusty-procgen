@@ -298,14 +298,33 @@ fn validate_distinct_pair_targets(
     first: &PairWriteTarget,
     second: &PairWriteTarget,
 ) -> Result<(), String> {
-    if first.resolved_destination == second.resolved_destination
-        || existing_files_alias(&first.destination, &second.destination)?
-    {
+    if existing_files_alias(&first.destination, &second.destination)? {
         return Err(format!(
             "paired JSON outputs must be distinct: {} and {}",
             first.destination.display(),
             second.destination.display()
         ));
+    }
+    let paths = [
+        ("first output", &first.resolved_destination),
+        ("first stage", &first.stage_path),
+        ("first backup", &first.backup_path),
+        ("second output", &second.resolved_destination),
+        ("second stage", &second.stage_path),
+        ("second backup", &second.backup_path),
+    ];
+    for left in 0..paths.len() {
+        for right in (left + 1)..paths.len() {
+            if paths[left].1 == paths[right].1 {
+                return Err(format!(
+                    "paired JSON output and temporary paths must be pairwise distinct: {} {} conflicts with {} {}",
+                    paths[left].0,
+                    paths[left].1.display(),
+                    paths[right].0,
+                    paths[right].1.display()
+                ));
+            }
+        }
     }
     Ok(())
 }
@@ -504,10 +523,14 @@ pub(crate) fn display_path(path: &Path) -> String {
 #[cfg(test)]
 mod pair_write_tests {
     use super::*;
+    use std::sync::Mutex;
     use std::time::{SystemTime, UNIX_EPOCH};
+
+    static PAIR_WRITE_TEST_LOCK: Mutex<()> = Mutex::new(());
 
     #[test]
     fn paired_json_publication_rolls_back_every_stage_and_commit_failure() {
+        let _guard = PAIR_WRITE_TEST_LOCK.lock().expect("lock pair-write tests");
         for fail_at in [
             PairWriteStep::FirstStage,
             PairWriteStep::SecondStage,
@@ -565,6 +588,7 @@ mod pair_write_tests {
 
     #[test]
     fn paired_json_publication_rejects_aliases_before_mutation() {
+        let _guard = PAIR_WRITE_TEST_LOCK.lock().expect("lock pair-write tests");
         let root = unique_test_dir("aliases");
         fs::create_dir_all(&root).expect("create alias fixture");
         let first = root.join("result.json");
@@ -604,6 +628,102 @@ mod pair_write_tests {
             );
         }
         fs::remove_dir_all(root).expect("remove alias fixture");
+    }
+
+    #[test]
+    fn paired_json_publication_keeps_destinations_out_of_temporary_namespace() {
+        let _guard = PAIR_WRITE_TEST_LOCK.lock().expect("lock pair-write tests");
+        for collision in [
+            TemporaryCollision::SecondAtFirstStage,
+            TemporaryCollision::SecondAtFirstBackup,
+            TemporaryCollision::FirstAtSecondStage,
+            TemporaryCollision::FirstAtSecondBackup,
+        ] {
+            let root = unique_test_dir("temporary-namespace");
+            fs::create_dir_all(&root).expect("create temporary namespace fixture");
+            let next_nonce = PAIR_WRITE_NONCE.load(AtomicOrdering::Relaxed);
+            let process = std::process::id();
+            let (first, second, sentinel) = match collision {
+                TemporaryCollision::SecondAtFirstStage => {
+                    let first = root.join("result.json");
+                    let second = root.join(format!(".result.json.{process}-{next_nonce}.stage"));
+                    fs::write(&first, b"original-result\n").expect("write first sentinel");
+                    (first.clone(), second, first)
+                }
+                TemporaryCollision::SecondAtFirstBackup => {
+                    let first = root.join("result.json");
+                    let second = root.join(format!(".result.json.{process}-{next_nonce}.backup"));
+                    fs::write(&first, b"original-result\n").expect("write first sentinel");
+                    (first.clone(), second, first)
+                }
+                TemporaryCollision::FirstAtSecondStage => {
+                    let second = root.join("trace.json");
+                    let first =
+                        root.join(format!(".trace.json.{process}-{}.stage", next_nonce + 1));
+                    fs::write(&second, b"original-trace\n").expect("write second sentinel");
+                    (first, second.clone(), second)
+                }
+                TemporaryCollision::FirstAtSecondBackup => {
+                    let second = root.join("trace.json");
+                    let first =
+                        root.join(format!(".trace.json.{process}-{}.backup", next_nonce + 1));
+                    fs::write(&second, b"original-trace\n").expect("write second sentinel");
+                    (first, second.clone(), second)
+                }
+            };
+
+            let error = write_json_pair_atomic(
+                &first,
+                &json!({"replacement": "result"}),
+                &second,
+                &json!({"replacement": "trace"}),
+            )
+            .expect_err("destination in the pair temporary namespace must reject");
+            assert!(error.contains("must be pairwise distinct"), "{error}");
+            assert_eq!(
+                fs::read(&sentinel).expect("read unchanged sentinel"),
+                if sentinel == first {
+                    b"original-result\n".as_slice()
+                } else {
+                    b"original-trace\n".as_slice()
+                }
+            );
+            assert!(
+                !if sentinel == first {
+                    second.exists()
+                } else {
+                    first.exists()
+                },
+                "colliding destination must not be published"
+            );
+            let names = fs::read_dir(&root)
+                .expect("read temporary namespace fixture")
+                .map(|entry| {
+                    entry
+                        .expect("directory entry")
+                        .file_name()
+                        .to_string_lossy()
+                        .into_owned()
+                })
+                .collect::<BTreeSet<_>>();
+            assert_eq!(
+                names,
+                BTreeSet::from([sentinel
+                    .file_name()
+                    .expect("sentinel file name")
+                    .to_string_lossy()
+                    .into_owned()])
+            );
+            fs::remove_dir_all(root).expect("remove temporary namespace fixture");
+        }
+    }
+
+    #[derive(Clone, Copy)]
+    enum TemporaryCollision {
+        SecondAtFirstStage,
+        SecondAtFirstBackup,
+        FirstAtSecondStage,
+        FirstAtSecondBackup,
     }
 
     fn unique_test_dir(label: &str) -> PathBuf {
