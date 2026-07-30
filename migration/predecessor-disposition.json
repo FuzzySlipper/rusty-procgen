@@ -140,6 +140,7 @@
     "migration.predecessor_disposition.v2",
     "migration.corpus_identity.v1",
     "repository_identity.v1",
+    "catalog_generation_trace.v1",
     "ca_scenario_suite.v1",
     "ca_delta_fixture_set.v1",
     "evidence.engine_ca_benchmark.v1",

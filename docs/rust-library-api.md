@@ -24,6 +24,7 @@ behavior owners:
 | `built_flow.rs` | Item-aware logical-to-physical flow validation |
 | `repair_validation.rs` / `scoring_embedding.rs` | Graph validation, repair, scoring, and inspection layout |
 | `catalog_aware_generation.rs` | Bounded catalog-aware retry composition |
+| `catalog_generation_trace.rs` | Bounded semantic event trace, hash closure, and replay validation |
 | `batch_artifacts.rs` | Corpus orchestration and checked evidence |
 | `cli.rs` / `dispatch.rs` / `io_utils.rs` | CLI parsing, shared file/receipt operations, dispatch, and process behavior |
 
@@ -60,6 +61,13 @@ classification (`catalog_coverage_gap`, `generation_infeasibility`, or
 `search_budget_exhaustion`). The runner does not mutate any caller value and
 does not interpret provenance labels as paths.
 
+`ProcgenCore::realize_catalog_aware_traced` returns that unchanged result beside
+a bounded `rusty_procgen.catalog_generation_trace.v1` sibling artifact.
+`replay_catalog_generation_trace` verifies the exact input/result binding and
+reconstructs the committed room and route states. See
+[`catalog-generation-traces.md`](catalog-generation-traces.md) for event,
+quota, fixture, and nonclaim details.
+
 The CLI uses the same deterministic behavior owners and adds only explicit
 path reads/writes, receipt emission, transcripts, and exit status. A library
 host does not spawn the CLI, depend on Node or a browser, or require Rusty
@@ -69,11 +77,13 @@ Engine or presentation dependencies.
 
 Focused public-consumer coverage lives in
 `procgen-rs/crates/preflight/tests/core_api.rs` and
-`procgen-rs/crates/preflight/tests/catalog_aware_core.rs`. The catalog-aware
-test runs from an empty working directory, proves input non-mutation and
-deterministic repetition, and compares the public result with the actual CLI
-for success and each exhaustion class. Unit tests are grouped by graph,
-intermediate, geometry, planning, matching, placement, built-flow,
+`procgen-rs/crates/preflight/tests/catalog_aware_core.rs`. Trace closure,
+replay, tamper, exact-limit/one-over, and CLI non-publication coverage lives in
+`procgen-rs/crates/preflight/tests/catalog_generation_trace.rs`. The
+catalog-aware core test runs from an empty working directory, proves input
+non-mutation and deterministic repetition, and compares the public result with
+the actual CLI for success and each exhaustion class. Unit tests are grouped
+by graph, intermediate, geometry, planning, matching, placement, built-flow,
 catalog/batch, and scoring owners.
 
 Run:

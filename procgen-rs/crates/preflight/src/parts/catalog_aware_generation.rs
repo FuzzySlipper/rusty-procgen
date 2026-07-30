@@ -145,7 +145,7 @@ pub(crate) fn build_realize_catalog_aware_command(
         catalog_ref: display_path(&args.catalog),
         result_ref: display_path(&args.out),
     };
-    let result = run_catalog_aware_generation(CatalogAwareGenerationInput {
+    let input = CatalogAwareGenerationInput {
         candidate: &candidate,
         source_geometry: &geometry,
         source_plan: &source_plan,
@@ -153,17 +153,88 @@ pub(crate) fn build_realize_catalog_aware_command(
         policy: &policy,
         provenance: &provenance,
         seed: args.seed,
-    })?;
-    write_json(&args.out, &result)
+    };
+    if let Some(trace_out) = args.trace_out.as_deref() {
+        if trace_out == args.out {
+            return Err("--trace-out must differ from --out".to_owned());
+        }
+        let run = run_catalog_aware_generation_traced(
+            input,
+            CatalogGenerationTraceLimits {
+                max_events: args.trace_max_events,
+                max_event_body_bytes: args.trace_max_event_body_bytes,
+                max_visual_cells: args.trace_max_visual_cells,
+            },
+        )
+        .map_err(|error| error.to_string())?;
+        write_json(&args.out, &run.result)?;
+        write_json(trace_out, &run.trace)
+    } else {
+        let result = run_catalog_aware_generation(input)?;
+        write_json(&args.out, &result)
+    }
 }
 
 /// Run bounded catalog-aware generation without filesystem access.
 pub(crate) fn run_catalog_aware_generation(
     input: CatalogAwareGenerationInput<'_>,
 ) -> Result<CatalogAwareGenerationResult, String> {
-    validate_catalog_aware_policy(input.policy)?;
+    let mut recorder = CatalogGenerationTraceRecorder::disabled();
+    run_catalog_aware_generation_recording(input, &mut recorder).map_err(|error| match error {
+        CatalogAwareRunError::Generation(detail) => detail,
+        CatalogAwareRunError::Trace(error) => error.to_string(),
+    })
+}
+
+pub(crate) fn run_catalog_aware_generation_traced(
+    input: CatalogAwareGenerationInput<'_>,
+    limits: CatalogGenerationTraceLimits,
+) -> Result<CatalogAwareGenerationRun, CatalogGenerationTraceError> {
+    let mut recorder = CatalogGenerationTraceRecorder::new(input, limits)?;
+    let result =
+        run_catalog_aware_generation_recording(input, &mut recorder).map_err(
+            |error| match error {
+                CatalogAwareRunError::Generation(detail) => CatalogGenerationTraceError::new(
+                    "catalog_generation_rejected",
+                    detail,
+                    None,
+                    None,
+                ),
+                CatalogAwareRunError::Trace(error) => error,
+            },
+        )?;
+    let trace = recorder.finish(&result)?;
+    replay_catalog_generation_trace(
+        &trace,
+        &result,
+        CatalogGenerationTraceRequest {
+            candidate: input.candidate,
+            source_geometry: input.source_geometry,
+            source_plan: input.source_plan,
+            catalog: input.catalog,
+            generation_policy: input.policy,
+            provenance: input.provenance,
+            seed: input.seed,
+            trace_limits: trace.limits.clone(),
+        },
+    )?;
+    Ok(CatalogAwareGenerationRun { result, trace })
+}
+
+enum CatalogAwareRunError {
+    Generation(String),
+    Trace(CatalogGenerationTraceError),
+}
+
+fn run_catalog_aware_generation_recording(
+    input: CatalogAwareGenerationInput<'_>,
+    recorder: &mut CatalogGenerationTraceRecorder,
+) -> Result<CatalogAwareGenerationResult, CatalogAwareRunError> {
+    validate_catalog_aware_policy(input.policy).map_err(CatalogAwareRunError::Generation)?;
     if input.source_plan.corridor_realization != CorridorRealization::Catalog {
-        return Err("catalog-aware generation requires a catalog piece plan".to_owned());
+        return Err(CatalogAwareRunError::Generation(
+            "catalog-aware generation requires a catalog piece plan".to_owned(),
+        ));
     }
     let mut result = CatalogAwareGenerationResult {
         kind: "rusty_procgen.catalog_aware_generation.v1".to_owned(),
@@ -190,11 +261,23 @@ pub(crate) fn run_catalog_aware_generation(
                 .room_slack_growth_cells
                 .saturating_mul(i32::try_from(attempt).unwrap_or(i32::MAX)),
         );
-        match realize_catalog_aware_attempt(input, attempt, slack) {
+        trace_record_or_error(
+            recorder,
+            Some(attempt),
+            CatalogGenerationTraceEventBody::AttemptStarted {
+                room_slack_cells: slack,
+            },
+        )
+        .map_err(CatalogAwareRunError::Trace)?;
+        let attempt_result = realize_catalog_aware_attempt(input, attempt, slack, recorder);
+        if let Some(error) = recorder.error() {
+            return Err(CatalogAwareRunError::Trace(error));
+        }
+        match attempt_result {
             Ok(outcome) => {
                 result.ok = true;
                 result.selected_attempt = Some(attempt);
-                result.attempts.push(CatalogAwareAttemptEvidence {
+                let evidence = CatalogAwareAttemptEvidence {
                     attempt,
                     room_slack_cells: slack,
                     classification: "success".to_owned(),
@@ -215,7 +298,21 @@ pub(crate) fn run_catalog_aware_generation(
                         .collect::<BTreeSet<_>>()
                         .len(),
                     routing_states: outcome.routing_states,
-                });
+                };
+                trace_record_or_error(
+                    recorder,
+                    Some(attempt),
+                    CatalogGenerationTraceEventBody::AttemptFinished {
+                        classification: evidence.classification.clone(),
+                        stage: evidence.stage.clone(),
+                        detail: evidence.detail.clone(),
+                        rooms_placed: evidence.rooms_placed,
+                        sections_routed: evidence.sections_routed,
+                        routing_states: evidence.routing_states,
+                    },
+                )
+                .map_err(CatalogAwareRunError::Trace)?;
+                result.attempts.push(evidence);
                 result.geometry = Some(outcome.geometry);
                 result.geometry_validation = Some(outcome.geometry_validation);
                 result.piece_plan = Some(outcome.piece_plan);
@@ -227,7 +324,7 @@ pub(crate) fn run_catalog_aware_generation(
             }
             Err(failure) => {
                 final_classification = failure.classification.clone();
-                result.attempts.push(CatalogAwareAttemptEvidence {
+                let evidence = CatalogAwareAttemptEvidence {
                     attempt,
                     room_slack_cells: slack,
                     classification: failure.classification,
@@ -236,7 +333,21 @@ pub(crate) fn run_catalog_aware_generation(
                     rooms_placed: failure.rooms_placed,
                     sections_routed: failure.sections_routed,
                     routing_states: failure.routing_states,
-                });
+                };
+                trace_record_or_error(
+                    recorder,
+                    Some(attempt),
+                    CatalogGenerationTraceEventBody::AttemptFinished {
+                        classification: evidence.classification.clone(),
+                        stage: evidence.stage.clone(),
+                        detail: evidence.detail.clone(),
+                        rooms_placed: evidence.rooms_placed,
+                        sections_routed: evidence.sections_routed,
+                        routing_states: evidence.routing_states,
+                    },
+                )
+                .map_err(CatalogAwareRunError::Trace)?;
+                result.attempts.push(evidence);
             }
         }
     }
@@ -260,6 +371,7 @@ pub(crate) fn realize_catalog_aware_attempt(
     input: CatalogAwareGenerationInput<'_>,
     attempt: u32,
     room_slack_cells: i32,
+    recorder: &mut CatalogGenerationTraceRecorder,
 ) -> Result<CatalogAwareAttemptOutcome, CatalogAwareFailure> {
     let room_requirements = input
         .source_plan
@@ -279,6 +391,30 @@ pub(crate) fn realize_catalog_aware_attempt(
             input.seed,
             input.policy.max_room_candidates,
         );
+        if !recorder.record(
+            Some(attempt),
+            CatalogGenerationTraceEventBody::RoomDomainEvaluated {
+                piece_id: requirement.piece_id.clone(),
+                requirement_kind: requirement.kind.clone(),
+                candidates: candidates
+                    .iter()
+                    .map(|candidate| CatalogGenerationTraceRoomCandidate {
+                        shape_id: candidate.shape_id.clone(),
+                        transform: candidate.transform.clone(),
+                        score: candidate.score,
+                        rank: candidate.candidate_rank,
+                    })
+                    .collect(),
+            },
+        ) {
+            return Err(catalog_generation_failure(
+                "trace_recording",
+                "Trace quota rejected a room-domain event.".to_owned(),
+                rooms.len(),
+                0,
+                0,
+            ));
+        }
         let Some(matched) = candidates
             .get(attempt as usize % candidates.len().max(1))
             .cloned()
@@ -328,10 +464,27 @@ pub(crate) fn realize_catalog_aware_attempt(
         let room_occupied = transform_cells(&shape.footprint, matched.transform.as_str(), &origin);
         let room_reserved =
             transform_cells(&shape.reserved_cells, matched.transform.as_str(), &origin);
-        if room_occupied
+        let conflicting_cells = room_occupied
             .iter()
-            .any(|cell| occupied.contains_key(&(cell.x, cell.y)))
-        {
+            .filter(|cell| occupied.contains_key(&(cell.x, cell.y)))
+            .cloned()
+            .collect::<Vec<_>>();
+        if !conflicting_cells.is_empty() {
+            if !recorder.record(
+                Some(attempt),
+                CatalogGenerationTraceEventBody::RoomConflict {
+                    piece_id: requirement.piece_id.clone(),
+                    conflicting_cells,
+                },
+            ) {
+                return Err(catalog_generation_failure(
+                    "trace_recording",
+                    "Trace quota rejected a room-conflict event.".to_owned(),
+                    rooms.len(),
+                    0,
+                    0,
+                ));
+            }
             return Err(CatalogAwareFailure {
                 classification: "generation_infeasibility".to_owned(),
                 stage: "room_placement".to_owned(),
@@ -349,6 +502,32 @@ pub(crate) fn realize_catalog_aware_attempt(
         }
         for cell in room_reserved {
             reserved.insert((cell.x, cell.y));
+        }
+        if !recorder.record(
+            Some(attempt),
+            CatalogGenerationTraceEventBody::RoomPlaced {
+                placement: CatalogGenerationTraceRoomPlacement {
+                    piece_id: requirement.piece_id.clone(),
+                    requirement_kind: requirement.kind.clone(),
+                    shape_id: matched.shape_id.clone(),
+                    transform: matched.transform.clone(),
+                    origin: origin.clone(),
+                    occupied_cells: room_occupied.clone(),
+                    reserved_cells: transform_cells(
+                        &shape.reserved_cells,
+                        matched.transform.as_str(),
+                        &origin,
+                    ),
+                },
+            },
+        ) {
+            return Err(catalog_generation_failure(
+                "trace_recording",
+                "Trace quota rejected a room-placement event.".to_owned(),
+                rooms.len(),
+                0,
+                0,
+            ));
         }
         rooms.push(CatalogRoomSelection {
             requirement,
@@ -400,6 +579,24 @@ pub(crate) fn realize_catalog_aware_attempt(
         };
         let start = catalog_room_exit_cell(left_room, spec.left.exit_id.as_str())?;
         let goal = catalog_room_exit_cell(right_room, spec.right.exit_id.as_str())?;
+        if !recorder.record(
+            Some(attempt),
+            CatalogGenerationTraceEventBody::SectionRoutingStarted {
+                section_id: spec.section.clone(),
+                start: start.clone(),
+                goal: goal.clone(),
+                guide: spec.guide.clone(),
+                bounds: bounds.clone(),
+            },
+        ) {
+            return Err(catalog_generation_failure(
+                "trace_recording",
+                "Trace quota rejected a section-routing start event.".to_owned(),
+                rooms.len(),
+                routed.len(),
+                total_states,
+            ));
+        }
         let route = route_catalog_section(
             &start,
             &goal,
@@ -418,8 +615,44 @@ pub(crate) fn realize_catalog_aware_attempt(
             CatalogRouteSearch::Found {
                 cells,
                 states_visited,
-            } => (cells, states_visited),
+            } => {
+                if !recorder.record(
+                    Some(attempt),
+                    CatalogGenerationTraceEventBody::SectionRoutingFinished {
+                        section_id: spec.section.clone(),
+                        status: "found".to_owned(),
+                        cells: cells.clone(),
+                        states_visited,
+                    },
+                ) {
+                    return Err(catalog_generation_failure(
+                        "trace_recording",
+                        "Trace quota rejected a successful section-routing event.".to_owned(),
+                        rooms.len(),
+                        routed.len(),
+                        total_states,
+                    ));
+                }
+                (cells, states_visited)
+            }
             CatalogRouteSearch::NoPath { states_visited } => {
+                if !recorder.record(
+                    Some(attempt),
+                    CatalogGenerationTraceEventBody::SectionRoutingFinished {
+                        section_id: spec.section.clone(),
+                        status: "no_path".to_owned(),
+                        cells: Vec::new(),
+                        states_visited,
+                    },
+                ) {
+                    return Err(catalog_generation_failure(
+                        "trace_recording",
+                        "Trace quota rejected a failed section-routing event.".to_owned(),
+                        rooms.len(),
+                        routed.len(),
+                        total_states,
+                    ));
+                }
                 return Err(CatalogAwareFailure {
                     classification: "generation_infeasibility".to_owned(),
                     stage: "section_routing".to_owned(),
@@ -441,6 +674,23 @@ pub(crate) fn realize_catalog_aware_attempt(
                 });
             }
             CatalogRouteSearch::BudgetExhausted { states_visited } => {
+                if !recorder.record(
+                    Some(attempt),
+                    CatalogGenerationTraceEventBody::SectionRoutingFinished {
+                        section_id: spec.section.clone(),
+                        status: "budget_exhausted".to_owned(),
+                        cells: Vec::new(),
+                        states_visited,
+                    },
+                ) {
+                    return Err(catalog_generation_failure(
+                        "trace_recording",
+                        "Trace quota rejected a budget-exhausted routing event.".to_owned(),
+                        rooms.len(),
+                        routed.len(),
+                        total_states,
+                    ));
+                }
                 return Err(CatalogAwareFailure {
                     classification: "search_budget_exhaustion".to_owned(),
                     stage: "section_routing".to_owned(),
@@ -489,6 +739,27 @@ pub(crate) fn realize_catalog_aware_attempt(
         )
     })?;
     let geometry_validation = validate_geometry_2d(&geometry);
+    if !recorder.record(
+        Some(attempt),
+        CatalogGenerationTraceEventBody::ValidationCompleted {
+            stage: "geometry_validation".to_owned(),
+            ok: geometry_validation.ok,
+            subject_hash: geometry_validation.state_hash.clone(),
+            diagnostic_codes: geometry_validation
+                .diagnostics
+                .iter()
+                .map(|diagnostic| diagnostic.code.clone())
+                .collect(),
+        },
+    ) {
+        return Err(catalog_generation_failure(
+            "trace_recording",
+            "Trace quota rejected a geometry-validation event.".to_owned(),
+            rooms.len(),
+            routed.len(),
+            total_states,
+        ));
+    }
     if !geometry_validation.ok {
         return Err(catalog_validation_failure(
             "geometry_validation",
@@ -531,6 +802,27 @@ pub(crate) fn realize_catalog_aware_attempt(
             )
         })?;
     let placement_validation = validate_piece_placement(&placement);
+    if !recorder.record(
+        Some(attempt),
+        CatalogGenerationTraceEventBody::ValidationCompleted {
+            stage: "placement_validation".to_owned(),
+            ok: placement_validation.ok,
+            subject_hash: placement_validation.state_hash.clone(),
+            diagnostic_codes: placement_validation
+                .diagnostics
+                .iter()
+                .map(|diagnostic| diagnostic.code.clone())
+                .collect(),
+        },
+    ) {
+        return Err(catalog_generation_failure(
+            "trace_recording",
+            "Trace quota rejected a placement-validation event.".to_owned(),
+            rooms.len(),
+            routed.len(),
+            total_states,
+        ));
+    }
     if !placement_validation.ok {
         return Err(catalog_validation_failure(
             "placement_validation",
@@ -549,6 +841,32 @@ pub(crate) fn realize_catalog_aware_attempt(
     };
     let built_flow_validation =
         validate_built_flow(input.candidate, &geometry, &plan, &placement, &flow_args);
+    let built_flow_hash = if recorder.is_active() {
+        hash_json(&built_flow_validation).unwrap_or_else(|_| "hash_error".to_owned())
+    } else {
+        String::new()
+    };
+    if !recorder.record(
+        Some(attempt),
+        CatalogGenerationTraceEventBody::ValidationCompleted {
+            stage: "built_flow_validation".to_owned(),
+            ok: built_flow_validation.ok,
+            subject_hash: built_flow_hash,
+            diagnostic_codes: built_flow_validation
+                .diagnostics
+                .iter()
+                .map(|diagnostic| diagnostic.code.clone())
+                .collect(),
+        },
+    ) {
+        return Err(catalog_generation_failure(
+            "trace_recording",
+            "Trace quota rejected a built-flow-validation event.".to_owned(),
+            rooms.len(),
+            routed.len(),
+            total_states,
+        ));
+    }
     if !built_flow_validation.ok {
         return Err(CatalogAwareFailure {
             classification: "generation_infeasibility".to_owned(),

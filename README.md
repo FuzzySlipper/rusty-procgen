@@ -49,6 +49,7 @@ pnpm run engine:spatial:test
 pnpm run voxel:rusty-engine-smoke
 pnpm run viewer:smoke
 pnpm run catalog:coverage
+pnpm run catalog-trace:fixtures:check
 pnpm run ca:fixtures:check
 pnpm run engine:ca:test
 pnpm run engine:ca:benchmark
@@ -109,6 +110,13 @@ typed inputs and inert provenance labels and receive the same attempt evidence
 and accepted artifact chain as the CLI without filesystem access. See
 [`docs/rust-library-api.md`](docs/rust-library-api.md) for the module map,
 public boundary, and focused verification.
+
+The optional traced entry point returns the unchanged result beside a bounded,
+hash-closed semantic decision trace. It records room and route commitments,
+validation outcomes, and selection evidence without retaining pathfinder
+frontier churn. The checked replay contract, CLI `--trace-out` path, quotas, and
+fixture owner are documented in
+[`docs/catalog-generation-traces.md`](docs/catalog-generation-traces.md).
 
 ## Rusty Engine generated-content publication
 

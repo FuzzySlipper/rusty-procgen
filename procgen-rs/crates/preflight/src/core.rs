@@ -12,20 +12,31 @@ pub use crate::catalog_aware_generation::{
     CatalogAwareAttemptEvidence, CatalogAwareGenerationPolicy, CatalogAwareGenerationProvenance,
     CatalogAwareGenerationResult,
 };
+pub use crate::catalog_generation_trace::{
+    replay_catalog_generation_trace, validate_catalog_generation_trace_limits,
+    CatalogAwareGenerationRun, CatalogGenerationReplay, CatalogGenerationReplayAttempt,
+    CatalogGenerationReplayFrame, CatalogGenerationTrace, CatalogGenerationTraceError,
+    CatalogGenerationTraceEvent, CatalogGenerationTraceEventBody,
+    CatalogGenerationTraceInputHashes, CatalogGenerationTraceLimits, CatalogGenerationTraceRequest,
+    CatalogGenerationTraceRoomCandidate, CatalogGenerationTraceRoomPlacement,
+    CatalogGenerationTraceRoute, CatalogGenerationTraceSelection, DEFAULT_CATALOG_TRACE_MAX_EVENTS,
+    DEFAULT_CATALOG_TRACE_MAX_EVENT_BODY_BYTES, DEFAULT_CATALOG_TRACE_MAX_VISUAL_CELLS,
+};
 use crate::{
     analyze_graph, apply_graph_rule, assemble_piece_placement, compatible_rules_report,
     create_initial_candidate, default_geometry_layout_policy, embed_2d,
     emit_geometry_2d_with_policy, emit_piece_build_plan, fork_candidate, hash_json,
     inspect_shape_catalog, intermediate_breakdown, match_shapes, plan_physical_connections,
-    realization_scale_multiplier, repair_report, run_catalog_aware_generation, score_graph,
-    spatial_intent_report, validate_built_flow, validate_geometry_2d,
-    validate_geometry_layout_policy, validate_graph, validate_intermediate_breakdown,
-    validate_piece_placement, BuildAssembleArgs, BuildEmitPiecePlanArgs, BuildMatchShapesArgs,
-    BuildValidateFlowArgs, Candidate, CatalogAwareGenerationInput, CatalogInspectionReport,
-    Diagnostic, Geometry2dArtifact, GeometryEmit2dArgs, GeometryLayoutPolicy, GraphAnalysisReport,
-    IntermediateBreakdown, LayoutArtifact, PhysicalConnectionPlan, PhysicalConnectionPlanArgs,
-    PieceBuildPlan, PiecePlacement, PieceShapeMatchReport, RepairReport, RuleCompatibilityReport,
-    ScoreReport, SeedIntent, Severity, ShapeCatalog, SpatialIntentReport, ValidationReport,
+    realization_scale_multiplier, repair_report, run_catalog_aware_generation,
+    run_catalog_aware_generation_traced, score_graph, spatial_intent_report, validate_built_flow,
+    validate_geometry_2d, validate_geometry_layout_policy, validate_graph,
+    validate_intermediate_breakdown, validate_piece_placement, BuildAssembleArgs,
+    BuildEmitPiecePlanArgs, BuildMatchShapesArgs, BuildValidateFlowArgs, Candidate,
+    CatalogAwareGenerationInput, CatalogInspectionReport, Diagnostic, Geometry2dArtifact,
+    GeometryEmit2dArgs, GeometryLayoutPolicy, GraphAnalysisReport, IntermediateBreakdown,
+    LayoutArtifact, PhysicalConnectionPlan, PhysicalConnectionPlanArgs, PieceBuildPlan,
+    PiecePlacement, PieceShapeMatchReport, RepairReport, RuleCompatibilityReport, ScoreReport,
+    SeedIntent, Severity, ShapeCatalog, SpatialIntentReport, ValidationReport,
 };
 
 pub use crate::{CorridorRealization, GraphRule, GridConnectivity, RepairAction};
@@ -261,6 +272,23 @@ impl ProcgenCore {
             provenance,
             seed,
         })
+    }
+
+    pub fn realize_catalog_aware_traced(
+        request: CatalogGenerationTraceRequest<'_>,
+    ) -> Result<CatalogAwareGenerationRun, CatalogGenerationTraceError> {
+        run_catalog_aware_generation_traced(
+            CatalogAwareGenerationInput {
+                candidate: request.candidate,
+                source_geometry: request.source_geometry,
+                source_plan: request.source_plan,
+                catalog: request.catalog,
+                policy: request.generation_policy,
+                provenance: request.provenance,
+                seed: request.seed,
+            },
+            request.trace_limits,
+        )
     }
 
     pub fn validate_placement(placement: &PiecePlacement) -> ValidationReport {

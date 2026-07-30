@@ -69,6 +69,9 @@ pub(crate) use built_flow::*;
 #[path = "parts/catalog_aware_generation.rs"]
 mod catalog_aware_generation;
 pub(crate) use catalog_aware_generation::*;
+#[path = "parts/catalog_generation_trace.rs"]
+mod catalog_generation_trace;
+pub(crate) use catalog_generation_trace::*;
 #[path = "parts/batch_artifacts.rs"]
 mod batch_artifacts;
 pub(crate) use batch_artifacts::*;

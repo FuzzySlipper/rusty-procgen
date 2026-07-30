@@ -64,6 +64,11 @@ The direct exact-pinned Engine authority composition is isolated in
 `integrations/rusty-engine-ca-benchmark/` and documented in
 [`docs/rusty-engine-ca-benchmark.md`](docs/rusty-engine-ca-benchmark.md).
 
+Catalog-aware semantic tracing and replay are owned by
+`procgen-rs/crates/preflight/src/parts/catalog_generation_trace.rs` and
+documented in
+[`docs/catalog-generation-traces.md`](docs/catalog-generation-traces.md).
+
 `config/viewer-generation.json` may contain intentional local user
 experiments. Preserve unrelated value changes and never stage them as
 collateral.
@@ -128,6 +133,7 @@ pnpm run policy:smoke
 pnpm run viewer:smoke
 pnpm run catalog:coverage
 pnpm run catalog-aware:coverage
+pnpm run catalog-trace:fixtures:check
 ```
 
 The publication, spatial, and CA benchmark adapters are isolated Rust workspaces under

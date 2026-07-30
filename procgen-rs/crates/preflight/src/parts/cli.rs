@@ -329,6 +329,20 @@ pub(crate) struct BuildRealizeCatalogAwareArgs {
     pub(crate) seed: u64,
     #[arg(long)]
     pub(crate) out: PathBuf,
+    #[arg(long = "trace-out")]
+    pub(crate) trace_out: Option<PathBuf>,
+    #[arg(long = "trace-max-events", default_value_t = DEFAULT_CATALOG_TRACE_MAX_EVENTS)]
+    pub(crate) trace_max_events: u32,
+    #[arg(
+        long = "trace-max-event-body-bytes",
+        default_value_t = DEFAULT_CATALOG_TRACE_MAX_EVENT_BODY_BYTES
+    )]
+    pub(crate) trace_max_event_body_bytes: u64,
+    #[arg(
+        long = "trace-max-visual-cells",
+        default_value_t = DEFAULT_CATALOG_TRACE_MAX_VISUAL_CELLS
+    )]
+    pub(crate) trace_max_visual_cells: u64,
 }
 
 #[derive(Args)]
