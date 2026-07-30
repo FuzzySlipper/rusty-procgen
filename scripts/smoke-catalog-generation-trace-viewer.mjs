@@ -345,7 +345,13 @@ async function exerciseViewer(
       mobile: true,
     });
     const mobile = await svgReadout(cdp);
-    if (mobile.width <= 0 || mobile.width > 390 || mobile.height < 300) {
+    if (
+      mobile.width <= 0
+      || mobile.height < 300
+      || mobile.documentWidth > mobile.viewportWidth
+      || mobile.left < 0
+      || mobile.right > mobile.viewportWidth
+    ) {
       throw new Error(`generation trace mobile layout overflowed: ${JSON.stringify(mobile)}`);
     }
     await cdp.send('Emulation.setDeviceMetricsOverride', {
@@ -512,6 +518,10 @@ async function svgReadout(cdp) {
       viewBox: svg.getAttribute('viewBox') ?? '',
       width: rect.width,
       height: rect.height,
+      left: rect.left,
+      right: rect.right,
+      viewportWidth: document.documentElement.clientWidth,
+      documentWidth: document.documentElement.scrollWidth,
     };
   })()`);
 }
