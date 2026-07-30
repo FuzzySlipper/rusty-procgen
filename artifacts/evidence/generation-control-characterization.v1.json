@@ -3,13 +3,13 @@
   "schemaVersion": 1,
   "sourceSuiteRef": "fixtures/generation-control/characterization-v1.json",
   "sourceSelectionRef": "artifacts/samples/batch-v2/selection-report.json",
-  "sourceBaseConfigRef": "fixtures/policies/catalog-aware-coverage-config.v1.json",
+  "sourceBaseConfigRef": "fixtures/policies/viewer-generation-default.v2.json",
   "sourceHashes": {
-    "suite": "sha256:304b9a53bd12e468e59c1082af09656cb3e7e81e086bf7a0ad7ed4adfae72088",
+    "suite": "sha256:4a2c0de95c0c73da7ee046273be8e58f71798d38be3cb99412fcd78a32137a14",
     "selection": "sha256:123671bd6dec76805b025ff8fb724fc0ed211a3a45d5a47de9231e61e9ceea2e",
-    "baseConfig": "sha256:2624c8c60a5653fea8325f1088aabc2fe90e788ec82a5035c1aa5c6bdab18e66"
+    "baseConfig": "sha256:e99578e2b52adf5eca17386312c0787ce901ae38d04c337547b3a3cbe3c501ad"
   },
-  "behaviorChanges": false,
+  "behaviorChanges": true,
   "namedRuns": [
     {
       "id": "sprawling-default-5201",
@@ -18,35 +18,35 @@
       "fixtureRole": "existing_checked_cli_fixture",
       "resultRef": "fixtures/catalog-generation/candidate-000-result.v1.json",
       "traceRef": "fixtures/catalog-generation/candidate-000-trace.v1.json",
-      "outputHash": "fnv1a64:7e509dc2d91d9cde",
-      "traceRootHash": "fnv1a64:679cbe1b8e7d8d7e",
-      "selectedAttempt": 0,
+      "outputHash": "fnv1a64:efee6a78c698eb86",
+      "traceRootHash": "fnv1a64:e63cade88c590d61",
+      "selectedAttempt": 1,
       "outcome": "accepted",
       "classification": "success",
       "metrics": {
-        "geometryWidth": 1672,
-        "geometryHeight": 1112,
-        "geometrySpan": 2784,
-        "roomEnvelopeWidth": 1424,
-        "roomEnvelopeHeight": 888,
-        "roomEnvelopeArea": 1264512,
+        "geometryWidth": 1664,
+        "geometryHeight": 1104,
+        "geometrySpan": 2768,
+        "roomEnvelopeWidth": 1408,
+        "roomEnvelopeHeight": 872,
+        "roomEnvelopeArea": 1227776,
         "placementSpan": {
-          "width": 178,
-          "height": 111,
-          "total": 289
+          "width": 176,
+          "height": 110,
+          "total": 286
         },
-        "placementArea": 19758,
-        "occupiedCells": 1595,
-        "occupiedFillBasisPoints": 807,
-        "corridorCenterline": 7528,
+        "placementArea": 19360,
+        "occupiedCells": 1575,
+        "occupiedFillBasisPoints": 813,
+        "corridorCenterline": 7368,
         "routedShellCells": 0,
-        "routedCatalogCells": 941,
-        "routeBends": 82,
-        "routingStates": 42442,
+        "routedCatalogCells": 921,
+        "routeBends": 72,
+        "routingStates": 37483,
         "roomsPlaced": 9,
         "sectionsRouted": 13,
-        "attemptCount": 1,
-        "selectedAttempt": 0,
+        "attemptCount": 2,
+        "selectedAttempt": 1,
         "layoutSpacingTier": 0,
         "layoutEmbeddingId": "rotation.v1.fnv1a64:2d6154821dcc2528",
         "validLayoutCandidates": 1
@@ -60,8 +60,8 @@
       "fixtureRole": "checked_live_config_fixture",
       "resultRef": "fixtures/catalog-generation/control-sprawling-5201-tight-result.v1.json",
       "traceRef": "fixtures/catalog-generation/control-sprawling-5201-tight-trace.v1.json",
-      "outputHash": "fnv1a64:463aeda9a65835da",
-      "traceRootHash": "fnv1a64:d475e8c6ef192f07",
+      "outputHash": "fnv1a64:c53d26a5e115bf65",
+      "traceRootHash": "fnv1a64:cff14ae02e507c88",
       "selectedAttempt": null,
       "outcome": "rejected",
       "classification": "generation_infeasibility",
@@ -73,7 +73,7 @@
         ],
         "maximumRoomsPlaced": 9,
         "maximumSectionsRouted": 5,
-        "totalRoutingStates": 469590
+        "totalRoutingStates": 506551
       }
     },
     {
@@ -83,8 +83,8 @@
       "fixtureRole": "checked_live_config_fixture",
       "resultRef": "fixtures/catalog-generation/control-compact-5801-tight-result.v1.json",
       "traceRef": "fixtures/catalog-generation/control-compact-5801-tight-trace.v1.json",
-      "outputHash": "fnv1a64:de4c0cfe2edaba01",
-      "traceRootHash": "fnv1a64:2fa67bcf49121eb3",
+      "outputHash": "fnv1a64:6ec9027b26eeedf1",
+      "traceRootHash": "fnv1a64:4a8a5ffa3b1e9dd4",
       "selectedAttempt": 0,
       "outcome": "accepted",
       "classification": "success",
@@ -125,40 +125,40 @@
     "baseline": {
       "status": "accepted",
       "classification": "catalog_aware_exact_assembly",
-      "outputHash": "fnv1a64:ba1fc7631db2caa3",
-      "traceRootHash": "fnv1a64:8fb3b7fd23bd5819",
+      "outputHash": "fnv1a64:78bff90ea3d0ba49",
+      "traceRootHash": "fnv1a64:679a6f5338710b7a",
       "metrics": {
-        "geometryWidth": 1672,
-        "geometryHeight": 1112,
-        "geometrySpan": 2784,
-        "roomEnvelopeWidth": 1424,
-        "roomEnvelopeHeight": 888,
-        "roomEnvelopeArea": 1264512,
+        "geometryWidth": 1664,
+        "geometryHeight": 1104,
+        "geometrySpan": 2768,
+        "roomEnvelopeWidth": 1408,
+        "roomEnvelopeHeight": 872,
+        "roomEnvelopeArea": 1227776,
         "placementSpan": {
-          "width": 178,
-          "height": 111,
-          "total": 289
+          "width": 176,
+          "height": 110,
+          "total": 286
         },
-        "placementArea": 19758,
-        "occupiedCells": 1595,
-        "occupiedFillBasisPoints": 807,
-        "corridorCenterline": 7528,
+        "placementArea": 19360,
+        "occupiedCells": 1575,
+        "occupiedFillBasisPoints": 813,
+        "corridorCenterline": 7368,
         "routedShellCells": 0,
-        "routedCatalogCells": 941,
-        "routeBends": 82,
-        "routingStates": 42442,
+        "routedCatalogCells": 921,
+        "routeBends": 72,
+        "routingStates": 37483,
         "roomsPlaced": 9,
         "sectionsRouted": 13,
-        "attemptCount": 1,
-        "selectedAttempt": 0,
+        "attemptCount": 2,
+        "selectedAttempt": 1,
         "layoutSpacingTier": 0,
         "layoutEmbeddingId": "rotation.v1.fnv1a64:2d6154821dcc2528",
         "validLayoutCandidates": 1
       },
       "stageHashes": {
-        "geometry": "sha256:e1fe8ba01d30ddbd325368d176f9afb946c780e1533932c07c213921c5b1e7d9",
-        "roomPlacement": "sha256:d07b51cc0e06f152c736373354545e6bf3b7097d07377e82325bb1ae37c91a11",
-        "routing": "sha256:f6dfabbdc58bd391abe8716c4390f259873997e52ec00ce2925d31d8d1fc4ea3",
+        "geometry": "sha256:5986030e448027c230ec0e6af64bbe654acb84baccb280621a877788592b4194",
+        "roomPlacement": "sha256:cce8a7b1b41d1b9e9442e88d6e7d16069edd159e22997cc7294f83a2ca5826e8",
+        "routing": "sha256:7f52b5654dae4633e2ed8f909a6606ffe2b0e7057648244a0a71ea4042f48cff",
         "validation": "sha256:1ce4876d9aa5c5698d8f327be2bf47382eab3b68471fb00939a3608ed2949f49"
       }
     },
@@ -194,8 +194,8 @@
             "corridorCenterline": -64,
             "routedShellCells": 0,
             "routedCatalogCells": -8,
-            "routeBends": -8,
-            "routingStates": -1198,
+            "routeBends": 4,
+            "routingStates": -1108,
             "roomsPlaced": 0,
             "sectionsRouted": 0,
             "attemptCount": 0,
@@ -204,8 +204,8 @@
             "placementHeight": 0,
             "placementSpan": 0
           },
-          "outputHash": "fnv1a64:94e63791b7bc2333",
-          "traceRootHash": "fnv1a64:498d9e886a98f019"
+          "outputHash": "fnv1a64:1c3fde301588cc25",
+          "traceRootHash": "fnv1a64:bddb8dc95ab58056"
         }
       },
       {
@@ -241,8 +241,8 @@
             "placementHeight": 0,
             "placementSpan": 0
           },
-          "outputHash": "fnv1a64:5d70a78c59f59d5c",
-          "traceRootHash": "fnv1a64:f892f7ad92366d45"
+          "outputHash": "fnv1a64:b5528158bf3216fa",
+          "traceRootHash": "fnv1a64:740ebe47bd0c18ee"
         }
       },
       {
@@ -278,8 +278,8 @@
             "placementHeight": 0,
             "placementSpan": 0
           },
-          "outputHash": "fnv1a64:6670de4f376c41f8",
-          "traceRootHash": "fnv1a64:0137eef406885cff"
+          "outputHash": "fnv1a64:68c8c05cc24f19b0",
+          "traceRootHash": "fnv1a64:f136b11f10b6cc50"
         }
       },
       {
@@ -315,8 +315,8 @@
             "placementHeight": 0,
             "placementSpan": 0
           },
-          "outputHash": "fnv1a64:59b5bff9363dec2b",
-          "traceRootHash": "fnv1a64:ac0432fc1801ec3f"
+          "outputHash": "fnv1a64:02dab70267eed3eb",
+          "traceRootHash": "fnv1a64:938e1de7c67e2240"
         }
       },
       {
@@ -352,8 +352,8 @@
             "placementHeight": 0,
             "placementSpan": 0
           },
-          "outputHash": "fnv1a64:b19523e898c82c74",
-          "traceRootHash": "fnv1a64:9d42618be808c3da"
+          "outputHash": "fnv1a64:17538a8ee7b63087",
+          "traceRootHash": "fnv1a64:8215d02743d7ff6d"
         }
       },
       {
@@ -389,8 +389,8 @@
             "placementHeight": 0,
             "placementSpan": 0
           },
-          "outputHash": "fnv1a64:344bdaa04345b6ee",
-          "traceRootHash": "fnv1a64:604af30f9354855a"
+          "outputHash": "fnv1a64:d65e8bdff860c4b8",
+          "traceRootHash": "fnv1a64:b046b2ecf7b2e5b9"
         }
       },
       {
@@ -474,8 +474,8 @@
             "placementHeight": 0,
             "placementSpan": 0
           },
-          "outputHash": "fnv1a64:6116813f6b459834",
-          "traceRootHash": "fnv1a64:611dd936619f32d5"
+          "outputHash": "fnv1a64:ff3f171a1a085b56",
+          "traceRootHash": "fnv1a64:fdc700ae17b4b736"
         }
       },
       {
@@ -498,8 +498,8 @@
             "probeType": "section_routing_finished"
           },
           "metricDeltas": null,
-          "outputHash": "fnv1a64:2c9b27af9af78782",
-          "traceRootHash": "fnv1a64:50654e160d474d4d"
+          "outputHash": "fnv1a64:873406fb7e0011fa",
+          "traceRootHash": "fnv1a64:c2001d8147ff0112"
         }
       },
       {
@@ -559,19 +559,21 @@
             "placementHeight": 0,
             "placementSpan": 0
           },
-          "outputHash": "fnv1a64:a9f0ecf186cc8c28",
-          "traceRootHash": "fnv1a64:a4f923ea8b0a5999"
+          "outputHash": "fnv1a64:009955d32be9b414",
+          "traceRootHash": "fnv1a64:82e09c29b34020f6"
         }
       },
       {
-        "settingPath": "catalogAwareGenerationPolicy.initialRoomSlackCells.value",
+        "settingPath": "catalogAwareGenerationPolicy.initialRoomCompactionCells.value",
         "baselineValue": 0,
         "probeValue": 1,
         "owningStage": "catalog_room_and_route_search",
         "observed": {
           "effect": "decision_changed",
           "classification": "catalog_aware_exact_assembly",
-          "changedStages": [],
+          "changedStages": [
+            "routing"
+          ],
           "firstChangedEvent": {
             "index": 1,
             "baselineType": "attempt_started",
@@ -594,51 +596,59 @@
             "routingStates": 0,
             "roomsPlaced": 0,
             "sectionsRouted": 0,
-            "attemptCount": 0,
+            "attemptCount": -1,
             "validLayoutCandidates": 0,
             "placementWidth": 0,
             "placementHeight": 0,
             "placementSpan": 0
           },
-          "outputHash": "fnv1a64:d7b3e183a99d12bd",
-          "traceRootHash": "fnv1a64:5b781549dabce854"
+          "outputHash": "fnv1a64:a11474d6c8db1344",
+          "traceRootHash": "fnv1a64:2fcbe3059d528570"
         }
       },
       {
-        "settingPath": "catalogAwareGenerationPolicy.roomSlackGrowthCells.value",
-        "baselineValue": 4,
-        "probeValue": 3,
+        "settingPath": "catalogAwareGenerationPolicy.roomCompactionGrowthCells.value",
+        "baselineValue": 1,
+        "probeValue": 2,
         "owningStage": "catalog_room_and_route_search",
         "observed": {
-          "effect": "no_observed_semantic_effect",
+          "effect": "decision_changed",
           "classification": "catalog_aware_exact_assembly",
-          "changedStages": [],
-          "firstChangedEvent": null,
+          "changedStages": [
+            "geometry",
+            "roomPlacement",
+            "routing"
+          ],
+          "firstChangedEvent": {
+            "index": 51,
+            "baselineType": "attempt_started",
+            "probeType": "attempt_started"
+          },
           "metricDeltas": {
-            "geometryWidth": 0,
+            "geometryWidth": -8,
             "geometryHeight": 0,
-            "geometrySpan": 0,
-            "roomEnvelopeWidth": 0,
-            "roomEnvelopeHeight": 0,
-            "roomEnvelopeArea": 0,
-            "placementArea": 0,
-            "occupiedCells": 0,
-            "occupiedFillBasisPoints": 0,
-            "corridorCenterline": 0,
+            "geometrySpan": -8,
+            "roomEnvelopeWidth": -16,
+            "roomEnvelopeHeight": -16,
+            "roomEnvelopeArea": -36224,
+            "placementArea": -220,
+            "occupiedCells": -10,
+            "occupiedFillBasisPoints": 4,
+            "corridorCenterline": -80,
             "routedShellCells": 0,
-            "routedCatalogCells": 0,
-            "routeBends": 0,
-            "routingStates": 0,
+            "routedCatalogCells": -10,
+            "routeBends": -1,
+            "routingStates": -3082,
             "roomsPlaced": 0,
             "sectionsRouted": 0,
             "attemptCount": 0,
             "validLayoutCandidates": 0,
-            "placementWidth": 0,
+            "placementWidth": -2,
             "placementHeight": 0,
-            "placementSpan": 0
+            "placementSpan": -2
           },
-          "outputHash": "fnv1a64:f508fe1f6051b4a6",
-          "traceRootHash": "fnv1a64:b23db5c60e13e45d"
+          "outputHash": "fnv1a64:8c13b270fc18e5d7",
+          "traceRootHash": "fnv1a64:c5dd66ce417883ae"
         }
       },
       {
@@ -678,8 +688,8 @@
             "placementHeight": 0,
             "placementSpan": 0
           },
-          "outputHash": "fnv1a64:5105049f729385d4",
-          "traceRootHash": "fnv1a64:2505e56459574ebd"
+          "outputHash": "fnv1a64:bed3b26c2fc64894",
+          "traceRootHash": "fnv1a64:c8ebeceacca25c6c"
         }
       },
       {
@@ -715,8 +725,8 @@
             "placementHeight": 0,
             "placementSpan": 0
           },
-          "outputHash": "fnv1a64:cd8b5120242ddf32",
-          "traceRootHash": "fnv1a64:4e6b8265a5f8e683"
+          "outputHash": "fnv1a64:a79961163c8f45e2",
+          "traceRootHash": "fnv1a64:4b626ec5d7ed307d"
         }
       },
       {
@@ -758,8 +768,8 @@
             "placementHeight": 0,
             "placementSpan": 0
           },
-          "outputHash": "fnv1a64:0520f6a6cb28020b",
-          "traceRootHash": "fnv1a64:a0aa833efbada01b"
+          "outputHash": "fnv1a64:4f90fc8f5c9124e1",
+          "traceRootHash": "fnv1a64:c6e4d896e2f2fd88"
         }
       },
       {
@@ -792,7 +802,7 @@
             "routedShellCells": 0,
             "routedCatalogCells": 0,
             "routeBends": 0,
-            "routingStates": -181,
+            "routingStates": -245,
             "roomsPlaced": 0,
             "sectionsRouted": 0,
             "attemptCount": 0,
@@ -801,8 +811,8 @@
             "placementHeight": 0,
             "placementSpan": 0
           },
-          "outputHash": "fnv1a64:5053ee018f1bf93d",
-          "traceRootHash": "fnv1a64:c02839770ecf0ca6"
+          "outputHash": "fnv1a64:29dc1b1937f77cb8",
+          "traceRootHash": "fnv1a64:c5e83eec6fa553f2"
         }
       },
       {
@@ -835,7 +845,7 @@
             "routedShellCells": 0,
             "routedCatalogCells": 0,
             "routeBends": 0,
-            "routingStates": -250,
+            "routingStates": -148,
             "roomsPlaced": 0,
             "sectionsRouted": 0,
             "attemptCount": 0,
@@ -844,8 +854,262 @@
             "placementHeight": 0,
             "placementSpan": 0
           },
-          "outputHash": "fnv1a64:5135d6495a991340",
-          "traceRootHash": "fnv1a64:74c9e6437ccbd6a4"
+          "outputHash": "fnv1a64:2796e3ca15f13776",
+          "traceRootHash": "fnv1a64:21c37d1241592344"
+        }
+      },
+      {
+        "settingPath": "catalogAwareGenerationPolicy.maxPlacementWidthCells.value",
+        "baselineValue": 4096,
+        "probeValue": 176,
+        "owningStage": "catalog_room_and_route_search",
+        "observed": {
+          "effect": "decision_changed",
+          "classification": "catalog_aware_exact_assembly",
+          "changedStages": [],
+          "firstChangedEvent": {
+            "index": 49,
+            "baselineType": "outcome_evaluated",
+            "probeType": "outcome_evaluated"
+          },
+          "metricDeltas": {
+            "geometryWidth": 0,
+            "geometryHeight": 0,
+            "geometrySpan": 0,
+            "roomEnvelopeWidth": 0,
+            "roomEnvelopeHeight": 0,
+            "roomEnvelopeArea": 0,
+            "placementArea": 0,
+            "occupiedCells": 0,
+            "occupiedFillBasisPoints": 0,
+            "corridorCenterline": 0,
+            "routedShellCells": 0,
+            "routedCatalogCells": 0,
+            "routeBends": 0,
+            "routingStates": 0,
+            "roomsPlaced": 0,
+            "sectionsRouted": 0,
+            "attemptCount": 0,
+            "validLayoutCandidates": 0,
+            "placementWidth": 0,
+            "placementHeight": 0,
+            "placementSpan": 0
+          },
+          "outputHash": "fnv1a64:7d2cba352b4d3fac",
+          "traceRootHash": "fnv1a64:e943cd933477e5f0"
+        }
+      },
+      {
+        "settingPath": "catalogAwareGenerationPolicy.maxPlacementHeightCells.value",
+        "baselineValue": 4096,
+        "probeValue": 110,
+        "owningStage": "catalog_room_and_route_search",
+        "observed": {
+          "effect": "decision_changed",
+          "classification": "catalog_aware_exact_assembly",
+          "changedStages": [],
+          "firstChangedEvent": {
+            "index": 49,
+            "baselineType": "outcome_evaluated",
+            "probeType": "outcome_evaluated"
+          },
+          "metricDeltas": {
+            "geometryWidth": 0,
+            "geometryHeight": 0,
+            "geometrySpan": 0,
+            "roomEnvelopeWidth": 0,
+            "roomEnvelopeHeight": 0,
+            "roomEnvelopeArea": 0,
+            "placementArea": 0,
+            "occupiedCells": 0,
+            "occupiedFillBasisPoints": 0,
+            "corridorCenterline": 0,
+            "routedShellCells": 0,
+            "routedCatalogCells": 0,
+            "routeBends": 0,
+            "routingStates": 0,
+            "roomsPlaced": 0,
+            "sectionsRouted": 0,
+            "attemptCount": 0,
+            "validLayoutCandidates": 0,
+            "placementWidth": 0,
+            "placementHeight": 0,
+            "placementSpan": 0
+          },
+          "outputHash": "fnv1a64:adcfb3a653d3f621",
+          "traceRootHash": "fnv1a64:b140d9f649a59f58"
+        }
+      },
+      {
+        "settingPath": "catalogAwareGenerationPolicy.maxPlacementAreaCells.value",
+        "baselineValue": 16777216,
+        "probeValue": 19360,
+        "owningStage": "catalog_room_and_route_search",
+        "observed": {
+          "effect": "decision_changed",
+          "classification": "catalog_aware_exact_assembly",
+          "changedStages": [],
+          "firstChangedEvent": {
+            "index": 49,
+            "baselineType": "outcome_evaluated",
+            "probeType": "outcome_evaluated"
+          },
+          "metricDeltas": {
+            "geometryWidth": 0,
+            "geometryHeight": 0,
+            "geometrySpan": 0,
+            "roomEnvelopeWidth": 0,
+            "roomEnvelopeHeight": 0,
+            "roomEnvelopeArea": 0,
+            "placementArea": 0,
+            "occupiedCells": 0,
+            "occupiedFillBasisPoints": 0,
+            "corridorCenterline": 0,
+            "routedShellCells": 0,
+            "routedCatalogCells": 0,
+            "routeBends": 0,
+            "routingStates": 0,
+            "roomsPlaced": 0,
+            "sectionsRouted": 0,
+            "attemptCount": 0,
+            "validLayoutCandidates": 0,
+            "placementWidth": 0,
+            "placementHeight": 0,
+            "placementSpan": 0
+          },
+          "outputHash": "fnv1a64:9373b6edd8fca5a0",
+          "traceRootHash": "fnv1a64:4d36c8392d33f07b"
+        }
+      },
+      {
+        "settingPath": "catalogAwareGenerationPolicy.maxRoutedCatalogCells.value",
+        "baselineValue": 1048576,
+        "probeValue": 921,
+        "owningStage": "catalog_room_and_route_search",
+        "observed": {
+          "effect": "decision_changed",
+          "classification": "catalog_aware_exact_assembly",
+          "changedStages": [],
+          "firstChangedEvent": {
+            "index": 49,
+            "baselineType": "outcome_evaluated",
+            "probeType": "outcome_evaluated"
+          },
+          "metricDeltas": {
+            "geometryWidth": 0,
+            "geometryHeight": 0,
+            "geometrySpan": 0,
+            "roomEnvelopeWidth": 0,
+            "roomEnvelopeHeight": 0,
+            "roomEnvelopeArea": 0,
+            "placementArea": 0,
+            "occupiedCells": 0,
+            "occupiedFillBasisPoints": 0,
+            "corridorCenterline": 0,
+            "routedShellCells": 0,
+            "routedCatalogCells": 0,
+            "routeBends": 0,
+            "routingStates": 0,
+            "roomsPlaced": 0,
+            "sectionsRouted": 0,
+            "attemptCount": 0,
+            "validLayoutCandidates": 0,
+            "placementWidth": 0,
+            "placementHeight": 0,
+            "placementSpan": 0
+          },
+          "outputHash": "fnv1a64:11da30778997f79e",
+          "traceRootHash": "fnv1a64:445eff5bb40519cf"
+        }
+      },
+      {
+        "settingPath": "catalogAwareGenerationPolicy.primaryMetric.value",
+        "baselineValue": "placement_span",
+        "probeValue": "placement_area",
+        "owningStage": "catalog_room_and_route_search",
+        "observed": {
+          "effect": "decision_changed",
+          "classification": "catalog_aware_exact_assembly",
+          "changedStages": [
+            "geometry",
+            "roomPlacement",
+            "routing"
+          ],
+          "firstChangedEvent": {
+            "index": 49,
+            "baselineType": "outcome_evaluated",
+            "probeType": "outcome_evaluated"
+          },
+          "metricDeltas": {
+            "geometryWidth": -8,
+            "geometryHeight": 0,
+            "geometrySpan": -8,
+            "roomEnvelopeWidth": -16,
+            "roomEnvelopeHeight": -16,
+            "roomEnvelopeArea": -36224,
+            "placementArea": -220,
+            "occupiedCells": -10,
+            "occupiedFillBasisPoints": 4,
+            "corridorCenterline": -80,
+            "routedShellCells": 0,
+            "routedCatalogCells": -10,
+            "routeBends": -1,
+            "routingStates": -3082,
+            "roomsPlaced": 0,
+            "sectionsRouted": 0,
+            "attemptCount": 2,
+            "validLayoutCandidates": 0,
+            "placementWidth": -2,
+            "placementHeight": 0,
+            "placementSpan": -2
+          },
+          "outputHash": "fnv1a64:63f0f48f28922e1d",
+          "traceRootHash": "fnv1a64:47f5462209a3d76f"
+        }
+      },
+      {
+        "settingPath": "catalogAwareGenerationPolicy.preferredMaximum.value",
+        "baselineValue": 286,
+        "probeValue": 285,
+        "owningStage": "catalog_room_and_route_search",
+        "observed": {
+          "effect": "decision_changed",
+          "classification": "catalog_aware_exact_assembly",
+          "changedStages": [
+            "geometry",
+            "roomPlacement",
+            "routing"
+          ],
+          "firstChangedEvent": {
+            "index": 99,
+            "baselineType": "outcome_evaluated",
+            "probeType": "outcome_evaluated"
+          },
+          "metricDeltas": {
+            "geometryWidth": -8,
+            "geometryHeight": 0,
+            "geometrySpan": -8,
+            "roomEnvelopeWidth": -16,
+            "roomEnvelopeHeight": -16,
+            "roomEnvelopeArea": -36224,
+            "placementArea": -220,
+            "occupiedCells": -10,
+            "occupiedFillBasisPoints": 4,
+            "corridorCenterline": -80,
+            "routedShellCells": 0,
+            "routedCatalogCells": -10,
+            "routeBends": -1,
+            "routingStates": -3082,
+            "roomsPlaced": 0,
+            "sectionsRouted": 0,
+            "attemptCount": 1,
+            "validLayoutCandidates": 0,
+            "placementWidth": -2,
+            "placementHeight": 0,
+            "placementSpan": -2
+          },
+          "outputHash": "fnv1a64:2c9e389e3646c730",
+          "traceRootHash": "fnv1a64:f11a72907662c154"
         }
       },
       {
@@ -867,27 +1131,27 @@
             "probeType": null
           },
           "metricDeltas": {
-            "geometryWidth": -344,
-            "geometryHeight": -176,
-            "geometrySpan": -520,
-            "roomEnvelopeWidth": -320,
-            "roomEnvelopeHeight": -168,
-            "roomEnvelopeArea": -469632,
-            "placementArea": 142347,
-            "occupiedCells": -1182,
-            "occupiedFillBasisPoints": -782,
-            "corridorCenterline": -3064,
+            "geometryWidth": -336,
+            "geometryHeight": -168,
+            "geometrySpan": -504,
+            "roomEnvelopeWidth": -304,
+            "roomEnvelopeHeight": -152,
+            "roomEnvelopeArea": -432896,
+            "placementArea": 142745,
+            "occupiedCells": -1162,
+            "occupiedFillBasisPoints": -788,
+            "corridorCenterline": -2904,
             "routedShellCells": 3590,
-            "routedCatalogCells": -941,
-            "routeBends": -82,
-            "routingStates": -42442,
+            "routedCatalogCells": -921,
+            "routeBends": -72,
+            "routingStates": -37483,
             "roomsPlaced": 0,
             "sectionsRouted": -13,
-            "attemptCount": -1,
+            "attemptCount": -2,
             "validLayoutCandidates": 0,
-            "placementWidth": 327,
-            "placementHeight": 210,
-            "placementSpan": 537
+            "placementWidth": 329,
+            "placementHeight": 211,
+            "placementSpan": 540
           },
           "outputHash": null,
           "traceRootHash": null

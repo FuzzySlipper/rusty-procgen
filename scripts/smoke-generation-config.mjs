@@ -10,7 +10,11 @@ const port = Number(process.env.GENERATION_CONFIG_SMOKE_PORT ?? 5195);
 const baseUrl = `http://${host}:${port}`;
 const tempDir = await mkdtemp(join(tmpdir(), 'rusty-procgen-generation-config-smoke-'));
 const configPath = join(tempDir, 'viewer-generation.json');
-await writeFile(configPath, await readFile('config/viewer-generation.json', 'utf8'), 'utf8');
+const legacyConfigBytes = await readFile(
+  'fixtures/policies/catalog-aware-coverage-config.v1.json',
+  'utf8',
+);
+await writeFile(configPath, legacyConfigBytes, 'utf8');
 
 const server = spawn(
   process.execPath,
@@ -45,6 +49,9 @@ try {
 
   const defaults = await fetchJson('/api/generation-config');
   assertConfigEnvelope(defaults);
+  if (await readFile(configPath, 'utf8') !== legacyConfigBytes) {
+    throw new Error('reading the legacy config mutated it before an accepted rebuild');
+  }
   const configured = structuredClone(defaults);
   configured.geometryLayoutPolicy.initialColumnGap.value = 160;
   configured.placementPolicy.minimumClearanceCells.value = 5;
@@ -72,7 +79,7 @@ try {
     throw new Error('combined configuration rebuild was not deterministic, complete, and persisted');
   }
   const persistedConfigured = await readConfigFile();
-  if (JSON.stringify(persistedConfigured) !== JSON.stringify(configured)) {
+  if (JSON.stringify(persistedConfigured) !== JSON.stringify(persistableConfig(configured))) {
     throw new Error('successful rebuild did not atomically persist the submitted configuration');
   }
 
@@ -109,8 +116,70 @@ try {
   ) {
     throw new Error('identical catalog rebuilds did not return an exact deterministic trace pair');
   }
-  if (JSON.stringify(await readConfigFile()) !== JSON.stringify(pureCatalog)) {
+  if (JSON.stringify(await readConfigFile()) !== JSON.stringify(persistableConfig(pureCatalog))) {
     throw new Error('successful pure catalog rebuild did not persist the unified configuration');
+  }
+
+  const selectedOutcome = pureCatalogResult.catalogAwareGeneration?.attempts?.find(
+    (attempt) => attempt.attempt === pureCatalogResult.catalogAwareGeneration.selectedAttempt,
+  )?.outcome;
+  const selectedWidth = selectedOutcome?.metrics?.placementWidthCells;
+  if (!Number.isInteger(selectedWidth) || selectedWidth <= 1) {
+    throw new Error(`catalog rebuild omitted selected outcome metrics: ${JSON.stringify(selectedOutcome)}`);
+  }
+  const exactWidthCatalog = structuredClone(pureCatalog);
+  exactWidthCatalog.catalogAwareGenerationPolicy.maxGenerationAttempts.value = 1;
+  exactWidthCatalog.catalogAwareGenerationPolicy.maxPlacementWidthCells.value = selectedWidth;
+  const exactWidthResult = await postRebuild(
+    { candidateId, config: exactWidthCatalog },
+    200,
+  );
+  const exactSelectedOutcome = exactWidthResult.catalogAwareGeneration?.attempts?.find(
+    (attempt) => attempt.attempt === exactWidthResult.catalogAwareGeneration.selectedAttempt,
+  )?.outcome;
+  if (
+    exactSelectedOutcome?.metrics?.placementWidthCells !== selectedWidth
+    || exactSelectedOutcome.constraintMisses.length !== 0
+  ) {
+    throw new Error(
+      `exact hard placement-width boundary did not admit: ${JSON.stringify(exactSelectedOutcome)}`,
+    );
+  }
+  const persistedExactWidth = await readConfigFile();
+  if (
+    JSON.stringify(persistedExactWidth)
+      !== JSON.stringify(persistableConfig(exactWidthCatalog))
+  ) {
+    throw new Error('exact hard-limit rebuild did not persist its accepted configuration');
+  }
+  const oneUnderWidthCatalog = structuredClone(exactWidthCatalog);
+  oneUnderWidthCatalog.catalogAwareGenerationPolicy.maxPlacementWidthCells.value =
+    selectedWidth - 1;
+  const hardLimitFailure = await postRebuild(
+    { candidateId, config: oneUnderWidthCatalog },
+    422,
+    'catalog_aware_outcome_constraint_miss',
+  );
+  const widthMisses = hardLimitFailure.evidence?.attempts?.map((attempt) =>
+    attempt.outcome?.constraintMisses?.find(
+      (miss) => miss.metric === 'placement_width_cells',
+    ));
+  if (
+    hardLimitFailure.evidence?.classification !== 'outcome_constraint_miss'
+    || widthMisses?.length !== 1
+    || widthMisses.some((miss) =>
+      miss?.limit !== selectedWidth - 1
+      || !Number.isInteger(miss.actual)
+      || miss.actual <= miss.limit)
+  ) {
+    throw new Error(
+      `one-under hard placement-width evidence was incomplete: ${
+        JSON.stringify(hardLimitFailure.evidence)
+      }`,
+    );
+  }
+  if (JSON.stringify(await readConfigFile()) !== JSON.stringify(persistedExactWidth)) {
+    throw new Error('hard outcome rejection changed the persisted configuration');
   }
 
   const constrainedCatalog = structuredClone(pureCatalog);
@@ -129,7 +198,7 @@ try {
   if (exhaustedTrace.selectedAttempt !== null || exhaustedTrace.candidateId !== candidateId) {
     throw new Error('exhausted catalog rebuild did not return its exact verified decision trace');
   }
-  if (JSON.stringify(await readConfigFile()) !== JSON.stringify(pureCatalog)) {
+  if (JSON.stringify(await readConfigFile()) !== JSON.stringify(persistedExactWidth)) {
     throw new Error('failed catalog-aware rebuild changed the persisted configuration');
   }
 
@@ -160,7 +229,7 @@ try {
       }),
     );
   }
-  if (JSON.stringify(await readConfigFile()) !== JSON.stringify(compact)) {
+  if (JSON.stringify(await readConfigFile()) !== JSON.stringify(persistableConfig(compact))) {
     throw new Error('successful compact-first rebuild did not persist the unified configuration');
   }
 
@@ -179,7 +248,7 @@ try {
     422,
     'geometry_search_exhausted',
   );
-  if (JSON.stringify(await readConfigFile()) !== JSON.stringify(compact)) {
+  if (JSON.stringify(await readConfigFile()) !== JSON.stringify(persistableConfig(compact))) {
     throw new Error('failed pipeline rebuild changed the persisted configuration');
   }
 
@@ -188,7 +257,7 @@ try {
     400,
     'invalid_generationConfig_fields',
   );
-  if (JSON.stringify(await readConfigFile()) !== JSON.stringify(compact)) {
+  if (JSON.stringify(await readConfigFile()) !== JSON.stringify(persistableConfig(compact))) {
     throw new Error('invalid configuration request changed the persisted configuration');
   }
 
@@ -208,8 +277,8 @@ try {
   const persistedReset = await readConfigFile();
   const fetchedReset = await fetchJson('/api/generation-config');
   if (
-    JSON.stringify(persistedReset) !== JSON.stringify(reset)
-    || JSON.stringify(fetchedReset) !== JSON.stringify(reset)
+    JSON.stringify(persistedReset) !== JSON.stringify(persistableConfig(reset))
+    || JSON.stringify(fetchedReset) !== JSON.stringify(persistableConfig(reset))
   ) {
     throw new Error('default reset was not visible in persisted storage and the config API');
   }
@@ -234,8 +303,13 @@ try {
 
 function assertConfigEnvelope(config) {
   if (
-    config.kind !== 'rusty_procgen.viewer_generation_config.v1'
-    || config.schemaVersion !== 1
+    config.kind !== 'rusty_procgen.viewer_generation_config.v2'
+    || config.schemaVersion !== 2
+    || config.migration?.sourceKind !== 'rusty_procgen.viewer_generation_config.v1'
+    || config.migration?.sourceSchemaVersion !== 1
+    || !config.migration.appliedDefaults.includes('initialRoomCompactionCells=0')
+    || !config.migration.appliedDefaults.includes('roomCompactionGrowthCells=1')
+    || !config.migration.appliedDefaults.includes('preferredMaximum=286')
   ) {
     throw new Error(`unexpected generation config envelope: ${JSON.stringify(config)}`);
   }
@@ -243,18 +317,24 @@ function assertConfigEnvelope(config) {
 
 function assertCatalogAwareExhaustionEvidence(evidence) {
   if (
-    evidence?.kind !== 'rusty_procgen.catalog_aware_generation_exhaustion.v1'
-    || evidence.schemaVersion !== 1
+    evidence?.kind !== 'rusty_procgen.catalog_aware_generation_exhaustion.v2'
+    || evidence.schemaVersion !== 2
     || evidence.classification !== 'search_budget_exhaustion'
     || !Array.isArray(evidence.attempts)
     || evidence.attempts.length !== 1
     || evidence.attempts[0]?.classification !== 'search_budget_exhaustion'
     || !Number.isInteger(evidence.attempts[0]?.routingStates)
-    || evidence.result?.kind !== 'rusty_procgen.catalog_aware_generation.v1'
-    || evidence.trace?.kind !== 'rusty_procgen.catalog_generation_trace.v1'
+    || evidence.result?.kind !== 'rusty_procgen.catalog_aware_generation.v2'
+    || evidence.trace?.kind !== 'rusty_procgen.catalog_generation_trace.v2'
   ) {
     throw new Error(`catalog-aware exhaustion evidence was incomplete: ${JSON.stringify(evidence)}`);
   }
+}
+
+function persistableConfig(config) {
+  const persisted = structuredClone(config);
+  persisted.migration = null;
+  return persisted;
 }
 
 function withDefaultValues(config) {

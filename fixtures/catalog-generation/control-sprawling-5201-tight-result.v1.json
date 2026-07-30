@@ -1,60 +1,74 @@
 {
-  "kind": "rusty_procgen.catalog_aware_generation.v1",
-  "schemaVersion": 1,
+  "kind": "rusty_procgen.catalog_aware_generation.v2",
+  "schemaVersion": 2,
   "ok": false,
   "candidateId": "candidate.first_slice.5201",
   "policy": {
-    "kind": "rusty_procgen.catalog_aware_generation_policy.v1",
-    "schemaVersion": 1,
+    "kind": "rusty_procgen.catalog_aware_generation_policy.v2",
+    "schemaVersion": 2,
     "maxGenerationAttempts": 4,
-    "initialRoomSlackCells": 0,
-    "roomSlackGrowthCells": 4,
+    "initialRoomCompactionCells": 0,
+    "roomCompactionGrowthCells": 1,
     "maxRoomCandidates": 16,
     "maxRoutingStatesPerSection": 200000,
     "routeMarginCells": 48,
     "guideDistanceWeight": 4,
-    "turnPenalty": 3
+    "turnPenalty": 3,
+    "outcomeConstraints": {
+      "maxPlacementWidthCells": 4096,
+      "maxPlacementHeightCells": 4096,
+      "maxPlacementAreaCells": 16777216,
+      "maxRoutedCatalogCells": 1048576
+    },
+    "outcomePreferences": {
+      "primaryMetric": "placement_span",
+      "preferredMaximum": 286
+    }
   },
   "attempts": [
     {
       "attempt": 0,
-      "roomSlackCells": 0,
+      "roomCompactionCells": 0,
       "classification": "generation_infeasibility",
       "stage": "section_routing",
       "detail": "No catalog-cell route satisfied section section.region_goal.region_hub_central_1.open from 96,111 to 179,95 in bounds -48,-48..258,247.",
       "roomsPlaced": 9,
       "sectionsRouted": 5,
-      "routingStates": 132410
+      "routingStates": 132410,
+      "outcome": null
     },
     {
       "attempt": 1,
-      "roomSlackCells": 4,
+      "roomCompactionCells": 1,
       "classification": "generation_infeasibility",
       "stage": "section_routing",
-      "detail": "No catalog-cell route satisfied section section.region_goal.region_hub_central_1.open from 96,111 to 179,93 in bounds -48,-48..258,247.",
+      "detail": "No catalog-cell route satisfied section section.region_goal.region_hub_central_1.open from 97,110 to 178,94 in bounds -48,-48..258,247.",
       "roomsPlaced": 9,
       "sectionsRouted": 5,
-      "routingStates": 128073
+      "routingStates": 125278,
+      "outcome": null
     },
     {
       "attempt": 2,
-      "roomSlackCells": 8,
+      "roomCompactionCells": 2,
       "classification": "generation_infeasibility",
       "stage": "section_routing",
-      "detail": "No catalog-cell route satisfied section section.region_goal.region_junction_merge_1.open from 89,118 to 28,170 in bounds -48,-48..258,247.",
+      "detail": "No catalog-cell route satisfied section section.region_goal.region_hub_central_1.open from 98,109 to 177,93 in bounds -48,-48..258,247.",
       "roomsPlaced": 9,
-      "sectionsRouted": 3,
-      "routingStates": 110370
+      "sectionsRouted": 5,
+      "routingStates": 124708,
+      "outcome": null
     },
     {
       "attempt": 3,
-      "roomSlackCells": 12,
+      "roomCompactionCells": 3,
       "classification": "generation_infeasibility",
       "stage": "section_routing",
-      "detail": "No catalog-cell route satisfied section section.region_goal.region_junction_merge_1.open from 93,118 to 28,170 in bounds -48,-48..258,247.",
+      "detail": "No catalog-cell route satisfied section section.region_goal.region_hub_central_1.open from 99,108 to 176,92 in bounds -48,-48..258,247.",
       "roomsPlaced": 9,
-      "sectionsRouted": 3,
-      "routingStates": 98737
+      "sectionsRouted": 5,
+      "routingStates": 124155,
+      "outcome": null
     }
   ],
   "selectedAttempt": null,

@@ -37,6 +37,16 @@ const scenarios = [
     policy: 'fixtures/policies/catalog-aware-generation-trace-exhausted.json',
     seed: '14334',
   },
+  {
+    id: 'candidate-000-selection',
+    candidate:
+      'artifacts/samples/batch-v2/candidate-000/candidate-003-branch_merge_shortcut.json',
+    intermediate:
+      'artifacts/samples/batch-v2/candidate-000/intermediate-breakdown.json',
+    geometry: 'artifacts/samples/batch-v2/candidate-000/geometry-2d.json',
+    policy: 'fixtures/policies/catalog-aware-generation-selection-probe.json',
+    seed: '14334',
+  },
 ].map((scenario) => ({
   ...scenario,
   plan: `fixtures/catalog-generation/${scenario.id}-piece-plan.v1.json`,

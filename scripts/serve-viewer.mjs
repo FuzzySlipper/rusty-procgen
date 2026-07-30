@@ -32,6 +32,12 @@ const catalogGenerationRuns = [
     trace: join(repoRoot, 'fixtures/catalog-generation/candidate-000-exhausted-trace.v1.json'),
   },
   {
+    id: 'best-admissible-selection',
+    label: 'Accepted · exhausted preference selects best admissible',
+    result: join(repoRoot, 'fixtures/catalog-generation/candidate-000-selection-result.v1.json'),
+    trace: join(repoRoot, 'fixtures/catalog-generation/candidate-000-selection-trace.v1.json'),
+  },
+  {
     id: 'control-tight-5201-rejected',
     label: 'Rejected · 5201 · tight initial spacing',
     result: join(repoRoot, 'fixtures/catalog-generation/control-sprawling-5201-tight-result.v1.json'),
@@ -356,7 +362,7 @@ async function runGenerationConfigRebuild(payload) {
   if (typeof payload.candidateId !== 'string' || payload.candidateId.length === 0) {
     throw new ExperimentError(400, 'invalid_candidate', 'candidateId must be a non-empty string.');
   }
-  const config = validateGenerationConfig(payload.config);
+  const config = finalizeGenerationConfig(validateGenerationConfig(payload.config));
   const geometryLayoutPolicy = materializeGeometryLayoutPolicy(config, 'value');
   const placementPolicy = materializePlacementPolicy(config, 'value');
   const catalogAwareGenerationPolicy = materializeCatalogAwareGenerationPolicy(config, 'value');
@@ -477,8 +483,8 @@ async function runGenerationConfigRebuild(payload) {
           `catalog_aware_${classification}`,
           finalAttempt?.detail ?? 'Catalog-aware generation exhausted without a successful attempt.',
           {
-            kind: 'rusty_procgen.catalog_aware_generation_exhaustion.v1',
-            schemaVersion: 1,
+            kind: 'rusty_procgen.catalog_aware_generation_exhaustion.v2',
+            schemaVersion: 2,
             classification,
             attempts: catalogAwareResult.attempts ?? [],
             result: catalogAwareResult,
@@ -1027,11 +1033,18 @@ function validatePlacementPolicy(value) {
 }
 
 function validateGenerationConfig(value) {
+  if (
+    value?.kind === 'rusty_procgen.viewer_generation_config.v1'
+    && value.schemaVersion === 1
+  ) {
+    return validateGenerationConfig(migrateLegacyGenerationConfig(value));
+  }
   assertExactKeys(
     value,
     [
       'kind',
       'schemaVersion',
+      'migration',
       'geometryLayoutPolicy',
       'placementPolicy',
       'catalogAwareGenerationPolicy',
@@ -1039,13 +1052,14 @@ function validateGenerationConfig(value) {
     ],
     'generationConfig',
   );
-  if (value.kind !== 'rusty_procgen.viewer_generation_config.v1' || value.schemaVersion !== 1) {
+  if (value.kind !== 'rusty_procgen.viewer_generation_config.v2' || value.schemaVersion !== 2) {
     throw new ExperimentError(
       400,
       'unsupported_generation_config_schema',
-      'Only viewer-generation-config schemaVersion 1 is supported.',
+      'Only viewer-generation-config schemaVersion 2 or explicit schemaVersion 1 migration is supported.',
     );
   }
+  validateGenerationConfigMigration(value.migration);
   assertExactKeys(
     value.geometryLayoutPolicy,
     [
@@ -1070,13 +1084,19 @@ function validateGenerationConfig(value) {
     value.catalogAwareGenerationPolicy,
     [
       'maxGenerationAttempts',
-      'initialRoomSlackCells',
-      'roomSlackGrowthCells',
+      'initialRoomCompactionCells',
+      'roomCompactionGrowthCells',
       'maxRoomCandidates',
       'maxRoutingStatesPerSection',
       'routeMarginCells',
       'guideDistanceWeight',
       'turnPenalty',
+      'maxPlacementWidthCells',
+      'maxPlacementHeightCells',
+      'maxPlacementAreaCells',
+      'maxRoutedCatalogCells',
+      'primaryMetric',
+      'preferredMaximum',
     ],
     'generationConfig.catalogAwareGenerationPolicy',
   );
@@ -1102,6 +1122,120 @@ function validateGenerationConfig(value) {
     }
   }
   return JSON.parse(JSON.stringify(value));
+}
+
+function migrateLegacyGenerationConfig(value) {
+  assertExactKeys(
+    value,
+    [
+      'kind',
+      'schemaVersion',
+      'geometryLayoutPolicy',
+      'placementPolicy',
+      'catalogAwareGenerationPolicy',
+      'corridorRealization',
+    ],
+    'generationConfig',
+  );
+  assertExactKeys(
+    value.catalogAwareGenerationPolicy,
+    [
+      'maxGenerationAttempts',
+      'initialRoomSlackCells',
+      'roomSlackGrowthCells',
+      'maxRoomCandidates',
+      'maxRoutingStatesPerSection',
+      'routeMarginCells',
+      'guideDistanceWeight',
+      'turnPenalty',
+    ],
+    'generationConfig.catalogAwareGenerationPolicy',
+  );
+  return {
+    ...JSON.parse(JSON.stringify(value)),
+    kind: 'rusty_procgen.viewer_generation_config.v2',
+    schemaVersion: 2,
+    migration: {
+      sourceKind: 'rusty_procgen.viewer_generation_config.v1',
+      sourceSchemaVersion: 1,
+      appliedDefaults: [
+        'initialRoomCompactionCells=0',
+        'roomCompactionGrowthCells=1',
+        'maxPlacementWidthCells=4096',
+        'maxPlacementHeightCells=4096',
+        'maxPlacementAreaCells=16777216',
+        'maxRoutedCatalogCells=1048576',
+        'primaryMetric=placement_span',
+        'preferredMaximum=286',
+      ],
+    },
+    catalogAwareGenerationPolicy: {
+      maxGenerationAttempts: JSON.parse(
+        JSON.stringify(value.catalogAwareGenerationPolicy.maxGenerationAttempts),
+      ),
+      initialRoomCompactionCells: { value: 0, defaultValue: 0 },
+      roomCompactionGrowthCells: { value: 1, defaultValue: 1 },
+      maxRoomCandidates: JSON.parse(
+        JSON.stringify(value.catalogAwareGenerationPolicy.maxRoomCandidates),
+      ),
+      maxRoutingStatesPerSection: JSON.parse(
+        JSON.stringify(value.catalogAwareGenerationPolicy.maxRoutingStatesPerSection),
+      ),
+      routeMarginCells: JSON.parse(
+        JSON.stringify(value.catalogAwareGenerationPolicy.routeMarginCells),
+      ),
+      guideDistanceWeight: JSON.parse(
+        JSON.stringify(value.catalogAwareGenerationPolicy.guideDistanceWeight),
+      ),
+      turnPenalty: JSON.parse(
+        JSON.stringify(value.catalogAwareGenerationPolicy.turnPenalty),
+      ),
+      maxPlacementWidthCells: { value: 4_096, defaultValue: 4_096 },
+      maxPlacementHeightCells: { value: 4_096, defaultValue: 4_096 },
+      maxPlacementAreaCells: { value: 16_777_216, defaultValue: 16_777_216 },
+      maxRoutedCatalogCells: { value: 1_048_576, defaultValue: 1_048_576 },
+      primaryMetric: { value: 'placement_span', defaultValue: 'placement_span' },
+      preferredMaximum: { value: 286, defaultValue: 286 },
+    },
+  };
+}
+
+function validateGenerationConfigMigration(value) {
+  if (value === null) {
+    return;
+  }
+  assertExactKeys(
+    value,
+    ['sourceKind', 'sourceSchemaVersion', 'appliedDefaults'],
+    'generationConfig.migration',
+  );
+  if (
+    value.sourceKind !== 'rusty_procgen.viewer_generation_config.v1'
+    || value.sourceSchemaVersion !== 1
+    || JSON.stringify(value.appliedDefaults) !== JSON.stringify([
+      'initialRoomCompactionCells=0',
+      'roomCompactionGrowthCells=1',
+      'maxPlacementWidthCells=4096',
+      'maxPlacementHeightCells=4096',
+      'maxPlacementAreaCells=16777216',
+      'maxRoutedCatalogCells=1048576',
+      'primaryMetric=placement_span',
+      'preferredMaximum=286',
+    ])
+  ) {
+    throw new ExperimentError(
+      400,
+      'invalid_generation_config_migration',
+      'Generation config migration marker does not match the supported schema-1 defaults.',
+    );
+  }
+}
+
+function finalizeGenerationConfig(config) {
+  return {
+    ...JSON.parse(JSON.stringify(config)),
+    migration: null,
+  };
 }
 
 function materializeGeometryLayoutPolicy(config, field) {
@@ -1133,31 +1267,57 @@ function materializePlacementPolicy(config, field) {
 
 function materializeCatalogAwareGenerationPolicy(config, field) {
   return {
-    kind: 'rusty_procgen.catalog_aware_generation_policy.v1',
-    schemaVersion: 1,
+    kind: 'rusty_procgen.catalog_aware_generation_policy.v2',
+    schemaVersion: 2,
     maxGenerationAttempts: config.catalogAwareGenerationPolicy.maxGenerationAttempts[field],
-    initialRoomSlackCells: config.catalogAwareGenerationPolicy.initialRoomSlackCells[field],
-    roomSlackGrowthCells: config.catalogAwareGenerationPolicy.roomSlackGrowthCells[field],
+    initialRoomCompactionCells:
+      config.catalogAwareGenerationPolicy.initialRoomCompactionCells[field],
+    roomCompactionGrowthCells:
+      config.catalogAwareGenerationPolicy.roomCompactionGrowthCells[field],
     maxRoomCandidates: config.catalogAwareGenerationPolicy.maxRoomCandidates[field],
     maxRoutingStatesPerSection:
       config.catalogAwareGenerationPolicy.maxRoutingStatesPerSection[field],
     routeMarginCells: config.catalogAwareGenerationPolicy.routeMarginCells[field],
     guideDistanceWeight: config.catalogAwareGenerationPolicy.guideDistanceWeight[field],
     turnPenalty: config.catalogAwareGenerationPolicy.turnPenalty[field],
+    outcomeConstraints: {
+      maxPlacementWidthCells:
+        config.catalogAwareGenerationPolicy.maxPlacementWidthCells[field],
+      maxPlacementHeightCells:
+        config.catalogAwareGenerationPolicy.maxPlacementHeightCells[field],
+      maxPlacementAreaCells:
+        config.catalogAwareGenerationPolicy.maxPlacementAreaCells[field],
+      maxRoutedCatalogCells:
+        config.catalogAwareGenerationPolicy.maxRoutedCatalogCells[field],
+    },
+    outcomePreferences: {
+      primaryMetric: config.catalogAwareGenerationPolicy.primaryMetric[field],
+      preferredMaximum: config.catalogAwareGenerationPolicy.preferredMaximum[field],
+    },
   };
 }
 
 function validateCatalogAwareGenerationPolicy(policy) {
   assertBoundedInteger(policy.maxGenerationAttempts, 1, 16, 'maxGenerationAttempts');
-  assertBoundedInteger(policy.initialRoomSlackCells, 0, 128, 'initialRoomSlackCells');
-  assertBoundedInteger(policy.roomSlackGrowthCells, 0, 128, 'roomSlackGrowthCells');
-  const maximumSlack = policy.initialRoomSlackCells
-    + policy.roomSlackGrowthCells * (policy.maxGenerationAttempts - 1);
-  if (maximumSlack > 128) {
+  assertBoundedInteger(
+    policy.initialRoomCompactionCells,
+    0,
+    128,
+    'initialRoomCompactionCells',
+  );
+  assertBoundedInteger(
+    policy.roomCompactionGrowthCells,
+    0,
+    128,
+    'roomCompactionGrowthCells',
+  );
+  const maximumCompaction = policy.initialRoomCompactionCells
+    + policy.roomCompactionGrowthCells * (policy.maxGenerationAttempts - 1);
+  if (maximumCompaction > 128) {
     throw new ExperimentError(
       400,
-      'catalog_aware_slack_too_large',
-      'Catalog-aware room slack must remain at most 128 cells across all attempts.',
+      'catalog_aware_compaction_too_large',
+      'Catalog-aware room compaction must remain at most 128 cells across all attempts.',
     );
   }
   assertBoundedInteger(policy.maxRoomCandidates, 1, 64, 'maxRoomCandidates');
@@ -1170,6 +1330,45 @@ function validateCatalogAwareGenerationPolicy(policy) {
   assertBoundedInteger(policy.routeMarginCells, 8, 256, 'routeMarginCells');
   assertBoundedInteger(policy.guideDistanceWeight, 0, 1_000, 'guideDistanceWeight');
   assertBoundedInteger(policy.turnPenalty, 0, 1_000, 'turnPenalty');
+  assertBoundedInteger(
+    policy.outcomeConstraints.maxPlacementWidthCells,
+    1,
+    4_294_967_296,
+    'maxPlacementWidthCells',
+  );
+  assertBoundedInteger(
+    policy.outcomeConstraints.maxPlacementHeightCells,
+    1,
+    4_294_967_296,
+    'maxPlacementHeightCells',
+  );
+  assertBoundedInteger(
+    policy.outcomeConstraints.maxPlacementAreaCells,
+    1,
+    Number.MAX_SAFE_INTEGER,
+    'maxPlacementAreaCells',
+  );
+  assertBoundedInteger(
+    policy.outcomeConstraints.maxRoutedCatalogCells,
+    1,
+    1_048_576,
+    'maxRoutedCatalogCells',
+  );
+  if (!['placement_span', 'placement_area', 'routed_catalog_cells'].includes(
+    policy.outcomePreferences.primaryMetric,
+  )) {
+    throw new ExperimentError(
+      400,
+      'invalid_primaryMetric',
+      'primaryMetric must be placement_span, placement_area, or routed_catalog_cells.',
+    );
+  }
+  assertBoundedInteger(
+    policy.outcomePreferences.preferredMaximum,
+    1,
+    Number.MAX_SAFE_INTEGER,
+    'preferredMaximum',
+  );
 }
 
 function placementMetrics(placement) {

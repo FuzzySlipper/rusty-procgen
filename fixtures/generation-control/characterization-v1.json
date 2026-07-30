@@ -2,7 +2,7 @@
   "kind": "rusty_procgen.generation_control_characterization_suite.v1",
   "schemaVersion": 1,
   "sourceSelectionRef": "artifacts/samples/batch-v2/selection-report.json",
-  "sourceBaseConfigRef": "fixtures/policies/catalog-aware-coverage-config.v1.json",
+  "sourceBaseConfigRef": "fixtures/policies/viewer-generation-default.v2.json",
   "namedRuns": [
     {
       "id": "sprawling-default-5201",
@@ -114,12 +114,12 @@
         "value": 3
       },
       {
-        "path": "catalogAwareGenerationPolicy.initialRoomSlackCells.value",
+        "path": "catalogAwareGenerationPolicy.initialRoomCompactionCells.value",
         "value": 1
       },
       {
-        "path": "catalogAwareGenerationPolicy.roomSlackGrowthCells.value",
-        "value": 3
+        "path": "catalogAwareGenerationPolicy.roomCompactionGrowthCells.value",
+        "value": 2
       },
       {
         "path": "catalogAwareGenerationPolicy.maxRoomCandidates.value",
@@ -140,6 +140,30 @@
       {
         "path": "catalogAwareGenerationPolicy.turnPenalty.value",
         "value": 2
+      },
+      {
+        "path": "catalogAwareGenerationPolicy.maxPlacementWidthCells.value",
+        "value": 176
+      },
+      {
+        "path": "catalogAwareGenerationPolicy.maxPlacementHeightCells.value",
+        "value": 110
+      },
+      {
+        "path": "catalogAwareGenerationPolicy.maxPlacementAreaCells.value",
+        "value": 19360
+      },
+      {
+        "path": "catalogAwareGenerationPolicy.maxRoutedCatalogCells.value",
+        "value": 921
+      },
+      {
+        "path": "catalogAwareGenerationPolicy.primaryMetric.value",
+        "value": "placement_area"
+      },
+      {
+        "path": "catalogAwareGenerationPolicy.preferredMaximum.value",
+        "value": 285
       },
       {
         "path": "corridorRealization.value",

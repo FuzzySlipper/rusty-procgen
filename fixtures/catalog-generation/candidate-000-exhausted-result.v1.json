@@ -1,60 +1,74 @@
 {
-  "kind": "rusty_procgen.catalog_aware_generation.v1",
-  "schemaVersion": 1,
+  "kind": "rusty_procgen.catalog_aware_generation.v2",
+  "schemaVersion": 2,
   "ok": false,
   "candidateId": "candidate.first_slice.5201",
   "policy": {
-    "kind": "rusty_procgen.catalog_aware_generation_policy.v1",
-    "schemaVersion": 1,
+    "kind": "rusty_procgen.catalog_aware_generation_policy.v2",
+    "schemaVersion": 2,
     "maxGenerationAttempts": 4,
-    "initialRoomSlackCells": 0,
-    "roomSlackGrowthCells": 4,
+    "initialRoomCompactionCells": 0,
+    "roomCompactionGrowthCells": 1,
     "maxRoomCandidates": 16,
     "maxRoutingStatesPerSection": 100,
     "routeMarginCells": 48,
     "guideDistanceWeight": 4,
-    "turnPenalty": 3
+    "turnPenalty": 3,
+    "outcomeConstraints": {
+      "maxPlacementWidthCells": 4096,
+      "maxPlacementHeightCells": 4096,
+      "maxPlacementAreaCells": 16777216,
+      "maxRoutedCatalogCells": 1048576
+    },
+    "outcomePreferences": {
+      "primaryMetric": "placement_span",
+      "preferredMaximum": 286
+    }
   },
   "attempts": [
     {
       "attempt": 0,
-      "roomSlackCells": 0,
+      "roomCompactionCells": 0,
       "classification": "search_budget_exhaustion",
       "stage": "section_routing",
       "detail": "Catalog-cell routing for section section.region_gate_locked_1.region_start.open from 185,79 to 112,31 exhausted its 100-state budget.",
       "roomsPlaced": 9,
       "sectionsRouted": 0,
-      "routingStates": 101
+      "routingStates": 101,
+      "outcome": null
     },
     {
       "attempt": 1,
-      "roomSlackCells": 4,
+      "roomCompactionCells": 1,
       "classification": "search_budget_exhaustion",
       "stage": "section_routing",
-      "detail": "Catalog-cell routing for section section.region_gate_locked_1.region_start.open from 185,79 to 112,27 exhausted its 100-state budget.",
+      "detail": "Catalog-cell routing for section section.region_gate_locked_1.region_start.open from 184,78 to 113,32 exhausted its 100-state budget.",
       "roomsPlaced": 9,
       "sectionsRouted": 0,
-      "routingStates": 101
+      "routingStates": 101,
+      "outcome": null
     },
     {
       "attempt": 2,
-      "roomSlackCells": 8,
+      "roomCompactionCells": 2,
       "classification": "search_budget_exhaustion",
       "stage": "section_routing",
-      "detail": "Catalog-cell routing for section section.region_gate_locked_1.region_start.open from 185,82 to 112,31 exhausted its 100-state budget.",
+      "detail": "Catalog-cell routing for section section.region_gate_locked_1.region_start.open from 183,77 to 114,33 exhausted its 100-state budget.",
       "roomsPlaced": 9,
       "sectionsRouted": 0,
-      "routingStates": 101
+      "routingStates": 101,
+      "outcome": null
     },
     {
       "attempt": 3,
-      "roomSlackCells": 12,
+      "roomCompactionCells": 3,
       "classification": "search_budget_exhaustion",
       "stage": "section_routing",
-      "detail": "Catalog-cell routing for section section.region_gate_locked_1.region_start.open from 185,82 to 112,27 exhausted its 100-state budget.",
+      "detail": "Catalog-cell routing for section section.region_gate_locked_1.region_start.open from 182,76 to 115,34 exhausted its 100-state budget.",
       "roomsPlaced": 9,
       "sectionsRouted": 0,
-      "routingStates": 101
+      "routingStates": 101,
+      "outcome": null
     }
   ],
   "selectedAttempt": null,

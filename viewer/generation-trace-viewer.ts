@@ -378,10 +378,11 @@ export function createGenerationTraceViewer(
     visual: CatalogGenerationVisualState,
   ): void {
     const policy = currentRun.run.trace.generationPolicy;
+    const outcome = visual.outcome;
     replaceMetrics(elements.metrics, [
       ['Stage', displayName(visual.event === null ? 'initial' : eventStage(visual.event.body.type))],
       ['Attempt result', displayName(attempt.evidence.classification)],
-      ['Room slack', String(attempt.evidence.roomSlackCells)],
+      ['Room compaction', String(attempt.evidence.roomCompactionCells)],
       ['Rooms placed', `${visual.rooms.length} / ${attempt.evidence.roomsPlaced}`],
       ['Sections routed', `${visual.routes.length} / ${attempt.evidence.sectionsRouted}`],
       ['Routing states', attempt.evidence.routingStates.toLocaleString()],
@@ -390,7 +391,50 @@ export function createGenerationTraceViewer(
       ['Route state cap', policy.maxRoutingStatesPerSection.toLocaleString()],
       ['Route margin', String(policy.routeMarginCells)],
       ['Guide / turn weights', `${policy.guideDistanceWeight} / ${policy.turnPenalty}`],
-      ['Final selection', currentRun.run.trace.selection.reason],
+      [
+        'Hard placement limit',
+        `${policy.outcomeConstraints.maxPlacementWidthCells.toLocaleString()} × ${
+          policy.outcomeConstraints.maxPlacementHeightCells.toLocaleString()
+        } / ${policy.outcomeConstraints.maxPlacementAreaCells.toLocaleString()} area`,
+      ],
+      [
+        'Hard routed-cell limit',
+        policy.outcomeConstraints.maxRoutedCatalogCells.toLocaleString(),
+      ],
+      [
+        'Selection preference',
+        `${displayName(policy.outcomePreferences.primaryMetric)} ≤ ${
+          policy.outcomePreferences.preferredMaximum.toLocaleString()
+        }`,
+      ],
+      [
+        'Observed outcome',
+        outcome === null
+          ? 'Not evaluated at this decision'
+          : `${outcome.metrics.placementWidthCells} × ${
+            outcome.metrics.placementHeightCells
+          }; ${outcome.metrics.routedCatalogCells.toLocaleString()} routed`,
+      ],
+      [
+        'Hard-limit decision',
+        outcome === null
+          ? 'Pending'
+          : outcome.admissible
+            ? 'Admissible'
+            : `Rejected · ${outcome.constraintMisses.map((miss) =>
+              `${displayName(miss.metric)} ${miss.actual.toLocaleString()} > ${
+                miss.limit.toLocaleString()
+              }`).join('; ')}`,
+      ],
+      [
+        'Comparison',
+        outcome === null
+          ? 'Pending'
+          : `${displayName(outcome.comparison.ordering)} by ${
+            displayName(outcome.comparison.decisiveMetric)
+          }${outcome.preferenceSatisfied ? ' · preference met' : ''}`,
+      ],
+      ['Final selection', displayName(currentRun.run.trace.selection.reason)],
       ['Output hash', currentRun.run.outputHash],
     ]);
     const body = visual.event?.body;
@@ -646,6 +690,9 @@ function eventStage(type: string): string {
   }
   if (type === 'validation_completed') {
     return 'validation';
+  }
+  if (type === 'outcome_evaluated') {
+    return 'outcome decision';
   }
   if (type === 'attempt_finished') {
     return 'attempt result';

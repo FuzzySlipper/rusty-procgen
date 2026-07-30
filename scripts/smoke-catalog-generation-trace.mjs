@@ -11,19 +11,30 @@ const fixtures = new URL('../fixtures/catalog-generation/', import.meta.url);
 
 const accepted = await readRun('candidate-000');
 const exhausted = await readRun('candidate-000-exhausted');
+const selection = await readRun('candidate-000-selection');
 
-assert.equal(accepted.run.attempts.length, 1);
-assert.equal(accepted.run.selectedAttempt, 0);
-assert.equal(accepted.run.attempts[0]?.evidence.classification, 'success');
+assert.equal(accepted.run.attempts.length, 2);
+assert.equal(accepted.run.selectedAttempt, 1);
+assert.equal(accepted.run.attempts[0]?.evidence.classification, 'admissible');
+assert.equal(accepted.run.attempts[0]?.evidence.outcome?.metrics.placementSpanCells, 289);
+assert.equal(accepted.run.attempts[0]?.evidence.outcome?.preferenceSatisfied, false);
+assert.equal(accepted.run.attempts[1]?.evidence.outcome?.metrics.placementSpanCells, 286);
+assert.equal(accepted.run.attempts[1]?.evidence.outcome?.preferenceSatisfied, true);
+assert.equal(
+  accepted.run.attempts[1]?.evidence.outcome?.comparison.ordering,
+  'new_incumbent',
+);
+const acceptedAttempt = accepted.run.selectedAttempt;
+assert.notEqual(acceptedAttempt, null);
 const acceptedFinal = replayCatalogGenerationAttempt(
   accepted.run,
-  0,
-  accepted.run.attempts[0].eventIndices.length,
+  acceptedAttempt,
+  accepted.run.attempts[acceptedAttempt].eventIndices.length,
 );
 assert.equal(acceptedFinal.rooms.length, 9);
 assert.equal(acceptedFinal.routes.length, 13);
 assert.equal(acceptedFinal.frame, acceptedFinal.frameCount);
-assert.ok(catalogGenerationStageFrames(accepted.run, 0).length >= 5);
+assert.ok(catalogGenerationStageFrames(accepted.run, acceptedAttempt).length >= 5);
 
 assert.equal(exhausted.run.attempts.length, 4);
 assert.equal(exhausted.run.selectedAttempt, null);
@@ -40,6 +51,22 @@ for (const attempt of exhausted.run.attempts) {
   assert.equal(final.frame, final.frameCount);
   assert.equal(final.routes.length, 0);
 }
+assert.equal(selection.run.attempts.length, 4);
+assert.equal(selection.run.selectedAttempt, 2);
+assert.equal(
+  selection.run.trace.selection.reason,
+  'best_admissible_placement_span_cells',
+);
+assert.deepEqual(
+  selection.run.attempts.map(
+    (attempt) => attempt.evidence.outcome?.metrics.placementSpanCells ?? null,
+  ),
+  [289, 286, 284, null],
+);
+assert.equal(
+  selection.run.attempts[2]?.evidence.outcome?.comparison.ordering,
+  'new_incumbent',
+);
 
 rejects(
   mutate(accepted.trace, (trace) => {
@@ -64,7 +91,7 @@ rejects(
 );
 rejects(
   mutate(accepted.trace, (trace) => {
-    trace.events[1].body.roomSlackCells += 1;
+    trace.events[1].body.roomCompactionCells += 1;
   }),
   accepted.result,
   'event body without matching hash',
@@ -119,20 +146,64 @@ rejects(
   accepted.result,
   'fully re-chained route projection mismatch',
 );
-const slackMismatchResult = mutate(accepted.result, (result) => {
-  result.attempts[0].roomSlackCells += 1;
+const compactionMismatchResult = mutate(accepted.result, (result) => {
+  result.attempts[0].roomCompactionCells += 1;
 });
 rejects(
   mutate(accepted.trace, (trace) => {
-    const outputHash = fnv1a64Json(slackMismatchResult);
+    const outputHash = fnv1a64Json(compactionMismatchResult);
     trace.finalOutputHash = outputHash;
     const finished = trace.events.find((event) => event.body.type === 'run_finished');
     assert.ok(finished, 'accepted trace has run_finished');
     finished.body.outputHash = outputHash;
     rechainTrace(trace);
   }),
-  slackMismatchResult,
-  'fully re-chained attempt slack mismatch',
+  compactionMismatchResult,
+  'fully re-chained attempt compaction mismatch',
+);
+const outcomeMismatchResult = mutate(accepted.result, (result) => {
+  result.attempts[1].outcome.metrics.placementSpanCells += 1;
+});
+rejects(
+  mutate(accepted.trace, (trace) => {
+    const outcome = trace.events.find(
+      (event) =>
+        event.attempt === 1
+        && event.body.type === 'outcome_evaluated',
+    );
+    assert.ok(outcome, 'selected attempt has outcome_evaluated');
+    outcome.body.evaluation.metrics.placementSpanCells += 1;
+    const outputHash = fnv1a64Json(outcomeMismatchResult);
+    trace.finalOutputHash = outputHash;
+    const finished = trace.events.find((event) => event.body.type === 'run_finished');
+    assert.ok(finished, 'accepted trace has run_finished');
+    finished.body.outputHash = outputHash;
+    rechainTrace(trace);
+  }),
+  outcomeMismatchResult,
+  'fully re-chained visible outcome mismatch',
+);
+const comparisonMismatchResult = mutate(accepted.result, (result) => {
+  result.attempts[1].outcome.comparison.ordering = 'incumbent_retained';
+});
+rejects(
+  mutate(accepted.trace, (trace) => {
+    const outcome = trace.events.find(
+      (event) =>
+        event.attempt === 1
+        && event.body.type === 'outcome_evaluated',
+    );
+    assert.ok(outcome, 'selected attempt has outcome_evaluated');
+    outcome.body.evaluation.comparison.ordering = 'incumbent_retained';
+    const outputHash = fnv1a64Json(comparisonMismatchResult);
+    trace.finalOutputHash = outputHash;
+    const finished = trace.events.find((event) => event.body.type === 'run_finished');
+    assert.ok(finished, 'accepted trace has run_finished');
+    finished.body.outputHash = outputHash;
+    rechainTrace(trace);
+  }),
+  comparisonMismatchResult,
+  'fully re-chained comparison mismatch',
 );
 
 console.log(JSON.stringify({
@@ -149,7 +220,13 @@ console.log(JSON.stringify({
     attempts: exhausted.run.attempts.length,
     outputHash: exhausted.run.outputHash,
   },
-  tamperCases: 10,
+  selection: {
+    events: selection.trace.events.length,
+    attempts: selection.run.attempts.length,
+    selectedAttempt: selection.run.selectedAttempt,
+    outputHash: selection.run.outputHash,
+  },
+  tamperCases: 12,
 }));
 
 async function readRun(name) {

@@ -76,14 +76,35 @@
             <fieldset class="generation-config-group">
               <legend>Pure catalog search</legend>
               <label><span>Generation attempts</span><input id="generation-config-catalog-attempts" type="number" min="1" max="16" step="1" required></label>
-              <label><span>Initial room slack</span><input id="generation-config-catalog-initial-slack" type="number" min="0" max="128" step="1" required></label>
-              <label><span>Room slack growth</span><input id="generation-config-catalog-slack-growth" type="number" min="0" max="128" step="1" required></label>
+              <label><span>Initial room compaction</span><input id="generation-config-catalog-initial-compaction" type="number" min="0" max="128" step="1" required></label>
+              <label><span>Room compaction growth</span><input id="generation-config-catalog-compaction-growth" type="number" min="0" max="128" step="1" required></label>
               <label><span>Room candidates</span><input id="generation-config-catalog-room-candidates" type="number" min="1" max="64" step="1" required></label>
               <label><span>Route state budget</span><input id="generation-config-catalog-route-states" type="number" min="100" max="1000000" step="100" required></label>
               <label><span>Route margin</span><input id="generation-config-catalog-route-margin" type="number" min="8" max="256" step="1" required></label>
               <label><span>Guide weight</span><input id="generation-config-catalog-guide-weight" type="number" min="0" max="1000" step="1" required></label>
               <label><span>Turn penalty</span><input id="generation-config-catalog-turn-penalty" type="number" min="0" max="1000" step="1" required></label>
               <small>Used only by Pure catalog pieces; failures distinguish layout infeasibility, catalog gaps, and exhausted search budgets.</small>
+            </fieldset>
+            <fieldset class="generation-config-group" aria-describedby="generation-config-hard-limits-help">
+              <legend>Hard outcome limits</legend>
+              <label><span>Maximum placement width</span><input id="generation-config-max-placement-width" type="number" min="1" max="4294967296" step="1" required></label>
+              <label><span>Maximum placement height</span><input id="generation-config-max-placement-height" type="number" min="1" max="4294967296" step="1" required></label>
+              <label><span>Maximum placement area</span><input id="generation-config-max-placement-area" type="number" min="1" max="9007199254740991" step="1" required></label>
+              <label><span>Maximum routed catalog cells</span><input id="generation-config-max-routed-cells" type="number" min="1" max="1048576" step="1" required></label>
+              <small id="generation-config-hard-limits-help">A validated attempt that exceeds any limit is inadmissible. Limits are never converted into score penalties.</small>
+            </fieldset>
+            <fieldset class="generation-config-group" aria-describedby="generation-config-preference-help">
+              <legend>Selection preference</legend>
+              <label>
+                <span>Primary compactness metric</span>
+                <select id="generation-config-primary-metric">
+                  <option value="placement_span">Placement span</option>
+                  <option value="placement_area">Placement area</option>
+                  <option value="routed_catalog_cells">Routed catalog cells</option>
+                </select>
+              </label>
+              <label><span>Preferred maximum</span><input id="generation-config-preferred-maximum" type="number" min="1" max="9007199254740991" step="1" required></label>
+              <small id="generation-config-preference-help">Valid attempts compete deterministically. Search stops when this preference is met; if none meet it, the best admissible bounded attempt still wins.</small>
             </fieldset>
             <div class="placement-policy-actions">
               <button id="generation-config-apply" type="submit">Apply and rebuild</button>

@@ -91,7 +91,7 @@ pub enum CatalogGenerationTraceEventBody {
         input_hashes: CatalogGenerationTraceInputHashes,
     },
     AttemptStarted {
-        room_slack_cells: i32,
+        room_compaction_cells: i32,
     },
     RoomDomainEvaluated {
         piece_id: String,
@@ -123,6 +123,9 @@ pub enum CatalogGenerationTraceEventBody {
         ok: bool,
         subject_hash: String,
         diagnostic_codes: Vec<String>,
+    },
+    OutcomeEvaluated {
+        evaluation: CatalogAwareOutcomeEvaluation,
     },
     AttemptFinished {
         classification: String,
@@ -339,13 +342,15 @@ impl CatalogGenerationTraceRecorder {
                 kind: String::new(),
                 schema_version: 0,
                 max_generation_attempts: 0,
-                initial_room_slack_cells: 0,
-                room_slack_growth_cells: 0,
+                initial_room_compaction_cells: 0,
+                room_compaction_growth_cells: 0,
                 max_room_candidates: 0,
                 max_routing_states_per_section: 0,
                 route_margin_cells: 0,
                 guide_distance_weight: 0,
                 turn_penalty: 0,
+                outcome_constraints: CatalogAwareOutcomeConstraints::default(),
+                outcome_preferences: CatalogAwareOutcomePreferences::default(),
             },
             limits: CatalogGenerationTraceLimits::default(),
             root_hash: String::new(),
@@ -559,8 +564,8 @@ impl CatalogGenerationTraceRecorder {
             .map(|event| event.event_hash.clone())
             .unwrap_or_else(|| self.root_hash.clone());
         Ok(CatalogGenerationTrace {
-            kind: "rusty_procgen.catalog_generation_trace.v1".to_owned(),
-            schema_version: 1,
+            kind: "rusty_procgen.catalog_generation_trace.v2".to_owned(),
+            schema_version: 2,
             seed: self.seed,
             input_hashes: self.input_hashes,
             generation_policy: self.generation_policy,
@@ -635,7 +640,7 @@ pub fn replay_catalog_generation_trace(
     result: &CatalogAwareGenerationResult,
     request: CatalogGenerationTraceRequest<'_>,
 ) -> Result<CatalogGenerationReplay, CatalogGenerationTraceError> {
-    if trace.kind != "rusty_procgen.catalog_generation_trace.v1" || trace.schema_version != 1 {
+    if trace.kind != "rusty_procgen.catalog_generation_trace.v2" || trace.schema_version != 2 {
         return Err(trace_validation_error(
             "trace_schema_unsupported",
             "unsupported catalog generation trace schema",
@@ -854,6 +859,9 @@ struct CatalogGenerationReplayMachine {
     next_attempt: u32,
     pending_sections: BTreeSet<String>,
     completed_attempt: Option<CatalogGenerationReplayAttempt>,
+    incumbent: Option<(u32, CatalogAwareOutcomeMetrics)>,
+    outcome_evaluated: bool,
+    preference_satisfied: bool,
     input_bound: bool,
     run_finished: bool,
 }
@@ -893,10 +901,15 @@ impl CatalogGenerationReplayMachine {
                         "attempt-start event has no attempt",
                     )
                 })?;
-                if self.state.attempt.is_some() || attempt != self.next_attempt {
+                if self.state.attempt.is_some()
+                    || attempt != self.next_attempt
+                    || self.preference_satisfied
+                {
                     return Err(trace_validation_error(
                         "trace_attempt_order_invalid",
-                        format!("attempt {attempt} is not the next expected attempt"),
+                        format!(
+                            "attempt {attempt} is not the next expected attempt or follows a satisfied preference"
+                        ),
                     ));
                 }
                 self.state = CatalogGenerationReplayState {
@@ -904,6 +917,7 @@ impl CatalogGenerationReplayMachine {
                     ..CatalogGenerationReplayState::default()
                 };
                 self.pending_sections.clear();
+                self.outcome_evaluated = false;
             }
             CatalogGenerationTraceEventBody::RoomDomainEvaluated {
                 piece_id,
@@ -1032,6 +1046,95 @@ impl CatalogGenerationReplayMachine {
                     )?;
                 }
             }
+            CatalogGenerationTraceEventBody::OutcomeEvaluated { evaluation } => {
+                let attempt = self.require_current_attempt(event)?;
+                if self.outcome_evaluated || !self.pending_sections.is_empty() {
+                    return Err(trace_validation_error(
+                        "trace_outcome_evaluation_order_invalid",
+                        format!(
+                            "attempt {attempt} has a duplicate or premature outcome evaluation"
+                        ),
+                    ));
+                }
+                let metrics = catalog_replay_outcome_metrics(&self.state)?;
+                let constraint_misses =
+                    catalog_outcome_constraint_misses(&metrics, &result.policy.outcome_constraints);
+                let admissible = constraint_misses.is_empty();
+                let incumbent_attempt = self.incumbent.as_ref().map(|(attempt, _)| *attempt);
+                let (ordering, decisive_metric, replaces_incumbent) = if !admissible {
+                    (
+                        "constraint_miss".to_owned(),
+                        constraint_misses.first().map_or_else(
+                            || "outcome_constraints".to_owned(),
+                            |miss| miss.metric.clone(),
+                        ),
+                        false,
+                    )
+                } else if let Some((_, incumbent_metrics)) = self.incumbent.as_ref() {
+                    let (ordering, decisive_metric) = catalog_outcome_ordering(
+                        &metrics,
+                        incumbent_metrics,
+                        result.policy.outcome_preferences.primary_metric,
+                    );
+                    (
+                        if ordering == Ordering::Less {
+                            "new_incumbent".to_owned()
+                        } else {
+                            "incumbent_retained".to_owned()
+                        },
+                        decisive_metric.to_owned(),
+                        ordering == Ordering::Less,
+                    )
+                } else {
+                    (
+                        "first_admissible".to_owned(),
+                        catalog_primary_metric_name(
+                            result.policy.outcome_preferences.primary_metric,
+                        )
+                        .to_owned(),
+                        true,
+                    )
+                };
+                let expected = CatalogAwareOutcomeEvaluation {
+                    metrics: metrics.clone(),
+                    constraint_misses,
+                    admissible,
+                    preference_satisfied: admissible
+                        && catalog_outcome_metric_value(
+                            &metrics,
+                            catalog_primary_metric_name(
+                                result.policy.outcome_preferences.primary_metric,
+                            ),
+                        ) <= result.policy.outcome_preferences.preferred_maximum,
+                    comparison: CatalogAwareOutcomeComparison {
+                        incumbent_attempt,
+                        ordering,
+                        decisive_metric,
+                    },
+                };
+                let result_outcome = result
+                    .attempts
+                    .get(usize::try_from(attempt).map_err(|_| {
+                        trace_validation_error(
+                            "trace_attempt_index_overflow",
+                            "attempt index exceeds usize",
+                        )
+                    })?)
+                    .and_then(|attempt| attempt.outcome.as_ref());
+                if evaluation != &expected || result_outcome != Some(evaluation) {
+                    return Err(trace_validation_error(
+                        "trace_outcome_evaluation_mismatch",
+                        format!(
+                            "attempt {attempt} outcome metrics or comparison are not authoritative"
+                        ),
+                    ));
+                }
+                if replaces_incumbent {
+                    self.incumbent = Some((attempt, metrics));
+                }
+                self.preference_satisfied = expected.preference_satisfied;
+                self.outcome_evaluated = true;
+            }
             CatalogGenerationTraceEventBody::AttemptFinished {
                 classification,
                 stage,
@@ -1067,6 +1170,7 @@ impl CatalogGenerationReplayMachine {
                     || expected.rooms_placed != *rooms_placed
                     || expected.sections_routed != *sections_routed
                     || expected.routing_states != *routing_states
+                    || expected.outcome.is_some() != self.outcome_evaluated
                 {
                     return Err(trace_validation_error(
                         "trace_attempt_evidence_mismatch",
@@ -1082,7 +1186,7 @@ impl CatalogGenerationReplayMachine {
                         format!("attempt {attempt} visible state does not match its metrics"),
                     ));
                 }
-                if classification == "success" {
+                if result.selected_attempt == Some(attempt) {
                     validate_selected_visible_state(&self.state, result)?;
                 }
                 self.completed_attempt = Some(CatalogGenerationReplayAttempt {
@@ -1125,6 +1229,7 @@ impl CatalogGenerationReplayMachine {
                                 None,
                             )
                         })?
+                    || *selected_attempt != self.incumbent.as_ref().map(|(attempt, _)| *attempt)
                 {
                     return Err(trace_validation_error(
                         "trace_run_finish_mismatch",
@@ -1242,11 +1347,15 @@ impl CatalogGenerationReplayMachine {
                 "run-finished must be the final trace event",
             ));
         }
-        if selection.selected_attempt.is_some_and(|attempt| {
-            attempt
-                .checked_add(1)
-                .is_none_or(|count| count != self.next_attempt)
-        }) || selection.selected_attempt.is_none() && self.next_attempt == 0
+        if selection
+            .selected_attempt
+            .is_some_and(|attempt| attempt >= self.next_attempt)
+            || selection.selected_attempt.is_some()
+                != self
+                    .incumbent
+                    .as_ref()
+                    .map(|(attempt, _)| *attempt)
+                    .is_some()
         {
             return Err(trace_validation_error(
                 "trace_attempt_count_mismatch",
@@ -1255,6 +1364,74 @@ impl CatalogGenerationReplayMachine {
         }
         Ok(())
     }
+}
+
+fn catalog_replay_outcome_metrics(
+    state: &CatalogGenerationReplayState,
+) -> Result<CatalogAwareOutcomeMetrics, CatalogGenerationTraceError> {
+    let mut min_x = None::<i32>;
+    let mut max_x = None::<i32>;
+    let mut min_y = None::<i32>;
+    let mut max_y = None::<i32>;
+    for cell in state
+        .rooms
+        .values()
+        .flat_map(|room| room.occupied_cells.iter())
+        .chain(state.routes.values().flat_map(|route| route.cells.iter()))
+    {
+        min_x = Some(min_x.map_or(cell.x, |value| value.min(cell.x)));
+        max_x = Some(max_x.map_or(cell.x, |value| value.max(cell.x)));
+        min_y = Some(min_y.map_or(cell.y, |value| value.min(cell.y)));
+        max_y = Some(max_y.map_or(cell.y, |value| value.max(cell.y)));
+    }
+    let (width, height) = match (min_x, max_x, min_y, max_y) {
+        (Some(min_x), Some(max_x), Some(min_y), Some(max_y)) => (
+            u64::try_from(i64::from(max_x) - i64::from(min_x) + 1),
+            u64::try_from(i64::from(max_y) - i64::from(min_y) + 1),
+        ),
+        (None, None, None, None) => (Ok(0), Ok(0)),
+        _ => {
+            return Err(trace_validation_error(
+                "trace_outcome_metric_invalid",
+                "replayed outcome has incomplete bounds",
+            ));
+        }
+    };
+    let routed_catalog_cells = state.routes.values().try_fold(0_u64, |total, route| {
+        let count = u64::try_from(route.cells.len()).ok()?;
+        total.checked_add(count)
+    });
+    let route_bends = state.routes.values().try_fold(0_u64, |total, route| {
+        total.checked_add(catalog_route_bends(&route.cells)?)
+    });
+    catalog_outcome_metrics_from_parts(
+        width.map_err(|_| {
+            trace_validation_error(
+                "trace_outcome_metric_overflow",
+                "replayed outcome width exceeds u64",
+            )
+        })?,
+        height.map_err(|_| {
+            trace_validation_error(
+                "trace_outcome_metric_overflow",
+                "replayed outcome height exceeds u64",
+            )
+        })?,
+        routed_catalog_cells.ok_or_else(|| {
+            trace_validation_error(
+                "trace_outcome_metric_overflow",
+                "replayed routed-cell count overflowed",
+            )
+        })?,
+        route_bends.ok_or_else(|| {
+            trace_validation_error(
+                "trace_outcome_metric_overflow",
+                "replayed route-bend count overflowed",
+            )
+        })?,
+        u64::from(state.routing_states),
+    )
+    .map_err(|detail| trace_validation_error("trace_outcome_metric_overflow", detail))
 }
 
 fn validate_selected_result_stage(
@@ -1468,8 +1645,8 @@ fn catalog_generation_trace_root_hash(
     limits: &CatalogGenerationTraceLimits,
 ) -> Result<String, CatalogGenerationTraceError> {
     trace_hash(&CatalogGenerationTraceRootInput {
-        kind: "rusty_procgen.catalog_generation_trace.v1",
-        schema_version: 1,
+        kind: "rusty_procgen.catalog_generation_trace.v2",
+        schema_version: 2,
         seed,
         input_hashes,
         generation_policy: policy,
@@ -1501,10 +1678,33 @@ fn catalog_generation_trace_selection(
                 "successful result has no selected attempt",
             )
         })?;
+        let selected_outcome = result
+            .attempts
+            .get(usize::try_from(selected_attempt).map_err(|_| {
+                trace_validation_error(
+                    "trace_selection_attempt_overflow",
+                    "selected attempt exceeds usize",
+                )
+            })?)
+            .and_then(|attempt| attempt.outcome.as_ref())
+            .ok_or_else(|| {
+                trace_validation_error(
+                    "trace_selection_outcome_missing",
+                    "selected attempt has no outcome evaluation",
+                )
+            })?;
+        let reason_prefix = if selected_outcome.preference_satisfied {
+            "preference_satisfied"
+        } else {
+            "best_admissible"
+        };
         Ok(CatalogGenerationTraceSelection {
             selected_attempt: Some(selected_attempt),
             classification: "success".to_owned(),
-            reason: "first_successful_attempt".to_owned(),
+            reason: format!(
+                "{reason_prefix}_{}",
+                catalog_primary_metric_name(result.policy.outcome_preferences.primary_metric),
+            ),
         })
     } else {
         let classification = result.exhausted_classification.clone().ok_or_else(|| {

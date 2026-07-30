@@ -201,6 +201,27 @@ fn semantic_trace_is_bounded_hash_closed_replayable_and_cli_equivalent() {
     assert_eq!(replay.final_output_hash, first.trace.final_output_hash);
     assert_eq!(replay.final_event_hash, first.trace.final_event_hash);
     assert_eq!(replay.attempts.len(), first.result.attempts.len());
+    assert_eq!(first.result.attempts.len(), 2);
+    assert_eq!(first.result.selected_attempt, Some(1));
+    let baseline = first.result.attempts[0]
+        .outcome
+        .as_ref()
+        .expect("baseline outcome");
+    let selected = first.result.attempts[1]
+        .outcome
+        .as_ref()
+        .expect("selected outcome");
+    assert!(baseline.admissible);
+    assert!(!baseline.preference_satisfied);
+    assert_eq!(baseline.metrics.placement_span_cells, 289);
+    assert_eq!(selected.metrics.placement_span_cells, 286);
+    assert!(selected.preference_satisfied);
+    assert_eq!(selected.comparison.incumbent_attempt, Some(0));
+    assert_eq!(selected.comparison.ordering, "new_incumbent");
+    assert_eq!(
+        first.trace.selection.reason,
+        "preference_satisfied_placement_span_cells"
+    );
     assert!(first.trace.events.iter().any(|event| matches!(
         event.body,
         CatalogGenerationTraceEventBody::RoomDomainEvaluated { .. }
@@ -272,8 +293,10 @@ fn semantic_trace_is_bounded_hash_closed_replayable_and_cli_equivalent() {
     );
     let mut body_tamper = first.trace.clone();
     match &mut body_tamper.events[1].body {
-        CatalogGenerationTraceEventBody::AttemptStarted { room_slack_cells } => {
-            *room_slack_cells += 1;
+        CatalogGenerationTraceEventBody::AttemptStarted {
+            room_compaction_cells,
+        } => {
+            *room_compaction_cells += 1;
         }
         other => panic!("expected attempt start, got {other:?}"),
     }
@@ -311,8 +334,12 @@ fn semantic_trace_is_bounded_hash_closed_replayable_and_cli_equivalent() {
     let placement = rechained_room_tamper
         .events
         .iter_mut()
-        .find_map(|event| match &mut event.body {
-            CatalogGenerationTraceEventBody::RoomPlaced { placement } => Some(placement),
+        .find_map(|event| match (&event.attempt, &mut event.body) {
+            (Some(attempt), CatalogGenerationTraceEventBody::RoomPlaced { placement })
+                if Some(*attempt) == first.result.selected_attempt =>
+            {
+                Some(placement)
+            }
             _ => None,
         })
         .expect("room placement event");
@@ -330,16 +357,18 @@ fn semantic_trace_is_bounded_hash_closed_replayable_and_cli_equivalent() {
         &fixture,
         "trace_selected_rooms_mismatch",
     );
-    let mut rechained_slack_tamper = first.trace.clone();
-    match &mut rechained_slack_tamper.events[1].body {
-        CatalogGenerationTraceEventBody::AttemptStarted { room_slack_cells } => {
-            *room_slack_cells += 1;
+    let mut rechained_compaction_tamper = first.trace.clone();
+    match &mut rechained_compaction_tamper.events[1].body {
+        CatalogGenerationTraceEventBody::AttemptStarted {
+            room_compaction_cells,
+        } => {
+            *room_compaction_cells += 1;
         }
         other => panic!("expected attempt start, got {other:?}"),
     }
-    rechain_trace(&mut rechained_slack_tamper);
+    rechain_trace(&mut rechained_compaction_tamper);
     assert_trace_rejected(
-        &rechained_slack_tamper,
+        &rechained_compaction_tamper,
         &first.result,
         &fixture,
         "trace_authoritative_event_mismatch",
@@ -444,10 +473,11 @@ fn semantic_trace_is_bounded_hash_closed_replayable_and_cli_equivalent() {
     let subject_hash = rechained_validation_tamper
         .events
         .iter_mut()
-        .find_map(|event| match &mut event.body {
-            CatalogGenerationTraceEventBody::ValidationCompleted { subject_hash, .. } => {
-                Some(subject_hash)
-            }
+        .find_map(|event| match (&event.attempt, &mut event.body) {
+            (
+                Some(attempt),
+                CatalogGenerationTraceEventBody::ValidationCompleted { subject_hash, .. },
+            ) if Some(*attempt) == first.result.selected_attempt => Some(subject_hash),
             _ => None,
         })
         .expect("validation event");
@@ -691,8 +721,10 @@ fn exhausted_trace_closes_every_attempt_and_preserves_typed_selection() {
         .all(|attempt| attempt.classification == "search_budget_exhaustion"));
     let mut rechained_failed_attempt = run.trace.clone();
     match &mut rechained_failed_attempt.events[1].body {
-        CatalogGenerationTraceEventBody::AttemptStarted { room_slack_cells } => {
-            *room_slack_cells += 1;
+        CatalogGenerationTraceEventBody::AttemptStarted {
+            room_compaction_cells,
+        } => {
+            *room_compaction_cells += 1;
         }
         other => panic!("expected exhausted attempt start, got {other:?}"),
     }

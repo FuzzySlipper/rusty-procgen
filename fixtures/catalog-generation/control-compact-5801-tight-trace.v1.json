@@ -1,39 +1,49 @@
 {
-  "kind": "rusty_procgen.catalog_generation_trace.v1",
-  "schemaVersion": 1,
+  "kind": "rusty_procgen.catalog_generation_trace.v2",
+  "schemaVersion": 2,
   "seed": 14341,
   "inputHashes": {
     "candidateHash": "fnv1a64:5dc14f6d865968fd",
     "sourceGeometryHash": "fnv1a64:469addeef5e3172e",
     "sourcePlanHash": "fnv1a64:887c954f4a7ef122",
     "catalogHash": "fnv1a64:d72ee3025af525a6",
-    "generationPolicyHash": "fnv1a64:1939abd9110ded19",
+    "generationPolicyHash": "fnv1a64:aa195a02da2c448a",
     "provenanceHash": "fnv1a64:8eff38b204e6af9f"
   },
   "generationPolicy": {
-    "kind": "rusty_procgen.catalog_aware_generation_policy.v1",
-    "schemaVersion": 1,
+    "kind": "rusty_procgen.catalog_aware_generation_policy.v2",
+    "schemaVersion": 2,
     "maxGenerationAttempts": 4,
-    "initialRoomSlackCells": 0,
-    "roomSlackGrowthCells": 4,
+    "initialRoomCompactionCells": 0,
+    "roomCompactionGrowthCells": 1,
     "maxRoomCandidates": 16,
     "maxRoutingStatesPerSection": 200000,
     "routeMarginCells": 48,
     "guideDistanceWeight": 4,
-    "turnPenalty": 3
+    "turnPenalty": 3,
+    "outcomeConstraints": {
+      "maxPlacementWidthCells": 4096,
+      "maxPlacementHeightCells": 4096,
+      "maxPlacementAreaCells": 16777216,
+      "maxRoutedCatalogCells": 1048576
+    },
+    "outcomePreferences": {
+      "primaryMetric": "placement_span",
+      "preferredMaximum": 286
+    }
   },
   "limits": {
     "maxEvents": 1024,
     "maxEventBodyBytes": 1048576,
     "maxVisualCells": 131072
   },
-  "rootHash": "fnv1a64:2fa67bcf49121eb3",
+  "rootHash": "fnv1a64:4a8a5ffa3b1e9dd4",
   "events": [
     {
       "index": 0,
       "attempt": null,
-      "previousHash": "fnv1a64:2fa67bcf49121eb3",
-      "eventHash": "fnv1a64:860ae6814636506b",
+      "previousHash": "fnv1a64:4a8a5ffa3b1e9dd4",
+      "eventHash": "fnv1a64:f8385aac9651d7d1",
       "body": {
         "type": "input_bound",
         "inputHashes": {
@@ -41,7 +51,7 @@
           "sourceGeometryHash": "fnv1a64:469addeef5e3172e",
           "sourcePlanHash": "fnv1a64:887c954f4a7ef122",
           "catalogHash": "fnv1a64:d72ee3025af525a6",
-          "generationPolicyHash": "fnv1a64:1939abd9110ded19",
+          "generationPolicyHash": "fnv1a64:aa195a02da2c448a",
           "provenanceHash": "fnv1a64:8eff38b204e6af9f"
         }
       }
@@ -49,18 +59,18 @@
     {
       "index": 1,
       "attempt": 0,
-      "previousHash": "fnv1a64:860ae6814636506b",
-      "eventHash": "fnv1a64:1bb29d6087b18fca",
+      "previousHash": "fnv1a64:f8385aac9651d7d1",
+      "eventHash": "fnv1a64:2666d059de4f11ae",
       "body": {
         "type": "attempt_started",
-        "roomSlackCells": 0
+        "roomCompactionCells": 0
       }
     },
     {
       "index": 2,
       "attempt": 0,
-      "previousHash": "fnv1a64:1bb29d6087b18fca",
-      "eventHash": "fnv1a64:1d8b0d84c8b2d422",
+      "previousHash": "fnv1a64:2666d059de4f11ae",
+      "eventHash": "fnv1a64:cbd8403383859055",
       "body": {
         "type": "room_domain_evaluated",
         "pieceId": "piece.room.room_region_start",
@@ -84,8 +94,8 @@
     {
       "index": 3,
       "attempt": 0,
-      "previousHash": "fnv1a64:1d8b0d84c8b2d422",
-      "eventHash": "fnv1a64:99496996df9c9143",
+      "previousHash": "fnv1a64:cbd8403383859055",
+      "eventHash": "fnv1a64:1889c02db78f7dcd",
       "body": {
         "type": "room_placed",
         "placement": {
@@ -286,8 +296,8 @@
     {
       "index": 4,
       "attempt": 0,
-      "previousHash": "fnv1a64:99496996df9c9143",
-      "eventHash": "fnv1a64:aa289d5a63b273d4",
+      "previousHash": "fnv1a64:1889c02db78f7dcd",
+      "eventHash": "fnv1a64:2dd5a24737bb6720",
       "body": {
         "type": "room_domain_evaluated",
         "pieceId": "piece.room.room_region_gate_locked_1",
@@ -335,8 +345,8 @@
     {
       "index": 5,
       "attempt": 0,
-      "previousHash": "fnv1a64:aa289d5a63b273d4",
-      "eventHash": "fnv1a64:4b29cda231f61492",
+      "previousHash": "fnv1a64:2dd5a24737bb6720",
+      "eventHash": "fnv1a64:178d9d3777e0d198",
       "body": {
         "type": "room_placed",
         "placement": {
@@ -1421,8 +1431,8 @@
     {
       "index": 6,
       "attempt": 0,
-      "previousHash": "fnv1a64:4b29cda231f61492",
-      "eventHash": "fnv1a64:d535641c4a771cd6",
+      "previousHash": "fnv1a64:178d9d3777e0d198",
+      "eventHash": "fnv1a64:35171a2d8bf69a63",
       "body": {
         "type": "room_domain_evaluated",
         "pieceId": "piece.room.room_region_key_gate_1",
@@ -1530,8 +1540,8 @@
     {
       "index": 7,
       "attempt": 0,
-      "previousHash": "fnv1a64:d535641c4a771cd6",
-      "eventHash": "fnv1a64:7423962c317d68c3",
+      "previousHash": "fnv1a64:35171a2d8bf69a63",
+      "eventHash": "fnv1a64:557c178326f526e2",
       "body": {
         "type": "room_placed",
         "placement": {
@@ -1876,8 +1886,8 @@
     {
       "index": 8,
       "attempt": 0,
-      "previousHash": "fnv1a64:7423962c317d68c3",
-      "eventHash": "fnv1a64:f6a1ff33af6352c3",
+      "previousHash": "fnv1a64:557c178326f526e2",
+      "eventHash": "fnv1a64:6a9f4b0e35cdf4db",
       "body": {
         "type": "room_domain_evaluated",
         "pieceId": "piece.room.room_region_goal",
@@ -1907,8 +1917,8 @@
     {
       "index": 9,
       "attempt": 0,
-      "previousHash": "fnv1a64:f6a1ff33af6352c3",
-      "eventHash": "fnv1a64:f299ebf6747b10f2",
+      "previousHash": "fnv1a64:6a9f4b0e35cdf4db",
+      "eventHash": "fnv1a64:d88c966af91cf213",
       "body": {
         "type": "room_placed",
         "placement": {
@@ -1974,8 +1984,8 @@
     {
       "index": 10,
       "attempt": 0,
-      "previousHash": "fnv1a64:f299ebf6747b10f2",
-      "eventHash": "fnv1a64:54bf8eef73efb0f2",
+      "previousHash": "fnv1a64:d88c966af91cf213",
+      "eventHash": "fnv1a64:33d05616246b1806",
       "body": {
         "type": "section_routing_started",
         "sectionId": "section.region_key_gate_1.region_start.open",
@@ -2152,8 +2162,8 @@
     {
       "index": 11,
       "attempt": 0,
-      "previousHash": "fnv1a64:54bf8eef73efb0f2",
-      "eventHash": "fnv1a64:44ad0cc3033d4431",
+      "previousHash": "fnv1a64:33d05616246b1806",
+      "eventHash": "fnv1a64:b6ff9d95567003f6",
       "body": {
         "type": "section_routing_finished",
         "sectionId": "section.region_key_gate_1.region_start.open",
@@ -2366,8 +2376,8 @@
     {
       "index": 12,
       "attempt": 0,
-      "previousHash": "fnv1a64:44ad0cc3033d4431",
-      "eventHash": "fnv1a64:86a429b52beae4d3",
+      "previousHash": "fnv1a64:b6ff9d95567003f6",
+      "eventHash": "fnv1a64:0deafa547f69790d",
       "body": {
         "type": "section_routing_started",
         "sectionId": "section.region_gate_locked_1.region_start.open",
@@ -2476,8 +2486,8 @@
     {
       "index": 13,
       "attempt": 0,
-      "previousHash": "fnv1a64:86a429b52beae4d3",
-      "eventHash": "fnv1a64:849be7820a2f2c46",
+      "previousHash": "fnv1a64:0deafa547f69790d",
+      "eventHash": "fnv1a64:a896b7cedcab5e0f",
       "body": {
         "type": "section_routing_finished",
         "sectionId": "section.region_gate_locked_1.region_start.open",
@@ -2606,8 +2616,8 @@
     {
       "index": 14,
       "attempt": 0,
-      "previousHash": "fnv1a64:849be7820a2f2c46",
-      "eventHash": "fnv1a64:3407652a71c3dd4f",
+      "previousHash": "fnv1a64:a896b7cedcab5e0f",
+      "eventHash": "fnv1a64:af71f5ae0f417ebf",
       "body": {
         "type": "section_routing_started",
         "sectionId": "section.region_gate_locked_1.region_goal.connector_edge_gate_1_goal",
@@ -2712,8 +2722,8 @@
     {
       "index": 15,
       "attempt": 0,
-      "previousHash": "fnv1a64:3407652a71c3dd4f",
-      "eventHash": "fnv1a64:7cc383743cdc9dfa",
+      "previousHash": "fnv1a64:af71f5ae0f417ebf",
+      "eventHash": "fnv1a64:eebde1cc34d9ff3f",
       "body": {
         "type": "section_routing_finished",
         "sectionId": "section.region_gate_locked_1.region_goal.connector_edge_gate_1_goal",
@@ -2842,8 +2852,8 @@
     {
       "index": 16,
       "attempt": 0,
-      "previousHash": "fnv1a64:7cc383743cdc9dfa",
-      "eventHash": "fnv1a64:6c435bd340a444b9",
+      "previousHash": "fnv1a64:eebde1cc34d9ff3f",
+      "eventHash": "fnv1a64:e91209a4f2d435a1",
       "body": {
         "type": "section_routing_started",
         "sectionId": "section.region_gate_locked_1.region_key_gate_1.open",
@@ -2924,8 +2934,8 @@
     {
       "index": 17,
       "attempt": 0,
-      "previousHash": "fnv1a64:6c435bd340a444b9",
-      "eventHash": "fnv1a64:e20c7c28218a0730",
+      "previousHash": "fnv1a64:e91209a4f2d435a1",
+      "eventHash": "fnv1a64:af25c41c26e27935",
       "body": {
         "type": "section_routing_finished",
         "sectionId": "section.region_gate_locked_1.region_key_gate_1.open",
@@ -3006,8 +3016,8 @@
     {
       "index": 18,
       "attempt": 0,
-      "previousHash": "fnv1a64:e20c7c28218a0730",
-      "eventHash": "fnv1a64:bf6976505afd1a6c",
+      "previousHash": "fnv1a64:af25c41c26e27935",
+      "eventHash": "fnv1a64:dcd8dcaef31f2908",
       "body": {
         "type": "validation_completed",
         "stage": "geometry_validation",
@@ -3019,8 +3029,8 @@
     {
       "index": 19,
       "attempt": 0,
-      "previousHash": "fnv1a64:bf6976505afd1a6c",
-      "eventHash": "fnv1a64:e9bb1a91dc741390",
+      "previousHash": "fnv1a64:dcd8dcaef31f2908",
+      "eventHash": "fnv1a64:e8ed54cb515cc7cf",
       "body": {
         "type": "validation_completed",
         "stage": "placement_validation",
@@ -3032,8 +3042,8 @@
     {
       "index": 20,
       "attempt": 0,
-      "previousHash": "fnv1a64:e9bb1a91dc741390",
-      "eventHash": "fnv1a64:b13991e1bc25788c",
+      "previousHash": "fnv1a64:e8ed54cb515cc7cf",
+      "eventHash": "fnv1a64:8ae50b682668ab9c",
       "body": {
         "type": "validation_completed",
         "stage": "built_flow_validation",
@@ -3045,39 +3055,67 @@
     {
       "index": 21,
       "attempt": 0,
-      "previousHash": "fnv1a64:b13991e1bc25788c",
-      "eventHash": "fnv1a64:73aa61a7688e7125",
+      "previousHash": "fnv1a64:8ae50b682668ab9c",
+      "eventHash": "fnv1a64:0f5ea358cd3cc053",
+      "body": {
+        "type": "outcome_evaluated",
+        "evaluation": {
+          "metrics": {
+            "placementWidthCells": 81,
+            "placementHeightCells": 36,
+            "placementSpanCells": 117,
+            "placementAreaCells": 2916,
+            "routedCatalogCells": 125,
+            "routeBends": 22,
+            "routingStates": 4569
+          },
+          "constraintMisses": [],
+          "admissible": true,
+          "preferenceSatisfied": true,
+          "comparison": {
+            "incumbentAttempt": null,
+            "ordering": "first_admissible",
+            "decisiveMetric": "placement_span_cells"
+          }
+        }
+      }
+    },
+    {
+      "index": 22,
+      "attempt": 0,
+      "previousHash": "fnv1a64:0f5ea358cd3cc053",
+      "eventHash": "fnv1a64:c9e08f9e7007322b",
       "body": {
         "type": "attempt_finished",
-        "classification": "success",
-        "stage": "complete",
-        "detail": "Catalog rooms and direct-glue corridor chains passed all validators.",
+        "classification": "admissible",
+        "stage": "outcome_selection",
+        "detail": "Validated catalog outcome was compared by placement_span_cells.",
         "roomsPlaced": 4,
         "sectionsRouted": 4,
         "routingStates": 4569
       }
     },
     {
-      "index": 22,
+      "index": 23,
       "attempt": null,
-      "previousHash": "fnv1a64:73aa61a7688e7125",
-      "eventHash": "fnv1a64:cb771ce8477c1f80",
+      "previousHash": "fnv1a64:c9e08f9e7007322b",
+      "eventHash": "fnv1a64:312d361cfe54eda4",
       "body": {
         "type": "run_finished",
         "selectedAttempt": 0,
         "classification": "success",
-        "reason": "first_successful_attempt",
-        "outputHash": "fnv1a64:de4c0cfe2edaba01"
+        "reason": "preference_satisfied_placement_span_cells",
+        "outputHash": "fnv1a64:6ec9027b26eeedf1"
       }
     }
   ],
-  "eventBodyBytes": 16412,
+  "eventBodyBytes": 16836,
   "visualCellCount": 621,
-  "finalEventHash": "fnv1a64:cb771ce8477c1f80",
-  "finalOutputHash": "fnv1a64:de4c0cfe2edaba01",
+  "finalEventHash": "fnv1a64:312d361cfe54eda4",
+  "finalOutputHash": "fnv1a64:6ec9027b26eeedf1",
   "selection": {
     "selectedAttempt": 0,
     "classification": "success",
-    "reason": "first_successful_attempt"
+    "reason": "preference_satisfied_placement_span_cells"
   }
 }

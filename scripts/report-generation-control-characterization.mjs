@@ -132,7 +132,7 @@ try {
       selection: sha256Json(selectionOwner),
       baseConfig: sha256Json(baseConfig),
     },
-    behaviorChanges: false,
+    behaviorChanges: true,
     namedRuns: suite.namedRuns.map((definition) => {
       const run = requiredNamedRun(namedRuns, definition.id);
       return summarizeNamedRun(
@@ -609,8 +609,8 @@ function responseTracePair(label, response) {
     ? response.body.catalogAwareGeneration
     : response.body.evidence;
   if (
-    owner?.result?.kind !== 'rusty_procgen.catalog_aware_generation.v1'
-    || owner?.trace?.kind !== 'rusty_procgen.catalog_generation_trace.v1'
+    owner?.result?.kind !== 'rusty_procgen.catalog_aware_generation.v2'
+    || owner?.trace?.kind !== 'rusty_procgen.catalog_generation_trace.v2'
   ) {
     throw new Error(`${label} did not return a complete catalog result/trace pair`);
   }
@@ -714,7 +714,7 @@ function assertSuite(value) {
     || typeof value.influenceMatrix?.candidateId !== 'string'
     || typeof value.influenceMatrix?.baselineRunId !== 'string'
     || !Array.isArray(value.influenceMatrix?.probes)
-    || value.influenceMatrix.probes.length !== 20
+    || value.influenceMatrix.probes.length !== 26
   ) {
     throw new Error(`${suiteRef} has an invalid characterization contract`);
   }

@@ -71,7 +71,7 @@ try {
         first.response.status !== 422
         || !String(first.result.error).startsWith('catalog_aware_')
         || first.result.evidence?.kind
-          !== 'rusty_procgen.catalog_aware_generation_exhaustion.v1'
+          !== 'rusty_procgen.catalog_aware_generation_exhaustion.v2'
       ) {
         throw new Error(
           `unexpected catalog-aware outcome for ${entry.candidateId}:`
@@ -147,7 +147,9 @@ function assertExactCatalogBuild(candidateId, result) {
     || result.geometryValidation?.ok !== true
     || result.placementValidation?.ok !== true
     || result.builtFlowValidation?.ok !== true
-    || result.catalogAwareGeneration?.attempts?.at(-1)?.classification !== 'success'
+    || !result.catalogAwareGeneration?.attempts?.some(
+      (attempt) => attempt.classification === 'admissible',
+    )
   ) {
     throw new Error(
       `catalog-aware success was not an exact validated assembly for ${candidateId}:`

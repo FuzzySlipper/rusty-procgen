@@ -14,7 +14,10 @@ const outDir = process.env.GENERATION_TRACE_SMOKE_OUT
 const configPath = join(outDir, 'viewer-generation-config.json');
 
 await mkdir(outDir, { recursive: true });
-const generationConfig = JSON.parse(await readFile('config/viewer-generation.json', 'utf8'));
+const generationConfig = JSON.parse(await readFile(
+  'fixtures/policies/viewer-generation-default.v2.json',
+  'utf8',
+));
 for (const settings of [
   generationConfig.geometryLayoutPolicy,
   generationConfig.placementPolicy,
@@ -54,6 +57,9 @@ try {
     .then((response) => response.json());
   const accepted = fixtureBundle.runs.find((run) => run.id === 'accepted-default');
   const exhausted = fixtureBundle.runs.find((run) => run.id === 'exhausted-route-budget');
+  const bestAdmissible = fixtureBundle.runs.find(
+    (run) => run.id === 'best-admissible-selection',
+  );
   const controlRejected = fixtureBundle.runs.find(
     (run) => run.id === 'control-tight-5201-rejected',
   );
@@ -62,9 +68,12 @@ try {
   );
   if (
     accepted?.result?.ok !== true
-    || accepted.trace?.events?.length !== 51
+    || accepted.trace?.events?.length !== 102
     || exhausted?.result?.ok !== false
     || exhausted.trace?.events?.length !== 90
+    || bestAdmissible?.result?.ok !== true
+    || bestAdmissible.result.selectedAttempt !== 2
+    || bestAdmissible.result.attempts?.length !== 4
     || controlRejected?.result?.ok !== false
     || controlRejected.result.candidateId !== 'candidate.first_slice.5201'
     || controlCompact?.result?.ok !== true
@@ -85,6 +94,7 @@ try {
     chromium,
     accepted,
     exhausted,
+    bestAdmissible,
     controlRejected,
     controlCompact,
     fixtureBundle,
@@ -103,6 +113,7 @@ async function exerciseViewer(
   chromium,
   accepted,
   exhausted,
+  bestAdmissible,
   controlRejected,
   controlCompact,
   fixtureBundle,
@@ -223,6 +234,29 @@ async function exerciseViewer(
       throw new Error(`exhausted final trace state diverged: ${JSON.stringify(exhaustedFinal)}`);
     }
 
+    await select(cdp, '#generation-trace-run', 'best-admissible-selection');
+    await waitForDatasetValue(cdp, 'runId', 'best-admissible-selection');
+    await seekToEnd(cdp);
+    const bestFinal = await dataset(cdp);
+    const bestMetrics = await evaluateCdp(
+      cdp,
+      `document.querySelector('#generation-trace-metrics')?.textContent ?? ''`,
+    );
+    if (
+      bestFinal.selection !== 'attempt-2'
+      || bestFinal.attempt !== 2
+      || bestFinal.outputHash !== bestAdmissible.trace.finalOutputHash
+      || bestFinal.finalMatchesResult !== true
+      || !bestMetrics.includes('Hard placement limit')
+      || !bestMetrics.includes('Selection preference')
+      || !bestMetrics.includes('Best Admissible Placement Span Cells')
+    ) {
+      throw new Error(`best-admissible comparison was not visible: ${JSON.stringify({
+        bestFinal,
+        bestMetrics,
+      })}`);
+    }
+
     await select(cdp, '#generation-trace-run', 'control-tight-5201-rejected');
     await waitForDatasetValue(cdp, 'runId', 'control-tight-5201-rejected');
     const tightRejected = await dataset(cdp);
@@ -321,7 +355,7 @@ async function exerciseViewer(
     await captureScreenshot(cdp, 'generation-trace-desktop.png');
 
     const tampered = structuredClone(fixtureBundle);
-    tampered.runs[0].trace.events[1].body.roomSlackCells += 1;
+    tampered.runs[0].trace.events[1].body.roomCompactionCells += 1;
     const removeIntercept = cdp.on('Fetch.requestPaused', (params) => {
       if (params.request.url.includes('/api/evidence/catalog-generation-runs')) {
         void cdp.send('Fetch.fulfillRequest', {
@@ -415,6 +449,10 @@ async function exerciseViewer(
       exhausted: {
         outputHash: exhaustedFinal.outputHash,
         attempts: exhaustedAttemptOptions,
+      },
+      bestAdmissible: {
+        outputHash: bestFinal.outputHash,
+        selectedAttempt: bestFinal.attempt,
       },
       characterized: {
         rejectedCandidate: tightRejected.candidateId,

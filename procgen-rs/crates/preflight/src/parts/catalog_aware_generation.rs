@@ -7,26 +7,111 @@ pub struct CatalogAwareGenerationPolicy {
     pub kind: String,
     pub schema_version: u32,
     pub max_generation_attempts: u32,
-    pub initial_room_slack_cells: i32,
-    pub room_slack_growth_cells: i32,
+    pub initial_room_compaction_cells: i32,
+    pub room_compaction_growth_cells: i32,
     pub max_room_candidates: u32,
     pub max_routing_states_per_section: u32,
     pub route_margin_cells: i32,
     pub guide_distance_weight: u32,
     pub turn_penalty: u32,
+    pub outcome_constraints: CatalogAwareOutcomeConstraints,
+    pub outcome_preferences: CatalogAwareOutcomePreferences,
+}
+
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CatalogAwareOutcomeConstraints {
+    pub max_placement_width_cells: u64,
+    pub max_placement_height_cells: u64,
+    pub max_placement_area_cells: u64,
+    pub max_routed_catalog_cells: u64,
+}
+
+impl Default for CatalogAwareOutcomeConstraints {
+    fn default() -> Self {
+        Self {
+            max_placement_width_cells: 4_096,
+            max_placement_height_cells: 4_096,
+            max_placement_area_cells: 16_777_216,
+            max_routed_catalog_cells: 1_048_576,
+        }
+    }
+}
+
+#[derive(Clone, Copy, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[serde(rename_all = "snake_case")]
+pub enum CatalogAwareOutcomeMetric {
+    PlacementSpan,
+    PlacementArea,
+    RoutedCatalogCells,
+}
+
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CatalogAwareOutcomePreferences {
+    pub primary_metric: CatalogAwareOutcomeMetric,
+    pub preferred_maximum: u64,
+}
+
+impl Default for CatalogAwareOutcomePreferences {
+    fn default() -> Self {
+        Self {
+            primary_metric: CatalogAwareOutcomeMetric::PlacementSpan,
+            preferred_maximum: 286,
+        }
+    }
+}
+
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CatalogAwareOutcomeMetrics {
+    pub placement_width_cells: u64,
+    pub placement_height_cells: u64,
+    pub placement_span_cells: u64,
+    pub placement_area_cells: u64,
+    pub routed_catalog_cells: u64,
+    pub route_bends: u64,
+    pub routing_states: u64,
+}
+
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CatalogAwareConstraintMiss {
+    pub metric: String,
+    pub actual: u64,
+    pub limit: u64,
+}
+
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CatalogAwareOutcomeComparison {
+    pub incumbent_attempt: Option<u32>,
+    pub ordering: String,
+    pub decisive_metric: String,
+}
+
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct CatalogAwareOutcomeEvaluation {
+    pub metrics: CatalogAwareOutcomeMetrics,
+    pub constraint_misses: Vec<CatalogAwareConstraintMiss>,
+    pub admissible: bool,
+    pub preference_satisfied: bool,
+    pub comparison: CatalogAwareOutcomeComparison,
 }
 
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct CatalogAwareAttemptEvidence {
     pub attempt: u32,
-    pub room_slack_cells: i32,
+    pub room_compaction_cells: i32,
     pub classification: String,
     pub stage: String,
     pub detail: String,
     pub rooms_placed: usize,
     pub sections_routed: usize,
     pub routing_states: u32,
+    pub outcome: Option<CatalogAwareOutcomeEvaluation>,
 }
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -85,6 +170,8 @@ pub(crate) struct CatalogAwareAttemptOutcome {
     pub(crate) placement_validation: ValidationReport,
     pub(crate) built_flow_validation: BuiltFlowValidationReport,
     pub(crate) routing_states: u32,
+    pub(crate) routed_catalog_cells: u64,
+    pub(crate) route_bends: u64,
 }
 
 #[derive(Clone)]
@@ -244,8 +331,8 @@ fn run_catalog_aware_generation_recording(
         ));
     }
     let mut result = CatalogAwareGenerationResult {
-        kind: "rusty_procgen.catalog_aware_generation.v1".to_owned(),
-        schema_version: 1,
+        kind: "rusty_procgen.catalog_aware_generation.v2".to_owned(),
+        schema_version: 2,
         ok: false,
         candidate_id: input.candidate.candidate_id.clone(),
         policy: input.policy.clone(),
@@ -261,36 +348,124 @@ fn run_catalog_aware_generation_recording(
         built_flow_validation: None,
     };
     let mut final_classification = "generation_infeasibility".to_owned();
+    let mut constraint_rejected = false;
+    let mut best: Option<(u32, CatalogAwareAttemptOutcome, CatalogAwareOutcomeMetrics)> = None;
     for attempt in 0..input.policy.max_generation_attempts {
-        let slack = input.policy.initial_room_slack_cells.saturating_add(
+        let compaction = input.policy.initial_room_compaction_cells.saturating_add(
             input
                 .policy
-                .room_slack_growth_cells
+                .room_compaction_growth_cells
                 .saturating_mul(i32::try_from(attempt).unwrap_or(i32::MAX)),
         );
         trace_record_or_error(
             recorder,
             Some(attempt),
             CatalogGenerationTraceEventBody::AttemptStarted {
-                room_slack_cells: slack,
+                room_compaction_cells: compaction,
             },
         )
         .map_err(CatalogAwareRunError::Trace)?;
-        let attempt_result = realize_catalog_aware_attempt(input, attempt, slack, recorder);
+        let attempt_result = realize_catalog_aware_attempt(input, attempt, compaction, recorder);
         if let Some(error) = recorder.error() {
             return Err(CatalogAwareRunError::Trace(error));
         }
         match attempt_result {
             Ok(outcome) => {
-                result.ok = true;
-                result.selected_attempt = Some(attempt);
+                let metrics = catalog_outcome_metrics(&outcome).map_err(|detail| {
+                    CatalogAwareRunError::Generation(format!(
+                        "catalog outcome metric calculation failed: {detail}"
+                    ))
+                })?;
+                let constraint_misses =
+                    catalog_outcome_constraint_misses(&metrics, &input.policy.outcome_constraints);
+                let admissible = constraint_misses.is_empty();
+                let incumbent_attempt = best.as_ref().map(|(attempt, _, _)| *attempt);
+                let (ordering, decisive_metric, replaces_incumbent) = if !admissible {
+                    constraint_rejected = true;
+                    (
+                        "constraint_miss".to_owned(),
+                        constraint_misses.first().map_or_else(
+                            || "outcome_constraints".to_owned(),
+                            |miss| miss.metric.clone(),
+                        ),
+                        false,
+                    )
+                } else if let Some((_, _, incumbent_metrics)) = best.as_ref() {
+                    let (ordering, decisive_metric) = catalog_outcome_ordering(
+                        &metrics,
+                        incumbent_metrics,
+                        input.policy.outcome_preferences.primary_metric,
+                    );
+                    (
+                        if ordering == Ordering::Less {
+                            "new_incumbent".to_owned()
+                        } else {
+                            "incumbent_retained".to_owned()
+                        },
+                        decisive_metric.to_owned(),
+                        ordering == Ordering::Less,
+                    )
+                } else {
+                    (
+                        "first_admissible".to_owned(),
+                        catalog_primary_metric_name(
+                            input.policy.outcome_preferences.primary_metric,
+                        )
+                        .to_owned(),
+                        true,
+                    )
+                };
+                let evaluation = CatalogAwareOutcomeEvaluation {
+                    metrics: metrics.clone(),
+                    constraint_misses,
+                    admissible,
+                    preference_satisfied: admissible
+                        && catalog_outcome_metric_value(
+                            &metrics,
+                            catalog_primary_metric_name(
+                                input.policy.outcome_preferences.primary_metric,
+                            ),
+                        ) <= input.policy.outcome_preferences.preferred_maximum,
+                    comparison: CatalogAwareOutcomeComparison {
+                        incumbent_attempt,
+                        ordering,
+                        decisive_metric,
+                    },
+                };
+                trace_record_or_error(
+                    recorder,
+                    Some(attempt),
+                    CatalogGenerationTraceEventBody::OutcomeEvaluated {
+                        evaluation: evaluation.clone(),
+                    },
+                )
+                .map_err(CatalogAwareRunError::Trace)?;
                 let evidence = CatalogAwareAttemptEvidence {
                     attempt,
-                    room_slack_cells: slack,
-                    classification: "success".to_owned(),
-                    stage: "complete".to_owned(),
-                    detail: "Catalog rooms and direct-glue corridor chains passed all validators."
-                        .to_owned(),
+                    room_compaction_cells: compaction,
+                    classification: if admissible {
+                        "admissible".to_owned()
+                    } else {
+                        "outcome_constraint_miss".to_owned()
+                    },
+                    stage: if admissible {
+                        "outcome_selection".to_owned()
+                    } else {
+                        "outcome_constraints".to_owned()
+                    },
+                    detail: if admissible {
+                        format!(
+                            "Validated catalog outcome was compared by {}.",
+                            catalog_primary_metric_name(
+                                input.policy.outcome_preferences.primary_metric,
+                            ),
+                        )
+                    } else {
+                        format!(
+                            "Validated catalog outcome exceeded {} hard constraint(s).",
+                            evaluation.constraint_misses.len(),
+                        )
+                    },
                     rooms_placed: outcome
                         .placement
                         .instances
@@ -305,6 +480,7 @@ fn run_catalog_aware_generation_recording(
                         .collect::<BTreeSet<_>>()
                         .len(),
                     routing_states: outcome.routing_states,
+                    outcome: Some(evaluation),
                 };
                 trace_record_or_error(
                     recorder,
@@ -320,26 +496,30 @@ fn run_catalog_aware_generation_recording(
                 )
                 .map_err(CatalogAwareRunError::Trace)?;
                 result.attempts.push(evidence);
-                result.geometry = Some(outcome.geometry);
-                result.geometry_validation = Some(outcome.geometry_validation);
-                result.piece_plan = Some(outcome.piece_plan);
-                result.shape_match = Some(outcome.shape_match);
-                result.placement = Some(outcome.placement);
-                result.placement_validation = Some(outcome.placement_validation);
-                result.built_flow_validation = Some(outcome.built_flow_validation);
-                break;
+                if replaces_incumbent {
+                    best = Some((attempt, outcome, metrics));
+                }
+                if result
+                    .attempts
+                    .last()
+                    .and_then(|attempt| attempt.outcome.as_ref())
+                    .is_some_and(|evaluation| evaluation.preference_satisfied)
+                {
+                    break;
+                }
             }
             Err(failure) => {
                 final_classification = failure.classification.clone();
                 let evidence = CatalogAwareAttemptEvidence {
                     attempt,
-                    room_slack_cells: slack,
+                    room_compaction_cells: compaction,
                     classification: failure.classification,
                     stage: failure.stage,
                     detail: failure.detail,
                     rooms_placed: failure.rooms_placed,
                     sections_routed: failure.sections_routed,
                     routing_states: failure.routing_states,
+                    outcome: None,
                 };
                 trace_record_or_error(
                     recorder,
@@ -358,10 +538,195 @@ fn run_catalog_aware_generation_recording(
             }
         }
     }
-    if !result.ok {
-        result.exhausted_classification = Some(final_classification);
+    if let Some((attempt, outcome, _)) = best {
+        result.ok = true;
+        result.selected_attempt = Some(attempt);
+        result.geometry = Some(outcome.geometry);
+        result.geometry_validation = Some(outcome.geometry_validation);
+        result.piece_plan = Some(outcome.piece_plan);
+        result.shape_match = Some(outcome.shape_match);
+        result.placement = Some(outcome.placement);
+        result.placement_validation = Some(outcome.placement_validation);
+        result.built_flow_validation = Some(outcome.built_flow_validation);
+    } else {
+        result.exhausted_classification = Some(if constraint_rejected {
+            "outcome_constraint_miss".to_owned()
+        } else {
+            final_classification
+        });
     }
     Ok(result)
+}
+
+fn catalog_outcome_metrics(
+    outcome: &CatalogAwareAttemptOutcome,
+) -> Result<CatalogAwareOutcomeMetrics, String> {
+    let (placement_width_cells, placement_height_cells) =
+        if outcome.placement.occupied_cells.is_empty() {
+            (0, 0)
+        } else {
+            let min_x = outcome
+                .placement
+                .occupied_cells
+                .iter()
+                .map(|cell| cell.x)
+                .min()
+                .ok_or_else(|| "placement has no minimum x".to_owned())?;
+            let max_x = outcome
+                .placement
+                .occupied_cells
+                .iter()
+                .map(|cell| cell.x)
+                .max()
+                .ok_or_else(|| "placement has no maximum x".to_owned())?;
+            let min_y = outcome
+                .placement
+                .occupied_cells
+                .iter()
+                .map(|cell| cell.y)
+                .min()
+                .ok_or_else(|| "placement has no minimum y".to_owned())?;
+            let max_y = outcome
+                .placement
+                .occupied_cells
+                .iter()
+                .map(|cell| cell.y)
+                .max()
+                .ok_or_else(|| "placement has no maximum y".to_owned())?;
+            (
+                u64::try_from(i64::from(max_x) - i64::from(min_x) + 1)
+                    .map_err(|_| "placement width is negative".to_owned())?,
+                u64::try_from(i64::from(max_y) - i64::from(min_y) + 1)
+                    .map_err(|_| "placement height is negative".to_owned())?,
+            )
+        };
+    catalog_outcome_metrics_from_parts(
+        placement_width_cells,
+        placement_height_cells,
+        outcome.routed_catalog_cells,
+        outcome.route_bends,
+        u64::from(outcome.routing_states),
+    )
+}
+
+pub(crate) fn catalog_outcome_metrics_from_parts(
+    placement_width_cells: u64,
+    placement_height_cells: u64,
+    routed_catalog_cells: u64,
+    route_bends: u64,
+    routing_states: u64,
+) -> Result<CatalogAwareOutcomeMetrics, String> {
+    let placement_span_cells = placement_width_cells
+        .checked_add(placement_height_cells)
+        .ok_or_else(|| "placement span arithmetic overflowed".to_owned())?;
+    let placement_area_cells = placement_width_cells
+        .checked_mul(placement_height_cells)
+        .ok_or_else(|| "placement area arithmetic overflowed".to_owned())?;
+    Ok(CatalogAwareOutcomeMetrics {
+        placement_width_cells,
+        placement_height_cells,
+        placement_span_cells,
+        placement_area_cells,
+        routed_catalog_cells,
+        route_bends,
+        routing_states,
+    })
+}
+
+pub(crate) fn catalog_outcome_constraint_misses(
+    metrics: &CatalogAwareOutcomeMetrics,
+    constraints: &CatalogAwareOutcomeConstraints,
+) -> Vec<CatalogAwareConstraintMiss> {
+    [
+        (
+            "placement_width_cells",
+            metrics.placement_width_cells,
+            constraints.max_placement_width_cells,
+        ),
+        (
+            "placement_height_cells",
+            metrics.placement_height_cells,
+            constraints.max_placement_height_cells,
+        ),
+        (
+            "placement_area_cells",
+            metrics.placement_area_cells,
+            constraints.max_placement_area_cells,
+        ),
+        (
+            "routed_catalog_cells",
+            metrics.routed_catalog_cells,
+            constraints.max_routed_catalog_cells,
+        ),
+    ]
+    .into_iter()
+    .filter(|(_, actual, limit)| actual > limit)
+    .map(|(metric, actual, limit)| CatalogAwareConstraintMiss {
+        metric: metric.to_owned(),
+        actual,
+        limit,
+    })
+    .collect()
+}
+
+pub(crate) fn catalog_outcome_ordering(
+    contender: &CatalogAwareOutcomeMetrics,
+    incumbent: &CatalogAwareOutcomeMetrics,
+    primary: CatalogAwareOutcomeMetric,
+) -> (Ordering, &'static str) {
+    let order = match primary {
+        CatalogAwareOutcomeMetric::PlacementSpan => [
+            "placement_span_cells",
+            "placement_area_cells",
+            "routed_catalog_cells",
+            "route_bends",
+            "routing_states",
+        ],
+        CatalogAwareOutcomeMetric::PlacementArea => [
+            "placement_area_cells",
+            "placement_span_cells",
+            "routed_catalog_cells",
+            "route_bends",
+            "routing_states",
+        ],
+        CatalogAwareOutcomeMetric::RoutedCatalogCells => [
+            "routed_catalog_cells",
+            "placement_span_cells",
+            "placement_area_cells",
+            "route_bends",
+            "routing_states",
+        ],
+    };
+    for metric in order {
+        let ordering = catalog_outcome_metric_value(contender, metric)
+            .cmp(&catalog_outcome_metric_value(incumbent, metric));
+        if ordering != Ordering::Equal {
+            return (ordering, metric);
+        }
+    }
+    (Ordering::Equal, "attempt_order")
+}
+
+pub(crate) fn catalog_outcome_metric_value(
+    metrics: &CatalogAwareOutcomeMetrics,
+    metric: &str,
+) -> u64 {
+    match metric {
+        "placement_span_cells" => metrics.placement_span_cells,
+        "placement_area_cells" => metrics.placement_area_cells,
+        "routed_catalog_cells" => metrics.routed_catalog_cells,
+        "route_bends" => metrics.route_bends,
+        "routing_states" => metrics.routing_states,
+        _ => 0,
+    }
+}
+
+pub(crate) fn catalog_primary_metric_name(metric: CatalogAwareOutcomeMetric) -> &'static str {
+    match metric {
+        CatalogAwareOutcomeMetric::PlacementSpan => "placement_span_cells",
+        CatalogAwareOutcomeMetric::PlacementArea => "placement_area_cells",
+        CatalogAwareOutcomeMetric::RoutedCatalogCells => "routed_catalog_cells",
+    }
 }
 
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -377,7 +742,7 @@ pub(crate) struct CatalogAwareFailure {
 pub(crate) fn realize_catalog_aware_attempt(
     input: CatalogAwareGenerationInput<'_>,
     attempt: u32,
-    room_slack_cells: i32,
+    room_compaction_cells: i32,
     recorder: &mut CatalogGenerationTraceRecorder,
 ) -> Result<CatalogAwareAttemptOutcome, CatalogAwareFailure> {
     let room_requirements = input
@@ -422,10 +787,11 @@ pub(crate) fn realize_catalog_aware_attempt(
                 0,
             ));
         }
-        let Some(matched) = candidates
-            .get(attempt as usize % candidates.len().max(1))
-            .cloned()
-        else {
+        // Attempts vary compact placement while preserving the deterministic
+        // best exact catalog shape. Cycling through lower-ranked shapes made
+        // later attempts a different content choice instead of a controlled
+        // realization comparison.
+        let Some(matched) = candidates.first().cloned() else {
             return Err(CatalogAwareFailure {
                 classification: "catalog_coverage_gap".to_owned(),
                 stage: "room_domains".to_owned(),
@@ -466,7 +832,17 @@ pub(crate) fn realize_catalog_aware_attempt(
             &requirement,
             &shape,
             matched.transform.as_str(),
-            room_slack_cells,
+            room_compaction_cells,
+            &GridCell {
+                x: div_ceil_i32(
+                    input.source_geometry.bounds.width,
+                    CATALOG_ROUTE_PIXELS_PER_PLACEMENT_CELL,
+                ) / 2,
+                y: div_ceil_i32(
+                    input.source_geometry.bounds.height,
+                    CATALOG_ROUTE_PIXELS_PER_PLACEMENT_CELL,
+                ) / 2,
+            },
         );
         let room_occupied = transform_cells(&shape.footprint, matched.transform.as_str(), &origin);
         let room_reserved =
@@ -889,6 +1265,23 @@ pub(crate) fn realize_catalog_aware_attempt(
             routing_states: total_states,
         });
     }
+    let routed_catalog_cells = routed.iter().try_fold(0_u64, |total, route| {
+        let cells = u64::try_from(route.cells.len()).ok()?;
+        total.checked_add(cells)
+    });
+    let route_bends = routed.iter().try_fold(0_u64, |total, route| {
+        total.checked_add(catalog_route_bends(&route.cells)?)
+    });
+    let (Some(routed_catalog_cells), Some(route_bends)) = (routed_catalog_cells, route_bends)
+    else {
+        return Err(catalog_generation_failure(
+            "outcome_metrics",
+            "Catalog outcome route metrics overflowed.".to_owned(),
+            rooms.len(),
+            routed.len(),
+            total_states,
+        ));
+    };
     Ok(CatalogAwareAttemptOutcome {
         geometry,
         geometry_validation,
@@ -898,29 +1291,47 @@ pub(crate) fn realize_catalog_aware_attempt(
         placement_validation,
         built_flow_validation,
         routing_states: total_states,
+        routed_catalog_cells,
+        route_bends,
+    })
+}
+
+pub(crate) fn catalog_route_bends(cells: &[GridCell]) -> Option<u64> {
+    cells.windows(3).try_fold(0_u64, |total, points| {
+        let first = &points[0];
+        let middle = &points[1];
+        let last = &points[2];
+        let prior = (
+            middle.x.checked_sub(first.x)?,
+            middle.y.checked_sub(first.y)?,
+        );
+        let next = (last.x.checked_sub(middle.x)?, last.y.checked_sub(middle.y)?);
+        total.checked_add(u64::from(prior != next))
     })
 }
 
 pub(crate) fn validate_catalog_aware_policy(
     policy: &CatalogAwareGenerationPolicy,
 ) -> Result<(), String> {
-    if policy.kind != "rusty_procgen.catalog_aware_generation_policy.v1"
-        || policy.schema_version != 1
+    if policy.kind != "rusty_procgen.catalog_aware_generation_policy.v2"
+        || policy.schema_version != 2
     {
         return Err("unsupported catalog-aware generation policy".to_owned());
     }
     if policy.max_generation_attempts == 0 || policy.max_generation_attempts > 16 {
         return Err("maxGenerationAttempts must be from 1 through 16".to_owned());
     }
-    if policy.initial_room_slack_cells < 0
-        || policy.room_slack_growth_cells < 0
-        || policy.initial_room_slack_cells.saturating_add(
-            policy.room_slack_growth_cells.saturating_mul(
+    if policy.initial_room_compaction_cells < 0
+        || policy.room_compaction_growth_cells < 0
+        || policy.initial_room_compaction_cells.saturating_add(
+            policy.room_compaction_growth_cells.saturating_mul(
                 i32::try_from(policy.max_generation_attempts - 1).unwrap_or(i32::MAX),
             ),
         ) > 128
     {
-        return Err("catalog-aware room slack must remain from 0 through 128 cells".to_owned());
+        return Err(
+            "catalog-aware room compaction must remain from 0 through 128 cells".to_owned(),
+        );
     }
     if policy.max_room_candidates == 0 || policy.max_room_candidates > 64 {
         return Err("maxRoomCandidates must be from 1 through 64".to_owned());
@@ -932,6 +1343,35 @@ pub(crate) fn validate_catalog_aware_policy(
     }
     if policy.route_margin_cells < 8 || policy.route_margin_cells > 256 {
         return Err("routeMarginCells must be from 8 through 256".to_owned());
+    }
+    for (name, value) in [
+        (
+            "maxPlacementWidthCells",
+            policy.outcome_constraints.max_placement_width_cells,
+        ),
+        (
+            "maxPlacementHeightCells",
+            policy.outcome_constraints.max_placement_height_cells,
+        ),
+    ] {
+        if value == 0 || value > 4_294_967_296 {
+            return Err(format!("{name} must be from 1 through 4294967296"));
+        }
+    }
+    if policy.outcome_constraints.max_placement_area_cells == 0
+        || policy.outcome_constraints.max_placement_area_cells > 9_007_199_254_740_991
+    {
+        return Err("maxPlacementAreaCells must be from 1 through 9007199254740991".to_owned());
+    }
+    if policy.outcome_constraints.max_routed_catalog_cells == 0
+        || policy.outcome_constraints.max_routed_catalog_cells > 1_048_576
+    {
+        return Err("maxRoutedCatalogCells must be from 1 through 1048576".to_owned());
+    }
+    if policy.outcome_preferences.preferred_maximum == 0
+        || policy.outcome_preferences.preferred_maximum > 9_007_199_254_740_991
+    {
+        return Err("preferredMaximum must be from 1 through 9007199254740991".to_owned());
     }
     Ok(())
 }
@@ -962,7 +1402,8 @@ pub(crate) fn catalog_room_origin(
     requirement: &PieceRequirement,
     shape: &CatalogShape,
     transform: &str,
-    slack_cells: i32,
+    compaction_cells: i32,
+    compaction_target: &GridCell,
 ) -> GridCell {
     let transformed = transform_cells(
         shape.footprint.as_slice(),
@@ -981,15 +1422,33 @@ pub(crate) fn catalog_room_origin(
             width * CATALOG_ROUTE_PIXELS_PER_PLACEMENT_CELL,
             height * CATALOG_ROUTE_PIXELS_PER_PLACEMENT_CELL,
         ));
-    let min_x = x.div_euclid(CATALOG_ROUTE_PIXELS_PER_PLACEMENT_CELL) - slack_cells;
-    let min_y = y.div_euclid(CATALOG_ROUTE_PIXELS_PER_PLACEMENT_CELL) - slack_cells;
-    let zone_width_cells =
-        div_ceil_i32(zone_width, CATALOG_ROUTE_PIXELS_PER_PLACEMENT_CELL) + slack_cells * 2;
-    let zone_height_cells =
-        div_ceil_i32(zone_height, CATALOG_ROUTE_PIXELS_PER_PLACEMENT_CELL) + slack_cells * 2;
+    let zone_width_cells = div_ceil_i32(zone_width, CATALOG_ROUTE_PIXELS_PER_PLACEMENT_CELL);
+    let zone_height_cells = div_ceil_i32(zone_height, CATALOG_ROUTE_PIXELS_PER_PLACEMENT_CELL);
+    let base = GridCell {
+        x: x.div_euclid(CATALOG_ROUTE_PIXELS_PER_PLACEMENT_CELL)
+            + (zone_width_cells - width).max(0) / 2,
+        y: y.div_euclid(CATALOG_ROUTE_PIXELS_PER_PLACEMENT_CELL)
+            + (zone_height_cells - height).max(0) / 2,
+    };
+    let room_center = GridCell {
+        x: base.x.saturating_add(width / 2),
+        y: base.y.saturating_add(height / 2),
+    };
     GridCell {
-        x: min_x + (zone_width_cells - width).max(0) / 2,
-        y: min_y + (zone_height_cells - height).max(0) / 2,
+        x: base.x.saturating_add(
+            compaction_target
+                .x
+                .saturating_sub(room_center.x)
+                .signum()
+                .saturating_mul(compaction_cells),
+        ),
+        y: base.y.saturating_add(
+            compaction_target
+                .y
+                .saturating_sub(room_center.y)
+                .signum()
+                .saturating_mul(compaction_cells),
+        ),
     }
 }
 

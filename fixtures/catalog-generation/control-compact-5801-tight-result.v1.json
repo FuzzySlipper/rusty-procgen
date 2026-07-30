@@ -1,30 +1,59 @@
 {
-  "kind": "rusty_procgen.catalog_aware_generation.v1",
-  "schemaVersion": 1,
+  "kind": "rusty_procgen.catalog_aware_generation.v2",
+  "schemaVersion": 2,
   "ok": true,
   "candidateId": "candidate.first_slice.5801",
   "policy": {
-    "kind": "rusty_procgen.catalog_aware_generation_policy.v1",
-    "schemaVersion": 1,
+    "kind": "rusty_procgen.catalog_aware_generation_policy.v2",
+    "schemaVersion": 2,
     "maxGenerationAttempts": 4,
-    "initialRoomSlackCells": 0,
-    "roomSlackGrowthCells": 4,
+    "initialRoomCompactionCells": 0,
+    "roomCompactionGrowthCells": 1,
     "maxRoomCandidates": 16,
     "maxRoutingStatesPerSection": 200000,
     "routeMarginCells": 48,
     "guideDistanceWeight": 4,
-    "turnPenalty": 3
+    "turnPenalty": 3,
+    "outcomeConstraints": {
+      "maxPlacementWidthCells": 4096,
+      "maxPlacementHeightCells": 4096,
+      "maxPlacementAreaCells": 16777216,
+      "maxRoutedCatalogCells": 1048576
+    },
+    "outcomePreferences": {
+      "primaryMetric": "placement_span",
+      "preferredMaximum": 286
+    }
   },
   "attempts": [
     {
       "attempt": 0,
-      "roomSlackCells": 0,
-      "classification": "success",
-      "stage": "complete",
-      "detail": "Catalog rooms and direct-glue corridor chains passed all validators.",
+      "roomCompactionCells": 0,
+      "classification": "admissible",
+      "stage": "outcome_selection",
+      "detail": "Validated catalog outcome was compared by placement_span_cells.",
       "roomsPlaced": 4,
       "sectionsRouted": 4,
-      "routingStates": 4569
+      "routingStates": 4569,
+      "outcome": {
+        "metrics": {
+          "placementWidthCells": 81,
+          "placementHeightCells": 36,
+          "placementSpanCells": 117,
+          "placementAreaCells": 2916,
+          "routedCatalogCells": 125,
+          "routeBends": 22,
+          "routingStates": 4569
+        },
+        "constraintMisses": [],
+        "admissible": true,
+        "preferenceSatisfied": true,
+        "comparison": {
+          "incumbentAttempt": null,
+          "ordering": "first_admissible",
+          "decisiveMetric": "placement_span_cells"
+        }
+      }
     }
   ],
   "selectedAttempt": 0,

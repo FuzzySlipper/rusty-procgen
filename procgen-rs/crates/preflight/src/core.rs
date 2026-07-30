@@ -9,8 +9,10 @@ use std::path::{Path, PathBuf};
 use serde::Serialize;
 
 pub use crate::catalog_aware_generation::{
-    CatalogAwareAttemptEvidence, CatalogAwareGenerationPolicy, CatalogAwareGenerationProvenance,
-    CatalogAwareGenerationResult,
+    CatalogAwareAttemptEvidence, CatalogAwareConstraintMiss, CatalogAwareGenerationPolicy,
+    CatalogAwareGenerationProvenance, CatalogAwareGenerationResult, CatalogAwareOutcomeComparison,
+    CatalogAwareOutcomeConstraints, CatalogAwareOutcomeEvaluation, CatalogAwareOutcomeMetric,
+    CatalogAwareOutcomeMetrics, CatalogAwareOutcomePreferences,
 };
 pub use crate::catalog_generation_trace::{
     replay_catalog_generation_trace, validate_catalog_generation_trace_limits,

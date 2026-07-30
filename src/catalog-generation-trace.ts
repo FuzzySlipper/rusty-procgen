@@ -1,8 +1,8 @@
 import { fnv1a64Json } from './ca-trace-hash.js';
 
-const TRACE_KIND = 'rusty_procgen.catalog_generation_trace.v1';
-const RESULT_KIND = 'rusty_procgen.catalog_aware_generation.v1';
-const POLICY_KIND = 'rusty_procgen.catalog_aware_generation_policy.v1';
+const TRACE_KIND = 'rusty_procgen.catalog_generation_trace.v2';
+const RESULT_KIND = 'rusty_procgen.catalog_aware_generation.v2';
+const POLICY_KIND = 'rusty_procgen.catalog_aware_generation_policy.v2';
 const HARD_MAX_EVENTS = 4_096;
 const HARD_MAX_EVENT_BODY_BYTES = 4_194_304;
 const HARD_MAX_VISUAL_CELLS = 1_048_576;
@@ -16,15 +16,72 @@ export interface CatalogGenerationTraceLimits {
 
 export interface CatalogAwareGenerationPolicy {
   readonly kind: typeof POLICY_KIND;
-  readonly schemaVersion: 1;
+  readonly schemaVersion: 2;
   readonly maxGenerationAttempts: number;
-  readonly initialRoomSlackCells: number;
-  readonly roomSlackGrowthCells: number;
+  readonly initialRoomCompactionCells: number;
+  readonly roomCompactionGrowthCells: number;
   readonly maxRoomCandidates: number;
   readonly maxRoutingStatesPerSection: number;
   readonly routeMarginCells: number;
   readonly guideDistanceWeight: number;
   readonly turnPenalty: number;
+  readonly outcomeConstraints: CatalogAwareOutcomeConstraints;
+  readonly outcomePreferences: CatalogAwareOutcomePreferences;
+}
+
+export interface CatalogAwareOutcomeConstraints {
+  readonly maxPlacementWidthCells: number;
+  readonly maxPlacementHeightCells: number;
+  readonly maxPlacementAreaCells: number;
+  readonly maxRoutedCatalogCells: number;
+}
+
+export type CatalogAwareOutcomeMetric =
+  | 'placement_span'
+  | 'placement_area'
+  | 'routed_catalog_cells';
+
+export interface CatalogAwareOutcomePreferences {
+  readonly primaryMetric: CatalogAwareOutcomeMetric;
+  readonly preferredMaximum: number;
+}
+
+export interface CatalogAwareOutcomeMetrics {
+  readonly placementWidthCells: number;
+  readonly placementHeightCells: number;
+  readonly placementSpanCells: number;
+  readonly placementAreaCells: number;
+  readonly routedCatalogCells: number;
+  readonly routeBends: number;
+  readonly routingStates: number;
+}
+
+export interface CatalogAwareConstraintMiss {
+  readonly metric:
+    | 'placement_width_cells'
+    | 'placement_height_cells'
+    | 'placement_area_cells'
+    | 'routed_catalog_cells';
+  readonly actual: number;
+  readonly limit: number;
+}
+
+export interface CatalogAwareOutcomeComparison {
+  readonly incumbentAttempt: number | null;
+  readonly ordering:
+    | 'constraint_miss'
+    | 'first_admissible'
+    | 'new_incumbent'
+    | 'incumbent_retained';
+  readonly decisiveMetric: string;
+}
+
+export interface CatalogAwareOutcomeEvaluation {
+  readonly metrics: CatalogAwareOutcomeMetrics;
+  readonly constraintMisses: readonly CatalogAwareConstraintMiss[];
+  readonly admissible: boolean;
+  readonly preferenceSatisfied: boolean;
+  readonly comparison: CatalogAwareOutcomeComparison;
 }
 
 export interface CatalogGenerationInputHashes {
@@ -78,7 +135,7 @@ export type CatalogGenerationEventBody =
   }
   | {
     readonly type: 'attempt_started';
-    readonly roomSlackCells: number;
+    readonly roomCompactionCells: number;
   }
   | {
     readonly type: 'room_domain_evaluated';
@@ -118,6 +175,10 @@ export type CatalogGenerationEventBody =
     readonly diagnosticCodes: readonly string[];
   }
   | {
+    readonly type: 'outcome_evaluated';
+    readonly evaluation: CatalogAwareOutcomeEvaluation;
+  }
+  | {
     readonly type: 'attempt_finished';
     readonly classification: string;
     readonly stage: string;
@@ -150,7 +211,7 @@ export interface CatalogGenerationTraceSelection {
 
 export interface CatalogGenerationTrace {
   readonly kind: typeof TRACE_KIND;
-  readonly schemaVersion: 1;
+  readonly schemaVersion: 2;
   readonly seed: number;
   readonly inputHashes: CatalogGenerationInputHashes;
   readonly generationPolicy: CatalogAwareGenerationPolicy;
@@ -166,13 +227,14 @@ export interface CatalogGenerationTrace {
 
 export interface CatalogAwareAttemptEvidence {
   readonly attempt: number;
-  readonly roomSlackCells: number;
+  readonly roomCompactionCells: number;
   readonly classification: string;
   readonly stage: string;
   readonly detail: string;
   readonly roomsPlaced: number;
   readonly sectionsRouted: number;
   readonly routingStates: number;
+  readonly outcome: CatalogAwareOutcomeEvaluation | null;
 }
 
 export interface CatalogGenerationAttempt {
@@ -215,6 +277,7 @@ export interface CatalogGenerationVisualState {
     readonly ok: boolean;
     readonly diagnosticCodes: readonly string[];
   } | null;
+  readonly outcome: CatalogAwareOutcomeEvaluation | null;
 }
 
 interface DecodedResult {
@@ -236,7 +299,7 @@ interface DecodedResult {
 
 interface MutableAttemptState {
   readonly attempt: number;
-  readonly roomSlackCells: number;
+  readonly roomCompactionCells: number;
   readonly domains: Map<string, Set<string>>;
   readonly rooms: Map<string, CatalogGenerationRoomPlacement>;
   readonly routes: Map<string, CatalogGenerationRoute>;
@@ -247,6 +310,7 @@ interface MutableAttemptState {
     readonly bounds: CatalogGridBounds;
   }>;
   routingStates: number;
+  outcome: CatalogAwareOutcomeEvaluation | null;
 }
 
 export function decodeCatalogGenerationRun(
@@ -262,11 +326,18 @@ export function decodeCatalogGenerationRun(
   if (!samePolicy(trace.generationPolicy, result.policy)) {
     fail('trace.generationPolicy', 'does not match the result policy');
   }
+  const selectedOutcome = result.selectedAttempt === null
+    ? null
+    : required(result.attempts, result.selectedAttempt, 'selected attempt').outcome;
   const expectedSelection = result.ok
     ? {
       selectedAttempt: result.selectedAttempt,
       classification: 'success',
-      reason: 'first_successful_attempt',
+      reason: `${
+        selectedOutcome?.preferenceSatisfied === true
+          ? 'preference_satisfied'
+          : 'best_admissible'
+      }_${primaryMetricName(result.policy.outcomePreferences.primaryMetric)}`,
     }
     : {
       selectedAttempt: null,
@@ -315,6 +386,7 @@ export function replayCatalogGenerationAttempt(
   }>();
   let conflict: CatalogGenerationVisualState['conflict'] = null;
   let validation: CatalogGenerationVisualState['validation'] = null;
+  let outcome: CatalogAwareOutcomeEvaluation | null = null;
   let event: CatalogGenerationTraceEvent | null = null;
   for (let offset = 0; offset < bounded; offset += 1) {
     event = required(
@@ -359,6 +431,9 @@ export function replayCatalogGenerationAttempt(
           diagnosticCodes: event.body.diagnosticCodes,
         };
         break;
+      case 'outcome_evaluated':
+        outcome = event.body.evaluation;
+        break;
       default:
         break;
     }
@@ -376,6 +451,7 @@ export function replayCatalogGenerationAttempt(
       : { sectionId: pendingEntry[0], ...pendingEntry[1] },
     conflict,
     validation,
+    outcome,
   };
 }
 
@@ -411,7 +487,7 @@ function decodeTrace(input: unknown): CatalogGenerationTrace {
     'finalOutputHash', 'selection',
   ], 'trace');
   literal(value.kind, TRACE_KIND, 'trace.kind');
-  literal(value.schemaVersion, 1, 'trace.schemaVersion');
+  literal(value.schemaVersion, 2, 'trace.schemaVersion');
   const seed = integer(value.seed, 'trace.seed', 0, Number.MAX_SAFE_INTEGER);
   const inputHashes = decodeInputHashes(value.inputHashes, 'trace.inputHashes');
   const generationPolicy = decodePolicy(value.generationPolicy, 'trace.generationPolicy');
@@ -440,7 +516,7 @@ function decodeTrace(input: unknown): CatalogGenerationTrace {
 
   const trace: CatalogGenerationTrace = {
     kind: TRACE_KIND,
-    schemaVersion: 1,
+    schemaVersion: 2,
     seed,
     inputHashes,
     generationPolicy,
@@ -483,7 +559,7 @@ function decodeResult(input: unknown): DecodedResult {
     'builtFlowValidation',
   ], 'result');
   literal(value.kind, RESULT_KIND, 'result.kind');
-  literal(value.schemaVersion, 1, 'result.schemaVersion');
+  literal(value.schemaVersion, 2, 'result.schemaVersion');
   const ok = boolean(value.ok, 'result.ok');
   const candidateId = nonEmptyString(value.candidateId, 'result.candidateId');
   const policy = decodePolicy(value.policy, 'result.policy');
@@ -506,15 +582,39 @@ function decodeResult(input: unknown): DecodedResult {
     if (attempt.attempt !== index) {
       fail(`result.attempts[${index}].attempt`, `expected ${index}`);
     }
+    if (
+      attempt.outcome === null
+        ? attempt.classification === 'admissible'
+          || attempt.classification === 'outcome_constraint_miss'
+        : attempt.outcome.admissible
+          ? attempt.classification !== 'admissible'
+            || attempt.stage !== 'outcome_selection'
+          : attempt.classification !== 'outcome_constraint_miss'
+            || attempt.stage !== 'outcome_constraints'
+    ) {
+      fail(`result.attempts[${index}]`, 'outcome classification/stage is inconsistent');
+    }
   });
   if (
     ok
       ? selectedAttempt === null
-        || selectedAttempt !== attempts.length - 1
+        || selectedAttempt >= attempts.length
+        || attempts[selectedAttempt]?.outcome?.admissible !== true
         || exhaustedClassification !== null
       : selectedAttempt !== null || exhaustedClassification === null
   ) {
     fail('result', 'success/exhaustion selection fields are inconsistent');
+  }
+  const preferenceSatisfied = attempts.at(-1)?.outcome?.preferenceSatisfied === true;
+  if (
+    attempts.some((attempt, index) =>
+      attempt.outcome?.preferenceSatisfied === true && index !== attempts.length - 1)
+    || (!preferenceSatisfied && attempts.length !== policy.maxGenerationAttempts)
+  ) {
+    fail(
+      'result.attempts',
+      'must stop at the first satisfied preference or exhaust maxGenerationAttempts',
+    );
   }
   const geometry = nullableRecord(value.geometry, 'result.geometry');
   const piecePlan = nullableRecord(value.piecePlan, 'result.piecePlan');
@@ -572,48 +672,125 @@ function decodeResult(input: unknown): DecodedResult {
 function decodePolicy(input: unknown, path: string): CatalogAwareGenerationPolicy {
   const value = record(input, path);
   exactKeys(value, [
-    'kind', 'schemaVersion', 'maxGenerationAttempts', 'initialRoomSlackCells',
-    'roomSlackGrowthCells', 'maxRoomCandidates', 'maxRoutingStatesPerSection',
-    'routeMarginCells', 'guideDistanceWeight', 'turnPenalty',
+    'kind', 'schemaVersion', 'maxGenerationAttempts', 'initialRoomCompactionCells',
+    'roomCompactionGrowthCells', 'maxRoomCandidates', 'maxRoutingStatesPerSection',
+    'routeMarginCells', 'guideDistanceWeight', 'turnPenalty', 'outcomeConstraints',
+    'outcomePreferences',
   ], path);
   literal(value.kind, POLICY_KIND, `${path}.kind`);
-  literal(value.schemaVersion, 1, `${path}.schemaVersion`);
-  return {
+  literal(value.schemaVersion, 2, `${path}.schemaVersion`);
+  const policy: CatalogAwareGenerationPolicy = {
     kind: POLICY_KIND,
-    schemaVersion: 1,
+    schemaVersion: 2,
     maxGenerationAttempts: integer(
       value.maxGenerationAttempts,
       `${path}.maxGenerationAttempts`,
       1,
-      64,
+      16,
     ),
-    initialRoomSlackCells: integer(
-      value.initialRoomSlackCells,
-      `${path}.initialRoomSlackCells`,
-      -1_000_000,
-      1_000_000,
+    initialRoomCompactionCells: integer(
+      value.initialRoomCompactionCells,
+      `${path}.initialRoomCompactionCells`,
+      0,
+      128,
     ),
-    roomSlackGrowthCells: integer(
-      value.roomSlackGrowthCells,
-      `${path}.roomSlackGrowthCells`,
-      -1_000_000,
-      1_000_000,
+    roomCompactionGrowthCells: integer(
+      value.roomCompactionGrowthCells,
+      `${path}.roomCompactionGrowthCells`,
+      0,
+      128,
     ),
     maxRoomCandidates: integer(value.maxRoomCandidates, `${path}.maxRoomCandidates`, 1, 64),
     maxRoutingStatesPerSection: integer(
       value.maxRoutingStatesPerSection,
       `${path}.maxRoutingStatesPerSection`,
-      1,
+      100,
       1_000_000,
     ),
-    routeMarginCells: integer(value.routeMarginCells, `${path}.routeMarginCells`, 0, 1_000_000),
+    routeMarginCells: integer(value.routeMarginCells, `${path}.routeMarginCells`, 8, 256),
     guideDistanceWeight: integer(
       value.guideDistanceWeight,
       `${path}.guideDistanceWeight`,
       0,
-      1_000_000,
+      4_294_967_295,
     ),
-    turnPenalty: integer(value.turnPenalty, `${path}.turnPenalty`, 0, 1_000_000),
+    turnPenalty: integer(value.turnPenalty, `${path}.turnPenalty`, 0, 4_294_967_295),
+    outcomeConstraints: decodeOutcomeConstraints(
+      value.outcomeConstraints,
+      `${path}.outcomeConstraints`,
+    ),
+    outcomePreferences: decodeOutcomePreferences(
+      value.outcomePreferences,
+      `${path}.outcomePreferences`,
+    ),
+  };
+  const finalCompaction = policy.initialRoomCompactionCells
+    + policy.roomCompactionGrowthCells * (policy.maxGenerationAttempts - 1);
+  if (!Number.isSafeInteger(finalCompaction) || finalCompaction > 128) {
+    fail(path, 'catalog-aware room compaction must remain from 0 through 128 cells');
+  }
+  return policy;
+}
+
+function decodeOutcomeConstraints(
+  input: unknown,
+  path: string,
+): CatalogAwareOutcomeConstraints {
+  const value = record(input, path);
+  exactKeys(value, [
+    'maxPlacementWidthCells', 'maxPlacementHeightCells', 'maxPlacementAreaCells',
+    'maxRoutedCatalogCells',
+  ], path);
+  return {
+    maxPlacementWidthCells: integer(
+      value.maxPlacementWidthCells,
+      `${path}.maxPlacementWidthCells`,
+      1,
+      4_294_967_296,
+    ),
+    maxPlacementHeightCells: integer(
+      value.maxPlacementHeightCells,
+      `${path}.maxPlacementHeightCells`,
+      1,
+      4_294_967_296,
+    ),
+    maxPlacementAreaCells: integer(
+      value.maxPlacementAreaCells,
+      `${path}.maxPlacementAreaCells`,
+      1,
+      Number.MAX_SAFE_INTEGER,
+    ),
+    maxRoutedCatalogCells: integer(
+      value.maxRoutedCatalogCells,
+      `${path}.maxRoutedCatalogCells`,
+      1,
+      HARD_MAX_VISUAL_CELLS,
+    ),
+  };
+}
+
+function decodeOutcomePreferences(
+  input: unknown,
+  path: string,
+): CatalogAwareOutcomePreferences {
+  const value = record(input, path);
+  exactKeys(value, ['primaryMetric', 'preferredMaximum'], path);
+  const primaryMetric = nonEmptyString(value.primaryMetric, `${path}.primaryMetric`);
+  if (
+    primaryMetric !== 'placement_span'
+    && primaryMetric !== 'placement_area'
+    && primaryMetric !== 'routed_catalog_cells'
+  ) {
+    fail(`${path}.primaryMetric`, `unsupported outcome metric ${primaryMetric}`);
+  }
+  return {
+    primaryMetric,
+    preferredMaximum: integer(
+      value.preferredMaximum,
+      `${path}.preferredMaximum`,
+      1,
+      Number.MAX_SAFE_INTEGER,
+    ),
   };
 }
 
@@ -676,12 +853,12 @@ function decodeEventBody(input: unknown, path: string): CatalogGenerationEventBo
         inputHashes: decodeInputHashes(value.inputHashes, `${path}.inputHashes`),
       };
     case 'attempt_started':
-      exactKeys(value, ['type', 'roomSlackCells'], path);
+      exactKeys(value, ['type', 'roomCompactionCells'], path);
       return {
         type,
-        roomSlackCells: integer(
-          value.roomSlackCells,
-          `${path}.roomSlackCells`,
+        roomCompactionCells: integer(
+          value.roomCompactionCells,
+          `${path}.roomCompactionCells`,
           -1_000_000,
           1_000_000,
         ),
@@ -747,6 +924,12 @@ function decodeEventBody(input: unknown, path: string): CatalogGenerationEventBo
         diagnosticCodes: array(value.diagnosticCodes, `${path}.diagnosticCodes`).map(
           (code, index) => nonEmptyString(code, `${path}.diagnosticCodes[${index}]`),
         ),
+      };
+    case 'outcome_evaluated':
+      exactKeys(value, ['type', 'evaluation'], path);
+      return {
+        type,
+        evaluation: decodeOutcomeEvaluation(value.evaluation, `${path}.evaluation`),
       };
     case 'attempt_finished':
       exactKeys(value, [
@@ -857,14 +1040,14 @@ function decodeSelection(input: unknown, path: string): CatalogGenerationTraceSe
 function decodeAttemptEvidence(input: unknown, path: string): CatalogAwareAttemptEvidence {
   const value = record(input, path);
   exactKeys(value, [
-    'attempt', 'roomSlackCells', 'classification', 'stage', 'detail',
-    'roomsPlaced', 'sectionsRouted', 'routingStates',
+    'attempt', 'roomCompactionCells', 'classification', 'stage', 'detail',
+    'roomsPlaced', 'sectionsRouted', 'routingStates', 'outcome',
   ], path);
   return {
     attempt: integer(value.attempt, `${path}.attempt`, 0, 63),
-    roomSlackCells: integer(
-      value.roomSlackCells,
-      `${path}.roomSlackCells`,
+    roomCompactionCells: integer(
+      value.roomCompactionCells,
+      `${path}.roomCompactionCells`,
       -1_000_000,
       1_000_000,
     ),
@@ -879,6 +1062,124 @@ function decodeAttemptEvidence(input: unknown, path: string): CatalogAwareAttemp
       0,
       Number.MAX_SAFE_INTEGER,
     ),
+    outcome: value.outcome === null
+      ? null
+      : decodeOutcomeEvaluation(value.outcome, `${path}.outcome`),
+  };
+}
+
+function decodeOutcomeEvaluation(
+  input: unknown,
+  path: string,
+): CatalogAwareOutcomeEvaluation {
+  const value = record(input, path);
+  exactKeys(value, [
+    'metrics', 'constraintMisses', 'admissible', 'preferenceSatisfied', 'comparison',
+  ], path);
+  return {
+    metrics: decodeOutcomeMetrics(value.metrics, `${path}.metrics`),
+    constraintMisses: array(value.constraintMisses, `${path}.constraintMisses`).map(
+      (miss, index) => decodeConstraintMiss(miss, `${path}.constraintMisses[${index}]`),
+    ),
+    admissible: boolean(value.admissible, `${path}.admissible`),
+    preferenceSatisfied: boolean(
+      value.preferenceSatisfied,
+      `${path}.preferenceSatisfied`,
+    ),
+    comparison: decodeOutcomeComparison(value.comparison, `${path}.comparison`),
+  };
+}
+
+function decodeOutcomeMetrics(input: unknown, path: string): CatalogAwareOutcomeMetrics {
+  const value = record(input, path);
+  exactKeys(value, [
+    'placementWidthCells', 'placementHeightCells', 'placementSpanCells',
+    'placementAreaCells', 'routedCatalogCells', 'routeBends', 'routingStates',
+  ], path);
+  return {
+    placementWidthCells: integer(
+      value.placementWidthCells,
+      `${path}.placementWidthCells`,
+      0,
+      Number.MAX_SAFE_INTEGER,
+    ),
+    placementHeightCells: integer(
+      value.placementHeightCells,
+      `${path}.placementHeightCells`,
+      0,
+      Number.MAX_SAFE_INTEGER,
+    ),
+    placementSpanCells: integer(
+      value.placementSpanCells,
+      `${path}.placementSpanCells`,
+      0,
+      Number.MAX_SAFE_INTEGER,
+    ),
+    placementAreaCells: integer(
+      value.placementAreaCells,
+      `${path}.placementAreaCells`,
+      0,
+      Number.MAX_SAFE_INTEGER,
+    ),
+    routedCatalogCells: integer(
+      value.routedCatalogCells,
+      `${path}.routedCatalogCells`,
+      0,
+      Number.MAX_SAFE_INTEGER,
+    ),
+    routeBends: integer(value.routeBends, `${path}.routeBends`, 0, Number.MAX_SAFE_INTEGER),
+    routingStates: integer(
+      value.routingStates,
+      `${path}.routingStates`,
+      0,
+      Number.MAX_SAFE_INTEGER,
+    ),
+  };
+}
+
+function decodeConstraintMiss(input: unknown, path: string): CatalogAwareConstraintMiss {
+  const value = record(input, path);
+  exactKeys(value, ['metric', 'actual', 'limit'], path);
+  const metric = nonEmptyString(value.metric, `${path}.metric`);
+  if (
+    metric !== 'placement_width_cells'
+    && metric !== 'placement_height_cells'
+    && metric !== 'placement_area_cells'
+    && metric !== 'routed_catalog_cells'
+  ) {
+    fail(`${path}.metric`, `unsupported hard-constraint metric ${metric}`);
+  }
+  return {
+    metric,
+    actual: integer(value.actual, `${path}.actual`, 0, Number.MAX_SAFE_INTEGER),
+    limit: integer(value.limit, `${path}.limit`, 1, Number.MAX_SAFE_INTEGER),
+  };
+}
+
+function decodeOutcomeComparison(
+  input: unknown,
+  path: string,
+): CatalogAwareOutcomeComparison {
+  const value = record(input, path);
+  exactKeys(value, ['incumbentAttempt', 'ordering', 'decisiveMetric'], path);
+  const ordering = nonEmptyString(value.ordering, `${path}.ordering`);
+  if (
+    ordering !== 'constraint_miss'
+    && ordering !== 'first_admissible'
+    && ordering !== 'new_incumbent'
+    && ordering !== 'incumbent_retained'
+  ) {
+    fail(`${path}.ordering`, `unsupported outcome ordering ${ordering}`);
+  }
+  return {
+    incumbentAttempt: nullableInteger(
+      value.incumbentAttempt,
+      `${path}.incumbentAttempt`,
+      0,
+      15,
+    ),
+    ordering,
+    decisiveMetric: nonEmptyString(value.decisiveMetric, `${path}.decisiveMetric`),
   };
 }
 
@@ -891,6 +1192,13 @@ function validateEventSequence(
   let bodyBytes = 0;
   let visualCells = 0;
   let current: MutableAttemptState | null = null;
+  const selectionState: {
+    incumbent: { readonly attempt: number; readonly metrics: CatalogAwareOutcomeMetrics } | null;
+    preferenceSatisfied: boolean;
+  } = {
+    incumbent: null,
+    preferenceSatisfied: false,
+  };
   let inputBound = false;
   let runFinished = false;
   const attempts: CatalogGenerationAttempt[] = [];
@@ -935,26 +1243,35 @@ function validateEventSequence(
       }
       inputBound = true;
     } else if (event.body.type === 'attempt_started') {
-      if (!inputBound || current !== null || event.attempt !== attempts.length) {
+      if (
+        !inputBound
+        || current !== null
+        || event.attempt !== attempts.length
+        || selectionState.preferenceSatisfied
+      ) {
         fail(`trace.events[${position}]`, 'attempt_started is out of sequence');
       }
       const attempt = requiredNumber(event.attempt, `${position}.attempt`);
-      const expectedSlack = trace.generationPolicy.initialRoomSlackCells
-        + trace.generationPolicy.roomSlackGrowthCells * attempt;
+      const expectedCompaction = trace.generationPolicy.initialRoomCompactionCells
+        + trace.generationPolicy.roomCompactionGrowthCells * attempt;
       if (
-        !Number.isSafeInteger(expectedSlack)
-        || event.body.roomSlackCells !== expectedSlack
+        !Number.isSafeInteger(expectedCompaction)
+        || event.body.roomCompactionCells !== expectedCompaction
       ) {
-        fail(`trace.events[${position}].body.roomSlackCells`, `expected ${expectedSlack}`);
+        fail(
+          `trace.events[${position}].body.roomCompactionCells`,
+          `expected ${expectedCompaction}`,
+        );
       }
       current = {
         attempt,
-        roomSlackCells: event.body.roomSlackCells,
+        roomCompactionCells: event.body.roomCompactionCells,
         domains: new Map(),
         rooms: new Map(),
         routes: new Map(),
         pending: new Map(),
         routingStates: 0,
+        outcome: null,
       };
       attemptEventIndices[attempt] = [position];
     } else if (event.body.type === 'run_finished') {
@@ -966,6 +1283,7 @@ function validateEventSequence(
         || event.body.classification !== trace.selection.classification
         || event.body.reason !== trace.selection.reason
         || event.body.outputHash !== outputHash
+        || event.body.selectedAttempt !== (selectionState.incumbent?.attempt ?? null)
       ) {
         fail(`trace.events[${position}].body`, 'does not match output/selection binding');
       }
@@ -975,7 +1293,41 @@ function validateEventSequence(
         fail(`trace.events[${position}].attempt`, 'does not name the active attempt');
       }
       required(attemptEventIndices, current.attempt, 'attempt event list').push(position);
-      applyAttemptEvent(event, current, result, position);
+      if (event.body.type === 'outcome_evaluated') {
+        if (current.outcome !== null || current.pending.size !== 0) {
+          fail(
+            `trace.events[${position}].body`,
+            'outcome evaluation is duplicate or precedes completed routing',
+          );
+        }
+        const expected = evaluateOutcome(current, result.policy, selectionState.incumbent);
+        const evidence = required(result.attempts, current.attempt, 'result attempt').outcome;
+        if (
+          JSON.stringify(event.body.evaluation) !== JSON.stringify(expected)
+          || JSON.stringify(evidence) !== JSON.stringify(expected)
+        ) {
+          fail(
+            `trace.events[${position}].body.evaluation`,
+            'does not match authoritative visible metrics and comparison',
+          );
+        }
+        current.outcome = expected;
+        if (
+          expected.admissible
+          && (
+            expected.comparison.ordering === 'first_admissible'
+            || expected.comparison.ordering === 'new_incumbent'
+          )
+        ) {
+          selectionState.incumbent = {
+            attempt: current.attempt,
+            metrics: expected.metrics,
+          };
+        }
+        selectionState.preferenceSatisfied = expected.preferenceSatisfied;
+      } else {
+        applyAttemptEvent(event, current, result, position);
+      }
       if (event.body.type === 'attempt_finished') {
         const evidence = required(result.attempts, current.attempt, 'result attempt');
         attempts.push({
@@ -1000,6 +1352,13 @@ function validateEventSequence(
   }
   if (attempts.length !== result.attempts.length) {
     fail('trace.events', 'attempt count does not match the result');
+  }
+  if (
+    result.ok
+      ? selectionState.incumbent?.attempt !== result.selectedAttempt
+      : selectionState.incumbent !== null
+  ) {
+    fail('trace.selection', 'does not identify the deterministic best admissible attempt');
   }
   if (bodyBytes !== trace.eventBodyBytes || bodyBytes > trace.limits.maxEventBodyBytes) {
     fail('trace.eventBodyBytes', `expected ${bodyBytes}, limit ${trace.limits.maxEventBodyBytes}`);
@@ -1128,16 +1487,18 @@ function applyAttemptEvent(
       break;
     }
     case 'validation_completed': {
-      const expected = resultValidationEvidence(result, body.stage);
-      if (
-        body.subjectHash !== fnv1a64Json(expected.subject)
-        || body.ok !== expected.ok
-        || JSON.stringify(body.diagnosticCodes) !== JSON.stringify(expected.diagnosticCodes)
-      ) {
-        fail(
-          `trace.events[${position}].body`,
-          `does not match the ${body.stage} result evidence`,
-        );
+      if (state.attempt === result.selectedAttempt) {
+        const expected = resultValidationEvidence(result, body.stage);
+        if (
+          body.subjectHash !== fnv1a64Json(expected.subject)
+          || body.ok !== expected.ok
+          || JSON.stringify(body.diagnosticCodes) !== JSON.stringify(expected.diagnosticCodes)
+        ) {
+          fail(
+            `trace.events[${position}].body`,
+            `does not match the ${body.stage} result evidence`,
+          );
+        }
       }
       break;
     }
@@ -1148,13 +1509,14 @@ function applyAttemptEvent(
       const expected = required(result.attempts, state.attempt, 'result attempt');
       const observed: CatalogAwareAttemptEvidence = {
         attempt: state.attempt,
-        roomSlackCells: state.roomSlackCells,
+        roomCompactionCells: state.roomCompactionCells,
         classification: body.classification,
         stage: body.stage,
         detail: body.detail,
         roomsPlaced: body.roomsPlaced,
         sectionsRouted: body.sectionsRouted,
         routingStates: body.routingStates,
+        outcome: state.outcome,
       };
       if (
         JSON.stringify(observed) !== JSON.stringify(expected)
@@ -1168,6 +1530,180 @@ function applyAttemptEvent(
     }
     default:
       fail(`trace.events[${position}].body`, `unexpected ${body.type} in active attempt`);
+  }
+}
+
+function evaluateOutcome(
+  state: MutableAttemptState,
+  policy: CatalogAwareGenerationPolicy,
+  incumbent: { readonly attempt: number; readonly metrics: CatalogAwareOutcomeMetrics } | null,
+): CatalogAwareOutcomeEvaluation {
+  const metrics = visibleOutcomeMetrics(state);
+  const constraintMisses = outcomeConstraintMisses(metrics, policy.outcomeConstraints);
+  const admissible = constraintMisses.length === 0;
+  const comparison = (() => {
+    if (!admissible) {
+      return {
+        incumbentAttempt: incumbent?.attempt ?? null,
+        ordering: 'constraint_miss' as const,
+        decisiveMetric: constraintMisses[0]?.metric ?? 'outcome_constraints',
+      };
+    }
+    if (incumbent === null) {
+      return {
+        incumbentAttempt: null,
+        ordering: 'first_admissible' as const,
+        decisiveMetric: primaryMetricName(policy.outcomePreferences.primaryMetric),
+      };
+    }
+    const [ordering, decisiveMetric] = compareOutcomeMetrics(
+      metrics,
+      incumbent.metrics,
+      policy.outcomePreferences.primaryMetric,
+    );
+    return {
+      incumbentAttempt: incumbent.attempt,
+      ordering: ordering < 0 ? 'new_incumbent' as const : 'incumbent_retained' as const,
+      decisiveMetric,
+    };
+  })();
+  return {
+    metrics,
+    constraintMisses,
+    admissible,
+    preferenceSatisfied: admissible
+      && outcomeMetricValue(
+        metrics,
+        primaryMetricName(policy.outcomePreferences.primaryMetric),
+      ) <= policy.outcomePreferences.preferredMaximum,
+    comparison,
+  };
+}
+
+function visibleOutcomeMetrics(state: MutableAttemptState): CatalogAwareOutcomeMetrics {
+  const cells = [
+    ...[...state.rooms.values()].flatMap((room) => room.occupiedCells),
+    ...[...state.routes.values()].flatMap((route) => route.cells),
+  ];
+  const xs = cells.map((cell) => cell.x);
+  const ys = cells.map((cell) => cell.y);
+  const placementWidthCells = cells.length === 0
+    ? 0
+    : checkedAdd(Math.max(...xs) - Math.min(...xs), 1, 'outcome.placementWidthCells');
+  const placementHeightCells = cells.length === 0
+    ? 0
+    : checkedAdd(Math.max(...ys) - Math.min(...ys), 1, 'outcome.placementHeightCells');
+  const placementSpanCells = checkedAdd(
+    placementWidthCells,
+    placementHeightCells,
+    'outcome.placementSpanCells',
+  );
+  const placementAreaCells = checkedMultiply(
+    placementWidthCells,
+    placementHeightCells,
+    'outcome.placementAreaCells',
+  );
+  let routedCatalogCells = 0;
+  let routeBends = 0;
+  state.routes.forEach((route) => {
+    routedCatalogCells = checkedAdd(
+      routedCatalogCells,
+      route.cells.length,
+      'outcome.routedCatalogCells',
+    );
+    for (let index = 2; index < route.cells.length; index += 1) {
+      const first = required(route.cells, index - 2, 'route bend first cell');
+      const middle = required(route.cells, index - 1, 'route bend middle cell');
+      const last = required(route.cells, index, 'route bend last cell');
+      const priorX = middle.x - first.x;
+      const priorY = middle.y - first.y;
+      const nextX = last.x - middle.x;
+      const nextY = last.y - middle.y;
+      if (priorX !== nextX || priorY !== nextY) {
+        routeBends = checkedAdd(routeBends, 1, 'outcome.routeBends');
+      }
+    }
+  });
+  return {
+    placementWidthCells,
+    placementHeightCells,
+    placementSpanCells,
+    placementAreaCells,
+    routedCatalogCells,
+    routeBends,
+    routingStates: state.routingStates,
+  };
+}
+
+function outcomeConstraintMisses(
+  metrics: CatalogAwareOutcomeMetrics,
+  constraints: CatalogAwareOutcomeConstraints,
+): readonly CatalogAwareConstraintMiss[] {
+  return [
+    ['placement_width_cells', metrics.placementWidthCells, constraints.maxPlacementWidthCells],
+    ['placement_height_cells', metrics.placementHeightCells, constraints.maxPlacementHeightCells],
+    ['placement_area_cells', metrics.placementAreaCells, constraints.maxPlacementAreaCells],
+    ['routed_catalog_cells', metrics.routedCatalogCells, constraints.maxRoutedCatalogCells],
+  ].flatMap(([metric, actual, limit]) =>
+    actual > limit
+      ? [{ metric, actual, limit }]
+      : []) as readonly CatalogAwareConstraintMiss[];
+}
+
+function compareOutcomeMetrics(
+  contender: CatalogAwareOutcomeMetrics,
+  incumbent: CatalogAwareOutcomeMetrics,
+  primary: CatalogAwareOutcomeMetric,
+): readonly [number, string] {
+  const metrics = primary === 'placement_span'
+    ? [
+      'placement_span_cells', 'placement_area_cells', 'routed_catalog_cells',
+      'route_bends', 'routing_states',
+    ]
+    : primary === 'placement_area'
+      ? [
+        'placement_area_cells', 'placement_span_cells', 'routed_catalog_cells',
+        'route_bends', 'routing_states',
+      ]
+      : [
+        'routed_catalog_cells', 'placement_span_cells', 'placement_area_cells',
+        'route_bends', 'routing_states',
+      ];
+  for (const metric of metrics) {
+    const ordering = outcomeMetricValue(contender, metric)
+      - outcomeMetricValue(incumbent, metric);
+    if (ordering !== 0) {
+      return [ordering, metric];
+    }
+  }
+  return [0, 'attempt_order'];
+}
+
+function primaryMetricName(metric: CatalogAwareOutcomeMetric): string {
+  switch (metric) {
+    case 'placement_span':
+      return 'placement_span_cells';
+    case 'placement_area':
+      return 'placement_area_cells';
+    case 'routed_catalog_cells':
+      return 'routed_catalog_cells';
+  }
+}
+
+function outcomeMetricValue(metrics: CatalogAwareOutcomeMetrics, metric: string): number {
+  switch (metric) {
+    case 'placement_span_cells':
+      return metrics.placementSpanCells;
+    case 'placement_area_cells':
+      return metrics.placementAreaCells;
+    case 'routed_catalog_cells':
+      return metrics.routedCatalogCells;
+    case 'route_bends':
+      return metrics.routeBends;
+    case 'routing_states':
+      return metrics.routingStates;
+    default:
+      fail('outcome.metric', `unsupported selection metric ${metric}`);
   }
 }
 
@@ -1214,8 +1750,12 @@ function validateSelectedOutput(
     return;
   }
   const attempt = attempts.find((candidate) => candidate.attempt === result.selectedAttempt);
-  if (attempt === undefined || attempt.evidence.classification !== 'success') {
-    fail('trace.selection.selectedAttempt', 'does not identify a successful attempt');
+  if (
+    attempt === undefined
+    || attempt.evidence.classification !== 'admissible'
+    || attempt.evidence.outcome?.admissible !== true
+  ) {
+    fail('trace.selection.selectedAttempt', 'does not identify an admissible attempt');
   }
   const placement = requiredRecord(result.placement, 'result.placement');
   const instances = array(placement.instances, 'result.placement.instances');
@@ -1365,6 +1905,8 @@ function eventStage(body: CatalogGenerationEventBody): string {
       return 'routing';
     case 'validation_completed':
       return body.stage;
+    case 'outcome_evaluated':
+      return 'outcome';
     case 'attempt_finished':
       return 'result';
     default:
@@ -1402,6 +1944,14 @@ function uniqueCells(cells: readonly CatalogGridCell[], path: string): void {
 
 function checkedAdd(left: number, right: number, path: string): number {
   const result = left + right;
+  if (!Number.isSafeInteger(result) || result < 0) {
+    fail(path, 'numeric accounting overflowed');
+  }
+  return result;
+}
+
+function checkedMultiply(left: number, right: number, path: string): number {
+  const result = left * right;
   if (!Number.isSafeInteger(result) || result < 0) {
     fail(path, 'numeric accounting overflowed');
   }

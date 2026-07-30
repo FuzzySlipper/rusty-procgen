@@ -4060,6 +4060,181 @@ mod batch_and_catalog {
             CatalogRouteSearch::BudgetExhausted { .. }
         ));
     }
+
+    #[test]
+    fn catalog_outcome_constraints_are_exact_and_report_every_hard_miss() {
+        let constraints = CatalogAwareOutcomeConstraints {
+            max_placement_width_cells: 12,
+            max_placement_height_cells: 8,
+            max_placement_area_cells: 96,
+            max_routed_catalog_cells: 40,
+        };
+        let boundary =
+            catalog_outcome_metrics_from_parts(12, 8, 40, 5, 100).expect("boundary metrics");
+        assert!(catalog_outcome_constraint_misses(&boundary, &constraints).is_empty());
+
+        for (metrics, expected_metric, expected_actual) in [
+            (
+                catalog_outcome_metrics_from_parts(13, 7, 40, 5, 100).expect("width one-over"),
+                "placement_width_cells",
+                13,
+            ),
+            (
+                catalog_outcome_metrics_from_parts(11, 9, 40, 5, 100).expect("height one-over"),
+                "placement_height_cells",
+                9,
+            ),
+            (
+                catalog_outcome_metrics_from_parts(12, 9, 40, 5, 100).expect("area one-over"),
+                "placement_area_cells",
+                108,
+            ),
+            (
+                catalog_outcome_metrics_from_parts(12, 8, 41, 5, 100).expect("routed one-over"),
+                "routed_catalog_cells",
+                41,
+            ),
+        ] {
+            let misses = catalog_outcome_constraint_misses(&metrics, &constraints);
+            assert!(misses.iter().any(|miss| {
+                miss.metric == expected_metric
+                    && miss.actual == expected_actual
+                    && miss.limit
+                        == match expected_metric {
+                            "placement_width_cells" => 12,
+                            "placement_height_cells" => 8,
+                            "placement_area_cells" => 96,
+                            "routed_catalog_cells" => 40,
+                            _ => unreachable!("known constraint"),
+                        }
+            }));
+        }
+    }
+
+    #[test]
+    fn catalog_outcome_metrics_reject_span_and_area_overflow() {
+        assert_eq!(
+            catalog_outcome_metrics_from_parts(u64::MAX, 1, 0, 0, 0),
+            Err("placement span arithmetic overflowed".to_owned())
+        );
+        assert_eq!(
+            catalog_outcome_metrics_from_parts(4_294_967_296, 4_294_967_296, 0, 0, 0),
+            Err("placement area arithmetic overflowed".to_owned())
+        );
+    }
+
+    #[test]
+    fn catalog_outcome_preferences_change_only_deterministic_admissible_ordering() {
+        let incumbent =
+            catalog_outcome_metrics_from_parts(20, 10, 40, 8, 100).expect("incumbent metrics");
+        let smaller_area =
+            catalog_outcome_metrics_from_parts(18, 11, 35, 9, 110).expect("area contender");
+        let shorter_routes =
+            catalog_outcome_metrics_from_parts(22, 10, 30, 10, 120).expect("route contender");
+
+        assert_eq!(
+            catalog_outcome_ordering(
+                &smaller_area,
+                &incumbent,
+                CatalogAwareOutcomeMetric::PlacementArea,
+            ),
+            (Ordering::Less, "placement_area_cells")
+        );
+        assert_eq!(
+            catalog_outcome_ordering(
+                &smaller_area,
+                &incumbent,
+                CatalogAwareOutcomeMetric::PlacementSpan,
+            ),
+            (Ordering::Less, "placement_span_cells")
+        );
+        assert_eq!(
+            catalog_outcome_ordering(
+                &shorter_routes,
+                &incumbent,
+                CatalogAwareOutcomeMetric::PlacementSpan,
+            ),
+            (Ordering::Greater, "placement_span_cells")
+        );
+        assert_eq!(
+            catalog_outcome_ordering(
+                &shorter_routes,
+                &incumbent,
+                CatalogAwareOutcomeMetric::RoutedCatalogCells,
+            ),
+            (Ordering::Less, "routed_catalog_cells")
+        );
+    }
+
+    #[test]
+    fn catalog_outcome_policy_limits_are_exact_and_one_over_rejects() {
+        let policy_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join("../../..")
+            .join("fixtures/policies/catalog-aware-generation-default.json");
+        let policy: CatalogAwareGenerationPolicy =
+            read_json(&policy_path).expect("catalog-aware policy should load");
+
+        for (index, (mut boundary, mut one_over, expected)) in [
+            (
+                policy.clone(),
+                policy.clone(),
+                "maxPlacementWidthCells must be from 1 through 4294967296",
+            ),
+            (
+                policy.clone(),
+                policy.clone(),
+                "maxPlacementHeightCells must be from 1 through 4294967296",
+            ),
+            (
+                policy.clone(),
+                policy.clone(),
+                "maxPlacementAreaCells must be from 1 through 9007199254740991",
+            ),
+            (
+                policy.clone(),
+                policy.clone(),
+                "maxRoutedCatalogCells must be from 1 through 1048576",
+            ),
+            (
+                policy.clone(),
+                policy,
+                "preferredMaximum must be from 1 through 9007199254740991",
+            ),
+        ]
+        .into_iter()
+        .enumerate()
+        {
+            match expected {
+                value if value.starts_with("maxPlacementWidth") => {
+                    boundary.outcome_constraints.max_placement_width_cells = 4_294_967_296;
+                    one_over.outcome_constraints.max_placement_width_cells = 4_294_967_297;
+                }
+                value if value.starts_with("maxPlacementHeight") => {
+                    boundary.outcome_constraints.max_placement_height_cells = 4_294_967_296;
+                    one_over.outcome_constraints.max_placement_height_cells = 4_294_967_297;
+                }
+                value if value.starts_with("maxPlacementArea") => {
+                    boundary.outcome_constraints.max_placement_area_cells = 9_007_199_254_740_991;
+                    one_over.outcome_constraints.max_placement_area_cells = 9_007_199_254_740_992;
+                }
+                value if value.starts_with("maxRoutedCatalog") => {
+                    boundary.outcome_constraints.max_routed_catalog_cells = 1_048_576;
+                    one_over.outcome_constraints.max_routed_catalog_cells = 1_048_577;
+                }
+                _ => {
+                    boundary.outcome_preferences.preferred_maximum = 9_007_199_254_740_991;
+                    one_over.outcome_preferences.preferred_maximum = 9_007_199_254_740_992;
+                }
+            }
+            validate_catalog_aware_policy(&boundary)
+                .unwrap_or_else(|error| panic!("boundary case {index} rejected: {error}"));
+            assert_eq!(
+                validate_catalog_aware_policy(&one_over),
+                Err(expected.to_owned()),
+                "one-over case {index}"
+            );
+        }
+    }
 }
 
 mod scoring {

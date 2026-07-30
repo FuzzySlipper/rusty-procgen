@@ -1,12 +1,22 @@
 {
-  "kind": "rusty_procgen.catalog_aware_generation_policy.v1",
-  "schemaVersion": 1,
+  "kind": "rusty_procgen.catalog_aware_generation_policy.v2",
+  "schemaVersion": 2,
   "maxGenerationAttempts": 4,
-  "initialRoomSlackCells": 0,
-  "roomSlackGrowthCells": 4,
+  "initialRoomCompactionCells": 0,
+  "roomCompactionGrowthCells": 1,
   "maxRoomCandidates": 16,
   "maxRoutingStatesPerSection": 100,
   "routeMarginCells": 48,
   "guideDistanceWeight": 4,
-  "turnPenalty": 3
+  "turnPenalty": 3,
+  "outcomeConstraints": {
+    "maxPlacementWidthCells": 4096,
+    "maxPlacementHeightCells": 4096,
+    "maxPlacementAreaCells": 16777216,
+    "maxRoutedCatalogCells": 1048576
+  },
+  "outcomePreferences": {
+    "primaryMetric": "placement_span",
+    "preferredMaximum": 286
+  }
 }
