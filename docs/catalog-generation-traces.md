@@ -22,6 +22,16 @@ The structural hashes use the repository's canonical compact-JSON FNV-1a
 contract. They detect drift and ordinary tampering and make deterministic
 fixtures easy to compare; they are not a security signature.
 
+The browser boundary independently recomputes `generationPolicyHash` because
+the complete typed generation policy is included in the trace. The candidate,
+source geometry, source piece plan, catalog, and provenance source tuple are
+not included: only their Rust-authored hashes are retained. Their
+`candidateHash`, `sourceGeometryHash`, `sourcePlanHash`, `catalogHash`, and
+`provenanceHash` values therefore bind the Rust event chain but cannot be
+independently recomputed by the browser. In particular, the selected result
+geometry and piece plan are generated outputs, not substitutes for the source
+geometry and source plan.
+
 Events retain semantic decisions rather than search implementation churn:
 
 - input binding and attempt start;
@@ -122,6 +132,8 @@ through `src/catalog-generation-trace.ts`. The decoder admits the complete
 pair before changing the visible SVG:
 
 - exact schema fields, authored limits, and hard limits are checked;
+- the included generation policy is recomputed against its declared input
+  hash;
 - the root and every previous/event hash link are recomputed;
 - event-body bytes and visual cells are independently recounted;
 - attempt order, effective slack, room-domain/placement membership, route

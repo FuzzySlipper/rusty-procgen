@@ -70,6 +70,18 @@ rejects(
   'event body without matching hash',
 );
 rejects(
+  mutate(accepted.trace, (trace) => {
+    trace.inputHashes.generationPolicyHash = 'fnv1a64:0000000000000000';
+    const bound = trace.events.find((event) => event.body.type === 'input_bound');
+    assert.ok(bound, 'accepted trace has input_bound');
+    bound.body.inputHashes.generationPolicyHash = trace.inputHashes.generationPolicyHash;
+    rehashTraceRoot(trace);
+    rechainTrace(trace);
+  }),
+  accepted.result,
+  'fully re-chained generation policy hash mismatch',
+);
+rejects(
   accepted.trace,
   mutate(accepted.result, (result) => {
     result.candidateId = 'candidate-tampered';
@@ -137,7 +149,7 @@ console.log(JSON.stringify({
     attempts: exhausted.run.attempts.length,
     outputHash: exhausted.run.outputHash,
   },
-  tamperCases: 9,
+  tamperCases: 10,
 }));
 
 async function readRun(name) {
@@ -199,6 +211,17 @@ function rechainTrace(trace) {
   }
   trace.eventBodyBytes = bodyBytes;
   trace.finalEventHash = previousHash;
+}
+
+function rehashTraceRoot(trace) {
+  trace.rootHash = fnv1a64Json({
+    kind: trace.kind,
+    schemaVersion: trace.schemaVersion,
+    seed: trace.seed,
+    inputHashes: trace.inputHashes,
+    generationPolicy: trace.generationPolicy,
+    limits: trace.limits,
+  });
 }
 
 function fnv1a64Json(value) {

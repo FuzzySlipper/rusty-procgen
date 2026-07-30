@@ -453,6 +453,13 @@ function decodeTrace(input: unknown): CatalogGenerationTrace {
     finalOutputHash,
     selection,
   };
+  const expectedGenerationPolicyHash = fnv1a64Json(trace.generationPolicy);
+  if (trace.inputHashes.generationPolicyHash !== expectedGenerationPolicyHash) {
+    fail(
+      'trace.inputHashes.generationPolicyHash',
+      `does not match the included generation policy hash ${expectedGenerationPolicyHash}`,
+    );
+  }
   const expectedRoot = fnv1a64Json({
     kind: trace.kind,
     schemaVersion: trace.schemaVersion,
