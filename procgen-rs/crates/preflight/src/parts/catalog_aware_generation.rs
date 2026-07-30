@@ -499,14 +499,6 @@ fn run_catalog_aware_generation_recording(
                 if replaces_incumbent {
                     best = Some((attempt, outcome, metrics));
                 }
-                if result
-                    .attempts
-                    .last()
-                    .and_then(|attempt| attempt.outcome.as_ref())
-                    .is_some_and(|evaluation| evaluation.preference_satisfied)
-                {
-                    break;
-                }
             }
             Err(failure) => {
                 final_classification = failure.classification.clone();

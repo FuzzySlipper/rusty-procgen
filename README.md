@@ -286,9 +286,10 @@ compaction, route margin, guide/turn costs, per-section state budgets, hard
 outcome limits, and one explicit selection preference.
 Failures distinguish generation infeasibility, missing catalog vocabulary, and
 search-budget exhaustion. A successful outcome that misses a hard placement
-limit is rejected before publication. Otherwise Rust selects the first outcome
-that satisfies the configured preference, or the deterministic best admissible
-outcome after the bounded attempt budget. `hybrid` preserves the
+limit is rejected before publication. Otherwise Rust evaluates the complete
+bounded attempt set and selects the deterministic best admissible outcome by
+the configured primary metric and tie-breakers. The preferred maximum remains
+visible target evidence, not an early-stop rule. `hybrid` preserves the
 earlier behavior, covering planned route segments with bounded
 short/medium/long straight families and sized bend prefabs while route cells
 fill uncovered gaps. `procedural` keeps catalog-backed room and feature pieces but

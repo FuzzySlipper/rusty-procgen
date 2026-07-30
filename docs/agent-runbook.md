@@ -544,8 +544,9 @@ guide-biased route search composes only catalog pieces and never emits
 procedural connection cells. Each valid outcome is measured against hard final
 placement width, height, area, and routed-cell limits. Admissible outcomes are
 ranked by the selected span, area, or routed-cell preference, with explicit
-tie-breakers. The first preference-satisfying outcome stops the bounded search;
-otherwise the best admissible outcome is published after exhaustion.
+tie-breakers. The complete bounded attempt set is evaluated and the best
+admissible outcome is published. The preferred maximum records whether the
+selected metric met its target; it does not stop the search early.
 Procedural mode keeps room/feature
 prefabs, omits connector/corridor/bend instances, and constrains each direct
 physical-section route to its planned geometry-lane envelope. All modes produce
@@ -571,9 +572,9 @@ pnpm run catalog-trace:fixtures:check
 pnpm run generation-control:report:check
 ```
 
-The trace fixtures cover preference-satisfied selection, deterministic
-best-admissible selection, and typed bounded exhaustion. The characterization
-suite probes all 26 editable settings from
+The trace fixtures cover deterministic best-admissible selection with both met
+and unmet preference targets, plus typed bounded exhaustion. The
+characterization suite probes all 26 editable settings from
 `fixtures/policies/viewer-generation-default.v2.json`, records exact
 before/after metrics, and never reads the mutable workbench config.
 

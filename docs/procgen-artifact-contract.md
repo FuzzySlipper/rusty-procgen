@@ -403,9 +403,9 @@ width, height, span, area, routed catalog cells, bends, routing states, every
 hard-limit miss, preference satisfaction, and the comparison against the
 current incumbent.
 
-The first admissible outcome meeting the preference is selected. If none meets
-it, the deterministic best admissible outcome is selected after the attempt
-budget is exhausted. If no attempt is admissible, the result is a typed
+The complete attempt budget is evaluated and the deterministic best admissible
+outcome is selected. The preferred maximum records target satisfaction but
+does not stop the search. If no attempt is admissible, the result is a typed
 exhaustion and no accepted artifact is published.
 
 ## Catalog Generation Trace

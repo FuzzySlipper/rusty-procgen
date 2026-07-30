@@ -120,16 +120,18 @@ try {
     throw new Error('successful pure catalog rebuild did not persist the unified configuration');
   }
 
-  const selectedOutcome = pureCatalogResult.catalogAwareGeneration?.attempts?.find(
-    (attempt) => attempt.attempt === pureCatalogResult.catalogAwareGeneration.selectedAttempt,
+  const oneAttemptOutcome = pureCatalogResult.catalogAwareGeneration?.attempts?.find(
+    (attempt) => attempt.attempt === 0,
   )?.outcome;
-  const selectedWidth = selectedOutcome?.metrics?.placementWidthCells;
-  if (!Number.isInteger(selectedWidth) || selectedWidth <= 1) {
-    throw new Error(`catalog rebuild omitted selected outcome metrics: ${JSON.stringify(selectedOutcome)}`);
+  const oneAttemptWidth = oneAttemptOutcome?.metrics?.placementWidthCells;
+  if (!Number.isInteger(oneAttemptWidth) || oneAttemptWidth <= 1) {
+    throw new Error(
+      `catalog rebuild omitted attempt-zero outcome metrics: ${JSON.stringify(oneAttemptOutcome)}`,
+    );
   }
   const exactWidthCatalog = structuredClone(pureCatalog);
   exactWidthCatalog.catalogAwareGenerationPolicy.maxGenerationAttempts.value = 1;
-  exactWidthCatalog.catalogAwareGenerationPolicy.maxPlacementWidthCells.value = selectedWidth;
+  exactWidthCatalog.catalogAwareGenerationPolicy.maxPlacementWidthCells.value = oneAttemptWidth;
   const exactWidthResult = await postRebuild(
     { candidateId, config: exactWidthCatalog },
     200,
@@ -138,7 +140,7 @@ try {
     (attempt) => attempt.attempt === exactWidthResult.catalogAwareGeneration.selectedAttempt,
   )?.outcome;
   if (
-    exactSelectedOutcome?.metrics?.placementWidthCells !== selectedWidth
+    exactSelectedOutcome?.metrics?.placementWidthCells !== oneAttemptWidth
     || exactSelectedOutcome.constraintMisses.length !== 0
   ) {
     throw new Error(
@@ -154,7 +156,7 @@ try {
   }
   const oneUnderWidthCatalog = structuredClone(exactWidthCatalog);
   oneUnderWidthCatalog.catalogAwareGenerationPolicy.maxPlacementWidthCells.value =
-    selectedWidth - 1;
+    oneAttemptWidth - 1;
   const hardLimitFailure = await postRebuild(
     { candidateId, config: oneUnderWidthCatalog },
     422,
@@ -168,7 +170,7 @@ try {
     hardLimitFailure.evidence?.classification !== 'outcome_constraint_miss'
     || widthMisses?.length !== 1
     || widthMisses.some((miss) =>
-      miss?.limit !== selectedWidth - 1
+      miss?.limit !== oneAttemptWidth - 1
       || !Number.isInteger(miss.actual)
       || miss.actual <= miss.limit)
   ) {

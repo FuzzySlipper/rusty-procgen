@@ -326,18 +326,13 @@ export function decodeCatalogGenerationRun(
   if (!samePolicy(trace.generationPolicy, result.policy)) {
     fail('trace.generationPolicy', 'does not match the result policy');
   }
-  const selectedOutcome = result.selectedAttempt === null
-    ? null
-    : required(result.attempts, result.selectedAttempt, 'selected attempt').outcome;
   const expectedSelection = result.ok
     ? {
       selectedAttempt: result.selectedAttempt,
       classification: 'success',
-      reason: `${
-        selectedOutcome?.preferenceSatisfied === true
-          ? 'preference_satisfied'
-          : 'best_admissible'
-      }_${primaryMetricName(result.policy.outcomePreferences.primaryMetric)}`,
+      reason: `best_admissible_${
+        primaryMetricName(result.policy.outcomePreferences.primaryMetric)
+      }`,
     }
     : {
       selectedAttempt: null,
@@ -575,8 +570,8 @@ function decodeResult(input: unknown): DecodedResult {
     value.exhaustedClassification,
     'result.exhaustedClassification',
   );
-  if (attempts.length === 0 || attempts.length > policy.maxGenerationAttempts) {
-    fail('result.attempts', 'must contain one through maxGenerationAttempts entries');
+  if (attempts.length !== policy.maxGenerationAttempts) {
+    fail('result.attempts', 'must contain exactly maxGenerationAttempts entries');
   }
   attempts.forEach((attempt, index) => {
     if (attempt.attempt !== index) {
@@ -604,17 +599,6 @@ function decodeResult(input: unknown): DecodedResult {
       : selectedAttempt !== null || exhaustedClassification === null
   ) {
     fail('result', 'success/exhaustion selection fields are inconsistent');
-  }
-  const preferenceSatisfied = attempts.at(-1)?.outcome?.preferenceSatisfied === true;
-  if (
-    attempts.some((attempt, index) =>
-      attempt.outcome?.preferenceSatisfied === true && index !== attempts.length - 1)
-    || (!preferenceSatisfied && attempts.length !== policy.maxGenerationAttempts)
-  ) {
-    fail(
-      'result.attempts',
-      'must stop at the first satisfied preference or exhaust maxGenerationAttempts',
-    );
   }
   const geometry = nullableRecord(value.geometry, 'result.geometry');
   const piecePlan = nullableRecord(value.piecePlan, 'result.piecePlan');
@@ -1194,10 +1178,8 @@ function validateEventSequence(
   let current: MutableAttemptState | null = null;
   const selectionState: {
     incumbent: { readonly attempt: number; readonly metrics: CatalogAwareOutcomeMetrics } | null;
-    preferenceSatisfied: boolean;
   } = {
     incumbent: null,
-    preferenceSatisfied: false,
   };
   let inputBound = false;
   let runFinished = false;
@@ -1247,7 +1229,6 @@ function validateEventSequence(
         !inputBound
         || current !== null
         || event.attempt !== attempts.length
-        || selectionState.preferenceSatisfied
       ) {
         fail(`trace.events[${position}]`, 'attempt_started is out of sequence');
       }
@@ -1324,7 +1305,6 @@ function validateEventSequence(
             metrics: expected.metrics,
           };
         }
-        selectionState.preferenceSatisfied = expected.preferenceSatisfied;
       } else {
         applyAttemptEvent(event, current, result, position);
       }
@@ -1581,18 +1561,24 @@ function evaluateOutcome(
 }
 
 function visibleOutcomeMetrics(state: MutableAttemptState): CatalogAwareOutcomeMetrics {
-  const cells = [
-    ...[...state.rooms.values()].flatMap((room) => room.occupiedCells),
-    ...[...state.routes.values()].flatMap((route) => route.cells),
-  ];
-  const xs = cells.map((cell) => cell.x);
-  const ys = cells.map((cell) => cell.y);
-  const placementWidthCells = cells.length === 0
+  let minX: number | null = null;
+  let maxX: number | null = null;
+  let minY: number | null = null;
+  let maxY: number | null = null;
+  const include = (cell: CatalogGridCell): void => {
+    minX = minX === null ? cell.x : Math.min(minX, cell.x);
+    maxX = maxX === null ? cell.x : Math.max(maxX, cell.x);
+    minY = minY === null ? cell.y : Math.min(minY, cell.y);
+    maxY = maxY === null ? cell.y : Math.max(maxY, cell.y);
+  };
+  state.rooms.forEach((room) => room.occupiedCells.forEach(include));
+  state.routes.forEach((route) => route.cells.forEach(include));
+  const placementWidthCells = minX === null || maxX === null
     ? 0
-    : checkedAdd(Math.max(...xs) - Math.min(...xs), 1, 'outcome.placementWidthCells');
-  const placementHeightCells = cells.length === 0
+    : checkedAdd(maxX - minX, 1, 'outcome.placementWidthCells');
+  const placementHeightCells = minY === null || maxY === null
     ? 0
-    : checkedAdd(Math.max(...ys) - Math.min(...ys), 1, 'outcome.placementHeightCells');
+    : checkedAdd(maxY - minY, 1, 'outcome.placementHeightCells');
   const placementSpanCells = checkedAdd(
     placementWidthCells,
     placementHeightCells,

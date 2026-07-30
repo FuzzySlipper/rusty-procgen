@@ -861,7 +861,6 @@ struct CatalogGenerationReplayMachine {
     completed_attempt: Option<CatalogGenerationReplayAttempt>,
     incumbent: Option<(u32, CatalogAwareOutcomeMetrics)>,
     outcome_evaluated: bool,
-    preference_satisfied: bool,
     input_bound: bool,
     run_finished: bool,
 }
@@ -901,15 +900,10 @@ impl CatalogGenerationReplayMachine {
                         "attempt-start event has no attempt",
                     )
                 })?;
-                if self.state.attempt.is_some()
-                    || attempt != self.next_attempt
-                    || self.preference_satisfied
-                {
+                if self.state.attempt.is_some() || attempt != self.next_attempt {
                     return Err(trace_validation_error(
                         "trace_attempt_order_invalid",
-                        format!(
-                            "attempt {attempt} is not the next expected attempt or follows a satisfied preference"
-                        ),
+                        format!("attempt {attempt} is not the next expected attempt"),
                     ));
                 }
                 self.state = CatalogGenerationReplayState {
@@ -1132,7 +1126,6 @@ impl CatalogGenerationReplayMachine {
                 if replaces_incumbent {
                     self.incumbent = Some((attempt, metrics));
                 }
-                self.preference_satisfied = expected.preference_satisfied;
                 self.outcome_evaluated = true;
             }
             CatalogGenerationTraceEventBody::AttemptFinished {
@@ -1678,7 +1671,7 @@ fn catalog_generation_trace_selection(
                 "successful result has no selected attempt",
             )
         })?;
-        let selected_outcome = result
+        result
             .attempts
             .get(usize::try_from(selected_attempt).map_err(|_| {
                 trace_validation_error(
@@ -1693,16 +1686,11 @@ fn catalog_generation_trace_selection(
                     "selected attempt has no outcome evaluation",
                 )
             })?;
-        let reason_prefix = if selected_outcome.preference_satisfied {
-            "preference_satisfied"
-        } else {
-            "best_admissible"
-        };
         Ok(CatalogGenerationTraceSelection {
             selected_attempt: Some(selected_attempt),
             classification: "success".to_owned(),
             reason: format!(
-                "{reason_prefix}_{}",
+                "best_admissible_{}",
                 catalog_primary_metric_name(result.policy.outcome_preferences.primary_metric),
             ),
         })

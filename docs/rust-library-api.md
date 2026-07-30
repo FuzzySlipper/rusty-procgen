@@ -64,9 +64,9 @@ mutate any caller value and does not interpret provenance labels as paths.
 
 `CatalogAwareOutcomeConstraints` owns hard maxima for final placement width,
 height, area, and routed catalog cells. `CatalogAwareOutcomePreferences` owns
-one bounded primary metric and preferred maximum. The first admissible outcome
-meeting that preference ends the search; otherwise Rust publishes the
-deterministic best admissible outcome after the attempt budget is exhausted.
+one bounded primary metric and preferred maximum. Rust evaluates the complete
+attempt budget and publishes the deterministic best admissible outcome; the
+preferred maximum records target satisfaction but never truncates the search.
 These are dungeon-tooling decisions local to Procgen, not a generic Engine
 optimization service.
 

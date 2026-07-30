@@ -30,9 +30,9 @@ values exactly once from the tracked version-2 baseline.
 
 | Outcome | Candidate | Final placement | Room envelope | Routed cells / bends | Fill | Routing states |
 |---|---|---:|---:|---:|---:|---:|
-| Current defaults, preference met | `5201` | 176 × 110 | 1,227,776 | 921 / 72 | 8.13% | 37,483 |
+| Current defaults, best admissible | `5201` | 174 × 110 | 1,191,552 | 911 / 71 | 8.17% | 34,401 |
 | Tight initial spacing, rejected | `5201` | none | none | no complete route | none | 506,551 across four attempts |
-| Tight initial spacing, accepted | `5801` | 81 × 36 | 186,624 | 125 / 22 | 18.03% | 4,569 |
+| Tight initial spacing, best admissible | `5801` | 77 × 32 | 157,696 | 115 / 16 | 20.94% | 2,982 |
 
 The compact and sprawling accepted examples have different graph sizes:
 `5201` places nine rooms and routes thirteen sections, while `5801` places four
@@ -52,26 +52,26 @@ collapsing it into a generic error.
 ## Controlled-generation result
 
 The behavior-changing baseline before the version-2 policy selected the first
-valid catalog attempt for `5201`. The current policy continues because the
-first outcome misses its span preference and selects the next bounded
-compaction attempt:
+valid catalog attempt for `5201`. The current policy evaluates the complete
+four-attempt budget, records that attempt 1 meets the span target, and still
+selects the strictly better attempt 2:
 
 | Measure | First-success baseline | Current version 2 | Delta |
 |---|---:|---:|---:|
-| Selected attempt | 0 | 1 | +1 attempt |
-| Placement | 178 × 111 | 176 × 110 | −2 × −1 |
-| Placement span | 289 | 286 | −3 |
-| Placement area | 19,758 | 19,360 | −398 |
-| Routed catalog cells | 941 | 921 | −20 |
-| Route bends | 82 | 72 | −10 |
-| Routing states | 42,442 | 37,483 | −4,959 |
-| Room envelope | 1,424 × 888 | 1,408 × 872 | −36,736 area |
-| Geometry | 1,672 × 1,112 | 1,664 × 1,104 | −8 × −8 |
+| Selected attempt | 0 | 2 | +2 attempts |
+| Placement | 178 × 111 | 174 × 110 | −4 × −1 |
+| Placement span | 289 | 284 | −5 |
+| Placement area | 19,758 | 19,140 | −618 |
+| Routed catalog cells | 941 | 911 | −30 |
+| Route bends | 82 | 71 | −11 |
+| Routing states | 42,442 | 34,401 | −8,041 |
+| Room envelope | 1,424 × 888 | 1,392 × 856 | −72,960 area |
+| Geometry | 1,672 × 1,112 | 1,656 × 1,104 | −16 × −8 |
 
-The compact `5801` fixture remains 81 × 36 with 125 routed cells, 22 bends,
-4,569 routing states, and attempt zero selected. The change improves the named
-sprawling case without forcing every already-compact result through additional
-work.
+The compact `5801` fixture also improves: 81 × 36 becomes 77 × 32, routed cells
+drop from 125 to 115, bends from 22 to 16, and routing states from 4,569 to
+2,982. It selects attempt 2. This is not an early-stop optimization: all four
+bounded attempts are evaluated for both accepted fixtures.
 
 ## Outcome-control semantics
 
@@ -81,9 +81,9 @@ The version-2 catalog-aware policy distinguishes two kinds of control:
   cells. A miss is typed `outcome_constraint_miss`, cannot be selected, and
   cannot publish an accepted artifact.
 - A preference chooses placement span, placement area, or routed catalog cells
-  as the primary metric and supplies a preferred maximum. The first admissible
-  outcome meeting that maximum ends the search. If no outcome meets it, the
-  bounded search publishes the deterministic best admissible outcome.
+  as the primary metric and supplies a preferred maximum. The primary metric
+  controls deterministic ordering. The maximum records target satisfaction but
+  never stops the complete bounded search early.
 
 Tie-breaking is explicit and stable. The selected primary metric comes first,
 then the other size metrics, routed cells where not already primary, route
@@ -118,9 +118,9 @@ For the current default `5201` fixture:
   trace;
 - each hard outcome maximum has an exact measured boundary and rejects
   one-under values without publishing;
-- changing the primary metric changes comparison semantics, and changing the
-  preferred maximum changes whether the bounded search stops early or selects
-  the best admissible outcome;
+- changing the primary metric changes comparison semantics, while changing the
+  preferred maximum changes target evidence without allowing a dominated
+  admissible outcome to win;
 - switching to hybrid corridors changes the owner and projection
   substantially, so geometry envelope, catalog placement, and procedural shell
   remain separate metrics.

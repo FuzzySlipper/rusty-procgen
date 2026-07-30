@@ -68,7 +68,9 @@ try {
   );
   if (
     accepted?.result?.ok !== true
-    || accepted.trace?.events?.length !== 102
+    || accepted.trace?.events?.length !== 188
+    || accepted.result.selectedAttempt !== 2
+    || accepted.result.attempts?.length !== 4
     || exhausted?.result?.ok !== false
     || exhausted.trace?.events?.length !== 90
     || bestAdmissible?.result?.ok !== true
@@ -304,7 +306,7 @@ async function exerciseViewer(
     const tightCompact = await dataset(cdp);
     if (
       tightCompact.candidateId !== 'candidate.first_slice.5801'
-      || tightCompact.selection !== 'attempt-0'
+      || tightCompact.selection !== 'attempt-2'
       || tightCompact.roomCount !== 4
       || tightCompact.routeCount !== 4
       || tightCompact.outputHash !== controlCompact.trace.finalOutputHash
@@ -409,7 +411,7 @@ async function exerciseViewer(
     const liveAccepted = await dataset(cdp);
     if (
       liveAccepted.candidateId !== candidateId
-      || liveAccepted.selection !== 'attempt-0'
+      || liveAccepted.selection !== 'attempt-2'
     ) {
       throw new Error(`live accepted rebuild published the wrong trace: ${JSON.stringify(liveAccepted)}`);
     }

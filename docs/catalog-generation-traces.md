@@ -16,8 +16,7 @@ an authority that may change the selected result.
 - the effective generation policy, seed, and trace limits;
 - monotonically indexed events with exact previous/event hash links;
 - the exact generation-result hash, per-attempt outcome evaluation, and an
-  explicit preference-satisfied, best-admissible, or exhausted selection
-  reason.
+  explicit best-admissible or exhausted selection reason.
 
 The structural hashes use the repository's canonical compact-JSON FNV-1a
 contract. They detect drift and ordinary tampering and make deterministic
@@ -117,8 +116,8 @@ pnpm run catalog-trace:fixtures:check
 The generator creates intermediate plans in an isolated temporary directory and
 publishes exact result/trace pairs for:
 
-- a preference-satisfied default-policy run with 102 events, 110,900 compact
-  event-body bytes, and 4,686 visual cells;
+- a best-admissible default-policy run with 188 events, 210,328 compact
+  event-body bytes, and 8,870 visual cells;
 - a four-attempt route-budget exhaustion with 90 events, 93,593 compact
   event-body bytes, and 3,080 visual cells;
 - a four-attempt run that selects the deterministic best admissible outcome
@@ -153,11 +152,11 @@ Admissible outcomes are compared lexicographically:
 - routed-cell preference: routed cells, span, area, bends, routing states,
   attempt.
 
-The first admissible attempt meeting the preference ends the bounded search.
-If none meets it, the runner exhausts the configured attempt budget and
-publishes the deterministic best admissible outcome. If no attempt is
-admissible, generation rejects with its typed failure evidence and publishes
-no accepted artifact.
+The runner evaluates the complete configured attempt budget and publishes the
+deterministic best admissible outcome. `preferredMaximum` records whether an
+attempt met the authored target, but does not truncate the search or allow a
+dominated result to win. If no attempt is admissible, generation rejects with
+its typed failure evidence and publishes no accepted artifact.
 
 `roomCompactionCells` is an attempt input, not a score or validity rule. It
 moves selected room origins inward toward the geometry center before catalog
@@ -181,10 +180,10 @@ pair before changing the visible SVG:
 - the result hash is recomputed and a successful selected attempt is compared
   with the ordinary placement and piece-plan sections.
 
-The UI replays only admitted semantic events. It supports
-preference-satisfied, best-admissible, and exhausted run selection,
-failed-attempt switching, play/pause, single-decision forward and back, reset,
-bounded seek, and previous/next stage navigation. Room
+The UI replays only admitted semantic events. It supports best-admissible and
+exhausted run selection, preference-target readout, failed-attempt switching,
+play/pause, single-decision forward and back, reset, bounded seek, and
+previous/next stage navigation. Room
 occupied/reserved cells, current conflicts, route guides/endpoints, and
 committed routes are SVG observations of the retained trace. Policy values,
 hard limits, preference, classification, metrics, comparison, event identity,
@@ -219,9 +218,10 @@ pnpm run catalog-trace:smoke
 pnpm run catalog-trace:viewer:smoke
 ```
 
-The first command checks strict cross-language decode, preference-satisfied,
-best-admissible and exhausted replay, plus malformed/tampered/mismatched
-rejection. The second uses real
+The first command checks strict cross-language decode, best-admissible and
+exhausted replay, malformed/tampered/mismatched rejection, and exact-limit
+admission of a 131,072-cell route without spread-argument overflow. The second
+uses real
 Chromium for keyboard and pointer controls, back/seek/reset/stage navigation,
 attempt and outcome switching, mobile sizing, final result agreement,
 tamper-before-mount behavior, live accepted/exhausted rebuild replacement, and

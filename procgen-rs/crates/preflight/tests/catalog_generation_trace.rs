@@ -201,26 +201,32 @@ fn semantic_trace_is_bounded_hash_closed_replayable_and_cli_equivalent() {
     assert_eq!(replay.final_output_hash, first.trace.final_output_hash);
     assert_eq!(replay.final_event_hash, first.trace.final_event_hash);
     assert_eq!(replay.attempts.len(), first.result.attempts.len());
-    assert_eq!(first.result.attempts.len(), 2);
-    assert_eq!(first.result.selected_attempt, Some(1));
+    assert_eq!(first.result.attempts.len(), 4);
+    assert_eq!(first.result.selected_attempt, Some(2));
     let baseline = first.result.attempts[0]
         .outcome
         .as_ref()
         .expect("baseline outcome");
-    let selected = first.result.attempts[1]
+    let preferred = first.result.attempts[1]
         .outcome
         .as_ref()
-        .expect("selected outcome");
+        .expect("preferred outcome");
+    let selected = first.result.attempts[2]
+        .outcome
+        .as_ref()
+        .expect("best outcome");
     assert!(baseline.admissible);
     assert!(!baseline.preference_satisfied);
     assert_eq!(baseline.metrics.placement_span_cells, 289);
-    assert_eq!(selected.metrics.placement_span_cells, 286);
+    assert_eq!(preferred.metrics.placement_span_cells, 286);
+    assert!(preferred.preference_satisfied);
+    assert_eq!(selected.metrics.placement_span_cells, 284);
     assert!(selected.preference_satisfied);
-    assert_eq!(selected.comparison.incumbent_attempt, Some(0));
+    assert_eq!(selected.comparison.incumbent_attempt, Some(1));
     assert_eq!(selected.comparison.ordering, "new_incumbent");
     assert_eq!(
         first.trace.selection.reason,
-        "preference_satisfied_placement_span_cells"
+        "best_admissible_placement_span_cells"
     );
     assert!(first.trace.events.iter().any(|event| matches!(
         event.body,

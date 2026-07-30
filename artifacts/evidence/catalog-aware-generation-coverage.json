@@ -74,8 +74,8 @@
       "topologyFingerprint": "topology:418e96fe6aa81a3a",
       "status": "success",
       "classification": "catalog_aware_exact_assembly",
-      "buildId": "9e093e484ec73cff8d3b6841742b9c20f9bf38330e3446a11eacab4d871f5411",
-      "instanceCount": 930,
+      "buildId": "103e757d2b7a684ca66e3734c764fde61f4438668561c5298b6788fc9e93df71",
+      "instanceCount": 920,
       "connectionCellCount": 0,
       "placementValidationOk": true,
       "builtFlowValidationOk": true,
@@ -160,9 +160,49 @@
                 "decisiveMetric": "placement_span_cells"
               }
             }
+          },
+          {
+            "attempt": 2,
+            "roomCompactionCells": 2,
+            "classification": "admissible",
+            "stage": "outcome_selection",
+            "detail": "Validated catalog outcome was compared by placement_span_cells.",
+            "roomsPlaced": 9,
+            "sectionsRouted": 13,
+            "routingStates": 34401,
+            "outcome": {
+              "metrics": {
+                "placementWidthCells": 174,
+                "placementHeightCells": 110,
+                "placementSpanCells": 284,
+                "placementAreaCells": 19140,
+                "routedCatalogCells": 911,
+                "routeBends": 71,
+                "routingStates": 34401
+              },
+              "constraintMisses": [],
+              "admissible": true,
+              "preferenceSatisfied": true,
+              "comparison": {
+                "incumbentAttempt": 1,
+                "ordering": "new_incumbent",
+                "decisiveMetric": "placement_span_cells"
+              }
+            }
+          },
+          {
+            "attempt": 3,
+            "roomCompactionCells": 3,
+            "classification": "search_budget_exhaustion",
+            "stage": "section_routing",
+            "detail": "Catalog-cell routing for section section.region_key_gate_1.region_start.open from 157,28 to 115,30 exhausted its 200000-state budget.",
+            "roomsPlaced": 9,
+            "sectionsRouted": 7,
+            "routingStates": 226351,
+            "outcome": null
           }
         ],
-        "selectedAttempt": 1
+        "selectedAttempt": 2
       }
     },
     {
@@ -170,8 +210,8 @@
       "topologyFingerprint": "topology:418e96fe6aa81a3a",
       "status": "success",
       "classification": "catalog_aware_exact_assembly",
-      "buildId": "0f095f7a5cc168785acd86011ff0d41caa1bbe8287e1ae78a0ab6b56a205c99c",
-      "instanceCount": 930,
+      "buildId": "aa36492284f82e041728ae6c135e056e0adcc2f383e872114aeb7ceb5b5d1c5c",
+      "instanceCount": 920,
       "connectionCellCount": 0,
       "placementValidationOk": true,
       "builtFlowValidationOk": true,
@@ -256,9 +296,49 @@
                 "decisiveMetric": "placement_span_cells"
               }
             }
+          },
+          {
+            "attempt": 2,
+            "roomCompactionCells": 2,
+            "classification": "admissible",
+            "stage": "outcome_selection",
+            "detail": "Validated catalog outcome was compared by placement_span_cells.",
+            "roomsPlaced": 9,
+            "sectionsRouted": 13,
+            "routingStates": 34401,
+            "outcome": {
+              "metrics": {
+                "placementWidthCells": 174,
+                "placementHeightCells": 110,
+                "placementSpanCells": 284,
+                "placementAreaCells": 19140,
+                "routedCatalogCells": 911,
+                "routeBends": 71,
+                "routingStates": 34401
+              },
+              "constraintMisses": [],
+              "admissible": true,
+              "preferenceSatisfied": true,
+              "comparison": {
+                "incumbentAttempt": 1,
+                "ordering": "new_incumbent",
+                "decisiveMetric": "placement_span_cells"
+              }
+            }
+          },
+          {
+            "attempt": 3,
+            "roomCompactionCells": 3,
+            "classification": "search_budget_exhaustion",
+            "stage": "section_routing",
+            "detail": "Catalog-cell routing for section section.region_key_gate_1.region_start.open from 157,28 to 115,30 exhausted its 200000-state budget.",
+            "roomsPlaced": 9,
+            "sectionsRouted": 7,
+            "routingStates": 226351,
+            "outcome": null
           }
         ],
-        "selectedAttempt": 1
+        "selectedAttempt": 2
       }
     },
     {
@@ -516,8 +596,8 @@
       "topologyFingerprint": "topology:75da51af2e5b93b4",
       "status": "success",
       "classification": "catalog_aware_exact_assembly",
-      "buildId": "a6ed13ed1f32a0ce06a9758a7d318d301ce7bbcc86942058b6793dfa3246a284",
-      "instanceCount": 437,
+      "buildId": "31e541ba08911f2fc81e1abf7fefebdee50e8947ad77802795a3beb6f49d1234",
+      "instanceCount": 399,
       "connectionCellCount": 0,
       "placementValidationOk": true,
       "builtFlowValidationOk": true,
@@ -573,9 +653,78 @@
                 "decisiveMetric": "placement_span_cells"
               }
             }
+          },
+          {
+            "attempt": 1,
+            "roomCompactionCells": 1,
+            "classification": "admissible",
+            "stage": "outcome_selection",
+            "detail": "Validated catalog outcome was compared by placement_span_cells.",
+            "roomsPlaced": 8,
+            "sectionsRouted": 10,
+            "routingStates": 10640,
+            "outcome": {
+              "metrics": {
+                "placementWidthCells": 182,
+                "placementHeightCells": 34,
+                "placementSpanCells": 216,
+                "placementAreaCells": 6188,
+                "routedCatalogCells": 411,
+                "routeBends": 58,
+                "routingStates": 10640
+              },
+              "constraintMisses": [],
+              "admissible": true,
+              "preferenceSatisfied": true,
+              "comparison": {
+                "incumbentAttempt": 0,
+                "ordering": "new_incumbent",
+                "decisiveMetric": "placement_span_cells"
+              }
+            }
+          },
+          {
+            "attempt": 2,
+            "roomCompactionCells": 2,
+            "classification": "admissible",
+            "stage": "outcome_selection",
+            "detail": "Validated catalog outcome was compared by placement_span_cells.",
+            "roomsPlaced": 8,
+            "sectionsRouted": 10,
+            "routingStates": 8928,
+            "outcome": {
+              "metrics": {
+                "placementWidthCells": 180,
+                "placementHeightCells": 33,
+                "placementSpanCells": 213,
+                "placementAreaCells": 5940,
+                "routedCatalogCells": 391,
+                "routeBends": 36,
+                "routingStates": 8928
+              },
+              "constraintMisses": [],
+              "admissible": true,
+              "preferenceSatisfied": true,
+              "comparison": {
+                "incumbentAttempt": 1,
+                "ordering": "new_incumbent",
+                "decisiveMetric": "placement_span_cells"
+              }
+            }
+          },
+          {
+            "attempt": 3,
+            "roomCompactionCells": 3,
+            "classification": "search_budget_exhaustion",
+            "stage": "section_routing",
+            "detail": "Catalog-cell routing for section section.region_gate_boss_1.region_gate_locked_2.open from 149,24 to 121,26 exhausted its 200000-state budget.",
+            "roomsPlaced": 8,
+            "sectionsRouted": 3,
+            "routingStates": 203831,
+            "outcome": null
           }
         ],
-        "selectedAttempt": 0
+        "selectedAttempt": 2
       }
     },
     {
@@ -583,8 +732,8 @@
       "topologyFingerprint": "topology:75da51af2e5b93b4",
       "status": "success",
       "classification": "catalog_aware_exact_assembly",
-      "buildId": "6f83042803e39e12083043d5d107e04a092a89681e207a59bbe027158e6ef9cf",
-      "instanceCount": 437,
+      "buildId": "16aa4258f0209a5123c2e5b03cc1b2aa184a264d9d5156a31b2fadd005c491aa",
+      "instanceCount": 399,
       "connectionCellCount": 0,
       "placementValidationOk": true,
       "builtFlowValidationOk": true,
@@ -640,9 +789,78 @@
                 "decisiveMetric": "placement_span_cells"
               }
             }
+          },
+          {
+            "attempt": 1,
+            "roomCompactionCells": 1,
+            "classification": "admissible",
+            "stage": "outcome_selection",
+            "detail": "Validated catalog outcome was compared by placement_span_cells.",
+            "roomsPlaced": 8,
+            "sectionsRouted": 10,
+            "routingStates": 10640,
+            "outcome": {
+              "metrics": {
+                "placementWidthCells": 182,
+                "placementHeightCells": 34,
+                "placementSpanCells": 216,
+                "placementAreaCells": 6188,
+                "routedCatalogCells": 411,
+                "routeBends": 58,
+                "routingStates": 10640
+              },
+              "constraintMisses": [],
+              "admissible": true,
+              "preferenceSatisfied": true,
+              "comparison": {
+                "incumbentAttempt": 0,
+                "ordering": "new_incumbent",
+                "decisiveMetric": "placement_span_cells"
+              }
+            }
+          },
+          {
+            "attempt": 2,
+            "roomCompactionCells": 2,
+            "classification": "admissible",
+            "stage": "outcome_selection",
+            "detail": "Validated catalog outcome was compared by placement_span_cells.",
+            "roomsPlaced": 8,
+            "sectionsRouted": 10,
+            "routingStates": 8928,
+            "outcome": {
+              "metrics": {
+                "placementWidthCells": 180,
+                "placementHeightCells": 33,
+                "placementSpanCells": 213,
+                "placementAreaCells": 5940,
+                "routedCatalogCells": 391,
+                "routeBends": 36,
+                "routingStates": 8928
+              },
+              "constraintMisses": [],
+              "admissible": true,
+              "preferenceSatisfied": true,
+              "comparison": {
+                "incumbentAttempt": 1,
+                "ordering": "new_incumbent",
+                "decisiveMetric": "placement_span_cells"
+              }
+            }
+          },
+          {
+            "attempt": 3,
+            "roomCompactionCells": 3,
+            "classification": "search_budget_exhaustion",
+            "stage": "section_routing",
+            "detail": "Catalog-cell routing for section section.region_gate_boss_1.region_gate_locked_2.open from 149,24 to 121,26 exhausted its 200000-state budget.",
+            "roomsPlaced": 8,
+            "sectionsRouted": 3,
+            "routingStates": 203831,
+            "outcome": null
           }
         ],
-        "selectedAttempt": 0
+        "selectedAttempt": 2
       }
     },
     {
@@ -650,8 +868,8 @@
       "topologyFingerprint": "topology:9cb0a811896f1cf7",
       "status": "success",
       "classification": "catalog_aware_exact_assembly",
-      "buildId": "c0afca8266243027a22fc33be8c2f2628aada51e5acffdc456717648f5229c53",
-      "instanceCount": 143,
+      "buildId": "9034d08e3cd75bea6c1976c47662e489822542a2fa9fe8ed1cec754f670fbe27",
+      "instanceCount": 141,
       "connectionCellCount": 0,
       "placementValidationOk": true,
       "builtFlowValidationOk": true,
@@ -707,9 +925,78 @@
                 "decisiveMetric": "placement_span_cells"
               }
             }
+          },
+          {
+            "attempt": 1,
+            "roomCompactionCells": 1,
+            "classification": "admissible",
+            "stage": "outcome_selection",
+            "detail": "Validated catalog outcome was compared by placement_span_cells.",
+            "roomsPlaced": 4,
+            "sectionsRouted": 4,
+            "routingStates": 4420,
+            "outcome": {
+              "metrics": {
+                "placementWidthCells": 92,
+                "placementHeightCells": 33,
+                "placementSpanCells": 125,
+                "placementAreaCells": 3036,
+                "routedCatalogCells": 137,
+                "routeBends": 22,
+                "routingStates": 4420
+              },
+              "constraintMisses": [],
+              "admissible": true,
+              "preferenceSatisfied": true,
+              "comparison": {
+                "incumbentAttempt": 0,
+                "ordering": "new_incumbent",
+                "decisiveMetric": "placement_span_cells"
+              }
+            }
+          },
+          {
+            "attempt": 2,
+            "roomCompactionCells": 2,
+            "classification": "admissible",
+            "stage": "outcome_selection",
+            "detail": "Validated catalog outcome was compared by placement_span_cells.",
+            "roomsPlaced": 4,
+            "sectionsRouted": 4,
+            "routingStates": 3712,
+            "outcome": {
+              "metrics": {
+                "placementWidthCells": 90,
+                "placementHeightCells": 31,
+                "placementSpanCells": 121,
+                "placementAreaCells": 2790,
+                "routedCatalogCells": 137,
+                "routeBends": 18,
+                "routingStates": 3712
+              },
+              "constraintMisses": [],
+              "admissible": true,
+              "preferenceSatisfied": true,
+              "comparison": {
+                "incumbentAttempt": 1,
+                "ordering": "new_incumbent",
+                "decisiveMetric": "placement_span_cells"
+              }
+            }
+          },
+          {
+            "attempt": 3,
+            "roomCompactionCells": 3,
+            "classification": "generation_infeasibility",
+            "stage": "section_routing",
+            "detail": "No catalog-cell route satisfied section section.region_gate_locked_1.region_start.open from 63,25 to 34,26 in bounds -48,-48..190,128.",
+            "roomsPlaced": 4,
+            "sectionsRouted": 2,
+            "routingStates": 165557,
+            "outcome": null
           }
         ],
-        "selectedAttempt": 0
+        "selectedAttempt": 2
       }
     }
   ]
