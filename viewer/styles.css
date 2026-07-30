@@ -800,6 +800,7 @@ body {
 
 .generation-trace-panel {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 12px;
   width: 100%;
   min-width: 760px;
