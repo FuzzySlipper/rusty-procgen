@@ -129,6 +129,7 @@ async function exerciseViewer(
     '--headless',
     '--no-sandbox',
     '--disable-gpu',
+    '--disable-dev-shm-usage',
     '--remote-debugging-address=127.0.0.1',
     `--remote-debugging-port=${cdpPort}`,
     `--user-data-dir=${profileDir}`,
@@ -142,9 +143,22 @@ async function exerciseViewer(
   browser.stderr.on('data', (chunk) => {
     browserLog += chunk.toString();
   });
+  let browserTermination = null;
+  browser.once('error', (error) => {
+    browserTermination = `spawn error: ${error.message}`;
+  });
+  browser.once('exit', (code, signal) => {
+    browserTermination =
+      `exit code ${code === null ? 'null' : code}, signal ${signal ?? 'none'}`;
+  });
   let cdp;
   try {
-    const page = await waitForCdpPage(cdpPort, url);
+    const page = await waitForCdpPage(
+      cdpPort,
+      url,
+      chromium,
+      () => browserTermination,
+    );
     cdp = await connectCdp(page.webSocketDebuggerUrl);
     await cdp.send('Runtime.enable');
     await cdp.send('Page.enable');
@@ -699,9 +713,13 @@ async function waitForHealth() {
   throw new Error('viewer server did not become healthy');
 }
 
-async function waitForCdpPage(cdpPort, url) {
+async function waitForCdpPage(cdpPort, url, chromium, termination) {
   const started = Date.now();
   while (Date.now() - started < 10_000) {
+    const terminal = termination();
+    if (terminal !== null) {
+      throw new Error(`Chromium ${chromium} terminated before CDP startup: ${terminal}`);
+    }
     try {
       const targets = await fetch(`http://127.0.0.1:${cdpPort}/json/list`)
         .then((response) => response.json());
@@ -715,7 +733,9 @@ async function waitForCdpPage(cdpPort, url) {
     }
     await delay(50);
   }
-  throw new Error(`Chromium CDP page did not start on port ${cdpPort}`);
+  throw new Error(
+    `Chromium ${chromium} did not expose its CDP page on port ${cdpPort} within 10000ms`,
+  );
 }
 
 async function connectCdp(url) {
@@ -793,16 +813,42 @@ async function waitForChildExit(child) {
 }
 
 async function findChromium() {
+  const candidates = [];
+  if (typeof process.env.CHROME_PATH === 'string' && process.env.CHROME_PATH.trim() !== '') {
+    candidates.push(process.env.CHROME_PATH.trim());
+  }
   for (const command of ['chromium', 'chromium-browser', 'google-chrome']) {
     try {
       const { stdout } = await execFileAsync('sh', ['-lc', `command -v ${command}`]);
       const resolved = stdout.trim();
       if (resolved.length > 0) {
-        return resolved;
+        candidates.push(resolved);
       }
     } catch {
       // Try the next browser.
     }
   }
-  throw new Error('chromium executable not found');
+  const checked = new Set();
+  const failures = [];
+  for (const candidate of candidates) {
+    if (checked.has(candidate)) {
+      continue;
+    }
+    checked.add(candidate);
+    try {
+      const { stdout, stderr } = await execFileAsync(candidate, ['--version']);
+      const version = `${stdout}${stderr}`.trim();
+      if (version !== '') {
+        return candidate;
+      }
+      failures.push(`${candidate}: empty --version output`);
+    } catch (error) {
+      failures.push(`${candidate}: ${error.message}`);
+    }
+  }
+  throw new Error(
+    `chromium executable not found or unusable${
+      failures.length === 0 ? '' : `: ${failures.join('; ')}`
+    }`,
+  );
 }

@@ -36,6 +36,9 @@ jobs:
         with:
           node-version: 22
           cache: pnpm
-      - uses: browser-actions/setup-chrome@v1
+      - id: setup-chrome
+        uses: browser-actions/setup-chrome@v1
       - run: pnpm install --frozen-lockfile
       - run: pnpm run viewer:smoke
+        env:
+          CHROME_PATH: ${{ steps.setup-chrome.outputs.chrome-path }}
