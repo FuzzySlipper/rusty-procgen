@@ -15,17 +15,44 @@ const check = process.argv.includes('--check');
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const scratch = mkdtempSync(join(tmpdir(), 'rusty-procgen-catalog-trace-'));
 const binary = resolve(repoRoot, 'procgen-rs/target/debug/rusty-procgen');
+const catalog = 'fixtures/shape-catalogs/2d-basic.json';
+const scenarios = [
+  {
+    id: 'candidate-000',
+    candidate:
+      'artifacts/samples/batch-v2/candidate-000/candidate-003-branch_merge_shortcut.json',
+    intermediate:
+      'artifacts/samples/batch-v2/candidate-000/intermediate-breakdown.json',
+    geometry: 'artifacts/samples/batch-v2/candidate-000/geometry-2d.json',
+    policy: 'fixtures/policies/catalog-aware-generation-default.json',
+    seed: '14334',
+  },
+  {
+    id: 'candidate-000-exhausted',
+    candidate:
+      'artifacts/samples/batch-v2/candidate-000/candidate-003-branch_merge_shortcut.json',
+    intermediate:
+      'artifacts/samples/batch-v2/candidate-000/intermediate-breakdown.json',
+    geometry: 'artifacts/samples/batch-v2/candidate-000/geometry-2d.json',
+    policy: 'fixtures/policies/catalog-aware-generation-trace-exhausted.json',
+    seed: '14334',
+  },
+].map((scenario) => ({
+  ...scenario,
+  plan: `fixtures/catalog-generation/${scenario.id}-piece-plan.v1.json`,
+  result: `fixtures/catalog-generation/${scenario.id}-result.v1.json`,
+  trace: `fixtures/catalog-generation/${scenario.id}-trace.v1.json`,
+}));
 const inputs = [
-  'artifacts/samples/batch-v2/candidate-000/candidate-003-branch_merge_shortcut.json',
-  'artifacts/samples/batch-v2/candidate-000/intermediate-breakdown.json',
-  'artifacts/samples/batch-v2/candidate-000/geometry-2d.json',
-  'fixtures/shape-catalogs/2d-basic.json',
-  'fixtures/policies/catalog-aware-generation-default.json',
+  catalog,
+  ...scenarios.flatMap((scenario) => [
+    scenario.candidate,
+    scenario.intermediate,
+    scenario.geometry,
+    scenario.policy,
+  ]),
 ];
-const planPath = 'fixtures/catalog-generation/candidate-000-piece-plan.v1.json';
-const resultPath = 'fixtures/catalog-generation/candidate-000-result.v1.json';
-const tracePath = 'fixtures/catalog-generation/candidate-000-trace.v1.json';
-const outputs = [tracePath];
+const outputs = scenarios.flatMap((scenario) => [scenario.result, scenario.trace]);
 
 try {
   run('cargo', [
@@ -37,45 +64,47 @@ try {
     'rusty-procgen',
     '--locked',
   ], repoRoot);
-  for (const input of inputs) {
+  for (const input of new Set(inputs)) {
     const target = join(scratch, input);
     mkdirSync(dirname(target), { recursive: true });
     copyFileSync(join(repoRoot, input), target);
   }
-  run(binary, [
-    'build',
-    'emit-piece-plan',
-    '--candidate',
-    inputs[0],
-    '--intermediate',
-    inputs[1],
-    '--geometry',
-    inputs[2],
-    '--corridor-realization',
-    'catalog',
-    '--out',
-    planPath,
-  ], scratch);
-  run(binary, [
-    'build',
-    'realize-catalog-aware',
-    '--candidate',
-    inputs[0],
-    '--geometry',
-    inputs[2],
-    '--piece-plan',
-    planPath,
-    '--catalog',
-    inputs[3],
-    '--policy',
-    inputs[4],
-    '--seed',
-    '14334',
-    '--out',
-    resultPath,
-    '--trace-out',
-    tracePath,
-  ], scratch);
+  for (const scenario of scenarios) {
+    run(binary, [
+      'build',
+      'emit-piece-plan',
+      '--candidate',
+      scenario.candidate,
+      '--intermediate',
+      scenario.intermediate,
+      '--geometry',
+      scenario.geometry,
+      '--corridor-realization',
+      'catalog',
+      '--out',
+      scenario.plan,
+    ], scratch);
+    run(binary, [
+      'build',
+      'realize-catalog-aware',
+      '--candidate',
+      scenario.candidate,
+      '--geometry',
+      scenario.geometry,
+      '--piece-plan',
+      scenario.plan,
+      '--catalog',
+      catalog,
+      '--policy',
+      scenario.policy,
+      '--seed',
+      scenario.seed,
+      '--out',
+      scenario.result,
+      '--trace-out',
+      scenario.trace,
+    ], scratch);
+  }
 
   if (check) {
     for (const output of outputs) {

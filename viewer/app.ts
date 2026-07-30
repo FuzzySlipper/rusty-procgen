@@ -20,6 +20,7 @@ import {
   type VoxelInspectionProjection,
 } from '../src/voxel-inspection-projection.js';
 import { createCaTraceViewer } from './ca-trace-viewer.js';
+import { createGenerationTraceViewer } from './generation-trace-viewer.js';
 
 interface AcceptedArtifact {
   readonly artifactId: string;
@@ -511,7 +512,7 @@ interface PlacementPolicyExperimentResponse {
 interface PlacementPolicyExperimentError {
   readonly error: string;
   readonly detail: string;
-  readonly evidence?: PureCatalogExhaustionEvidence;
+  readonly evidence?: PureCatalogExhaustionEvidence | CatalogAwareGenerationExhaustionEvidence;
 }
 
 interface PureCatalogExhaustionEvidence {
@@ -561,6 +562,15 @@ interface PureCatalogExhaustionEvidence {
     readonly maxChainExpansionsPerSection: number;
     readonly chainExpansions: number;
   };
+}
+
+interface CatalogAwareGenerationExhaustionEvidence {
+  readonly kind: 'rusty_procgen.catalog_aware_generation_exhaustion.v1';
+  readonly schemaVersion: 1;
+  readonly classification: string;
+  readonly attempts: readonly Record<string, unknown>[];
+  readonly result: unknown;
+  readonly trace: unknown;
 }
 
 interface GeometryLayoutPolicyExperimentResponse {
@@ -649,6 +659,8 @@ interface GenerationConfigRebuildResponse {
     readonly policy: Record<string, unknown>;
     readonly attempts: readonly Record<string, unknown>[];
     readonly selectedAttempt: number;
+    readonly result: unknown;
+    readonly trace: unknown;
   } | null;
   readonly metrics: CorridorRealizationExperimentResponse['metrics'];
   readonly persisted: true;
@@ -665,6 +677,22 @@ const voxel3dCanvas = document.querySelector<HTMLCanvasElement>('#voxel-3d-canva
 const voxel3dDiagnostic = document.querySelector<HTMLElement>('#voxel-3d-diagnostic');
 const voxel3dDoorState = document.querySelector<HTMLSelectElement>('#voxel-3d-door-state');
 const voxel3dDoorLegend = document.querySelector<HTMLElement>('#voxel-3d-door-legend');
+const generationTracePanelElement = document.querySelector<HTMLElement>('#generation-trace-panel');
+const generationTraceSvgElement = document.querySelector<SVGSVGElement>('#generation-trace-svg');
+const generationTraceDiagnosticElement = document.querySelector<HTMLElement>('#generation-trace-diagnostic');
+const generationTraceRunElement = document.querySelector<HTMLSelectElement>('#generation-trace-run');
+const generationTraceAttemptElement = document.querySelector<HTMLSelectElement>('#generation-trace-attempt');
+const generationTraceRateElement = document.querySelector<HTMLSelectElement>('#generation-trace-rate');
+const generationTracePlayElement = document.querySelector<HTMLButtonElement>('#generation-trace-play');
+const generationTraceBackElement = document.querySelector<HTMLButtonElement>('#generation-trace-back');
+const generationTraceStepElement = document.querySelector<HTMLButtonElement>('#generation-trace-step');
+const generationTraceResetElement = document.querySelector<HTMLButtonElement>('#generation-trace-reset');
+const generationTracePreviousStageElement = document.querySelector<HTMLButtonElement>('#generation-trace-previous-stage');
+const generationTraceNextStageElement = document.querySelector<HTMLButtonElement>('#generation-trace-next-stage');
+const generationTraceSeekElement = document.querySelector<HTMLInputElement>('#generation-trace-seek');
+const generationTraceStepLabelElement = document.querySelector<HTMLElement>('#generation-trace-step-label');
+const generationTraceMetricsElement = document.querySelector<HTMLElement>('#generation-trace-metrics');
+const generationTraceEventDetailElement = document.querySelector<HTMLElement>('#generation-trace-event-detail');
 const caTracePanelElement = document.querySelector<HTMLElement>('#ca-trace-panel');
 const caTraceCanvasElement = document.querySelector<HTMLCanvasElement>('#ca-trace-canvas');
 const caTraceDiagnosticElement = document.querySelector<HTMLElement>('#ca-trace-diagnostic');
@@ -755,6 +783,22 @@ if (
   || voxel3dDiagnostic === null
   || voxel3dDoorState === null
   || voxel3dDoorLegend === null
+  || generationTracePanelElement === null
+  || generationTraceSvgElement === null
+  || generationTraceDiagnosticElement === null
+  || generationTraceRunElement === null
+  || generationTraceAttemptElement === null
+  || generationTraceRateElement === null
+  || generationTracePlayElement === null
+  || generationTraceBackElement === null
+  || generationTraceStepElement === null
+  || generationTraceResetElement === null
+  || generationTracePreviousStageElement === null
+  || generationTraceNextStageElement === null
+  || generationTraceSeekElement === null
+  || generationTraceStepLabelElement === null
+  || generationTraceMetricsElement === null
+  || generationTraceEventDetailElement === null
   || caTracePanelElement === null
   || caTraceCanvasElement === null
   || caTraceDiagnosticElement === null
@@ -836,7 +880,15 @@ if (
   throw new Error('viewer mount elements are missing');
 }
 
-type ViewMode = 'layout' | 'intermediate' | 'build' | 'voxel' | 'voxel3d' | 'catalog' | 'ca';
+type ViewMode =
+  | 'layout'
+  | 'intermediate'
+  | 'build'
+  | 'voxel'
+  | 'voxel3d'
+  | 'catalog'
+  | 'generation-trace'
+  | 'ca';
 
 const layoutSvg = svg;
 const summaryPanel = summary;
@@ -847,6 +899,7 @@ const voxelInspectionCanvas = voxel3dCanvas;
 const voxelInspectionDiagnostic = voxel3dDiagnostic;
 const voxelDoorStateControl = voxel3dDoorState;
 const voxelDoorLegend = voxel3dDoorLegend;
+const generationTracePanel = generationTracePanelElement;
 const caTracePanel = caTracePanelElement;
 const generationConfigPanel = generationConfigPanelElement;
 const generationConfigForm = generationConfigFormElement;
@@ -920,6 +973,24 @@ let persistedGenerationConfig = await fetchGenerationConfig();
 const viewerSearch = new URLSearchParams(location.search);
 const requestedCandidate = viewerSearch.get('candidate');
 const renderInspectionOnce = viewerSearch.get('inspection') === 'once';
+const generationTraceViewer = createGenerationTraceViewer({
+  panel: generationTracePanel,
+  svg: generationTraceSvgElement,
+  diagnostic: generationTraceDiagnosticElement,
+  run: generationTraceRunElement,
+  attempt: generationTraceAttemptElement,
+  rate: generationTraceRateElement,
+  play: generationTracePlayElement,
+  back: generationTraceBackElement,
+  step: generationTraceStepElement,
+  reset: generationTraceResetElement,
+  previousStage: generationTracePreviousStageElement,
+  nextStage: generationTraceNextStageElement,
+  seek: generationTraceSeekElement,
+  stepLabel: generationTraceStepLabelElement,
+  metrics: generationTraceMetricsElement,
+  eventDetail: generationTraceEventDetailElement,
+});
 const caTraceViewer = createCaTraceViewer({
   panel: caTracePanel,
   canvas: caTraceCanvasElement,
@@ -1034,13 +1105,23 @@ window.addEventListener('pagehide', () => {
   );
   voxelInspectionSurface = null;
   voxelInspectionMount = null;
+  generationTraceViewer.dispose();
   caTraceViewer.dispose();
 });
 
 for (const tab of viewTabs) {
   tab.addEventListener('click', () => {
     const nextView = tab.dataset.view;
-    if (nextView === 'layout' || nextView === 'intermediate' || nextView === 'build' || nextView === 'voxel' || nextView === 'voxel3d' || nextView === 'catalog' || nextView === 'ca') {
+    if (
+      nextView === 'layout'
+      || nextView === 'intermediate'
+      || nextView === 'build'
+      || nextView === 'voxel'
+      || nextView === 'voxel3d'
+      || nextView === 'catalog'
+      || nextView === 'generation-trace'
+      || nextView === 'ca'
+    ) {
       activeView = nextView;
       history.replaceState(null, '', `#${activeView}`);
       renderActiveView();
@@ -1457,9 +1538,20 @@ async function applyGenerationConfig(): Promise<void> {
       return;
     }
     if (!response.ok || 'error' in result) {
+      const evidence = 'evidence' in result ? result.evidence : undefined;
+      if (isCatalogAwareGenerationExhaustion(evidence)) {
+        await generationTraceViewer.replaceRun(
+          `Live exhausted · ${selection.candidateId}`,
+          evidence.trace,
+          evidence.result,
+        );
+        if (revision !== generationConfigRevision) {
+          return;
+        }
+      }
       throw new Error(
-        'evidence' in result && result.evidence !== undefined
-          ? formatPureCatalogExhaustion(result.evidence)
+        evidence !== undefined
+          ? formatGenerationRebuildEvidence(evidence)
           : 'detail' in result
             ? result.detail
             : `rebuild request failed with ${response.status}`,
@@ -1475,6 +1567,16 @@ async function applyGenerationConfig(): Promise<void> {
       || result.builtFlowValidation.ok !== true
     ) {
       throw new Error('generation config rebuild returned an invalid response envelope');
+    }
+    if (result.catalogAwareGeneration !== null) {
+      await generationTraceViewer.replaceRun(
+        `Live accepted · ${selection.candidateId}`,
+        result.catalogAwareGeneration.trace,
+        result.catalogAwareGeneration.result,
+      );
+      if (revision !== generationConfigRevision) {
+        return;
+      }
     }
     persistedGenerationConfig = result.config;
     configuredBuildId = result.buildId;
@@ -1571,7 +1673,7 @@ async function applyGeometryPolicyExperiment(): Promise<void> {
     if (!response.ok || 'error' in result) {
       throw new Error(
         'evidence' in result && result.evidence !== undefined
-          ? formatPureCatalogExhaustion(result.evidence)
+          ? formatGenerationRebuildEvidence(result.evidence)
           : 'detail' in result
             ? result.detail
             : `experiment request failed with ${response.status}`,
@@ -1644,6 +1746,28 @@ function formatPureCatalogExhaustion(evidence: PureCatalogExhaustionEvidence): s
     + ` Budgets: decisions ${budgets.decisions}/${budgets.maxDecisions},`
     + ` backtracks ${budgets.backtracks}/${budgets.maxBacktracks},`
     + ` chain expansions ${budgets.chainExpansions}/${budgets.maxChainExpansionsPerSection}.`;
+}
+
+function formatGenerationRebuildEvidence(
+  evidence: PureCatalogExhaustionEvidence | CatalogAwareGenerationExhaustionEvidence,
+): string {
+  if (isCatalogAwareGenerationExhaustion(evidence)) {
+    const finalAttempt = evidence.attempts.at(-1);
+    const detail = typeof finalAttempt?.detail === 'string'
+      ? finalAttempt.detail
+      : 'Catalog-aware generation exhausted without a successful attempt.';
+    return `${evidence.classification.replaceAll('_', ' ')}: ${detail} `
+      + 'The rejected attempt trace is available in Generation Trace.';
+  }
+  return formatPureCatalogExhaustion(evidence);
+}
+
+function isCatalogAwareGenerationExhaustion(
+  evidence: PureCatalogExhaustionEvidence
+    | CatalogAwareGenerationExhaustionEvidence
+    | undefined,
+): evidence is CatalogAwareGenerationExhaustionEvidence {
+  return evidence?.kind === 'rusty_procgen.catalog_aware_generation_exhaustion.v1';
 }
 
 function resetGeometryPolicyExperiment(): void {
@@ -1901,7 +2025,7 @@ async function applyCorridorRealizationExperiment(): Promise<void> {
     if (!response.ok || 'error' in result) {
       throw new Error(
         'evidence' in result && result.evidence !== undefined
-          ? formatPureCatalogExhaustion(result.evidence)
+          ? formatGenerationRebuildEvidence(result.evidence)
           : 'detail' in result
             ? result.detail
             : `experiment request failed with ${response.status}`,
@@ -2494,6 +2618,9 @@ function initialViewMode(): ViewMode {
   if (location.hash === '#voxel3d') {
     return 'voxel3d';
   }
+  if (location.hash === '#generation-trace') {
+    return 'generation-trace';
+  }
   if (location.hash === '#ca') {
     return 'ca';
   }
@@ -2811,9 +2938,13 @@ function renderActiveView(): void {
   corridorRealizationPanel.hidden = true;
   placementPolicyPanel.hidden = true;
   const inspectionActive = activeView === 'voxel3d';
+  const generationTraceActive = activeView === 'generation-trace';
   const caTraceActive = activeView === 'ca';
-  layoutSvg.style.display = inspectionActive || caTraceActive ? 'none' : '';
+  layoutSvg.style.display = inspectionActive || generationTraceActive || caTraceActive
+    ? 'none'
+    : '';
   voxelInspectionPanel.hidden = !inspectionActive;
+  generationTracePanel.hidden = !generationTraceActive;
   caTracePanel.hidden = !caTraceActive;
   if (!inspectionActive) {
     voxelInspectionRevision += 1;
@@ -2822,6 +2953,13 @@ function renderActiveView(): void {
   }
   if (!caTraceActive) {
     caTraceViewer.deactivate();
+  }
+  if (!generationTraceActive) {
+    generationTraceViewer.deactivate();
+  }
+  if (generationTraceActive) {
+    void generationTraceViewer.activate();
+    return;
   }
   if (caTraceActive) {
     void caTraceViewer.activate();

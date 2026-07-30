@@ -50,6 +50,8 @@ pnpm run voxel:rusty-engine-smoke
 pnpm run viewer:smoke
 pnpm run catalog:coverage
 pnpm run catalog-trace:fixtures:check
+pnpm run catalog-trace:smoke
+pnpm run catalog-trace:viewer:smoke
 pnpm run ca:fixtures:check
 pnpm run engine:ca:test
 pnpm run engine:ca:benchmark
@@ -117,6 +119,14 @@ validation outcomes, and selection evidence without retaining pathfinder
 frontier churn. The checked replay contract, CLI `--trace-out` path, quotas, and
 fixture owner are documented in
 [`docs/catalog-generation-traces.md`](docs/catalog-generation-traces.md).
+
+The viewer's `Generation Trace` tab strictly decodes those Rust-owned result
+and trace pairs before mounting an SVG. It can step backward or forward,
+seek by decision or stage, switch failed attempts, and compare accepted with
+bounded-exhausted outcomes while showing room reservations, conflicts, route
+guides, committed routes, effective policy, metrics, and final output identity.
+Catalog-mode configuration rebuilds replace the view with their exact live
+pair; TypeScript never reruns generation or pathfinding.
 
 ## Rusty Engine generated-content publication
 

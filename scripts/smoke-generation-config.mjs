@@ -3,6 +3,8 @@ import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
+import { decodeCatalogGenerationRun } from '../dist/ts/src/catalog-generation-trace.js';
+
 const host = '127.0.0.1';
 const port = Number(process.env.GENERATION_CONFIG_SMOKE_PORT ?? 5195);
 const baseUrl = `http://${host}:${port}`;
@@ -86,6 +88,27 @@ try {
   ) {
     throw new Error('catalog-aware generation did not produce an exact validated catalog build');
   }
+  const acceptedTrace = decodeCatalogGenerationRun(
+    pureCatalogResult.catalogAwareGeneration?.trace,
+    pureCatalogResult.catalogAwareGeneration?.result,
+  );
+  if (
+    acceptedTrace.selectedAttempt !== pureCatalogResult.catalogAwareGeneration.selectedAttempt
+    || acceptedTrace.candidateId !== candidateId
+  ) {
+    throw new Error('successful catalog rebuild did not return its exact verified decision trace');
+  }
+  const repeatedPureCatalog = await postRebuild(
+    { candidateId, config: pureCatalog },
+    200,
+  );
+  if (
+    repeatedPureCatalog.buildId !== pureCatalogResult.buildId
+    || JSON.stringify(repeatedPureCatalog.catalogAwareGeneration)
+      !== JSON.stringify(pureCatalogResult.catalogAwareGeneration)
+  ) {
+    throw new Error('identical catalog rebuilds did not return an exact deterministic trace pair');
+  }
   if (JSON.stringify(await readConfigFile()) !== JSON.stringify(pureCatalog)) {
     throw new Error('successful pure catalog rebuild did not persist the unified configuration');
   }
@@ -99,6 +122,13 @@ try {
     'catalog_aware_search_budget_exhaustion',
   );
   assertCatalogAwareExhaustionEvidence(pureCatalogFailure.evidence);
+  const exhaustedTrace = decodeCatalogGenerationRun(
+    pureCatalogFailure.evidence.trace,
+    pureCatalogFailure.evidence.result,
+  );
+  if (exhaustedTrace.selectedAttempt !== null || exhaustedTrace.candidateId !== candidateId) {
+    throw new Error('exhausted catalog rebuild did not return its exact verified decision trace');
+  }
   if (JSON.stringify(await readConfigFile()) !== JSON.stringify(pureCatalog)) {
     throw new Error('failed catalog-aware rebuild changed the persisted configuration');
   }
@@ -220,6 +250,8 @@ function assertCatalogAwareExhaustionEvidence(evidence) {
     || evidence.attempts.length !== 1
     || evidence.attempts[0]?.classification !== 'search_budget_exhaustion'
     || !Number.isInteger(evidence.attempts[0]?.routingStates)
+    || evidence.result?.kind !== 'rusty_procgen.catalog_aware_generation.v1'
+    || evidence.trace?.kind !== 'rusty_procgen.catalog_generation_trace.v1'
   ) {
     throw new Error(`catalog-aware exhaustion evidence was incomplete: ${JSON.stringify(evidence)}`);
   }

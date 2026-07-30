@@ -22,6 +22,7 @@
           <button class="view-tab" type="button" data-view="voxel" data-selected="false">Voxel</button>
           <button class="view-tab" type="button" data-view="voxel3d" data-selected="false">Voxel 3D</button>
           <button class="view-tab" type="button" data-view="catalog" data-selected="false">Catalog</button>
+          <button class="view-tab" type="button" data-view="generation-trace" data-selected="false">Generation Trace</button>
           <button class="view-tab" type="button" data-view="ca" data-selected="false">CA Trace</button>
         </div>
         <section id="generation-config-panel" class="placement-policy-panel geometry-policy-panel" aria-label="Generation configuration" hidden>
@@ -251,6 +252,62 @@
           </div>
           <p id="voxel-3d-diagnostic" class="voxel-3d-diagnostic" role="status">Waiting for a voxel placement.</p>
           <canvas id="voxel-3d-canvas" tabindex="0" aria-label="Interactive engine-rendered voxel projection"></canvas>
+        </section>
+        <section id="generation-trace-panel" class="generation-trace-panel" aria-label="Rust-owned catalog generation decision trace" tabindex="-1" hidden>
+          <header class="generation-trace-header">
+            <div>
+              <p class="ca-trace-eyebrow">Rust-owned decisions · observational playback</p>
+              <h2>Catalog Generation Decision Trace</h2>
+              <p>Step through bounded room choices, conflicts, route guides, committed routes, validation, and the final selection. This browser only verifies and presents the Rust trace; it does not rerun generation.</p>
+            </div>
+            <p class="generation-trace-keyboard">←/→ decision · Page Up/Page Down stage · Home reset · Space play/pause</p>
+          </header>
+          <div class="generation-trace-toolbar" aria-label="Generation trace playback controls">
+            <label>
+              <span>Captured outcome</span>
+              <select id="generation-trace-run" aria-label="Captured generation outcome"></select>
+            </label>
+            <label>
+              <span>Attempt</span>
+              <select id="generation-trace-attempt" aria-label="Generation attempt"></select>
+            </label>
+            <label>
+              <span>Playback rate</span>
+              <select id="generation-trace-rate" aria-label="Generation trace playback rate">
+                <option value="0.5">0.5×</option>
+                <option value="1" selected>1×</option>
+                <option value="2">2×</option>
+                <option value="4">4×</option>
+                <option value="8">8×</option>
+              </select>
+            </label>
+            <div class="generation-trace-actions">
+              <button id="generation-trace-play" type="button" data-state="paused">Play</button>
+              <button id="generation-trace-back" type="button">Back</button>
+              <button id="generation-trace-step" type="button">Step</button>
+              <button id="generation-trace-reset" type="button">Reset</button>
+            </div>
+          </div>
+          <div class="generation-trace-seek-row">
+            <button id="generation-trace-previous-stage" type="button">Previous stage</button>
+            <label for="generation-trace-seek" id="generation-trace-step-label">Decision 0</label>
+            <input id="generation-trace-seek" type="range" min="0" max="0" value="0" step="1">
+            <button id="generation-trace-next-stage" type="button">Next stage</button>
+          </div>
+          <p id="generation-trace-diagnostic" class="voxel-3d-diagnostic" role="status">Waiting to verify the generation trace.</p>
+          <div class="generation-trace-stage">
+            <svg id="generation-trace-svg" tabindex="0" role="img" aria-label="Catalog generation decisions at the selected trace position"></svg>
+            <aside class="generation-trace-readouts" aria-label="Generation trace readouts">
+              <section>
+                <h3>Effective policy and state</h3>
+                <div id="generation-trace-metrics" class="generation-trace-metrics"></div>
+              </section>
+              <section>
+                <h3>Current decision</h3>
+                <pre id="generation-trace-event-detail" class="generation-trace-event-detail">No decision selected.</pre>
+              </section>
+            </aside>
+          </div>
         </section>
         <section id="ca-trace-panel" class="ca-trace-panel" aria-label="Captured Engine cellular automata authority trace" hidden>
           <header class="ca-trace-header">

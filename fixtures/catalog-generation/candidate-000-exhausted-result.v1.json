@@ -1,0 +1,69 @@
+{
+  "kind": "rusty_procgen.catalog_aware_generation.v1",
+  "schemaVersion": 1,
+  "ok": false,
+  "candidateId": "candidate.first_slice.5201",
+  "policy": {
+    "kind": "rusty_procgen.catalog_aware_generation_policy.v1",
+    "schemaVersion": 1,
+    "maxGenerationAttempts": 4,
+    "initialRoomSlackCells": 0,
+    "roomSlackGrowthCells": 4,
+    "maxRoomCandidates": 16,
+    "maxRoutingStatesPerSection": 100,
+    "routeMarginCells": 48,
+    "guideDistanceWeight": 4,
+    "turnPenalty": 3
+  },
+  "attempts": [
+    {
+      "attempt": 0,
+      "roomSlackCells": 0,
+      "classification": "search_budget_exhaustion",
+      "stage": "section_routing",
+      "detail": "Catalog-cell routing for section section.region_gate_locked_1.region_start.open from 185,79 to 112,31 exhausted its 100-state budget.",
+      "roomsPlaced": 9,
+      "sectionsRouted": 0,
+      "routingStates": 101
+    },
+    {
+      "attempt": 1,
+      "roomSlackCells": 4,
+      "classification": "search_budget_exhaustion",
+      "stage": "section_routing",
+      "detail": "Catalog-cell routing for section section.region_gate_locked_1.region_start.open from 185,79 to 112,27 exhausted its 100-state budget.",
+      "roomsPlaced": 9,
+      "sectionsRouted": 0,
+      "routingStates": 101
+    },
+    {
+      "attempt": 2,
+      "roomSlackCells": 8,
+      "classification": "search_budget_exhaustion",
+      "stage": "section_routing",
+      "detail": "Catalog-cell routing for section section.region_gate_locked_1.region_start.open from 185,82 to 112,31 exhausted its 100-state budget.",
+      "roomsPlaced": 9,
+      "sectionsRouted": 0,
+      "routingStates": 101
+    },
+    {
+      "attempt": 3,
+      "roomSlackCells": 12,
+      "classification": "search_budget_exhaustion",
+      "stage": "section_routing",
+      "detail": "Catalog-cell routing for section section.region_gate_locked_1.region_start.open from 185,82 to 112,27 exhausted its 100-state budget.",
+      "roomsPlaced": 9,
+      "sectionsRouted": 0,
+      "routingStates": 101
+    }
+  ],
+  "selectedAttempt": null,
+  "exhaustedClassification": "search_budget_exhaustion",
+  "geometry": null,
+  "geometryValidation": null,
+  "piecePlan": null,
+  "shapeMatch": null,
+  "placement": null,
+  "placementValidation": null,
+  "builtFlowValidation": null
+}

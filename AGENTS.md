@@ -68,6 +68,10 @@ Catalog-aware semantic tracing and replay are owned by
 `procgen-rs/crates/preflight/src/parts/catalog_generation_trace.rs` and
 documented in
 [`docs/catalog-generation-traces.md`](docs/catalog-generation-traces.md).
+Strict TypeScript admission is owned by `src/catalog-generation-trace.ts`; the
+observational SVG lifecycle and controls are owned by
+`viewer/generation-trace-viewer.ts`. Neither may acquire search, selection, or
+pathfinding authority.
 
 `config/viewer-generation.json` may contain intentional local user
 experiments. Preserve unrelated value changes and never stage them as
@@ -134,6 +138,8 @@ pnpm run viewer:smoke
 pnpm run catalog:coverage
 pnpm run catalog-aware:coverage
 pnpm run catalog-trace:fixtures:check
+pnpm run catalog-trace:smoke
+pnpm run catalog-trace:viewer:smoke
 ```
 
 The publication, spatial, and CA benchmark adapters are isolated Rust workspaces under

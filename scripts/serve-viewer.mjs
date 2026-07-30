@@ -18,6 +18,20 @@ const args = parseArgs(process.argv.slice(2));
 const host = args.host ?? process.env.HOST ?? process.env.npm_config_host ?? '0.0.0.0';
 const port = Number(args.port ?? process.env.PORT ?? process.env.npm_config_port ?? 5183);
 const PROCGEN_COMMAND_TIMEOUT_MS = 120_000;
+const catalogGenerationRuns = [
+  {
+    id: 'accepted-default',
+    label: 'Accepted · default bounded policy',
+    result: join(repoRoot, 'fixtures/catalog-generation/candidate-000-result.v1.json'),
+    trace: join(repoRoot, 'fixtures/catalog-generation/candidate-000-trace.v1.json'),
+  },
+  {
+    id: 'exhausted-route-budget',
+    label: 'Exhausted · 100-state route budget',
+    result: join(repoRoot, 'fixtures/catalog-generation/candidate-000-exhausted-result.v1.json'),
+    trace: join(repoRoot, 'fixtures/catalog-generation/candidate-000-exhausted-trace.v1.json'),
+  },
+];
 
 const routes = new Map([
   ['/', join(repoRoot, 'viewer/index.html')],
@@ -36,6 +50,32 @@ const server = createServer(async (request, response) => {
   const url = new URL(request.url ?? '/', `http://${request.headers.host ?? 'localhost'}`);
   if (url.pathname === '/health') {
     sendJson(response, 200, { ok: true, project: 'rusty-procgen' });
+    return;
+  }
+
+  if (url.pathname === '/api/evidence/catalog-generation-runs') {
+    if (request.method !== 'GET') {
+      response.setHeader('Allow', 'GET');
+      sendJson(response, 405, { error: 'method_not_allowed', detail: 'Use GET.' });
+      return;
+    }
+    try {
+      sendJson(response, 200, {
+        kind: 'rusty_procgen.catalog_generation_trace_bundle.v1',
+        schemaVersion: 1,
+        runs: await Promise.all(catalogGenerationRuns.map(async (run) => ({
+          id: run.id,
+          label: run.label,
+          result: JSON.parse(await readFile(run.result, 'utf8')),
+          trace: JSON.parse(await readFile(run.trace, 'utf8')),
+        }))),
+      });
+    } catch (error) {
+      sendJson(response, 500, {
+        error: 'catalog_generation_trace_read_failed',
+        detail: error instanceof Error ? error.message : String(error),
+      });
+    }
     return;
   }
 
@@ -349,6 +389,7 @@ async function runGenerationConfigRebuild(payload) {
   const geometryPolicyPath = join(buildDir, 'geometry-layout-policy.json');
   const catalogAwarePolicyPath = join(buildDir, 'catalog-aware-generation-policy.json');
   const catalogAwareResultPath = join(buildDir, 'catalog-aware-generation.json');
+  const catalogAwareTracePath = join(buildDir, 'catalog-aware-generation.trace.json');
   const catalogPath = join(buildDir, 'shape-catalog.json');
   const geometryPath = join(buildDir, 'geometry-2d.json');
   const geometryValidationPath = join(buildDir, 'geometry-2d.validation.json');
@@ -357,6 +398,7 @@ async function runGenerationConfigRebuild(payload) {
   const placementPath = join(buildDir, 'piece-placement.json');
   const placementValidationPath = join(buildDir, 'piece-placement.validation.json');
   const builtFlowValidationPath = join(buildDir, 'built-flow.validation.json');
+  const configRef = 'config/viewer-generation.json';
   try {
     let catalogAwareGeneration = null;
     committedCatalog.placementPolicy = placementPolicy;
@@ -384,17 +426,35 @@ async function runGenerationConfigRebuild(payload) {
       '--out', piecePlanPath,
     ]);
     if (corridorRealization === 'catalog') {
+      const [catalogSourceGeometry, catalogSourcePlan] = await Promise.all([
+        readFile(geometryPath, 'utf8').then(JSON.parse),
+        readFile(piecePlanPath, 'utf8').then(JSON.parse),
+      ]);
+      catalogSourceGeometry.sourceCandidateRef = entry.artifactRef;
+      catalogSourceGeometry.sourceIntermediateRef = entry.intermediateBreakdownRef;
+      catalogSourceGeometry.sourceConnectionPlanRef = entry.physicalConnectionPlanRef;
+      catalogSourcePlan.sourceCandidateRef = entry.artifactRef;
+      catalogSourcePlan.sourceIntermediateRef = entry.intermediateBreakdownRef;
+      catalogSourcePlan.sourceGeometryRef = `${configRef}:${payload.candidateId}:geometry`;
+      await Promise.all([
+        writeFile(geometryPath, `${JSON.stringify(catalogSourceGeometry, null, 2)}\n`, 'utf8'),
+        writeFile(piecePlanPath, `${JSON.stringify(catalogSourcePlan, null, 2)}\n`, 'utf8'),
+      ]);
       await runProcgen([
         'build', 'realize-catalog-aware',
-        '--candidate', candidatePath,
-        '--geometry', geometryPath,
-        '--piece-plan', piecePlanPath,
-        '--catalog', catalogPath,
-        '--policy', catalogAwarePolicyPath,
+        '--candidate', 'candidate.json',
+        '--geometry', 'geometry-2d.json',
+        '--piece-plan', 'piece-plan.json',
+        '--catalog', 'shape-catalog.json',
+        '--policy', 'catalog-aware-generation-policy.json',
         '--seed', String(committedMatch.seed),
-        '--out', catalogAwareResultPath,
+        '--out', 'catalog-aware-generation.json',
+        '--trace-out', 'catalog-aware-generation.trace.json',
+      ], buildDir);
+      const [catalogAwareResult, catalogAwareTrace] = await Promise.all([
+        readFile(catalogAwareResultPath, 'utf8').then(JSON.parse),
+        readFile(catalogAwareTracePath, 'utf8').then(JSON.parse),
       ]);
-      const catalogAwareResult = JSON.parse(await readFile(catalogAwareResultPath, 'utf8'));
       if (catalogAwareResult.ok !== true) {
         const finalAttempt = catalogAwareResult.attempts?.at(-1);
         const classification = catalogAwareResult.exhaustedClassification
@@ -409,6 +469,8 @@ async function runGenerationConfigRebuild(payload) {
             schemaVersion: 1,
             classification,
             attempts: catalogAwareResult.attempts ?? [],
+            result: catalogAwareResult,
+            trace: catalogAwareTrace,
           },
         );
       }
@@ -416,6 +478,8 @@ async function runGenerationConfigRebuild(payload) {
         policy: catalogAwareResult.policy,
         attempts: catalogAwareResult.attempts,
         selectedAttempt: catalogAwareResult.selectedAttempt,
+        result: catalogAwareResult,
+        trace: catalogAwareTrace,
       };
       await Promise.all([
         writeFile(geometryPath, `${JSON.stringify(catalogAwareResult.geometry, null, 2)}\n`, 'utf8'),
@@ -445,7 +509,6 @@ async function runGenerationConfigRebuild(payload) {
       '--state', geometryPath,
       '--out', geometryValidationPath,
     ]);
-    const configRef = 'config/viewer-generation.json';
     const placement = JSON.parse(await readFile(placementPath, 'utf8'));
     placement.sourcePlanRef = `${configRef}:${payload.candidateId}:${corridorRealization}:piece-plan`;
     placement.sourceCatalogRef = `${configRef}:placement-policy`;
@@ -1193,7 +1256,7 @@ function safeExperimentSourcePath(relativePath, allowedRelativeRoot) {
   return filePath;
 }
 
-async function runProcgen(args) {
+async function runProcgen(args, cwd = repoRoot) {
   await execFileAsync('cargo', [
     'run', '--quiet', '--release',
     '--manifest-path', join(repoRoot, 'procgen-rs/Cargo.toml'),
@@ -1201,7 +1264,7 @@ async function runProcgen(args) {
     '--',
     ...args,
   ], {
-    cwd: repoRoot,
+    cwd,
     encoding: 'utf8',
     maxBuffer: 1024 * 1024,
     timeout: PROCGEN_COMMAND_TIMEOUT_MS,

@@ -95,20 +95,81 @@ together; distinct non-aliasing targets are required, and a staging, backup, or
 commit failure restores both prior destinations rather than publishing a
 mixed-generation pair.
 
-The checked candidate-000 trace is owned by:
+The checked playback corpus is owned by:
 
 ```bash
 pnpm run catalog-trace:fixtures
 pnpm run catalog-trace:fixtures:check
 ```
 
-The generator creates its large intermediate plan and result in an isolated
-temporary directory and commits only the replay artifact. The current fixture
-contains 51 events, 55,432 compact event-body bytes, and 2,353 visual cells.
+The generator creates intermediate plans in an isolated temporary directory and
+publishes exact result/trace pairs for:
+
+- an accepted default-policy run with 51 events, 55,432 compact event-body
+  bytes, and 2,353 visual cells;
+- a four-attempt route-budget exhaustion with 90 events, 93,578 compact
+  event-body bytes, and 3,080 visual cells.
+
+Keeping the result beside each trace lets a host independently recompute the
+final output hash and prove that a selected attempt's rooms and routed sections
+match the ordinary generator output. Fixture regeneration never reads
+`config/viewer-generation.json`.
+
+## Browser playback
+
+The viewer's `Generation Trace` tab consumes the checked result/trace pairs
+through `src/catalog-generation-trace.ts`. The decoder admits the complete
+pair before changing the visible SVG:
+
+- exact schema fields, authored limits, and hard limits are checked;
+- the root and every previous/event hash link are recomputed;
+- event-body bytes and visual cells are independently recounted;
+- attempt order, effective slack, room-domain/placement membership, route
+  endpoints and cardinal continuity, validation stages, attempt metrics, and
+  final selection are checked;
+- the result hash is recomputed and a successful selected attempt is compared
+  with the ordinary placement and piece-plan sections.
+
+The UI replays only admitted semantic events. It supports accepted/exhausted
+run selection, failed-attempt switching, play/pause, single-decision forward
+and back, reset, bounded seek, and previous/next stage navigation. Room
+occupied/reserved cells, current conflicts, route guides/endpoints, and
+committed routes are SVG observations of the retained trace. Policy values,
+classification, metrics, event identity, and output hash remain visible beside
+the projection.
+
+Catalog-mode configuration rebuilds return their paired Rust result and trace
+through the existing request revision guard. A successful run and a typed
+attempt-budget exhaustion are both inspectable; the latter does not persist its
+rejected configuration. Strict decode completes before trace replacement, and
+an older request cannot publish after a newer generation-config revision.
+Non-catalog rebuilds do not synthesize a catalog trace.
+
+Before invoking the traced runner, the viewer host replaces scratch-directory
+provenance in its generated geometry and piece plan with the checked candidate
+and configuration labels. Those labels are inert inputs to the Rust runner, so
+identical rebuilds publish byte-identical result/trace pairs regardless of the
+temporary working directory.
+
+Focused proof:
+
+```bash
+pnpm run catalog-trace:smoke
+pnpm run catalog-trace:viewer:smoke
+```
+
+The first command checks strict cross-language decode, accepted/exhausted
+replay, and malformed/tampered/mismatched rejection. The second uses real
+Chromium for keyboard and pointer controls, back/seek/reset/stage navigation,
+attempt and outcome switching, mobile sizing, final result agreement,
+tamper-before-mount behavior, live accepted/exhausted rebuild replacement, and
+pagehide disposal. The live proof also attempts a different candidate while a
+rebuild is in flight and requires the original selection and trace publication
+to remain guarded.
 
 ## Nonclaims
 
 This contract does not add pausing/resuming generation, callbacks, a scheduler,
 an event bus, a generic procgen framework, browser authority, or per-frontier
-pathfinding playback. Viewer controls consume and replay the checked artifact
-in the later presentation task.
+pathfinding playback. The browser cannot change the generation result or resume
+an attempt; controls only replay already admitted Rust decisions.
