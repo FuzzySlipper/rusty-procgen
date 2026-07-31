@@ -1,0 +1,53 @@
+{
+  "kind": "rusty_procgen.generation_preset_matrix_suite.v1",
+  "schemaVersion": 1,
+  "sourceSelectionRef": "artifacts/samples/batch-v2/selection-report.json",
+  "sourcePresetsRef": "fixtures/policies/viewer-generation-presets.v1.json",
+  "candidates": [
+    {
+      "candidateId": "candidate.first_slice.5801",
+      "role": "small lock-and-key baseline",
+      "expected": {
+        "tight": "accepted",
+        "normal": "accepted",
+        "spread": "accepted"
+      }
+    },
+    {
+      "candidateId": "candidate.first_slice.5301",
+      "role": "nested branch with boss",
+      "expected": {
+        "tight": "accepted",
+        "normal": "accepted",
+        "spread": "accepted"
+      }
+    },
+    {
+      "candidateId": "candidate.first_slice.5601",
+      "role": "nested treasure and merge",
+      "expected": {
+        "tight": "accepted",
+        "normal": "accepted",
+        "spread": "accepted"
+      }
+    },
+    {
+      "candidateId": "candidate.first_slice.5201",
+      "role": "larger hub-and-merge layout",
+      "expected": {
+        "tight": "accepted",
+        "normal": "accepted",
+        "spread": "accepted"
+      }
+    },
+    {
+      "candidateId": "candidate.first_slice.5501",
+      "role": "complex hub-hazard-boss boundary",
+      "expected": {
+        "tight": "rejected",
+        "normal": "rejected",
+        "spread": "rejected"
+      }
+    }
+  ]
+}

@@ -276,6 +276,13 @@ builds leave both the active result and `config/viewer-generation.json`
 unchanged. Each setting stores both `value` and `defaultValue`, so Reset to
 defaults uses the same complete validated rebuild and persistence path.
 
+The Build menu also provides corpus-backed Tight, Normal, and Spread buttons.
+Each selects a complete canonical 26-value configuration and immediately runs
+the same atomic rebuild; the browser sends only candidate/profile identities.
+The profiles are tested twice across five layout families. They express bounded
+generation intent rather than guaranteed dimensions: complex `5501` currently
+rejects under all three instead of silently weakening catalog validation.
+
 The corridor-realization setting has three explicit whole-build modes.
 `catalog` performs pure prefab assembly: it selects catalog rooms, aligns them
 to the generated room zones, and then searches one-cell straight/bend chains

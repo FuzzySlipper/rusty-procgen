@@ -537,6 +537,15 @@ automation, set `RUSTY_PROCGEN_GENERATION_CONFIG_PATH` to a temporary config
 copy. The endpoint and browser smokes do this so checks never rewrite the
 tracked configuration.
 
+The Build menu also offers Tight, Normal, and Spread. These are canonical,
+complete configurations from
+`fixtures/policies/viewer-generation-presets.v1.json`; they set all 26 editable
+values and use the same atomic rebuild path. The browser sends only the selected
+candidate and preset identities, so it cannot reinterpret a profile locally.
+Profile rejection preserves both the active build and the persisted config.
+Use a temporary `RUSTY_PROCGEN_GENERATION_PRESETS_PATH` when testing malformed
+definitions.
+
 Catalog corridor mode uses the versioned `catalogAwareGenerationPolicy` from
 the same configuration file. Its bounded attempts can vary room candidates and
 move selected room origins inward by the configured compaction sequence; its
@@ -570,6 +579,7 @@ influence report with:
 ```bash
 pnpm run catalog-trace:fixtures:check
 pnpm run generation-control:report:check
+pnpm run generation-presets:report:check
 ```
 
 The trace fixtures cover deterministic best-admissible selection with both met
@@ -577,6 +587,9 @@ and unmet preference targets, plus typed bounded exhaustion. The
 characterization suite probes all 26 editable settings from
 `fixtures/policies/viewer-generation-default.v2.json`, records exact
 before/after metrics, and never reads the mutable workbench config.
+The preset matrix independently applies every profile twice to five different
+layout families, including the intentionally difficult `5501` boundary, and
+never reads the mutable workbench config.
 
 When diagnosing a sprawling result, inspect the trace in this order:
 

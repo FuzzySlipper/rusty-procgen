@@ -10,11 +10,17 @@ const port = Number(process.env.GENERATION_CONFIG_SMOKE_PORT ?? 5195);
 const baseUrl = `http://${host}:${port}`;
 const tempDir = await mkdtemp(join(tmpdir(), 'rusty-procgen-generation-config-smoke-'));
 const configPath = join(tempDir, 'viewer-generation.json');
+const presetDefinitionsPath = join(tempDir, 'viewer-generation-presets.json');
 const legacyConfigBytes = await readFile(
   'fixtures/policies/catalog-aware-coverage-config.v1.json',
   'utf8',
 );
+const presetDefinitionBytes = await readFile(
+  'fixtures/policies/viewer-generation-presets.v1.json',
+  'utf8',
+);
 await writeFile(configPath, legacyConfigBytes, 'utf8');
+await writeFile(presetDefinitionsPath, presetDefinitionBytes, 'utf8');
 
 const server = spawn(
   process.execPath,
@@ -24,6 +30,7 @@ const server = spawn(
     env: {
       ...process.env,
       RUSTY_PROCGEN_GENERATION_CONFIG_PATH: configPath,
+      RUSTY_PROCGEN_GENERATION_PRESETS_PATH: presetDefinitionsPath,
     },
     stdio: ['ignore', 'pipe', 'pipe'],
   },
@@ -51,6 +58,47 @@ try {
   assertConfigEnvelope(defaults);
   if (await readFile(configPath, 'utf8') !== legacyConfigBytes) {
     throw new Error('reading the legacy config mutated it before an accepted rebuild');
+  }
+  const presets = await fetchJson('/api/generation-presets');
+  if (
+    presets.kind !== 'rusty_procgen.viewer_generation_presets.v1'
+    || presets.schemaVersion !== 1
+    || JSON.stringify(presets.presets?.map((preset) => preset.id))
+      !== JSON.stringify(['tight', 'normal', 'spread'])
+    || presets.presets.some((preset) =>
+      preset.config?.kind !== 'rusty_procgen.viewer_generation_config.v2'
+      || preset.config?.migration !== null)
+  ) {
+    throw new Error(`generation preset catalog was invalid: ${JSON.stringify(presets)}`);
+  }
+  await postPresetRebuild(
+    { candidateId, presetId: 'not-a-preset' },
+    400,
+    'unknown_generation_preset',
+  );
+  if (await readFile(configPath, 'utf8') !== legacyConfigBytes) {
+    throw new Error('unknown preset identity changed the persisted configuration');
+  }
+  const tamperedDefinitions = JSON.parse(presetDefinitionBytes);
+  delete tamperedDefinitions.presets[2].values.catalogAwareGenerationPolicy.preferredMaximum;
+  await writeFile(
+    presetDefinitionsPath,
+    `${JSON.stringify(tamperedDefinitions, null, 2)}\n`,
+    'utf8',
+  );
+  const tamperedResponse = await fetch(`${baseUrl}/api/generation-presets`);
+  const tamperedBody = await tamperedResponse.json();
+  if (
+    tamperedResponse.status !== 400
+    || tamperedBody.error !== 'invalid_generationPreset_spread_catalogAware_fields'
+  ) {
+    throw new Error(
+      `one-field preset tamper did not fail closed: ${JSON.stringify(tamperedBody)}`,
+    );
+  }
+  await writeFile(presetDefinitionsPath, presetDefinitionBytes, 'utf8');
+  if (await readFile(configPath, 'utf8') !== legacyConfigBytes) {
+    throw new Error('preset definition tamper changed the persisted configuration');
   }
   const configured = structuredClone(defaults);
   configured.geometryLayoutPolicy.initialColumnGap.value = 160;
@@ -368,6 +416,28 @@ async function postRebuild(payload, expectedStatus, expectedError) {
   }
   if (expectedError !== undefined && result.error !== expectedError) {
     throw new Error(`generation config expected ${expectedError}, received ${JSON.stringify(result)}`);
+  }
+  return result;
+}
+
+async function postPresetRebuild(payload, expectedStatus, expectedError) {
+  const response = await fetch(`${baseUrl}/api/generation-presets/rebuild`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+  const result = await response.json();
+  if (response.status !== expectedStatus) {
+    throw new Error(
+      `generation preset expected ${expectedStatus}, received ${
+        response.status
+      }: ${JSON.stringify(result)}`,
+    );
+  }
+  if (expectedError !== undefined && result.error !== expectedError) {
+    throw new Error(
+      `generation preset expected ${expectedError}, received ${JSON.stringify(result)}`,
+    );
   }
   return result;
 }

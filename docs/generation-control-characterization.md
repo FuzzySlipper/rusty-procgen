@@ -129,6 +129,47 @@ The checked artifact records `behaviorChanges: true` because the default
 `5201` result intentionally changed. Regeneration from the tracked suite is
 byte-exact and does not consume the mutable viewer configuration.
 
+## Complete Build profiles
+
+The Build menu exposes three corpus-backed buttons. `Tight`, `Normal`, and
+`Spread` are complete version-2 configurations, not partial spacing shortcuts:
+each sets all 26 editable geometry, placement, catalog-routing, outcome, and
+corridor values. The server resolves the authored profile identity and runs
+the same validated, atomic rebuild used by the full form. A rejected profile
+leaves the persisted configuration and active build unchanged.
+
+The definitions live in
+[`fixtures/policies/viewer-generation-presets.v1.json`](../fixtures/policies/viewer-generation-presets.v1.json).
+The five-layout test owner is
+[`fixtures/generation-control/preset-matrix-v1.json`](../fixtures/generation-control/preset-matrix-v1.json).
+Regenerate or check
+[`artifacts/evidence/generation-preset-matrix.v1.json`](../artifacts/evidence/generation-preset-matrix.v1.json)
+with:
+
+```bash
+pnpm run generation-presets:report
+pnpm run generation-presets:report:check
+```
+
+Each candidate/profile pair is rebuilt twice and must produce the exact same
+response. The current representative results are:
+
+| Layout | Tight span / routed | Normal span / routed | Spread span / routed |
+|---|---:|---:|---:|
+| `5801` small lock/key | 121 / 137 | 143 / 164 | 176 / 216 |
+| `5301` nested boss | 213 / 391 | 244 / 486 | 305 / 623 |
+| `5601` nested treasure merge | 328 / 1,000 | 334 / 1,052 | 334 / 1,058 |
+| `5201` large hub merge | 284 / 911 | 290 / 935 | 289 / 941 |
+| `5501` complex hub/hazard/boss | rejected | rejected | rejected |
+
+The first two accepted layouts show the intended ordering clearly. The larger
+merge layouts show the important boundary: topology and feasible catalog
+routing can dominate the final footprint, so `Spread` is an authored search
+intent rather than a monotonic size guarantee. Layout `5501` remains an
+explicit boundary fixture—Tight and Normal exhaust bounded route search, while
+Spread reports generation infeasibility. The profiles do not weaken validation
+or silently fall back to hybrid/procedural corridors to force acceptance.
+
 ## Nonclaims
 
 The current policy does not prove a globally minimal layout, guarantee that a

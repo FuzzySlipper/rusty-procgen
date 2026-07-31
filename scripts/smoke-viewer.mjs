@@ -1032,6 +1032,90 @@ async function exerciseEngineInspection(chromium, url, primaryCandidateId, alter
     }
     const resetBuild = await inspectionDataset(cdp);
 
+    await waitForCdpValue(
+      cdp,
+      `document.querySelector('[data-generation-preset="tight"]')?.disabled`,
+      false,
+    );
+    const focusedTightPreset = await evaluateCdp(cdp, `(() => {
+      const button = document.querySelector('[data-generation-preset="tight"]');
+      if (!(button instanceof HTMLButtonElement)) return false;
+      button.focus();
+      return document.activeElement === button;
+    })()`);
+    if (!focusedTightPreset) {
+      throw new Error('Tight generation preset was not keyboard focusable');
+    }
+    await cdp.send('Input.dispatchKeyEvent', {
+      type: 'keyDown',
+      key: 'Enter',
+      code: 'Enter',
+      text: '\r',
+      unmodifiedText: '\r',
+      windowsVirtualKeyCode: 13,
+      nativeVirtualKeyCode: 13,
+    });
+    await cdp.send('Input.dispatchKeyEvent', {
+      type: 'keyUp',
+      key: 'Enter',
+      code: 'Enter',
+      windowsVirtualKeyCode: 13,
+      nativeVirtualKeyCode: 13,
+    });
+    await waitForCdpValue(
+      cdp,
+      `document.querySelector('[data-generation-preset="tight"]')?.getAttribute('aria-pressed')`,
+      'true',
+      120_000,
+    );
+    await waitForCdpValue(
+      cdp,
+      `document.querySelector('#generation-config-panel')?.dataset.buildId !== ${JSON.stringify(resetReadout.buildId)}`,
+      true,
+      120_000,
+    );
+    await waitForCdpValue(
+      cdp,
+      `document.querySelector('#generation-config-panel')?.dataset.configState`,
+      'persisted',
+    );
+    const tightPreset = await inspectGenerationPreset(cdp, 'tight');
+
+    for (const presetId of ['normal', 'spread']) {
+      const previousBuildId = await evaluateCdp(
+        cdp,
+        `document.querySelector('#generation-config-panel')?.dataset.buildId`,
+      );
+      const clicked = await evaluateCdp(cdp, `(() => {
+        const button = document.querySelector(
+          '[data-generation-preset=${JSON.stringify(presetId)}]',
+        );
+        button?.click();
+        return button instanceof HTMLButtonElement;
+      })()`);
+      if (!clicked) {
+        throw new Error(`${presetId} generation preset button was unavailable`);
+      }
+      await waitForCdpValue(
+        cdp,
+        `document.querySelector('[data-generation-preset=${JSON.stringify(presetId)}]')?.getAttribute('aria-pressed')`,
+        'true',
+        120_000,
+      );
+      await waitForCdpValue(
+        cdp,
+        `document.querySelector('#generation-config-panel')?.dataset.buildId !== ${JSON.stringify(previousBuildId)}`,
+        true,
+        120_000,
+      );
+      await waitForCdpValue(
+        cdp,
+        `document.querySelector('#generation-config-panel')?.dataset.configState`,
+        'persisted',
+      );
+    }
+    const spreadPreset = await inspectGenerationPreset(cdp, 'spread');
+
     const screenshot = await cdp.send('Page.captureScreenshot', { format: 'png', fromSurface: true });
     await writeFile(join(outDir, 'voxel-3d-desktop.png'), screenshot.data, 'base64');
 
@@ -1098,6 +1182,11 @@ async function exerciseEngineInspection(chromium, url, primaryCandidateId, alter
         resetBuildId: resetReadout.buildId,
         resetFrameHash: resetBuild.frameHash,
         persisted: true,
+        presets: {
+          tight: tightPreset,
+          spread: spreadPreset,
+          keyboardApplied: true,
+        },
       },
       gridLines: replacement.gridLineCount,
       initialGridRevision: initial.gridRevision,
@@ -1117,6 +1206,81 @@ async function exerciseEngineInspection(chromium, url, primaryCandidateId, alter
     await waitForChildExit(browser);
     await rm(profileDir, { recursive: true, force: true, maxRetries: 5, retryDelay: 100 });
   }
+}
+
+async function inspectGenerationPreset(cdp, presetId) {
+  const readout = await evaluateCdp(cdp, `(async () => {
+    const response = await fetch('/api/generation-presets');
+    const catalog = await response.json();
+    const preset = catalog.presets?.find((entry) => entry.id === ${JSON.stringify(presetId)});
+    if (!preset) return { error: 'missing preset' };
+    const paths = [
+      ['generation-config-initial-margin', 'geometryLayoutPolicy', 'initialRoomMargin'],
+      ['generation-config-initial-column-gap', 'geometryLayoutPolicy', 'initialColumnGap'],
+      ['generation-config-initial-row-gap', 'geometryLayoutPolicy', 'initialRowGap'],
+      ['generation-config-margin-growth', 'geometryLayoutPolicy', 'roomMarginGrowth'],
+      ['generation-config-column-growth', 'geometryLayoutPolicy', 'columnGapGrowth'],
+      ['generation-config-row-growth', 'geometryLayoutPolicy', 'rowGapGrowth'],
+      ['generation-config-max-tiers', 'geometryLayoutPolicy', 'maxSpacingTiers'],
+      ['generation-config-room-attempts', 'geometryLayoutPolicy', 'roomOrderAttemptsPerTier'],
+      ['generation-config-max-attempts', 'geometryLayoutPolicy', 'maxSearchAttempts'],
+      ['generation-config-clearance', 'placementPolicy', 'minimumClearanceCells'],
+      ['generation-config-wall-thickness', 'placementPolicy', 'wallThicknessCells'],
+      ['generation-config-catalog-attempts', 'catalogAwareGenerationPolicy', 'maxGenerationAttempts'],
+      ['generation-config-catalog-initial-compaction', 'catalogAwareGenerationPolicy', 'initialRoomCompactionCells'],
+      ['generation-config-catalog-compaction-growth', 'catalogAwareGenerationPolicy', 'roomCompactionGrowthCells'],
+      ['generation-config-catalog-room-candidates', 'catalogAwareGenerationPolicy', 'maxRoomCandidates'],
+      ['generation-config-catalog-route-states', 'catalogAwareGenerationPolicy', 'maxRoutingStatesPerSection'],
+      ['generation-config-catalog-route-margin', 'catalogAwareGenerationPolicy', 'routeMarginCells'],
+      ['generation-config-catalog-guide-weight', 'catalogAwareGenerationPolicy', 'guideDistanceWeight'],
+      ['generation-config-catalog-turn-penalty', 'catalogAwareGenerationPolicy', 'turnPenalty'],
+      ['generation-config-max-placement-width', 'catalogAwareGenerationPolicy', 'maxPlacementWidthCells'],
+      ['generation-config-max-placement-height', 'catalogAwareGenerationPolicy', 'maxPlacementHeightCells'],
+      ['generation-config-max-placement-area', 'catalogAwareGenerationPolicy', 'maxPlacementAreaCells'],
+      ['generation-config-max-routed-cells', 'catalogAwareGenerationPolicy', 'maxRoutedCatalogCells'],
+      ['generation-config-primary-metric', 'catalogAwareGenerationPolicy', 'primaryMetric'],
+      ['generation-config-preferred-maximum', 'catalogAwareGenerationPolicy', 'preferredMaximum'],
+      ['generation-config-corridor-realization', null, 'corridorRealization'],
+    ];
+    const mismatches = [];
+    for (const [id, group, key] of paths) {
+      const control = document.querySelector('#' + id);
+      const expected = group === null
+        ? preset.config[key].value
+        : preset.config[group][key].value;
+      const actual = control instanceof HTMLInputElement
+        ? Number(control.value)
+        : control?.value;
+      if (actual !== expected) mismatches.push({ id, expected, actual });
+    }
+    const active = [...document.querySelectorAll('[data-generation-preset]')]
+      .filter((button) => button.getAttribute('aria-pressed') === 'true')
+      .map((button) => button.dataset.generationPreset);
+    return {
+      error: null,
+      mismatches,
+      active,
+      summary: document.querySelector('#generation-config-preset-summary')?.textContent,
+      buildId: document.querySelector('#generation-config-panel')?.dataset.buildId,
+      configState: document.querySelector('#generation-config-panel')?.dataset.configState,
+    };
+  })()`);
+  if (
+    readout.error !== null
+    || readout.mismatches.length !== 0
+    || JSON.stringify(readout.active) !== JSON.stringify([presetId])
+    || readout.configState !== 'persisted'
+    || typeof readout.buildId !== 'string'
+    || readout.buildId.length === 0
+    || !String(readout.summary).toLowerCase().includes(presetId)
+  ) {
+    throw new Error(
+      `${presetId} generation preset did not apply its complete configuration: ${
+        JSON.stringify(readout)
+      }`,
+    );
+  }
+  return readout;
 }
 
 async function exerciseCaTrace(chromium, evidence) {

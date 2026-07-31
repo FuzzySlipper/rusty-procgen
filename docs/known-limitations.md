@@ -23,6 +23,11 @@ not a complete game runtime.
   They support exact bounded replay and diagnosis but are not pausable generator
   sessions, performance profiles, or evidence that a preference is attainable
   for every seed.
+- The Tight, Normal, and Spread Build profiles are complete corpus-backed
+  configurations, but their names express search intent rather than guaranteed
+  monotonic dimensions. Large merge topologies can converge on similar spans,
+  and the current complex `5501` hub/hazard/boss layout rejects under all three
+  profiles instead of bypassing bounded catalog validation.
 - Downstream games remain responsible for full gameplay execution, persistence,
   encounter meaning, and presentation policy.
 - Cellular-automata workloads are a separate post-conversion campaign. The

@@ -1,0 +1,435 @@
+{
+  "kind": "rusty_procgen.evidence.generation_preset_matrix.v1",
+  "schemaVersion": 1,
+  "sourceSuiteRef": "fixtures/generation-control/preset-matrix-v1.json",
+  "sourceSelectionRef": "artifacts/samples/batch-v2/selection-report.json",
+  "sourcePresetsRef": "fixtures/policies/viewer-generation-presets.v1.json",
+  "sourceBaseConfigRef": "fixtures/policies/viewer-generation-default.v2.json",
+  "sourceHashes": {
+    "suite": "sha256:dbfd0f06932ea67d88d808353274eebabeab07dcb855a8f122587b1abe46a5e3",
+    "selection": "sha256:123671bd6dec76805b025ff8fb724fc0ed211a3a45d5a47de9231e61e9ceea2e",
+    "presetDefinitions": "sha256:c44811abe69751c9cfa71ad1712176ca89c82d12f730fb20509425c9f2210ef2",
+    "baseConfig": "sha256:e99578e2b52adf5eca17386312c0787ce901ae38d04c337547b3a3cbe3c501ad"
+  },
+  "presetCount": 3,
+  "candidateCount": 5,
+  "runCount": 15,
+  "presets": [
+    {
+      "id": "tight",
+      "label": "Tight",
+      "summary": "Uses the proven compact-first geometry and best-admissible catalog policy. It prefers a smaller footprint but does not weaken validation when a complex layout cannot fit.",
+      "configHash": "sha256:94229fb91e98777af82e7f54dbc86936ea67b8768ae75191aeba993ef8ee605e"
+    },
+    {
+      "id": "normal",
+      "label": "Normal",
+      "summary": "Adds moderate room and route space while retaining bounded catalog search. This is the general-purpose profile for layouts that do not need maximum compression.",
+      "configHash": "sha256:8befc7a005b0cb0c12b4d2834ff345d159fc762897f1e35f69512fec0e18a9d0"
+    },
+    {
+      "id": "spread",
+      "label": "Spread",
+      "summary": "Provides generous room and routing space and removes catalog compaction. Topology can still dominate the final footprint, so this is an intent rather than a size guarantee.",
+      "configHash": "sha256:e81b3bf523c2bc4e871193f98dced62b45f43971dd1c7cda0b9c0edcc23c1af6"
+    }
+  ],
+  "candidates": [
+    {
+      "candidateId": "candidate.first_slice.5801",
+      "role": "small lock-and-key baseline",
+      "profileSequence": "lock-key-baseline"
+    },
+    {
+      "candidateId": "candidate.first_slice.5301",
+      "role": "nested branch with boss",
+      "profileSequence": "nested-boss"
+    },
+    {
+      "candidateId": "candidate.first_slice.5601",
+      "role": "nested treasure and merge",
+      "profileSequence": "nested-treasure-merge"
+    },
+    {
+      "candidateId": "candidate.first_slice.5201",
+      "role": "larger hub-and-merge layout",
+      "profileSequence": "hub-merge"
+    },
+    {
+      "candidateId": "candidate.first_slice.5501",
+      "role": "complex hub-hazard-boss boundary",
+      "profileSequence": "hub-hazard-boss"
+    }
+  ],
+  "matrix": [
+    {
+      "candidateId": "candidate.first_slice.5801",
+      "profileSequence": "lock-key-baseline",
+      "role": "small lock-and-key baseline",
+      "presetId": "tight",
+      "outcome": "accepted",
+      "classification": "catalog_aware_exact_assembly",
+      "buildId": "0935007ef2988c4a99dff153825d304ef0627e4a7d77b1b536846c1ff38a520b",
+      "outputHash": "fnv1a64:ce8fd2e38910bebe",
+      "selectedAttempt": 2,
+      "attemptCount": 4,
+      "metrics": {
+        "placementWidthCells": 90,
+        "placementHeightCells": 31,
+        "placementSpanCells": 121,
+        "placementAreaCells": 2790,
+        "routedCatalogCells": 137,
+        "routeBends": 18,
+        "routingStates": 3712,
+        "geometryWidth": 944,
+        "geometryHeight": 424,
+        "roomEnvelopeArea": 178560,
+        "occupiedFillBasisPoints": 1928
+      },
+      "failure": null
+    },
+    {
+      "candidateId": "candidate.first_slice.5801",
+      "profileSequence": "lock-key-baseline",
+      "role": "small lock-and-key baseline",
+      "presetId": "normal",
+      "outcome": "accepted",
+      "classification": "catalog_aware_exact_assembly",
+      "buildId": "17a519b94c97dfa2b9ac634c9c7ed1011d6b88bd2665a13f4200c72f0c2ff1b9",
+      "outputHash": "fnv1a64:50729f34bd4ccae4",
+      "selectedAttempt": 0,
+      "attemptCount": 6,
+      "metrics": {
+        "placementWidthCells": 105,
+        "placementHeightCells": 38,
+        "placementSpanCells": 143,
+        "placementAreaCells": 3990,
+        "routedCatalogCells": 164,
+        "routeBends": 22,
+        "routingStates": 6589,
+        "geometryWidth": 1088,
+        "geometryHeight": 504,
+        "roomEnvelopeArea": 255360,
+        "occupiedFillBasisPoints": 1416
+      },
+      "failure": null
+    },
+    {
+      "candidateId": "candidate.first_slice.5801",
+      "profileSequence": "lock-key-baseline",
+      "role": "small lock-and-key baseline",
+      "presetId": "spread",
+      "outcome": "accepted",
+      "classification": "catalog_aware_exact_assembly",
+      "buildId": "3858f9496323ebebcecf2f71ce6c510a00d06447de67801d9fd13593670f4a33",
+      "outputHash": "fnv1a64:35d52cdf786b3905",
+      "selectedAttempt": 0,
+      "attemptCount": 8,
+      "metrics": {
+        "placementWidthCells": 131,
+        "placementHeightCells": 45,
+        "placementSpanCells": 176,
+        "placementAreaCells": 5895,
+        "routedCatalogCells": 216,
+        "routeBends": 18,
+        "routingStates": 8309,
+        "geometryWidth": 1384,
+        "geometryHeight": 648,
+        "roomEnvelopeArea": 377280,
+        "occupiedFillBasisPoints": 1046
+      },
+      "failure": null
+    },
+    {
+      "candidateId": "candidate.first_slice.5301",
+      "profileSequence": "nested-boss",
+      "role": "nested branch with boss",
+      "presetId": "tight",
+      "outcome": "accepted",
+      "classification": "catalog_aware_exact_assembly",
+      "buildId": "3e6eafa8a26c6f6e1676e4ffc079598f66f8222405e0add8a57edcd25aa69112",
+      "outputHash": "fnv1a64:d45b3866fd16c9c1",
+      "selectedAttempt": 2,
+      "attemptCount": 4,
+      "metrics": {
+        "placementWidthCells": 180,
+        "placementHeightCells": 33,
+        "placementSpanCells": 213,
+        "placementAreaCells": 5940,
+        "routedCatalogCells": 391,
+        "routeBends": 36,
+        "routingStates": 8928,
+        "geometryWidth": 1664,
+        "geometryHeight": 464,
+        "roomEnvelopeArea": 357120,
+        "occupiedFillBasisPoints": 1446
+      },
+      "failure": null
+    },
+    {
+      "candidateId": "candidate.first_slice.5301",
+      "profileSequence": "nested-boss",
+      "role": "nested branch with boss",
+      "presetId": "normal",
+      "outcome": "accepted",
+      "classification": "catalog_aware_exact_assembly",
+      "buildId": "76ad7186a1318fb8865d649d83ba83a51c3adb584110d3a28ab4f3b9dbb323ad",
+      "outputHash": "fnv1a64:39d21bdb2b6b2167",
+      "selectedAttempt": 0,
+      "attemptCount": 6,
+      "metrics": {
+        "placementWidthCells": 206,
+        "placementHeightCells": 38,
+        "placementSpanCells": 244,
+        "placementAreaCells": 7828,
+        "routedCatalogCells": 486,
+        "routeBends": 60,
+        "routingStates": 14796,
+        "geometryWidth": 1896,
+        "geometryHeight": 544,
+        "roomEnvelopeArea": 500992,
+        "occupiedFillBasisPoints": 1218
+      },
+      "failure": null
+    },
+    {
+      "candidateId": "candidate.first_slice.5301",
+      "profileSequence": "nested-boss",
+      "role": "nested branch with boss",
+      "presetId": "spread",
+      "outcome": "accepted",
+      "classification": "catalog_aware_exact_assembly",
+      "buildId": "c6945e4c5fbd4ccd81958509920130412e3de9011a6a71b47af9a46f797bff32",
+      "outputHash": "fnv1a64:d39f8229fd11b7fe",
+      "selectedAttempt": 0,
+      "attemptCount": 8,
+      "metrics": {
+        "placementWidthCells": 259,
+        "placementHeightCells": 46,
+        "placementSpanCells": 305,
+        "placementAreaCells": 11914,
+        "routedCatalogCells": 623,
+        "routeBends": 60,
+        "routingStates": 17792,
+        "geometryWidth": 2408,
+        "geometryHeight": 696,
+        "roomEnvelopeArea": 762496,
+        "occupiedFillBasisPoints": 915
+      },
+      "failure": null
+    },
+    {
+      "candidateId": "candidate.first_slice.5601",
+      "profileSequence": "nested-treasure-merge",
+      "role": "nested treasure and merge",
+      "presetId": "tight",
+      "outcome": "accepted",
+      "classification": "catalog_aware_exact_assembly",
+      "buildId": "b5c0ad113d878d2211e066c9bc85dfc076c4a1b6fb13305f192a3260ed8042e9",
+      "outputHash": "fnv1a64:93322c7d65a3e5a3",
+      "selectedAttempt": 2,
+      "attemptCount": 4,
+      "metrics": {
+        "placementWidthCells": 160,
+        "placementHeightCells": 168,
+        "placementSpanCells": 328,
+        "placementAreaCells": 26880,
+        "routedCatalogCells": 1000,
+        "routeBends": 58,
+        "routingStates": 32444,
+        "geometryWidth": 1520,
+        "geometryHeight": 1576,
+        "roomEnvelopeArea": 1699840,
+        "occupiedFillBasisPoints": 589
+      },
+      "failure": null
+    },
+    {
+      "candidateId": "candidate.first_slice.5601",
+      "profileSequence": "nested-treasure-merge",
+      "role": "nested treasure and merge",
+      "presetId": "normal",
+      "outcome": "accepted",
+      "classification": "catalog_aware_exact_assembly",
+      "buildId": "1ca317b7b376454a06eaf457f738413156329ec674f6f7286d4f3210042f6900",
+      "outputHash": "fnv1a64:65e7938a08721797",
+      "selectedAttempt": 0,
+      "attemptCount": 6,
+      "metrics": {
+        "placementWidthCells": 164,
+        "placementHeightCells": 170,
+        "placementSpanCells": 334,
+        "placementAreaCells": 27880,
+        "routedCatalogCells": 1052,
+        "routeBends": 72,
+        "routingStates": 39352,
+        "geometryWidth": 1576,
+        "geometryHeight": 1624,
+        "roomEnvelopeArea": 1784320,
+        "occupiedFillBasisPoints": 587
+      },
+      "failure": null
+    },
+    {
+      "candidateId": "candidate.first_slice.5601",
+      "profileSequence": "nested-treasure-merge",
+      "role": "nested treasure and merge",
+      "presetId": "spread",
+      "outcome": "accepted",
+      "classification": "catalog_aware_exact_assembly",
+      "buildId": "61e81949a303c28cdf52939b4aa5bc39b575b1b0d8d3b2e30010331c17cf0985",
+      "outputHash": "fnv1a64:50808c038cb20bca",
+      "selectedAttempt": 0,
+      "attemptCount": 8,
+      "metrics": {
+        "placementWidthCells": 164,
+        "placementHeightCells": 170,
+        "placementSpanCells": 334,
+        "placementAreaCells": 27880,
+        "routedCatalogCells": 1058,
+        "routeBends": 76,
+        "routingStates": 40352,
+        "geometryWidth": 1664,
+        "geometryHeight": 1712,
+        "roomEnvelopeArea": 1784320,
+        "occupiedFillBasisPoints": 589
+      },
+      "failure": null
+    },
+    {
+      "candidateId": "candidate.first_slice.5201",
+      "profileSequence": "hub-merge",
+      "role": "larger hub-and-merge layout",
+      "presetId": "tight",
+      "outcome": "accepted",
+      "classification": "catalog_aware_exact_assembly",
+      "buildId": "ac18c2440f4682a0932dc3a0c82d736f9f307229fc6dd4539ae4b9df397a5c76",
+      "outputHash": "fnv1a64:b8d1e9681e55d5fb",
+      "selectedAttempt": 2,
+      "attemptCount": 4,
+      "metrics": {
+        "placementWidthCells": 174,
+        "placementHeightCells": 110,
+        "placementSpanCells": 284,
+        "placementAreaCells": 19140,
+        "routedCatalogCells": 911,
+        "routeBends": 71,
+        "routingStates": 34401,
+        "geometryWidth": 1656,
+        "geometryHeight": 1104,
+        "roomEnvelopeArea": 1191552,
+        "occupiedFillBasisPoints": 817
+      },
+      "failure": null
+    },
+    {
+      "candidateId": "candidate.first_slice.5201",
+      "profileSequence": "hub-merge",
+      "role": "larger hub-and-merge layout",
+      "presetId": "normal",
+      "outcome": "accepted",
+      "classification": "catalog_aware_exact_assembly",
+      "buildId": "9271d18d76c54a967171b50ac4735321d5a4512a16659ac0467a1616c6e446c6",
+      "outputHash": "fnv1a64:9c1ba3cb8b540dfd",
+      "selectedAttempt": 0,
+      "attemptCount": 6,
+      "metrics": {
+        "placementWidthCells": 179,
+        "placementHeightCells": 111,
+        "placementSpanCells": 290,
+        "placementAreaCells": 19869,
+        "routedCatalogCells": 935,
+        "routeBends": 72,
+        "routingStates": 40386,
+        "geometryWidth": 1720,
+        "geometryHeight": 1152,
+        "roomEnvelopeArea": 1260160,
+        "occupiedFillBasisPoints": 799
+      },
+      "failure": null
+    },
+    {
+      "candidateId": "candidate.first_slice.5201",
+      "profileSequence": "hub-merge",
+      "role": "larger hub-and-merge layout",
+      "presetId": "spread",
+      "outcome": "accepted",
+      "classification": "catalog_aware_exact_assembly",
+      "buildId": "e6fcd3b343348b50096e953956dcb5d1f69a7a0c5d873e5fad5f5fc8dc4452a3",
+      "outputHash": "fnv1a64:06898021223b8d3a",
+      "selectedAttempt": 0,
+      "attemptCount": 8,
+      "metrics": {
+        "placementWidthCells": 178,
+        "placementHeightCells": 111,
+        "placementSpanCells": 289,
+        "placementAreaCells": 19758,
+        "routedCatalogCells": 941,
+        "routeBends": 82,
+        "routingStates": 38717,
+        "geometryWidth": 1800,
+        "geometryHeight": 1240,
+        "roomEnvelopeArea": 1264512,
+        "occupiedFillBasisPoints": 807
+      },
+      "failure": null
+    },
+    {
+      "candidateId": "candidate.first_slice.5501",
+      "profileSequence": "hub-hazard-boss",
+      "role": "complex hub-hazard-boss boundary",
+      "presetId": "tight",
+      "outcome": "rejected",
+      "classification": "search_budget_exhaustion",
+      "buildId": null,
+      "outputHash": "fnv1a64:242753ec9fd5cb54",
+      "selectedAttempt": null,
+      "attemptCount": 4,
+      "metrics": null,
+      "failure": {
+        "code": "catalog_aware_search_budget_exhaustion",
+        "maximumRoomsPlaced": 12,
+        "maximumSectionsRouted": 2,
+        "totalRoutingStates": 836638
+      }
+    },
+    {
+      "candidateId": "candidate.first_slice.5501",
+      "profileSequence": "hub-hazard-boss",
+      "role": "complex hub-hazard-boss boundary",
+      "presetId": "normal",
+      "outcome": "rejected",
+      "classification": "search_budget_exhaustion",
+      "buildId": null,
+      "outputHash": "fnv1a64:31636a4c3da2a1da",
+      "selectedAttempt": null,
+      "attemptCount": 6,
+      "metrics": null,
+      "failure": {
+        "code": "catalog_aware_search_budget_exhaustion",
+        "maximumRoomsPlaced": 12,
+        "maximumSectionsRouted": 15,
+        "totalRoutingStates": 6158376
+      }
+    },
+    {
+      "candidateId": "candidate.first_slice.5501",
+      "profileSequence": "hub-hazard-boss",
+      "role": "complex hub-hazard-boss boundary",
+      "presetId": "spread",
+      "outcome": "rejected",
+      "classification": "generation_infeasibility",
+      "buildId": null,
+      "outputHash": "fnv1a64:5009d999039a5111",
+      "selectedAttempt": null,
+      "attemptCount": 8,
+      "metrics": null,
+      "failure": {
+        "code": "catalog_aware_generation_infeasibility",
+        "maximumRoomsPlaced": 12,
+        "maximumSectionsRouted": 13,
+        "totalRoutingStates": 4881248
+      }
+    }
+  ]
+}

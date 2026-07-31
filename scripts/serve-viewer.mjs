@@ -14,6 +14,12 @@ const selectionReportPath = join(repoRoot, 'artifacts/samples/batch-v2/selection
 const generationConfigPath = process.env.RUSTY_PROCGEN_GENERATION_CONFIG_PATH === undefined
   ? join(repoRoot, 'config/viewer-generation.json')
   : resolve(process.env.RUSTY_PROCGEN_GENERATION_CONFIG_PATH);
+const generationPresetDefinitionsPath =
+  process.env.RUSTY_PROCGEN_GENERATION_PRESETS_PATH === undefined
+    ? join(repoRoot, 'fixtures/policies/viewer-generation-presets.v1.json')
+    : resolve(process.env.RUSTY_PROCGEN_GENERATION_PRESETS_PATH);
+const generationPresetBaseConfigRef =
+  'fixtures/policies/viewer-generation-default.v2.json';
 const args = parseArgs(process.argv.slice(2));
 const host = args.host ?? process.env.HOST ?? process.env.npm_config_host ?? '0.0.0.0';
 const port = Number(args.port ?? process.env.PORT ?? process.env.npm_config_port ?? 5183);
@@ -110,6 +116,46 @@ const server = createServer(async (request, response) => {
       sendJson(response, statusCode, {
         error: error instanceof ExperimentError ? error.code : 'config_read_failed',
         detail: error instanceof Error ? error.message : String(error),
+      });
+    }
+    return;
+  }
+
+  if (url.pathname === '/api/generation-presets') {
+    if (request.method !== 'GET') {
+      response.setHeader('Allow', 'GET');
+      sendJson(response, 405, { error: 'method_not_allowed', detail: 'Use GET.' });
+      return;
+    }
+    try {
+      sendJson(response, 200, await readGenerationPresets());
+    } catch (error) {
+      const statusCode = error instanceof ExperimentError ? error.statusCode : 500;
+      sendJson(response, statusCode, {
+        error: error instanceof ExperimentError ? error.code : 'generation_presets_read_failed',
+        detail: error instanceof Error ? error.message : String(error),
+      });
+    }
+    return;
+  }
+
+  if (url.pathname === '/api/generation-presets/rebuild') {
+    if (request.method !== 'POST') {
+      response.setHeader('Allow', 'POST');
+      sendJson(response, 405, { error: 'method_not_allowed', detail: 'Use POST.' });
+      return;
+    }
+    try {
+      const payload = await readJsonRequest(request, 4_096);
+      sendJson(response, 200, await runGenerationPresetRebuild(payload));
+    } catch (error) {
+      const statusCode = error instanceof ExperimentError ? error.statusCode : 500;
+      sendJson(response, statusCode, {
+        error: error instanceof ExperimentError ? error.code : 'generation_preset_rebuild_failed',
+        detail: error instanceof Error ? error.message : String(error),
+        ...(error instanceof ExperimentError && error.evidence !== undefined
+          ? { evidence: error.evidence }
+          : {}),
       });
     }
     return;
@@ -342,6 +388,29 @@ async function readGenerationConfig() {
   }
 }
 
+async function readGenerationPresets() {
+  let definitions;
+  let baseConfig;
+  try {
+    [definitions, baseConfig] = await Promise.all([
+      readFile(generationPresetDefinitionsPath, 'utf8').then(JSON.parse),
+      readFile(resolve(repoRoot, generationPresetBaseConfigRef), 'utf8').then(JSON.parse),
+    ]);
+  } catch (error) {
+    throw new ExperimentError(
+      500,
+      'generation_presets_read_failed',
+      `Failed to read generation presets: ${
+        error instanceof Error ? error.message : String(error)
+      }`,
+    );
+  }
+  return materializeGenerationPresets(
+    validateGenerationPresetDefinitions(definitions),
+    validateGenerationConfig(baseConfig),
+  );
+}
+
 async function persistGenerationConfig(config) {
   const temporaryPath = `${generationConfigPath}.${process.pid}.tmp`;
   try {
@@ -355,6 +424,34 @@ async function persistGenerationConfig(config) {
       `Failed to persist generation config: ${error instanceof Error ? error.message : String(error)}`,
     );
   }
+}
+
+async function runGenerationPresetRebuild(payload) {
+  assertExactKeys(payload, ['candidateId', 'presetId'], 'request');
+  if (typeof payload.candidateId !== 'string' || payload.candidateId.length === 0) {
+    throw new ExperimentError(400, 'invalid_candidate', 'candidateId must be a non-empty string.');
+  }
+  if (typeof payload.presetId !== 'string' || payload.presetId.length === 0) {
+    throw new ExperimentError(400, 'invalid_generation_preset_id', 'presetId must be a non-empty string.');
+  }
+  const presets = await readGenerationPresets();
+  const preset = presets.presets.find((entry) => entry.id === payload.presetId);
+  if (preset === undefined) {
+    throw new ExperimentError(
+      400,
+      'unknown_generation_preset',
+      `Unknown generation preset ${payload.presetId}.`,
+    );
+  }
+  return {
+    kind: 'rusty_procgen.viewer_generation_preset_rebuild.v1',
+    schemaVersion: 1,
+    presetId: preset.id,
+    rebuild: await runGenerationConfigRebuild({
+      candidateId: payload.candidateId,
+      config: preset.config,
+    }),
+  };
 }
 
 async function runGenerationConfigRebuild(payload) {
@@ -1122,6 +1219,136 @@ function validateGenerationConfig(value) {
     }
   }
   return JSON.parse(JSON.stringify(value));
+}
+
+function validateGenerationPresetDefinitions(value) {
+  assertExactKeys(
+    value,
+    ['kind', 'schemaVersion', 'sourceBaseConfigRef', 'presets'],
+    'generationPresetDefinitions',
+  );
+  if (
+    value.kind !== 'rusty_procgen.viewer_generation_preset_definitions.v1'
+    || value.schemaVersion !== 1
+    || value.sourceBaseConfigRef !== generationPresetBaseConfigRef
+    || !Array.isArray(value.presets)
+    || value.presets.length !== 3
+  ) {
+    throw new ExperimentError(
+      400,
+      'invalid_generation_preset_definitions',
+      'Generation preset definitions must use schema 1, the canonical base config, and exactly three presets.',
+    );
+  }
+  const expectedIds = ['tight', 'normal', 'spread'];
+  if (
+    JSON.stringify(value.presets.map((preset) => preset?.id))
+      !== JSON.stringify(expectedIds)
+  ) {
+    throw new ExperimentError(
+      400,
+      'invalid_generation_preset_ids',
+      `Generation preset ids must be exactly: ${expectedIds.join(', ')}.`,
+    );
+  }
+  for (const preset of value.presets) {
+    assertExactKeys(preset, ['id', 'label', 'summary', 'values'], 'generationPreset');
+    if (
+      typeof preset.label !== 'string'
+      || preset.label.length === 0
+      || typeof preset.summary !== 'string'
+      || preset.summary.length === 0
+    ) {
+      throw new ExperimentError(
+        400,
+        'invalid_generation_preset_copy',
+        `Generation preset ${preset.id} must have a non-empty label and summary.`,
+      );
+    }
+    validateGenerationPresetValues(preset.values, preset.id);
+  }
+  return JSON.parse(JSON.stringify(value));
+}
+
+function validateGenerationPresetValues(value, presetId) {
+  assertExactKeys(
+    value,
+    [
+      'geometryLayoutPolicy',
+      'placementPolicy',
+      'catalogAwareGenerationPolicy',
+      'corridorRealization',
+    ],
+    `generationPreset_${presetId}_values`,
+  );
+  assertExactKeys(
+    value.geometryLayoutPolicy,
+    [
+      'initialRoomMargin',
+      'initialColumnGap',
+      'initialRowGap',
+      'roomMarginGrowth',
+      'columnGapGrowth',
+      'rowGapGrowth',
+      'maxSpacingTiers',
+      'roomOrderAttemptsPerTier',
+      'maxSearchAttempts',
+    ],
+    `generationPreset_${presetId}_geometry`,
+  );
+  assertExactKeys(
+    value.placementPolicy,
+    ['minimumClearanceCells', 'wallThicknessCells'],
+    `generationPreset_${presetId}_placement`,
+  );
+  assertExactKeys(
+    value.catalogAwareGenerationPolicy,
+    [
+      'maxGenerationAttempts',
+      'initialRoomCompactionCells',
+      'roomCompactionGrowthCells',
+      'maxRoomCandidates',
+      'maxRoutingStatesPerSection',
+      'routeMarginCells',
+      'guideDistanceWeight',
+      'turnPenalty',
+      'maxPlacementWidthCells',
+      'maxPlacementHeightCells',
+      'maxPlacementAreaCells',
+      'maxRoutedCatalogCells',
+      'primaryMetric',
+      'preferredMaximum',
+    ],
+    `generationPreset_${presetId}_catalogAware`,
+  );
+}
+
+function materializeGenerationPresets(definitions, baseConfig) {
+  return {
+    kind: 'rusty_procgen.viewer_generation_presets.v1',
+    schemaVersion: 1,
+    sourceBaseConfigRef: definitions.sourceBaseConfigRef,
+    presets: definitions.presets.map((definition) => {
+      const config = structuredClone(baseConfig);
+      config.migration = null;
+      for (const [key, setting] of Object.entries(config.geometryLayoutPolicy)) {
+        setting.value = definition.values.geometryLayoutPolicy[key];
+      }
+      for (const [key, setting] of Object.entries(config.placementPolicy)) {
+        setting.value = definition.values.placementPolicy[key];
+      }
+      for (const [key, setting] of Object.entries(config.catalogAwareGenerationPolicy)) {
+        setting.value = definition.values.catalogAwareGenerationPolicy[key];
+      }
+      config.corridorRealization.value = definition.values.corridorRealization;
+      return {
+        id: definition.id,
+        label: definition.label,
+        summary: definition.summary,
+        config: validateGenerationConfig(config),
+      };
+    }),
+  };
 }
 
 function migrateLegacyGenerationConfig(value) {

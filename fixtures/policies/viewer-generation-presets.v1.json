@@ -1,0 +1,124 @@
+{
+  "kind": "rusty_procgen.viewer_generation_preset_definitions.v1",
+  "schemaVersion": 1,
+  "sourceBaseConfigRef": "fixtures/policies/viewer-generation-default.v2.json",
+  "presets": [
+    {
+      "id": "tight",
+      "label": "Tight",
+      "summary": "Uses the proven compact-first geometry and best-admissible catalog policy. It prefers a smaller footprint but does not weaken validation when a complex layout cannot fit.",
+      "values": {
+        "geometryLayoutPolicy": {
+          "initialRoomMargin": 96,
+          "initialColumnGap": 144,
+          "initialRowGap": 64,
+          "roomMarginGrowth": 48,
+          "columnGapGrowth": 72,
+          "rowGapGrowth": 40,
+          "maxSpacingTiers": 5,
+          "roomOrderAttemptsPerTier": 4,
+          "maxSearchAttempts": 80
+        },
+        "placementPolicy": {
+          "minimumClearanceCells": 3,
+          "wallThicknessCells": 1
+        },
+        "catalogAwareGenerationPolicy": {
+          "maxGenerationAttempts": 4,
+          "initialRoomCompactionCells": 0,
+          "roomCompactionGrowthCells": 1,
+          "maxRoomCandidates": 16,
+          "maxRoutingStatesPerSection": 200000,
+          "routeMarginCells": 48,
+          "guideDistanceWeight": 4,
+          "turnPenalty": 3,
+          "maxPlacementWidthCells": 512,
+          "maxPlacementHeightCells": 512,
+          "maxPlacementAreaCells": 262144,
+          "maxRoutedCatalogCells": 8192,
+          "primaryMetric": "placement_span",
+          "preferredMaximum": 260
+        },
+        "corridorRealization": "catalog"
+      }
+    },
+    {
+      "id": "normal",
+      "label": "Normal",
+      "summary": "Adds moderate room and route space while retaining bounded catalog search. This is the general-purpose profile for layouts that do not need maximum compression.",
+      "values": {
+        "geometryLayoutPolicy": {
+          "initialRoomMargin": 128,
+          "initialColumnGap": 176,
+          "initialRowGap": 80,
+          "roomMarginGrowth": 56,
+          "columnGapGrowth": 80,
+          "rowGapGrowth": 48,
+          "maxSpacingTiers": 5,
+          "roomOrderAttemptsPerTier": 4,
+          "maxSearchAttempts": 80
+        },
+        "placementPolicy": {
+          "minimumClearanceCells": 3,
+          "wallThicknessCells": 1
+        },
+        "catalogAwareGenerationPolicy": {
+          "maxGenerationAttempts": 6,
+          "initialRoomCompactionCells": 0,
+          "roomCompactionGrowthCells": 0,
+          "maxRoomCandidates": 24,
+          "maxRoutingStatesPerSection": 350000,
+          "routeMarginCells": 80,
+          "guideDistanceWeight": 3,
+          "turnPenalty": 2,
+          "maxPlacementWidthCells": 768,
+          "maxPlacementHeightCells": 768,
+          "maxPlacementAreaCells": 589824,
+          "maxRoutedCatalogCells": 16384,
+          "primaryMetric": "placement_span",
+          "preferredMaximum": 380
+        },
+        "corridorRealization": "catalog"
+      }
+    },
+    {
+      "id": "spread",
+      "label": "Spread",
+      "summary": "Provides generous room and routing space and removes catalog compaction. Topology can still dominate the final footprint, so this is an intent rather than a size guarantee.",
+      "values": {
+        "geometryLayoutPolicy": {
+          "initialRoomMargin": 192,
+          "initialColumnGap": 256,
+          "initialRowGap": 128,
+          "roomMarginGrowth": 64,
+          "columnGapGrowth": 96,
+          "rowGapGrowth": 64,
+          "maxSpacingTiers": 6,
+          "roomOrderAttemptsPerTier": 6,
+          "maxSearchAttempts": 144
+        },
+        "placementPolicy": {
+          "minimumClearanceCells": 3,
+          "wallThicknessCells": 1
+        },
+        "catalogAwareGenerationPolicy": {
+          "maxGenerationAttempts": 8,
+          "initialRoomCompactionCells": 0,
+          "roomCompactionGrowthCells": 0,
+          "maxRoomCandidates": 32,
+          "maxRoutingStatesPerSection": 500000,
+          "routeMarginCells": 160,
+          "guideDistanceWeight": 1,
+          "turnPenalty": 0,
+          "maxPlacementWidthCells": 4096,
+          "maxPlacementHeightCells": 4096,
+          "maxPlacementAreaCells": 16777216,
+          "maxRoutedCatalogCells": 1048576,
+          "primaryMetric": "placement_span",
+          "preferredMaximum": 800
+        },
+        "corridorRealization": "catalog"
+      }
+    }
+  ]
+}

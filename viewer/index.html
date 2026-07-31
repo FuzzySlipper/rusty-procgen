@@ -33,6 +33,20 @@
             </div>
             <p class="placement-policy-mode" id="generation-config-mode">Loading configuration</p>
           </div>
+          <fieldset
+            id="generation-config-presets"
+            class="generation-config-presets"
+            aria-describedby="generation-config-preset-summary"
+            data-state="loading"
+          >
+            <legend>Layout profile</legend>
+            <div class="generation-config-preset-actions" role="group" aria-label="Apply a complete generation profile">
+              <button type="button" data-generation-preset="tight" aria-pressed="false" disabled>Tight</button>
+              <button type="button" data-generation-preset="normal" aria-pressed="false" disabled>Normal</button>
+              <button type="button" data-generation-preset="spread" aria-pressed="false" disabled>Spread</button>
+            </div>
+            <small id="generation-config-preset-summary">Loading corpus-backed profile definitions.</small>
+          </fieldset>
           <form id="generation-config-form" class="placement-policy-form generation-config-form">
             <fieldset class="generation-config-group">
               <legend>Geometry distribution</legend>

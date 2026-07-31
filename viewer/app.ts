@@ -20,6 +20,14 @@ import {
   type VoxelInspectionProjection,
 } from '../src/voxel-inspection-projection.js';
 import type { CatalogAwareOutcomeEvaluation } from '../src/catalog-generation-trace.js';
+import {
+  decodeViewerGenerationConfig,
+  decodeViewerGenerationPresets,
+  type CorridorRealization,
+  type ViewerGenerationConfig,
+  type ViewerGenerationPreset,
+  type ViewerGenerationPresets,
+} from '../src/viewer-generation-presets.js';
 import { createCaTraceViewer } from './ca-trace-viewer.js';
 import { createGenerationTraceViewer } from './generation-trace-viewer.js';
 
@@ -588,8 +596,6 @@ interface GeometryLayoutPolicyExperimentResponse {
   readonly nativeAuthority: false;
 }
 
-type CorridorRealization = 'catalog' | 'hybrid' | 'procedural';
-
 interface CorridorRealizationExperimentResponse {
   readonly kind: 'rusty_procgen.corridor_realization_experiment.v1';
   readonly experimentId: string;
@@ -608,55 +614,6 @@ interface CorridorRealizationExperimentResponse {
   };
   readonly persisted: false;
   readonly nativeAuthority: false;
-}
-
-interface GenerationConfigSetting<T> {
-  value: T;
-  readonly defaultValue: T;
-}
-
-interface ViewerGenerationConfig {
-  readonly kind: 'rusty_procgen.viewer_generation_config.v2';
-  readonly schemaVersion: 2;
-  readonly migration: {
-    readonly sourceKind: 'rusty_procgen.viewer_generation_config.v1';
-    readonly sourceSchemaVersion: 1;
-    readonly appliedDefaults: readonly string[];
-  } | null;
-  readonly geometryLayoutPolicy: {
-    readonly initialRoomMargin: GenerationConfigSetting<number>;
-    readonly initialColumnGap: GenerationConfigSetting<number>;
-    readonly initialRowGap: GenerationConfigSetting<number>;
-    readonly roomMarginGrowth: GenerationConfigSetting<number>;
-    readonly columnGapGrowth: GenerationConfigSetting<number>;
-    readonly rowGapGrowth: GenerationConfigSetting<number>;
-    readonly maxSpacingTiers: GenerationConfigSetting<number>;
-    readonly roomOrderAttemptsPerTier: GenerationConfigSetting<number>;
-    readonly maxSearchAttempts: GenerationConfigSetting<number>;
-  };
-  readonly placementPolicy: {
-    readonly minimumClearanceCells: GenerationConfigSetting<number>;
-    readonly wallThicknessCells: GenerationConfigSetting<number>;
-  };
-  readonly catalogAwareGenerationPolicy: {
-    readonly maxGenerationAttempts: GenerationConfigSetting<number>;
-    readonly initialRoomCompactionCells: GenerationConfigSetting<number>;
-    readonly roomCompactionGrowthCells: GenerationConfigSetting<number>;
-    readonly maxRoomCandidates: GenerationConfigSetting<number>;
-    readonly maxRoutingStatesPerSection: GenerationConfigSetting<number>;
-    readonly routeMarginCells: GenerationConfigSetting<number>;
-    readonly guideDistanceWeight: GenerationConfigSetting<number>;
-    readonly turnPenalty: GenerationConfigSetting<number>;
-    readonly maxPlacementWidthCells: GenerationConfigSetting<number>;
-    readonly maxPlacementHeightCells: GenerationConfigSetting<number>;
-    readonly maxPlacementAreaCells: GenerationConfigSetting<number>;
-    readonly maxRoutedCatalogCells: GenerationConfigSetting<number>;
-    readonly primaryMetric: GenerationConfigSetting<
-      'placement_span' | 'placement_area' | 'routed_catalog_cells'
-    >;
-    readonly preferredMaximum: GenerationConfigSetting<number>;
-  };
-  readonly corridorRealization: GenerationConfigSetting<CorridorRealization>;
 }
 
 interface GenerationConfigRebuildResponse {
@@ -682,6 +639,13 @@ interface GenerationConfigRebuildResponse {
   readonly metrics: CorridorRealizationExperimentResponse['metrics'];
   readonly persisted: true;
   readonly nativeAuthority: false;
+}
+
+interface GenerationPresetRebuildResponse {
+  readonly kind: 'rusty_procgen.viewer_generation_preset_rebuild.v1';
+  readonly schemaVersion: 1;
+  readonly presetId: ViewerGenerationPreset['id'];
+  readonly rebuild: GenerationConfigRebuildResponse;
 }
 
 const svg = document.querySelector<SVGSVGElement>('#layout');
@@ -731,6 +695,13 @@ const generationConfigResetElement = document.querySelector<HTMLButtonElement>('
 const generationConfigValidationElement = document.querySelector<HTMLElement>('#generation-config-validation');
 const generationConfigImpactElement = document.querySelector<HTMLElement>('#generation-config-impact');
 const generationConfigStatusElement = document.querySelector<HTMLElement>('#generation-config-status');
+const generationConfigPresetsElement = document.querySelector<HTMLElement>('#generation-config-presets');
+const generationConfigPresetSummaryElement = document.querySelector<HTMLElement>(
+  '#generation-config-preset-summary',
+);
+const generationConfigPresetElements = document.querySelectorAll<HTMLButtonElement>(
+  '[data-generation-preset]',
+);
 const generationConfigInitialMarginElement = document.querySelector<HTMLInputElement>('#generation-config-initial-margin');
 const generationConfigInitialColumnGapElement = document.querySelector<HTMLInputElement>('#generation-config-initial-column-gap');
 const generationConfigInitialRowGapElement = document.querySelector<HTMLInputElement>('#generation-config-initial-row-gap');
@@ -843,6 +814,9 @@ if (
   || generationConfigValidationElement === null
   || generationConfigImpactElement === null
   || generationConfigStatusElement === null
+  || generationConfigPresetsElement === null
+  || generationConfigPresetSummaryElement === null
+  || generationConfigPresetElements.length !== 3
   || generationConfigInitialMarginElement === null
   || generationConfigInitialColumnGapElement === null
   || generationConfigInitialRowGapElement === null
@@ -938,6 +912,9 @@ const generationConfigReset = generationConfigResetElement;
 const generationConfigValidation = generationConfigValidationElement;
 const generationConfigImpact = generationConfigImpactElement;
 const generationConfigStatus = generationConfigStatusElement;
+const generationConfigPresets = generationConfigPresetsElement;
+const generationConfigPresetSummary = generationConfigPresetSummaryElement;
+const generationConfigPresetButtons = generationConfigPresetElements;
 const generationConfigInitialMargin = generationConfigInitialMarginElement;
 const generationConfigInitialColumnGap = generationConfigInitialColumnGapElement;
 const generationConfigInitialRowGap = generationConfigInitialRowGapElement;
@@ -1004,6 +981,7 @@ const placementPolicyStatus = policyStatus;
 const placementPolicyPresets = policyPresets;
 const batch = await fetchBatch();
 const voxelEvidence = await fetchVoxelEvidence();
+const generationPresets = await fetchGenerationPresets();
 let persistedGenerationConfig = await fetchGenerationConfig();
 const viewerSearch = new URLSearchParams(location.search);
 const requestedCandidate = viewerSearch.get('candidate');
@@ -1070,6 +1048,7 @@ let corridorExperimentRevision = 0;
 let corridorExperimentBusy = false;
 let generationConfigRevision = 0;
 let generationConfigBusy = false;
+let generationPresetApplyingId: ViewerGenerationPreset['id'] | null = null;
 let configuredBuildId: string | null = null;
 let voxelInspectionSurface: RendererInspectionSurface | null = null;
 let voxelInspectionMount: Promise<RendererInspectionSurface> | null = null;
@@ -1090,6 +1069,16 @@ generationConfigReset.addEventListener('click', () => {
   populateGenerationConfigControls(generationConfigWithDefaults(persistedGenerationConfig));
   void applyGenerationConfig();
 });
+for (const button of generationConfigPresetButtons) {
+  button.addEventListener('click', () => {
+    const preset = generationPresets.presets.find(
+      (entry) => entry.id === button.dataset.generationPreset,
+    );
+    if (preset !== undefined) {
+      void applyGenerationConfig(preset);
+    }
+  });
+}
 for (const input of generationConfigInputs()) {
   input.addEventListener('input', validateGenerationConfigControls);
   input.addEventListener('change', validateGenerationConfigControls);
@@ -1527,6 +1516,7 @@ function validateGenerationConfigControls(): boolean {
     || currentSelection === null
     || generationConfigBusy;
   generationConfigReset.disabled = currentSelection === null || generationConfigBusy;
+  syncGenerationPresetControls(draft, dirty);
   return valid;
 }
 
@@ -1622,34 +1612,96 @@ function syncGenerationConfigControls(preserveStatus = false): void {
   validateGenerationConfigControls();
 }
 
-async function applyGenerationConfig(): Promise<void> {
+function syncGenerationPresetControls(
+  draft = generationConfigFromControlsWithoutValidation(),
+  dirty = draft !== null
+    && generationConfigValueSignature(draft)
+      !== generationConfigValueSignature(persistedGenerationConfig),
+): void {
+  const signature = draft === null ? null : generationConfigValueSignature(draft);
+  const matchingPreset = signature === null
+    ? undefined
+    : generationPresets.presets.find(
+      (preset) => generationConfigValueSignature(preset.config) === signature,
+    );
+  const enabled = currentSelection !== null && !generationConfigBusy;
+  generationConfigPresets.dataset.state = generationConfigBusy
+    ? 'applying'
+    : enabled
+      ? dirty
+        ? 'pending'
+        : 'ready'
+      : 'disabled';
+  generationConfigPresets.dataset.activePreset = matchingPreset?.id ?? '';
+  for (const button of generationConfigPresetButtons) {
+    const presetId = button.dataset.generationPreset;
+    const applying = generationPresetApplyingId === presetId;
+    button.disabled = !enabled;
+    button.dataset.state = applying ? 'applying' : 'idle';
+    button.setAttribute('aria-pressed', String(matchingPreset?.id === presetId));
+  }
+  if (generationPresetApplyingId !== null) {
+    const applying = generationPresets.presets.find(
+      (preset) => preset.id === generationPresetApplyingId,
+    );
+    generationConfigPresetSummary.textContent =
+      `Applying ${applying?.label ?? generationPresetApplyingId} through the complete validated Rust build.`;
+  } else if (matchingPreset !== undefined) {
+    generationConfigPresetSummary.textContent =
+      `${matchingPreset.label}: ${matchingPreset.summary}`;
+  } else {
+    generationConfigPresetSummary.textContent = dirty
+      ? 'Custom values are pending. Presets replace every visible setting and apply immediately.'
+      : 'Persisted custom configuration. Choose a profile to replace every visible setting and rebuild.';
+  }
+}
+
+async function applyGenerationConfig(
+  preset?: ViewerGenerationPreset,
+): Promise<void> {
   const selection = currentSelection;
-  const config = generationConfigFromControls();
+  if (preset !== undefined) {
+    populateGenerationConfigControls(preset.config);
+  }
+  const config = preset?.config ?? generationConfigFromControls();
   if (selection === null || config === null) {
     setGenerationConfigStatus('error', 'Select a candidate and correct the configuration values first.');
     return;
   }
   const revision = ++generationConfigRevision;
   generationConfigBusy = true;
+  generationPresetApplyingId = preset?.id ?? null;
   syncGenerationConfigControls();
   setGenerationConfigStatus(
     'loading',
-    `Rebuilding ${selection.candidateId} with combined geometry, placement, and corridor settings…`,
+    preset === undefined
+      ? `Rebuilding ${selection.candidateId} with combined geometry, placement, and corridor settings…`
+      : `Applying ${preset.label} to ${selection.candidateId} through the complete validated build…`,
   );
   try {
-    const response = await fetch('/api/generation-config/rebuild', {
+    const response = await fetch(
+      preset === undefined
+        ? '/api/generation-config/rebuild'
+        : '/api/generation-presets/rebuild',
+      {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ candidateId: selection.candidateId, config }),
+      body: JSON.stringify(
+        preset === undefined
+          ? { candidateId: selection.candidateId, config }
+          : { candidateId: selection.candidateId, presetId: preset.id },
+      ),
     });
-    const result = await readJsonResponse<
-      GenerationConfigRebuildResponse | PlacementPolicyExperimentError
+    const responseBody = await readJsonResponse<
+      GenerationConfigRebuildResponse
+      | GenerationPresetRebuildResponse
+      | PlacementPolicyExperimentError
     >(response);
     if (revision !== generationConfigRevision) {
       return;
     }
-    if (!response.ok || 'error' in result) {
-      const evidence = 'evidence' in result ? result.evidence : undefined;
+    if (!response.ok || 'error' in responseBody) {
+      const evidence = 'evidence' in responseBody ? responseBody.evidence : undefined;
       if (isCatalogAwareGenerationExhaustion(evidence)) {
         await generationTraceViewer.replaceRun(
           `Live exhausted · ${selection.candidateId}`,
@@ -1663,10 +1715,24 @@ async function applyGenerationConfig(): Promise<void> {
       throw new Error(
         evidence !== undefined
           ? formatGenerationRebuildEvidence(evidence)
-          : 'detail' in result
-            ? result.detail
+          : 'detail' in responseBody
+            ? responseBody.detail
             : `rebuild request failed with ${response.status}`,
       );
+    }
+    let result: GenerationConfigRebuildResponse;
+    if (preset === undefined) {
+      result = responseBody as GenerationConfigRebuildResponse;
+    } else {
+      const presetResponse = responseBody as GenerationPresetRebuildResponse;
+      if (
+        presetResponse.kind !== 'rusty_procgen.viewer_generation_preset_rebuild.v1'
+        || presetResponse.schemaVersion !== 1
+        || presetResponse.presetId !== preset.id
+      ) {
+        throw new Error('generation preset rebuild returned an invalid identity envelope');
+      }
+      result = presetResponse.rebuild;
     }
     if (
       result.kind !== 'rusty_procgen.viewer_generation_rebuild.v1'
@@ -1679,6 +1745,7 @@ async function applyGenerationConfig(): Promise<void> {
     ) {
       throw new Error('generation config rebuild returned an invalid response envelope');
     }
+    const admittedConfig = decodeViewerGenerationConfig(result.config);
     if (result.catalogAwareGeneration !== null) {
       await generationTraceViewer.replaceRun(
         `Live accepted · ${selection.candidateId}`,
@@ -1689,7 +1756,7 @@ async function applyGenerationConfig(): Promise<void> {
         return;
       }
     }
-    persistedGenerationConfig = result.config;
+    persistedGenerationConfig = admittedConfig;
     configuredBuildId = result.buildId;
     currentGeometry = result.geometry;
     currentPlacement = result.placement;
@@ -1698,7 +1765,7 @@ async function applyGenerationConfig(): Promise<void> {
     currentGeometryExperimentId = null;
     currentPolicyExperimentId = null;
     currentCorridorExperimentId = null;
-    populateGenerationConfigControls(result.config);
+    populateGenerationConfigControls(admittedConfig);
     const compactness = result.geometry.layoutSearch;
     const realization = result.placement.realizationSearch;
     const selectedOutcome = result.catalogAwareGeneration?.attempts.find(
@@ -1708,7 +1775,7 @@ async function applyGenerationConfig(): Promise<void> {
       ? ''
       : ` Catalog selection chose attempt ${
         (result.catalogAwareGeneration?.selectedAttempt ?? 0) + 1
-      } by ${result.config.catalogAwareGenerationPolicy.primaryMetric.value.replaceAll('_', ' ')}: span ${selectedOutcome.metrics.placementSpanCells.toLocaleString()}, area ${selectedOutcome.metrics.placementAreaCells.toLocaleString()}, routed ${selectedOutcome.metrics.routedCatalogCells.toLocaleString()}; ${
+      } by ${admittedConfig.catalogAwareGenerationPolicy.primaryMetric.value.replaceAll('_', ' ')}: span ${selectedOutcome.metrics.placementSpanCells.toLocaleString()}, area ${selectedOutcome.metrics.placementAreaCells.toLocaleString()}, routed ${selectedOutcome.metrics.routedCatalogCells.toLocaleString()}; ${
         selectedOutcome.preferenceSatisfied
           ? 'the preferred maximum was met'
           : 'the bounded best admissible outcome won despite the preference shortfall'
@@ -1718,11 +1785,16 @@ async function applyGenerationConfig(): Promise<void> {
     syncGenerationConfigControls();
     setGenerationConfigStatus(
       'ready',
-      `Configuration persisted and ${selection.candidateId} rebuilt with verified placement and built flow.`,
+      preset === undefined
+        ? `Configuration persisted and ${selection.candidateId} rebuilt with verified placement and built flow.`
+        : `${preset.label} persisted and ${selection.candidateId} rebuilt with verified placement and built flow.`,
     );
     renderActiveView();
   } catch (error) {
     if (revision === generationConfigRevision) {
+      if (preset !== undefined) {
+        populateGenerationConfigControls(persistedGenerationConfig);
+      }
       setGenerationConfigStatus(
         'error',
         `Rebuild failed; persisted configuration and current result were unchanged: ${describeError(error)}`,
@@ -1731,6 +1803,7 @@ async function applyGenerationConfig(): Promise<void> {
   } finally {
     if (revision === generationConfigRevision) {
       generationConfigBusy = false;
+      generationPresetApplyingId = null;
       syncGenerationConfigControls(generationConfigStatus.dataset.state === 'error');
     }
   }
@@ -2581,23 +2654,44 @@ async function fetchBatch(): Promise<SelectionReport> {
 
 async function fetchGenerationConfig(): Promise<ViewerGenerationConfig> {
   const response = await fetch('/api/generation-config');
-  const result = await readJsonResponse<
-    ViewerGenerationConfig | PlacementPolicyExperimentError
-  >(response);
-  if (!response.ok || 'error' in result) {
+  const result = await readJsonResponse<unknown>(response);
+  if (
+    !response.ok
+    || (result !== null
+      && typeof result === 'object'
+      && 'error' in result)
+  ) {
     throw new Error(
-      'detail' in result
+      result !== null
+        && typeof result === 'object'
+        && 'detail' in result
+        && typeof result.detail === 'string'
         ? result.detail
         : `failed to load generation configuration: ${response.status}`,
     );
   }
+  return decodeViewerGenerationConfig(result);
+}
+
+async function fetchGenerationPresets(): Promise<ViewerGenerationPresets> {
+  const response = await fetch('/api/generation-presets');
+  const result = await readJsonResponse<unknown>(response);
   if (
-    result.kind !== 'rusty_procgen.viewer_generation_config.v2'
-    || result.schemaVersion !== 2
+    !response.ok
+    || (result !== null
+      && typeof result === 'object'
+      && 'error' in result)
   ) {
-    throw new Error('generation configuration returned an invalid response envelope');
+    throw new Error(
+      result !== null
+        && typeof result === 'object'
+        && 'detail' in result
+        && typeof result.detail === 'string'
+        ? result.detail
+        : `failed to load generation presets: ${response.status}`,
+    );
   }
-  return result;
+  return decodeViewerGenerationPresets(result);
 }
 
 async function readJsonResponse<T>(response: Response): Promise<T> {

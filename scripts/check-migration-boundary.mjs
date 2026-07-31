@@ -204,11 +204,11 @@ function checkArtifactNamespaces() {
   const observedCurrent = new Set();
 
   for (const file of sourceFiles) {
-    if (
-      file.displayPath === 'config/viewer-generation.json'
-      && !file.text.includes('"kind": "rusty_procgen.viewer_generation_config.v1"')
-    ) {
-      errors.push('config/viewer-generation.json must use the current artifact kind');
+    if (file.displayPath === 'config/viewer-generation.json') {
+      const configKind = JSON.parse(file.text).kind;
+      if (typeof configKind !== 'string' || !declaredCurrent.has(configKind)) {
+        errors.push('config/viewer-generation.json must use a declared current artifact kind');
+      }
     }
     for (const match of file.text.matchAll(/rusty_procgen\.[A-Za-z0-9_]+(?:\.[A-Za-z0-9_]+)*/g)) {
       observedCurrent.add(match[0].replace(/\.$/, ''));
