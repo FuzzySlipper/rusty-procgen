@@ -1119,6 +1119,86 @@ async function exerciseEngineInspection(chromium, url, primaryCandidateId, alter
     const screenshot = await cdp.send('Page.captureScreenshot', { format: 'png', fromSurface: true });
     await writeFile(join(outDir, 'voxel-3d-desktop.png'), screenshot.data, 'base64');
 
+    const rejectingCandidateId = 'candidate.first_slice.5501';
+    const switchedToRejectingPresetCandidate = await evaluateCdp(cdp, `(() => {
+      const button = [...document.querySelectorAll('.candidate-button')]
+        .find((candidate) => candidate.dataset.candidateId === ${JSON.stringify(rejectingCandidateId)});
+      button?.click();
+      return button !== undefined;
+    })()`);
+    if (!switchedToRejectingPresetCandidate) {
+      throw new Error(`tracked rejecting preset candidate was not found: ${rejectingCandidateId}`);
+    }
+    await waitForCdpValue(
+      cdp,
+      `document.querySelector('[data-candidate-id=${JSON.stringify(rejectingCandidateId)}]')?.dataset.selected`,
+      'true',
+    );
+    await evaluateCdp(cdp, `document.querySelector('[data-view="build"]')?.click()`);
+    await waitForCdpValue(cdp, `location.hash`, '#build');
+    await inspectGenerationPreset(cdp, 'spread', false);
+    const rejectionBaseline = await captureGenerationPresetRejectionState(cdp);
+    const startedRejectingPreset = await evaluateCdp(cdp, `(() => {
+      const button = document.querySelector('[data-generation-preset="tight"]');
+      button?.click();
+      return button instanceof HTMLButtonElement;
+    })()`);
+    if (!startedRejectingPreset) {
+      throw new Error('tracked rejecting Tight preset control was unavailable');
+    }
+    await waitForCdpValue(
+      cdp,
+      `document.querySelector('#generation-config-status')?.dataset.state`,
+      'error',
+      120_000,
+    );
+    await waitForCdpValue(
+      cdp,
+      `document.querySelector('[data-generation-preset="spread"]')?.getAttribute('aria-pressed')`,
+      'true',
+    );
+    const restoredSpreadPreset = await inspectGenerationPreset(cdp, 'spread', false);
+    const rejectionAfter = await captureGenerationPresetRejectionState(cdp);
+    await delay(250);
+    const rejectionSettled = await captureGenerationPresetRejectionState(cdp);
+    if (
+      rejectionAfter.rejectionCode !== 'catalog_aware_search_budget_exhaustion'
+      || rejectionAfter.rejectionClassification !== 'search_budget_exhaustion'
+      || !String(rejectionAfter.status).includes('search budget exhaustion')
+      || rejectionAfter.configBytes !== rejectionBaseline.configBytes
+      || rejectionAfter.buildId !== rejectionBaseline.buildId
+      || rejectionAfter.projectionSha256 !== rejectionBaseline.projectionSha256
+      || rejectionAfter.projectionLength !== rejectionBaseline.projectionLength
+      || rejectionAfter.selectedCandidateId !== rejectingCandidateId
+      || rejectionAfter.presetState !== 'ready'
+      || rejectionAfter.applyingPresetCount !== 0
+      || JSON.stringify(rejectionSettled) !== JSON.stringify(rejectionAfter)
+    ) {
+      throw new Error(`rejecting preset did not restore exact browser state: ${
+        JSON.stringify({ rejectionBaseline, rejectionAfter, rejectionSettled })
+      }`);
+    }
+    const restoredPrimaryAfterPresetRejection = await evaluateCdp(cdp, `(() => {
+      const button = [...document.querySelectorAll('.candidate-button')]
+        .find((candidate) => candidate.dataset.candidateId === ${JSON.stringify(primaryCandidateId)});
+      button?.click();
+      document.querySelector('[data-view="voxel3d"]')?.click();
+      return button !== undefined;
+    })()`);
+    if (!restoredPrimaryAfterPresetRejection) {
+      throw new Error(`primary candidate was unavailable after rejected preset: ${primaryCandidateId}`);
+    }
+    await waitForCdpValue(
+      cdp,
+      `document.querySelector('[data-candidate-id=${JSON.stringify(primaryCandidateId)}]')?.dataset.selected`,
+      'true',
+    );
+    await waitForCdpValue(
+      cdp,
+      `document.querySelector('#voxel-3d-diagnostic')?.dataset.state`,
+      'ready',
+    );
+
     let replacement = resetBuild;
     if (alternateCandidateId !== undefined) {
       const switched = await evaluateCdp(cdp, `(() => {
@@ -1186,6 +1266,16 @@ async function exerciseEngineInspection(chromium, url, primaryCandidateId, alter
           tight: tightPreset,
           spread: spreadPreset,
           keyboardApplied: true,
+          rejection: {
+            candidateId: rejectingCandidateId,
+            code: rejectionAfter.rejectionCode,
+            classification: rejectionAfter.rejectionClassification,
+            controlsRestored: restoredSpreadPreset.mismatches.length === 0,
+            persistedConfigPreserved: rejectionAfter.configBytes === rejectionBaseline.configBytes,
+            buildPreserved: rejectionAfter.buildId === rejectionBaseline.buildId,
+            projectionPreserved:
+              rejectionAfter.projectionSha256 === rejectionBaseline.projectionSha256,
+          },
         },
       },
       gridLines: replacement.gridLineCount,
@@ -1208,7 +1298,7 @@ async function exerciseEngineInspection(chromium, url, primaryCandidateId, alter
   }
 }
 
-async function inspectGenerationPreset(cdp, presetId) {
+async function inspectGenerationPreset(cdp, presetId, requireBuildId = true) {
   const readout = await evaluateCdp(cdp, `(async () => {
     const response = await fetch('/api/generation-presets');
     const catalog = await response.json();
@@ -1270,8 +1360,8 @@ async function inspectGenerationPreset(cdp, presetId) {
     || readout.mismatches.length !== 0
     || JSON.stringify(readout.active) !== JSON.stringify([presetId])
     || readout.configState !== 'persisted'
-    || typeof readout.buildId !== 'string'
-    || readout.buildId.length === 0
+    || (requireBuildId
+      && (typeof readout.buildId !== 'string' || readout.buildId.length === 0))
     || !String(readout.summary).toLowerCase().includes(presetId)
   ) {
     throw new Error(
@@ -1281,6 +1371,39 @@ async function inspectGenerationPreset(cdp, presetId) {
     );
   }
   return readout;
+}
+
+async function captureGenerationPresetRejectionState(cdp) {
+  return evaluateCdp(cdp, `(async () => {
+    const configResponse = await fetch('/api/generation-config');
+    const configBytes = await configResponse.text();
+    const projection = document.querySelector('#layout')?.innerHTML ?? '';
+    const projectionDigest = await crypto.subtle.digest(
+      'SHA-256',
+      new TextEncoder().encode(projection),
+    );
+    const projectionSha256 = [...new Uint8Array(projectionDigest)]
+      .map((byte) => byte.toString(16).padStart(2, '0'))
+      .join('');
+    const selected = [...document.querySelectorAll('.candidate-button')]
+      .find((button) => button.dataset.selected === 'true');
+    const status = document.querySelector('#generation-config-status');
+    const presets = document.querySelector('#generation-config-presets');
+    return {
+      configBytes,
+      buildId: document.querySelector('#generation-config-panel')?.dataset.buildId ?? '',
+      projectionSha256,
+      projectionLength: projection.length,
+      selectedCandidateId: selected?.dataset.candidateId ?? '',
+      status: status?.textContent ?? '',
+      rejectionCode: status?.dataset.rejectionCode ?? '',
+      rejectionClassification: status?.dataset.rejectionClassification ?? '',
+      presetState: presets?.dataset.state ?? '',
+      applyingPresetCount: document.querySelectorAll(
+        '[data-generation-preset][data-state="applying"]',
+      ).length,
+    };
+  })()`);
 }
 
 async function exerciseCaTrace(chromium, evidence) {

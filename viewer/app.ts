@@ -1702,7 +1702,11 @@ async function applyGenerationConfig(
     }
     if (!response.ok || 'error' in responseBody) {
       const evidence = 'evidence' in responseBody ? responseBody.evidence : undefined;
+      if ('error' in responseBody && typeof responseBody.error === 'string') {
+        generationConfigStatus.dataset.rejectionCode = responseBody.error;
+      }
       if (isCatalogAwareGenerationExhaustion(evidence)) {
+        generationConfigStatus.dataset.rejectionClassification = evidence.classification;
         await generationTraceViewer.replaceRun(
           `Live exhausted · ${selection.candidateId}`,
           evidence.trace,
@@ -1810,6 +1814,10 @@ async function applyGenerationConfig(
 }
 
 function setGenerationConfigStatus(state: 'idle' | 'loading' | 'ready' | 'error', message: string): void {
+  if (state !== 'error') {
+    delete generationConfigStatus.dataset.rejectionCode;
+    delete generationConfigStatus.dataset.rejectionClassification;
+  }
   generationConfigStatus.dataset.state = state;
   generationConfigStatus.textContent = message;
 }
