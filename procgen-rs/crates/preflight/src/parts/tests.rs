@@ -2722,6 +2722,7 @@ mod piece_placement {
             GridCell { x: 1, y: 0 },
             GridCell { x: 0, y: 1 },
         ];
+        shape.reserved_cells = vec![GridCell { x: 2, y: 1 }];
         shape.exits[0].x = 2;
         shape.exits[0].y = 0;
         shape.scene_sockets = vec![
@@ -2799,6 +2800,33 @@ mod piece_placement {
             .diagnostics
             .iter()
             .any(|diagnostic| diagnostic.code == "catalog_scene_placements_stale"));
+
+        let mut forged_cells = placement.clone();
+        forged_cells.instances[0].reserved_cells[0].x += 10_000;
+        let rejected_cells = ProcgenCore::validate_placement_with_catalog(
+            &catalog,
+            &plan,
+            &shape_match,
+            &forged_cells,
+        );
+        assert!(!rejected_cells.ok);
+        assert!(rejected_cells
+            .diagnostics
+            .iter()
+            .any(|diagnostic| diagnostic.code == "catalog_instance_surface_stale"));
+
+        let mut forged_exit = placement.clone();
+        forged_exit.instances[0].exit_map[0].x += 1;
+        let rejected_exit = ProcgenCore::validate_placement_with_catalog(
+            &catalog,
+            &plan,
+            &shape_match,
+            &forged_exit,
+        );
+        assert!(rejected_exit
+            .diagnostics
+            .iter()
+            .any(|diagnostic| diagnostic.code == "catalog_instance_surface_stale"));
 
         let mut forged_match = shape_match.clone();
         forged_match.matches[0].candidate_rank += 1;

@@ -2384,6 +2384,8 @@ pub(crate) fn validate_piece_placement_with_catalog(
     }
 
     let mut instance_pieces = BTreeSet::new();
+    let mut expected_occupied_cells = Vec::new();
+    let mut expected_reserved_cells = Vec::new();
     for instance in &placement.instances {
         if !instance_pieces.insert(instance.piece_id.as_str()) {
             diagnostics.push(fatal(
@@ -2437,13 +2439,64 @@ pub(crate) fn validate_piece_placement_with_catalog(
                 ),
             ));
         }
-        let expected = transformed_scene_placements(
+        let expected_occupied = transform_cells(
+            &shape.footprint,
+            instance.transform.as_str(),
+            &instance.origin,
+        );
+        let expected_reserved = transform_cells(
+            &shape.reserved_cells,
+            instance.transform.as_str(),
+            &instance.origin,
+        );
+        let expected_exits = matched
+            .exit_map
+            .iter()
+            .map(|exit| MatchedExit {
+                requirement_exit_id: exit.requirement_exit_id.clone(),
+                catalog_exit_id: exit.catalog_exit_id.clone(),
+                x: exit.x + instance.origin.x,
+                y: exit.y + instance.origin.y,
+                direction: exit.direction.clone(),
+                width: exit.width,
+            })
+            .collect::<Vec<_>>();
+        let expected_scene = transformed_scene_placements(
             shape,
             instance.transform.as_str(),
             &instance.origin,
             instance.instance_id.as_str(),
         );
-        if instance.scene_placements != expected {
+        expected_occupied_cells.extend(expected_occupied.iter().map(|cell| PlacementCellRef {
+            instance_id: instance.instance_id.clone(),
+            x: cell.x,
+            y: cell.y,
+        }));
+        expected_reserved_cells.extend(expected_reserved.iter().map(|cell| PlacementCellRef {
+            instance_id: instance.instance_id.clone(),
+            x: cell.x,
+            y: cell.y,
+        }));
+        if serde_json::to_value(&instance.occupied_cells).ok()
+            != serde_json::to_value(&expected_occupied).ok()
+            || serde_json::to_value(&instance.reserved_cells).ok()
+                != serde_json::to_value(&expected_reserved).ok()
+            || serde_json::to_value(&instance.exit_map).ok()
+                != serde_json::to_value(&expected_exits).ok()
+            || serde_json::to_value(&instance.feature_placements).ok()
+                != serde_json::to_value(&matched.socket_map).ok()
+        {
+            diagnostics.push(fatal(
+                "catalog_instance_surface_stale",
+                None,
+                None,
+                format!(
+                    "Catalog-derived cells, exits, or feature placements for {} do not match the exact catalog shape, accepted match, transform, and origin.",
+                    instance.instance_id
+                ),
+            ));
+        }
+        if instance.scene_placements != expected_scene {
             diagnostics.push(fatal(
                 "catalog_scene_placements_stale",
                 None,
@@ -2461,6 +2514,18 @@ pub(crate) fn validate_piece_placement_with_catalog(
             None,
             None,
             "Every accepted matched piece must have exactly one placement instance.",
+        ));
+    }
+    if serde_json::to_value(&placement.occupied_cells).ok()
+        != serde_json::to_value(&expected_occupied_cells).ok()
+        || serde_json::to_value(&placement.reserved_cells).ok()
+            != serde_json::to_value(&expected_reserved_cells).ok()
+    {
+        diagnostics.push(fatal(
+            "catalog_aggregate_cells_stale",
+            None,
+            None,
+            "Aggregate occupied and reserved cells must exactly match the recomputed catalog-derived instance surfaces.",
         ));
     }
 
