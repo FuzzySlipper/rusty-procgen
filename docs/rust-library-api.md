@@ -62,9 +62,11 @@ classification (`catalog_coverage_gap`, `generation_infeasibility`,
 `search_budget_exhaustion`, or `outcome_constraint_miss`). The runner does not
 mutate any caller value and does not interpret provenance labels as paths.
 
-`ProcgenCore::validate_placement_with_catalog` accepts both ordinary
-match/assemble chains and the catalog-aware runner's accepted chain. For the
-latter it revalidates the generated match against the exact final plan,
+`ProcgenCore::validate_placement_with_catalog` accepts the immutable source
+plan and materialized final plan so it can validate both ordinary
+match/assemble chains and the catalog-aware runner's accepted chain. Ordinary
+callers pass their plan in both positions. For catalog-aware chains it
+revalidates the generated match against the source plan, exact final plan,
 catalog-search decisions, transformed catalog exits and sockets before
 recomputing every per-instance and aggregate placement surface. It does not
 feed catalog-aware evidence back through the ordinary matcher because the

@@ -31,15 +31,15 @@ use crate::{
     inspect_shape_catalog, intermediate_breakdown, match_shapes, plan_physical_connections,
     realization_scale_multiplier, repair_report, run_catalog_aware_generation,
     run_catalog_aware_generation_traced, score_graph, spatial_intent_report, validate_built_flow,
-    validate_catalog_aware_piece_placement_with_catalog, validate_geometry_2d,
-    validate_geometry_layout_policy, validate_graph, validate_intermediate_breakdown,
-    validate_piece_placement, validate_piece_placement_with_catalog, BuildAssembleArgs,
-    BuildEmitPiecePlanArgs, BuildMatchShapesArgs, BuildValidateFlowArgs, Candidate,
-    CatalogAwareGenerationInput, CatalogInspectionReport, Diagnostic, Geometry2dArtifact,
-    GeometryEmit2dArgs, GeometryLayoutPolicy, GraphAnalysisReport, IntermediateBreakdown,
-    LayoutArtifact, PhysicalConnectionPlan, PhysicalConnectionPlanArgs, PieceBuildPlan,
-    PiecePlacement, PieceShapeMatchReport, RepairReport, RuleCompatibilityReport, ScoreReport,
-    SeedIntent, Severity, ShapeCatalog, SpatialIntentReport, ValidationReport,
+    validate_geometry_2d, validate_geometry_layout_policy, validate_graph,
+    validate_intermediate_breakdown, validate_piece_placement,
+    validate_piece_placement_with_catalog, BuildAssembleArgs, BuildEmitPiecePlanArgs,
+    BuildMatchShapesArgs, BuildValidateFlowArgs, Candidate, CatalogAwareGenerationInput,
+    CatalogInspectionReport, Diagnostic, Geometry2dArtifact, GeometryEmit2dArgs,
+    GeometryLayoutPolicy, GraphAnalysisReport, IntermediateBreakdown, LayoutArtifact,
+    PhysicalConnectionPlan, PhysicalConnectionPlanArgs, PieceBuildPlan, PiecePlacement,
+    PieceShapeMatchReport, RepairReport, RuleCompatibilityReport, ScoreReport, SeedIntent,
+    Severity, ShapeCatalog, SpatialIntentReport, ValidationReport,
 };
 
 pub use crate::{CorridorRealization, GraphRule, GridConnectivity, RepairAction};
@@ -298,35 +298,18 @@ impl ProcgenCore {
         validate_piece_placement(placement)
     }
 
-    /// Validate a placement against the exact catalog and accepted shape-match
-    /// artifacts that produced it, including transformed scene sockets.
+    /// Validate a placement against the exact catalog, immutable source plan,
+    /// materialized plan, and accepted shape-match artifacts that produced it.
+    /// Ordinary chains pass the same plan for both plan arguments; catalog-aware
+    /// chains must pass the pre-materialization source plan returned to the runner.
     pub fn validate_placement_with_catalog(
-        catalog: &ShapeCatalog,
-        plan: &PieceBuildPlan,
-        shape_match: &PieceShapeMatchReport,
-        placement: &PiecePlacement,
-    ) -> ValidationReport {
-        validate_piece_placement_with_catalog(catalog, plan, shape_match, placement)
-    }
-
-    /// Validate a catalog-aware placement against both its immutable source
-    /// plan and its materialized final plan. The source plan is required to
-    /// freshly recompute room candidate ordering that legitimately depends on
-    /// pre-materialization corridor geometry.
-    pub fn validate_catalog_aware_placement_with_catalog(
         catalog: &ShapeCatalog,
         source_plan: &PieceBuildPlan,
         plan: &PieceBuildPlan,
         shape_match: &PieceShapeMatchReport,
         placement: &PiecePlacement,
     ) -> ValidationReport {
-        validate_catalog_aware_piece_placement_with_catalog(
-            catalog,
-            source_plan,
-            plan,
-            shape_match,
-            placement,
-        )
+        validate_piece_placement_with_catalog(catalog, source_plan, plan, shape_match, placement)
     }
 
     pub fn validate_built_flow(

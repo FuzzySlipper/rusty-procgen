@@ -2312,15 +2312,6 @@ pub(crate) fn validate_piece_placement(placement: &PiecePlacement) -> Validation
 
 pub(crate) fn validate_piece_placement_with_catalog(
     catalog: &ShapeCatalog,
-    plan: &PieceBuildPlan,
-    shape_match: &PieceShapeMatchReport,
-    placement: &PiecePlacement,
-) -> ValidationReport {
-    validate_piece_placement_with_catalog_context(catalog, None, plan, shape_match, placement)
-}
-
-pub(crate) fn validate_catalog_aware_piece_placement_with_catalog(
-    catalog: &ShapeCatalog,
     source_plan: &PieceBuildPlan,
     plan: &PieceBuildPlan,
     shape_match: &PieceShapeMatchReport,

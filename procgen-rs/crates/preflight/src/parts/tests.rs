@@ -2787,14 +2787,24 @@ mod piece_placement {
                 && scene.y == instance.origin.y
                 && scene.facing == SceneFacing::East
         }));
-        let accepted =
-            ProcgenCore::validate_placement_with_catalog(&catalog, &plan, &shape_match, &placement);
+        let accepted = ProcgenCore::validate_placement_with_catalog(
+            &catalog,
+            &plan,
+            &plan,
+            &shape_match,
+            &placement,
+        );
         assert!(accepted.ok, "{:?}", accepted.diagnostics);
 
         let mut forged = placement.clone();
         forged.instances[0].scene_placements[0].x += 1;
-        let rejected =
-            ProcgenCore::validate_placement_with_catalog(&catalog, &plan, &shape_match, &forged);
+        let rejected = ProcgenCore::validate_placement_with_catalog(
+            &catalog,
+            &plan,
+            &plan,
+            &shape_match,
+            &forged,
+        );
         assert!(!rejected.ok);
         assert!(rejected
             .diagnostics
@@ -2805,6 +2815,7 @@ mod piece_placement {
         forged_cells.instances[0].reserved_cells[0].x += 10_000;
         let rejected_cells = ProcgenCore::validate_placement_with_catalog(
             &catalog,
+            &plan,
             &plan,
             &shape_match,
             &forged_cells,
@@ -2820,6 +2831,7 @@ mod piece_placement {
         let rejected_exit = ProcgenCore::validate_placement_with_catalog(
             &catalog,
             &plan,
+            &plan,
             &shape_match,
             &forged_exit,
         );
@@ -2832,6 +2844,7 @@ mod piece_placement {
         forged_match.matches[0].candidate_rank += 1;
         let stale_match = ProcgenCore::validate_placement_with_catalog(
             &catalog,
+            &plan,
             &plan,
             &forged_match,
             &placement,

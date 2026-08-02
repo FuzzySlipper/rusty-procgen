@@ -245,7 +245,7 @@ fn public_catalog_aware_runner_is_filesystem_free_atomic_and_cli_equivalent() {
     let accepted_plan = accepted.piece_plan.as_ref().expect("accepted plan");
     let accepted_match = accepted.shape_match.as_ref().expect("accepted match");
     let accepted_placement = accepted.placement.as_ref().expect("accepted placement");
-    let validation = ProcgenCore::validate_catalog_aware_placement_with_catalog(
+    let validation = ProcgenCore::validate_placement_with_catalog(
         &catalog,
         &plan,
         accepted_plan,
@@ -256,7 +256,7 @@ fn public_catalog_aware_runner_is_filesystem_free_atomic_and_cli_equivalent() {
 
     let mut forged_match = accepted_match.clone();
     forged_match.matches[0].candidate_rank += 1;
-    let forged_match_validation = ProcgenCore::validate_catalog_aware_placement_with_catalog(
+    let forged_match_validation = ProcgenCore::validate_placement_with_catalog(
         &catalog,
         &plan,
         accepted_plan,
@@ -277,7 +277,7 @@ fn public_catalog_aware_runner_is_filesystem_free_atomic_and_cli_equivalent() {
         .expect("catalog search evidence")
         .selected[0]
         .candidate_rank += 1;
-    let synchronized_validation = ProcgenCore::validate_catalog_aware_placement_with_catalog(
+    let synchronized_validation = ProcgenCore::validate_placement_with_catalog(
         &catalog,
         &plan,
         accepted_plan,
@@ -300,7 +300,7 @@ fn public_catalog_aware_runner_is_filesystem_free_atomic_and_cli_equivalent() {
         .next()
         .expect("catalog-aware fixture occupied cell");
     cell.x += 10_000;
-    let forged_cell_validation = ProcgenCore::validate_catalog_aware_placement_with_catalog(
+    let forged_cell_validation = ProcgenCore::validate_placement_with_catalog(
         &catalog,
         &plan,
         accepted_plan,

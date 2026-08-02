@@ -300,7 +300,9 @@ Important instance fields:
   rotation/reflection and translated by the instance origin.
 
 `ProcgenCore::validate_placement_with_catalog` revalidates the exact catalog,
-piece plan, accepted shape-match seed/result, and placement chain. It rejects missing/extra instances,
+immutable source plan, materialized piece plan, accepted shape-match
+seed/result, and placement chain. Ordinary chains pass the same plan as source
+and materialized input. It rejects missing/extra instances,
 shape or transform substitution, scene placements outside their owning
 footprint, duplicate or unordered placement identities, invalid bounded light
 parameters, and any stale/tampered derived placement. This is stronger than
