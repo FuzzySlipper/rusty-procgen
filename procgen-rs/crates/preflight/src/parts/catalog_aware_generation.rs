@@ -2028,65 +2028,14 @@ pub(crate) fn catalog_route_piece(
         tags: vec!["catalog_route".to_owned(), kind.to_owned()],
         placement_hints: Vec::new(),
     };
-    for shape in &catalog.shapes {
-        if !shape
-            .piece_kinds
+    if let Some(matched) = catalog_route_match_for_requirement(catalog, &requirement, seed) {
+        let shape = catalog
+            .shapes
             .iter()
-            .any(|piece_kind| piece_kind == kind)
-            || shape.footprint.len() != 1
-        {
-            continue;
-        }
-        for transform in &shape.allowed_transforms {
-            let exits = transformed_catalog_exits(shape, transform);
-            let back = exits.iter().find(|exit| exit.direction == back_direction);
-            let forward = exits
-                .iter()
-                .find(|exit| exit.direction == forward_direction);
-            let (Some(back), Some(forward)) = (back, forward) else {
-                continue;
-            };
-            if back.id == forward.id {
-                continue;
-            }
-            let exit_map = vec![
-                MatchedExit {
-                    requirement_exit_id: requirement.required_exits[0].id.clone(),
-                    catalog_exit_id: back.id.clone(),
-                    x: back.x,
-                    y: back.y,
-                    direction: back.direction.clone(),
-                    width: back.width,
-                },
-                MatchedExit {
-                    requirement_exit_id: requirement.required_exits[1].id.clone(),
-                    catalog_exit_id: forward.id.clone(),
-                    x: forward.x,
-                    y: forward.y,
-                    direction: forward.direction.clone(),
-                    width: forward.width,
-                },
-            ];
-            return Ok((
-                requirement,
-                MatchedPiece {
-                    piece_id: piece_id.to_owned(),
-                    requirement_kind: kind.to_owned(),
-                    shape_id: shape.shape_id.clone(),
-                    transform: transform.clone(),
-                    score: 1_000,
-                    candidate_rank: 0,
-                    candidate_count: 1,
-                    source_requirement_ref: format!(
-                        "catalogAware:{}:{}:{}",
-                        section.section, seed, piece_id
-                    ),
-                    exit_map,
-                    socket_map: Vec::new(),
-                },
-                shape.clone(),
-            ));
-        }
+            .find(|shape| shape.shape_id == matched.shape_id)
+            .expect("catalog route match must name its source shape")
+            .clone();
+        return Ok((requirement, matched, shape));
     }
     Err(CatalogAwareFailure {
         classification: "catalog_coverage_gap".to_owned(),
@@ -2099,6 +2048,91 @@ pub(crate) fn catalog_route_piece(
         sections_routed: 0,
         routing_states: 0,
     })
+}
+
+pub(crate) fn catalog_route_match_for_requirement(
+    catalog: &ShapeCatalog,
+    requirement: &PieceRequirement,
+    seed: u64,
+) -> Option<MatchedPiece> {
+    let section = requirement
+        .source_refs
+        .iter()
+        .find_map(|source| source.strip_prefix("physicalSection:"))?;
+    let [back_requirement, forward_requirement] = requirement.required_exits.as_slice() else {
+        return None;
+    };
+    if back_requirement.direction == forward_requirement.direction {
+        return None;
+    }
+    let expected_kind = if opposite_direction(back_requirement.direction.as_str())
+        == forward_requirement.direction
+    {
+        "corridor"
+    } else {
+        "bend"
+    };
+    if requirement.kind != expected_kind {
+        return None;
+    }
+    for shape in &catalog.shapes {
+        if !shape
+            .piece_kinds
+            .iter()
+            .any(|piece_kind| piece_kind == expected_kind)
+            || shape.footprint.len() != 1
+        {
+            continue;
+        }
+        for transform in &shape.allowed_transforms {
+            let exits = transformed_catalog_exits(shape, transform);
+            let back = exits
+                .iter()
+                .find(|exit| exit.direction == back_requirement.direction);
+            let forward = exits
+                .iter()
+                .find(|exit| exit.direction == forward_requirement.direction);
+            let (Some(back), Some(forward)) = (back, forward) else {
+                continue;
+            };
+            if back.id == forward.id {
+                continue;
+            }
+            return Some(MatchedPiece {
+                piece_id: requirement.piece_id.clone(),
+                requirement_kind: expected_kind.to_owned(),
+                shape_id: shape.shape_id.clone(),
+                transform: transform.clone(),
+                score: 1_000,
+                candidate_rank: 0,
+                candidate_count: 1,
+                source_requirement_ref: format!(
+                    "catalogAware:{section}:{seed}:{}",
+                    requirement.piece_id
+                ),
+                exit_map: vec![
+                    MatchedExit {
+                        requirement_exit_id: back_requirement.id.clone(),
+                        catalog_exit_id: back.id.clone(),
+                        x: back.x,
+                        y: back.y,
+                        direction: back.direction.clone(),
+                        width: back.width,
+                    },
+                    MatchedExit {
+                        requirement_exit_id: forward_requirement.id.clone(),
+                        catalog_exit_id: forward.id.clone(),
+                        x: forward.x,
+                        y: forward.y,
+                        direction: forward.direction.clone(),
+                        width: forward.width,
+                    },
+                ],
+                socket_map: Vec::new(),
+            });
+        }
+    }
+    None
 }
 
 pub(crate) fn catalog_piece_instance(

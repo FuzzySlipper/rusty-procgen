@@ -245,8 +245,9 @@ fn public_catalog_aware_runner_is_filesystem_free_atomic_and_cli_equivalent() {
     let accepted_plan = accepted.piece_plan.as_ref().expect("accepted plan");
     let accepted_match = accepted.shape_match.as_ref().expect("accepted match");
     let accepted_placement = accepted.placement.as_ref().expect("accepted placement");
-    let validation = ProcgenCore::validate_placement_with_catalog(
+    let validation = ProcgenCore::validate_catalog_aware_placement_with_catalog(
         &catalog,
+        &plan,
         accepted_plan,
         accepted_match,
         accepted_placement,
@@ -255,8 +256,9 @@ fn public_catalog_aware_runner_is_filesystem_free_atomic_and_cli_equivalent() {
 
     let mut forged_match = accepted_match.clone();
     forged_match.matches[0].candidate_rank += 1;
-    let forged_match_validation = ProcgenCore::validate_placement_with_catalog(
+    let forged_match_validation = ProcgenCore::validate_catalog_aware_placement_with_catalog(
         &catalog,
+        &plan,
         accepted_plan,
         &forged_match,
         accepted_placement,
@@ -266,6 +268,30 @@ fn public_catalog_aware_runner_is_filesystem_free_atomic_and_cli_equivalent() {
         .iter()
         .any(|diagnostic| diagnostic.code == "catalog_shape_match_stale"));
 
+    let mut synchronized_match = accepted_match.clone();
+    synchronized_match.matches[0].candidate_rank += 1;
+    let mut synchronized_placement = accepted_placement.clone();
+    synchronized_placement
+        .catalog_search
+        .as_mut()
+        .expect("catalog search evidence")
+        .selected[0]
+        .candidate_rank += 1;
+    let synchronized_validation = ProcgenCore::validate_catalog_aware_placement_with_catalog(
+        &catalog,
+        &plan,
+        accepted_plan,
+        &synchronized_match,
+        &synchronized_placement,
+    );
+    assert!(
+        synchronized_validation
+            .diagnostics
+            .iter()
+            .any(|diagnostic| diagnostic.code == "catalog_shape_match_stale"),
+        "validator trusted matching forged catalog-aware rank receipts"
+    );
+
     let mut forged_placement = accepted_placement.clone();
     let cell = forged_placement
         .instances
@@ -274,8 +300,9 @@ fn public_catalog_aware_runner_is_filesystem_free_atomic_and_cli_equivalent() {
         .next()
         .expect("catalog-aware fixture occupied cell");
     cell.x += 10_000;
-    let forged_cell_validation = ProcgenCore::validate_placement_with_catalog(
+    let forged_cell_validation = ProcgenCore::validate_catalog_aware_placement_with_catalog(
         &catalog,
+        &plan,
         accepted_plan,
         accepted_match,
         &forged_placement,

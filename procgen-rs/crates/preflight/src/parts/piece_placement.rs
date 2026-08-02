@@ -2316,6 +2316,32 @@ pub(crate) fn validate_piece_placement_with_catalog(
     shape_match: &PieceShapeMatchReport,
     placement: &PiecePlacement,
 ) -> ValidationReport {
+    validate_piece_placement_with_catalog_context(catalog, None, plan, shape_match, placement)
+}
+
+pub(crate) fn validate_catalog_aware_piece_placement_with_catalog(
+    catalog: &ShapeCatalog,
+    source_plan: &PieceBuildPlan,
+    plan: &PieceBuildPlan,
+    shape_match: &PieceShapeMatchReport,
+    placement: &PiecePlacement,
+) -> ValidationReport {
+    validate_piece_placement_with_catalog_context(
+        catalog,
+        Some(source_plan),
+        plan,
+        shape_match,
+        placement,
+    )
+}
+
+fn validate_piece_placement_with_catalog_context(
+    catalog: &ShapeCatalog,
+    source_plan: Option<&PieceBuildPlan>,
+    plan: &PieceBuildPlan,
+    shape_match: &PieceShapeMatchReport,
+    placement: &PiecePlacement,
+) -> ValidationReport {
     let mut diagnostics = validate_piece_placement(placement).diagnostics;
     diagnostics
         .extend(inspect_shape_catalog(catalog, Path::new("memory/shape-catalog.json")).diagnostics);
@@ -2335,7 +2361,9 @@ pub(crate) fn validate_piece_placement_with_catalog(
     }
 
     let match_is_fresh = if shape_match.match_id.ends_with(".catalog_aware") {
-        validate_catalog_aware_shape_match(catalog, plan, shape_match, placement)
+        source_plan.is_some_and(|source_plan| {
+            validate_catalog_aware_shape_match(catalog, source_plan, plan, shape_match, placement)
+        })
     } else {
         let recomputed_match = match_shapes(
             catalog,
@@ -2551,6 +2579,7 @@ pub(crate) fn validate_piece_placement_with_catalog(
 
 fn validate_catalog_aware_shape_match(
     catalog: &ShapeCatalog,
+    source_plan: &PieceBuildPlan,
     plan: &PieceBuildPlan,
     shape_match: &PieceShapeMatchReport,
     placement: &PiecePlacement,
@@ -2563,6 +2592,8 @@ fn validate_catalog_aware_shape_match(
         || !shape_match.rejections.is_empty()
         || !shape_match.diagnostics.is_empty()
         || shape_match.matches.len() != plan.requirements.len()
+        || source_plan.plan_id != plan.plan_id
+        || source_plan.candidate_id != plan.candidate_id
     {
         return false;
     }
@@ -2590,44 +2621,49 @@ fn validate_catalog_aware_shape_match(
         let Some(decision) = decisions.get(matched.piece_id.as_str()).copied() else {
             return false;
         };
-        let (Ok(candidate_rank), Ok(candidate_count)) = (
-            u32::try_from(matched.candidate_rank),
-            u32::try_from(matched.candidate_count),
-        ) else {
+        let expected_match = if requirement
+            .source_refs
+            .iter()
+            .any(|source| source.starts_with("physicalSection:"))
+        {
+            catalog_route_match_for_requirement(catalog, requirement, shape_match.seed)
+        } else {
+            let Some(source_requirement) = source_plan
+                .requirements
+                .iter()
+                .find(|candidate| candidate.piece_id == requirement.piece_id)
+            else {
+                return false;
+            };
+            if serde_json::to_value(source_requirement).ok()
+                != serde_json::to_value(requirement).ok()
+            {
+                return false;
+            }
+            catalog_exact_room_candidates(
+                catalog,
+                source_plan,
+                source_requirement,
+                shape_match.seed,
+                u32::MAX,
+            )
+            .into_iter()
+            .next()
+        };
+        let Some(expected_match) = expected_match else {
             return false;
         };
+        let expected_decision = catalog_decision(&expected_match, decision.origin.clone());
         if !observed.insert(matched.piece_id.as_str())
-            || matched.requirement_kind != requirement.kind
-            || decision.shape_id != matched.shape_id
-            || decision.transform != matched.transform
-            || decision.candidate_rank != candidate_rank
-            || decision.candidate_count != candidate_count
+            || serde_json::to_value(matched).ok() != serde_json::to_value(&expected_match).ok()
+            || decision != &expected_decision
         {
             return false;
         }
         if !catalog_aware_match_surface_is_valid(catalog, requirement, matched) {
             return false;
         }
-        let valid_source = if let Some(section_ref) = requirement
-            .source_refs
-            .iter()
-            .find_map(|source| source.strip_prefix("physicalSection:"))
-        {
-            matched.score == 1_000
-                && matched.candidate_rank == 0
-                && matched.candidate_count == 1
-                && matched.source_requirement_ref
-                    == format!(
-                        "catalogAware:{section_ref}:{}:{}",
-                        shape_match.seed, matched.piece_id
-                    )
-        } else {
-            matched.source_requirement_ref.starts_with(&format!(
-                "piecePlan:{};requirement:{};semanticFacingOffset:",
-                plan.plan_id, matched.piece_id
-            ))
-        };
-        valid_source
+        true
     })
 }
 
