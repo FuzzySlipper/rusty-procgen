@@ -148,6 +148,7 @@
     "viewer_generation_preset_definitions.v1",
     "viewer_generation_presets.v1",
     "viewer_generation_preset_rebuild.v1",
+    "validation.catalog_placement.v1",
     "generation_preset_matrix_suite.v1",
     "evidence.generation_preset_matrix.v1",
     "ca_scenario_suite.v1",

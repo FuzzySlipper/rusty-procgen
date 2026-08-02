@@ -944,6 +944,8 @@ pub struct PieceInstance {
     pub reserved_cells: Vec<GridCell>,
     pub exit_map: Vec<MatchedExit>,
     pub feature_placements: Vec<MatchedSocket>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub scene_placements: Vec<ScenePlacement>,
     pub source_requirement_ref: String,
     pub source_refs: Vec<String>,
     pub tags: Vec<String>,
@@ -1159,6 +1161,8 @@ pub struct CatalogShape {
     pub allowed_transforms: Vec<String>,
     #[serde(default)]
     pub feature_sockets: Vec<FeatureSocket>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub scene_sockets: Vec<SceneSocket>,
     pub tags: Vec<String>,
 }
 
@@ -1193,6 +1197,76 @@ pub struct FeatureSocket {
     pub tags: Vec<String>,
 }
 
+/// Asset-agnostic scene content attached to a catalog shape.
+///
+/// Procgen owns the deterministic placement of this symbolic content. A
+/// downstream product resolves `content_id` values and light presentation;
+/// this contract never contains asset URLs or renderer handles.
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct SceneSocket {
+    pub id: String,
+    pub x: i32,
+    pub y: i32,
+    pub facing: SceneFacing,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub tags: Vec<String>,
+    pub content: SceneSocketContent,
+}
+
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[serde(
+    tag = "kind",
+    rename_all = "snake_case",
+    rename_all_fields = "camelCase",
+    deny_unknown_fields
+)]
+pub enum SceneSocketContent {
+    Prop {
+        content_id: String,
+    },
+    PointLight {
+        color_rgb: String,
+        intensity_milli: u32,
+        range_cells: u32,
+    },
+}
+
+#[derive(Clone, Copy, Debug, Deserialize, Eq, Ord, PartialEq, PartialOrd, Serialize)]
+#[serde(rename_all = "snake_case")]
+pub enum SceneFacing {
+    North,
+    East,
+    South,
+    West,
+}
+
+impl SceneFacing {
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::North => "north",
+            Self::East => "east",
+            Self::South => "south",
+            Self::West => "west",
+        }
+    }
+}
+
+/// Absolute, transformed scene placement emitted for one piece instance.
+#[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct ScenePlacement {
+    pub id: String,
+    pub instance_id: String,
+    pub source_socket_id: String,
+    pub x: i32,
+    pub y: i32,
+    pub facing: SceneFacing,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub tags: Vec<String>,
+    pub content: SceneSocketContent,
+}
+
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct CatalogInspectionReport {
@@ -1205,6 +1279,8 @@ pub struct CatalogInspectionReport {
     pub catalog_search_policy: CatalogSearchPolicy,
     pub piece_kinds: Vec<String>,
     pub feature_sockets: Vec<String>,
+    #[serde(default)]
+    pub scene_socket_kinds: Vec<String>,
     pub exit_directions: Vec<String>,
     pub transforms: Vec<String>,
     pub shapes: Vec<CatalogShapeSummary>,
@@ -1220,6 +1296,8 @@ pub struct CatalogShapeSummary {
     pub reserved_cells: usize,
     pub exit_count: usize,
     pub feature_socket_kinds: Vec<String>,
+    #[serde(default)]
+    pub scene_socket_count: usize,
     pub allowed_transforms: Vec<String>,
     pub tags: Vec<String>,
 }

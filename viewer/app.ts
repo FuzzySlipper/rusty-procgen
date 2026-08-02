@@ -426,9 +426,28 @@ interface PieceInstance {
   readonly reservedCells: readonly GridCell[];
   readonly exitMap: readonly MatchedExit[];
   readonly featurePlacements: readonly MatchedSocket[];
+  readonly scenePlacements?: readonly ScenePlacement[];
   readonly sourceRequirementRef: string;
   readonly sourceRefs: readonly string[];
   readonly tags: readonly string[];
+}
+
+interface ScenePlacement {
+  readonly id: string;
+  readonly instanceId: string;
+  readonly sourceSocketId: string;
+  readonly x: number;
+  readonly y: number;
+  readonly facing: 'north' | 'east' | 'south' | 'west';
+  readonly tags: readonly string[];
+  readonly content:
+    | { readonly kind: 'prop'; readonly contentId: string }
+    | {
+        readonly kind: 'point_light';
+        readonly colorRgb: string;
+        readonly intensityMilli: number;
+        readonly rangeCells: number;
+      };
 }
 
 interface GridCell {

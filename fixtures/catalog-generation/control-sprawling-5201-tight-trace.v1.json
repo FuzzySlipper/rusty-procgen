@@ -6,7 +6,7 @@
     "candidateHash": "fnv1a64:4097f06420669760",
     "sourceGeometryHash": "fnv1a64:5f3797719df17896",
     "sourcePlanHash": "fnv1a64:16c0bf58a94b0207",
-    "catalogHash": "fnv1a64:d72ee3025af525a6",
+    "catalogHash": "fnv1a64:ddfb37b85e0bd2cb",
     "generationPolicyHash": "fnv1a64:aa195a02da2c448a",
     "provenanceHash": "fnv1a64:8eff38b204e6af9f"
   },
@@ -37,20 +37,20 @@
     "maxEventBodyBytes": 1048576,
     "maxVisualCells": 131072
   },
-  "rootHash": "fnv1a64:cff14ae02e507c88",
+  "rootHash": "fnv1a64:4f24b2435318fd94",
   "events": [
     {
       "index": 0,
       "attempt": null,
-      "previousHash": "fnv1a64:cff14ae02e507c88",
-      "eventHash": "fnv1a64:6e8cb9271582e741",
+      "previousHash": "fnv1a64:4f24b2435318fd94",
+      "eventHash": "fnv1a64:b9ec649ede23736a",
       "body": {
         "type": "input_bound",
         "inputHashes": {
           "candidateHash": "fnv1a64:4097f06420669760",
           "sourceGeometryHash": "fnv1a64:5f3797719df17896",
           "sourcePlanHash": "fnv1a64:16c0bf58a94b0207",
-          "catalogHash": "fnv1a64:d72ee3025af525a6",
+          "catalogHash": "fnv1a64:ddfb37b85e0bd2cb",
           "generationPolicyHash": "fnv1a64:aa195a02da2c448a",
           "provenanceHash": "fnv1a64:8eff38b204e6af9f"
         }
@@ -59,8 +59,8 @@
     {
       "index": 1,
       "attempt": 0,
-      "previousHash": "fnv1a64:6e8cb9271582e741",
-      "eventHash": "fnv1a64:4c28e0e1b1073b47",
+      "previousHash": "fnv1a64:b9ec649ede23736a",
+      "eventHash": "fnv1a64:3aed305e5dc734b8",
       "body": {
         "type": "attempt_started",
         "roomCompactionCells": 0
@@ -69,8 +69,8 @@
     {
       "index": 2,
       "attempt": 0,
-      "previousHash": "fnv1a64:4c28e0e1b1073b47",
-      "eventHash": "fnv1a64:d175376dee998fca",
+      "previousHash": "fnv1a64:3aed305e5dc734b8",
+      "eventHash": "fnv1a64:0ac550cda2c1fa78",
       "body": {
         "type": "room_domain_evaluated",
         "pieceId": "piece.room.room_region_start",
@@ -178,8 +178,8 @@
     {
       "index": 3,
       "attempt": 0,
-      "previousHash": "fnv1a64:d175376dee998fca",
-      "eventHash": "fnv1a64:708538f963fb8e09",
+      "previousHash": "fnv1a64:0ac550cda2c1fa78",
+      "eventHash": "fnv1a64:fa3701d57c1154ce",
       "body": {
         "type": "room_placed",
         "placement": {
@@ -980,8 +980,8 @@
     {
       "index": 4,
       "attempt": 0,
-      "previousHash": "fnv1a64:708538f963fb8e09",
-      "eventHash": "fnv1a64:989e1e4c344a829b",
+      "previousHash": "fnv1a64:fa3701d57c1154ce",
+      "eventHash": "fnv1a64:9a5b3ffbd2a803aa",
       "body": {
         "type": "room_domain_evaluated",
         "pieceId": "piece.room.room_region_junction_merge_1",
@@ -1017,8 +1017,8 @@
     {
       "index": 5,
       "attempt": 0,
-      "previousHash": "fnv1a64:989e1e4c344a829b",
-      "eventHash": "fnv1a64:62f0c122b482f4b5",
+      "previousHash": "fnv1a64:9a5b3ffbd2a803aa",
+      "eventHash": "fnv1a64:e3d69028e99034d2",
       "body": {
         "type": "room_placed",
         "placement": {
@@ -1219,8 +1219,8 @@
     {
       "index": 6,
       "attempt": 0,
-      "previousHash": "fnv1a64:62f0c122b482f4b5",
-      "eventHash": "fnv1a64:a7ce822b1480085e",
+      "previousHash": "fnv1a64:e3d69028e99034d2",
+      "eventHash": "fnv1a64:a345ade2744e46f4",
       "body": {
         "type": "room_domain_evaluated",
         "pieceId": "piece.room.room_region_hub_central_1",
@@ -1328,8 +1328,8 @@
     {
       "index": 7,
       "attempt": 0,
-      "previousHash": "fnv1a64:a7ce822b1480085e",
-      "eventHash": "fnv1a64:376609dd5422ad1b",
+      "previousHash": "fnv1a64:a345ade2744e46f4",
+      "eventHash": "fnv1a64:79660dca7dc96def",
       "body": {
         "type": "room_placed",
         "placement": {
@@ -2130,8 +2130,8 @@
     {
       "index": 8,
       "attempt": 0,
-      "previousHash": "fnv1a64:376609dd5422ad1b",
-      "eventHash": "fnv1a64:554057ec87c12fe1",
+      "previousHash": "fnv1a64:79660dca7dc96def",
+      "eventHash": "fnv1a64:d3463041a330d0b5",
       "body": {
         "type": "room_domain_evaluated",
         "pieceId": "piece.room.room_region_gate_locked_1",
@@ -2167,8 +2167,8 @@
     {
       "index": 9,
       "attempt": 0,
-      "previousHash": "fnv1a64:554057ec87c12fe1",
-      "eventHash": "fnv1a64:3859ea3cd664fde8",
+      "previousHash": "fnv1a64:d3463041a330d0b5",
+      "eventHash": "fnv1a64:03731f3ca94422f4",
       "body": {
         "type": "room_placed",
         "placement": {
@@ -2369,8 +2369,8 @@
     {
       "index": 10,
       "attempt": 0,
-      "previousHash": "fnv1a64:3859ea3cd664fde8",
-      "eventHash": "fnv1a64:5e2827545317993e",
+      "previousHash": "fnv1a64:03731f3ca94422f4",
+      "eventHash": "fnv1a64:2298292fe719b3ea",
       "body": {
         "type": "room_domain_evaluated",
         "pieceId": "piece.room.room_region_key_gate_1",
@@ -2478,8 +2478,8 @@
     {
       "index": 11,
       "attempt": 0,
-      "previousHash": "fnv1a64:5e2827545317993e",
-      "eventHash": "fnv1a64:7de2e4ee9ea6c8a3",
+      "previousHash": "fnv1a64:2298292fe719b3ea",
+      "eventHash": "fnv1a64:e090fd89fe1424b4",
       "body": {
         "type": "room_placed",
         "placement": {
@@ -2824,8 +2824,8 @@
     {
       "index": 12,
       "attempt": 0,
-      "previousHash": "fnv1a64:7de2e4ee9ea6c8a3",
-      "eventHash": "fnv1a64:51a1e786127b4401",
+      "previousHash": "fnv1a64:e090fd89fe1424b4",
+      "eventHash": "fnv1a64:144dfa63eafb7c6d",
       "body": {
         "type": "room_domain_evaluated",
         "pieceId": "piece.room.room_region_goal",
@@ -2885,8 +2885,8 @@
     {
       "index": 13,
       "attempt": 0,
-      "previousHash": "fnv1a64:51a1e786127b4401",
-      "eventHash": "fnv1a64:320557a7d3def7b5",
+      "previousHash": "fnv1a64:144dfa63eafb7c6d",
+      "eventHash": "fnv1a64:ade2dc93e04f2277",
       "body": {
         "type": "room_placed",
         "placement": {
@@ -3087,8 +3087,8 @@
     {
       "index": 14,
       "attempt": 0,
-      "previousHash": "fnv1a64:320557a7d3def7b5",
-      "eventHash": "fnv1a64:6fbce54a85d641dd",
+      "previousHash": "fnv1a64:ade2dc93e04f2277",
+      "eventHash": "fnv1a64:ed2f6ef8e78ed949",
       "body": {
         "type": "room_domain_evaluated",
         "pieceId": "piece.room.room_region_resource_clue_1",
@@ -3112,8 +3112,8 @@
     {
       "index": 15,
       "attempt": 0,
-      "previousHash": "fnv1a64:6fbce54a85d641dd",
-      "eventHash": "fnv1a64:d1af3cb0b8d36659",
+      "previousHash": "fnv1a64:ed2f6ef8e78ed949",
+      "eventHash": "fnv1a64:27bb8ee23344ec70",
       "body": {
         "type": "room_placed",
         "placement": {
@@ -3158,8 +3158,8 @@
     {
       "index": 16,
       "attempt": 0,
-      "previousHash": "fnv1a64:d1af3cb0b8d36659",
-      "eventHash": "fnv1a64:ba388ea24124eec5",
+      "previousHash": "fnv1a64:27bb8ee23344ec70",
+      "eventHash": "fnv1a64:f207393939d318a4",
       "body": {
         "type": "room_domain_evaluated",
         "pieceId": "piece.room.room_region_treasure_cache_1",
@@ -3183,8 +3183,8 @@
     {
       "index": 17,
       "attempt": 0,
-      "previousHash": "fnv1a64:ba388ea24124eec5",
-      "eventHash": "fnv1a64:63097ad82a7802ae",
+      "previousHash": "fnv1a64:f207393939d318a4",
+      "eventHash": "fnv1a64:4328ee3974da28d3",
       "body": {
         "type": "room_placed",
         "placement": {
@@ -3221,8 +3221,8 @@
     {
       "index": 18,
       "attempt": 0,
-      "previousHash": "fnv1a64:63097ad82a7802ae",
-      "eventHash": "fnv1a64:04fc615eb23d8cbc",
+      "previousHash": "fnv1a64:4328ee3974da28d3",
+      "eventHash": "fnv1a64:62a714d4c9923cb4",
       "body": {
         "type": "room_domain_evaluated",
         "pieceId": "piece.room.room_region_hazard_watch_1",
@@ -3330,8 +3330,8 @@
     {
       "index": 19,
       "attempt": 0,
-      "previousHash": "fnv1a64:04fc615eb23d8cbc",
-      "eventHash": "fnv1a64:9ee04c792e762769",
+      "previousHash": "fnv1a64:62a714d4c9923cb4",
+      "eventHash": "fnv1a64:3f5ed6f72a4f5a10",
       "body": {
         "type": "room_placed",
         "placement": {
@@ -3676,8 +3676,8 @@
     {
       "index": 20,
       "attempt": 0,
-      "previousHash": "fnv1a64:9ee04c792e762769",
-      "eventHash": "fnv1a64:de4c40d35bd2a7be",
+      "previousHash": "fnv1a64:3f5ed6f72a4f5a10",
+      "eventHash": "fnv1a64:38d7a2db032fa2d8",
       "body": {
         "type": "section_routing_started",
         "sectionId": "section.region_hub_central_1.region_start.open",
@@ -4486,8 +4486,8 @@
     {
       "index": 21,
       "attempt": 0,
-      "previousHash": "fnv1a64:de4c40d35bd2a7be",
-      "eventHash": "fnv1a64:a0a7e66897abd5e7",
+      "previousHash": "fnv1a64:38d7a2db032fa2d8",
+      "eventHash": "fnv1a64:369e1c6dea460d0d",
       "body": {
         "type": "section_routing_finished",
         "sectionId": "section.region_hub_central_1.region_start.open",
@@ -5344,8 +5344,8 @@
     {
       "index": 22,
       "attempt": 0,
-      "previousHash": "fnv1a64:a0a7e66897abd5e7",
-      "eventHash": "fnv1a64:b1323e21d97f2ac0",
+      "previousHash": "fnv1a64:369e1c6dea460d0d",
+      "eventHash": "fnv1a64:8ce3c01d8ed6b45b",
       "body": {
         "type": "section_routing_started",
         "sectionId": "section.region_hub_central_1.region_junction_merge_1.open",
@@ -6082,8 +6082,8 @@
     {
       "index": 23,
       "attempt": 0,
-      "previousHash": "fnv1a64:b1323e21d97f2ac0",
-      "eventHash": "fnv1a64:3691e9b3bcbb1fcf",
+      "previousHash": "fnv1a64:8ce3c01d8ed6b45b",
+      "eventHash": "fnv1a64:69207f4d432d1a61",
       "body": {
         "type": "section_routing_finished",
         "sectionId": "section.region_hub_central_1.region_junction_merge_1.open",
@@ -7228,8 +7228,8 @@
     {
       "index": 24,
       "attempt": 0,
-      "previousHash": "fnv1a64:3691e9b3bcbb1fcf",
-      "eventHash": "fnv1a64:6feaab4ed2f89032",
+      "previousHash": "fnv1a64:69207f4d432d1a61",
+      "eventHash": "fnv1a64:759ef285002a9f5b",
       "body": {
         "type": "section_routing_started",
         "sectionId": "section.region_junction_merge_1.region_start.open",
@@ -7770,8 +7770,8 @@
     {
       "index": 25,
       "attempt": 0,
-      "previousHash": "fnv1a64:6feaab4ed2f89032",
-      "eventHash": "fnv1a64:254a05751263af75",
+      "previousHash": "fnv1a64:759ef285002a9f5b",
+      "eventHash": "fnv1a64:5c363c5f069c1633",
       "body": {
         "type": "section_routing_finished",
         "sectionId": "section.region_junction_merge_1.region_start.open",
@@ -8464,8 +8464,8 @@
     {
       "index": 26,
       "attempt": 0,
-      "previousHash": "fnv1a64:254a05751263af75",
-      "eventHash": "fnv1a64:fdb38be8ad517f02",
+      "previousHash": "fnv1a64:5c363c5f069c1633",
+      "eventHash": "fnv1a64:0b2c892db3d3dd7b",
       "body": {
         "type": "section_routing_started",
         "sectionId": "section.region_goal.region_junction_merge_1.open",
@@ -8886,8 +8886,8 @@
     {
       "index": 27,
       "attempt": 0,
-      "previousHash": "fnv1a64:fdb38be8ad517f02",
-      "eventHash": "fnv1a64:3133c7169b646b66",
+      "previousHash": "fnv1a64:0b2c892db3d3dd7b",
+      "eventHash": "fnv1a64:2ba2ff0c1524c113",
       "body": {
         "type": "section_routing_finished",
         "sectionId": "section.region_goal.region_junction_merge_1.open",
@@ -9364,8 +9364,8 @@
     {
       "index": 28,
       "attempt": 0,
-      "previousHash": "fnv1a64:3133c7169b646b66",
-      "eventHash": "fnv1a64:7f9711f71a182168",
+      "previousHash": "fnv1a64:2ba2ff0c1524c113",
+      "eventHash": "fnv1a64:921dbfbc33996578",
       "body": {
         "type": "section_routing_started",
         "sectionId": "section.region_gate_locked_1.region_start.open",
@@ -9766,8 +9766,8 @@
     {
       "index": 29,
       "attempt": 0,
-      "previousHash": "fnv1a64:7f9711f71a182168",
-      "eventHash": "fnv1a64:a81cee647b6f684b",
+      "previousHash": "fnv1a64:921dbfbc33996578",
+      "eventHash": "fnv1a64:2bd2ac3551d58c98",
       "body": {
         "type": "section_routing_finished",
         "sectionId": "section.region_gate_locked_1.region_start.open",
@@ -10280,8 +10280,8 @@
     {
       "index": 30,
       "attempt": 0,
-      "previousHash": "fnv1a64:a81cee647b6f684b",
-      "eventHash": "fnv1a64:926631484e53bf6b",
+      "previousHash": "fnv1a64:2bd2ac3551d58c98",
+      "eventHash": "fnv1a64:d6ea3a0a607c65d8",
       "body": {
         "type": "section_routing_started",
         "sectionId": "section.region_goal.region_hub_central_1.open",
@@ -10582,8 +10582,8 @@
     {
       "index": 31,
       "attempt": 0,
-      "previousHash": "fnv1a64:926631484e53bf6b",
-      "eventHash": "fnv1a64:1319b0baf48a55bb",
+      "previousHash": "fnv1a64:d6ea3a0a607c65d8",
+      "eventHash": "fnv1a64:25cea9ba427bcd6d",
       "body": {
         "type": "section_routing_finished",
         "sectionId": "section.region_goal.region_hub_central_1.open",
@@ -10595,8 +10595,8 @@
     {
       "index": 32,
       "attempt": 0,
-      "previousHash": "fnv1a64:1319b0baf48a55bb",
-      "eventHash": "fnv1a64:a5f001fc6dca0a67",
+      "previousHash": "fnv1a64:25cea9ba427bcd6d",
+      "eventHash": "fnv1a64:ee9938156b872f59",
       "body": {
         "type": "attempt_finished",
         "classification": "generation_infeasibility",
@@ -10610,8 +10610,8 @@
     {
       "index": 33,
       "attempt": 1,
-      "previousHash": "fnv1a64:a5f001fc6dca0a67",
-      "eventHash": "fnv1a64:538b1ef4d6848655",
+      "previousHash": "fnv1a64:ee9938156b872f59",
+      "eventHash": "fnv1a64:d1ead049c625f179",
       "body": {
         "type": "attempt_started",
         "roomCompactionCells": 1
@@ -10620,8 +10620,8 @@
     {
       "index": 34,
       "attempt": 1,
-      "previousHash": "fnv1a64:538b1ef4d6848655",
-      "eventHash": "fnv1a64:ccc0d2442b0039d0",
+      "previousHash": "fnv1a64:d1ead049c625f179",
+      "eventHash": "fnv1a64:3be5ecf7cc5090f9",
       "body": {
         "type": "room_domain_evaluated",
         "pieceId": "piece.room.room_region_start",
@@ -10729,8 +10729,8 @@
     {
       "index": 35,
       "attempt": 1,
-      "previousHash": "fnv1a64:ccc0d2442b0039d0",
-      "eventHash": "fnv1a64:d06f53237237b660",
+      "previousHash": "fnv1a64:3be5ecf7cc5090f9",
+      "eventHash": "fnv1a64:0784976cd0b77438",
       "body": {
         "type": "room_placed",
         "placement": {
@@ -11531,8 +11531,8 @@
     {
       "index": 36,
       "attempt": 1,
-      "previousHash": "fnv1a64:d06f53237237b660",
-      "eventHash": "fnv1a64:27a968e22ee30fc4",
+      "previousHash": "fnv1a64:0784976cd0b77438",
+      "eventHash": "fnv1a64:df885c5959bceac9",
       "body": {
         "type": "room_domain_evaluated",
         "pieceId": "piece.room.room_region_junction_merge_1",
@@ -11568,8 +11568,8 @@
     {
       "index": 37,
       "attempt": 1,
-      "previousHash": "fnv1a64:27a968e22ee30fc4",
-      "eventHash": "fnv1a64:3b83a0984f1f556d",
+      "previousHash": "fnv1a64:df885c5959bceac9",
+      "eventHash": "fnv1a64:b3b47c80d5f4c328",
       "body": {
         "type": "room_placed",
         "placement": {
@@ -11770,8 +11770,8 @@
     {
       "index": 38,
       "attempt": 1,
-      "previousHash": "fnv1a64:3b83a0984f1f556d",
-      "eventHash": "fnv1a64:826f2d810473d094",
+      "previousHash": "fnv1a64:b3b47c80d5f4c328",
+      "eventHash": "fnv1a64:5521518991a8fb25",
       "body": {
         "type": "room_domain_evaluated",
         "pieceId": "piece.room.room_region_hub_central_1",
@@ -11879,8 +11879,8 @@
     {
       "index": 39,
       "attempt": 1,
-      "previousHash": "fnv1a64:826f2d810473d094",
-      "eventHash": "fnv1a64:6986b57261725fd5",
+      "previousHash": "fnv1a64:5521518991a8fb25",
+      "eventHash": "fnv1a64:dff57ffc25778a41",
       "body": {
         "type": "room_placed",
         "placement": {
@@ -12681,8 +12681,8 @@
     {
       "index": 40,
       "attempt": 1,
-      "previousHash": "fnv1a64:6986b57261725fd5",
-      "eventHash": "fnv1a64:4f1b8a8b3fdfe725",
+      "previousHash": "fnv1a64:dff57ffc25778a41",
+      "eventHash": "fnv1a64:c8310acd968e255a",
       "body": {
         "type": "room_domain_evaluated",
         "pieceId": "piece.room.room_region_gate_locked_1",
@@ -12718,8 +12718,8 @@
     {
       "index": 41,
       "attempt": 1,
-      "previousHash": "fnv1a64:4f1b8a8b3fdfe725",
-      "eventHash": "fnv1a64:de8cab08ea088dc4",
+      "previousHash": "fnv1a64:c8310acd968e255a",
+      "eventHash": "fnv1a64:32a6408be6bfbe8e",
       "body": {
         "type": "room_placed",
         "placement": {
@@ -12920,8 +12920,8 @@
     {
       "index": 42,
       "attempt": 1,
-      "previousHash": "fnv1a64:de8cab08ea088dc4",
-      "eventHash": "fnv1a64:2d8161c8a4987634",
+      "previousHash": "fnv1a64:32a6408be6bfbe8e",
+      "eventHash": "fnv1a64:c65802bc53bd49f7",
       "body": {
         "type": "room_domain_evaluated",
         "pieceId": "piece.room.room_region_key_gate_1",
@@ -13029,8 +13029,8 @@
     {
       "index": 43,
       "attempt": 1,
-      "previousHash": "fnv1a64:2d8161c8a4987634",
-      "eventHash": "fnv1a64:2650a79fddc67b6a",
+      "previousHash": "fnv1a64:c65802bc53bd49f7",
+      "eventHash": "fnv1a64:875f56cfb2257eec",
       "body": {
         "type": "room_placed",
         "placement": {
@@ -13375,8 +13375,8 @@
     {
       "index": 44,
       "attempt": 1,
-      "previousHash": "fnv1a64:2650a79fddc67b6a",
-      "eventHash": "fnv1a64:4984ab48e7840437",
+      "previousHash": "fnv1a64:875f56cfb2257eec",
+      "eventHash": "fnv1a64:158dd91e303d44b1",
       "body": {
         "type": "room_domain_evaluated",
         "pieceId": "piece.room.room_region_goal",
@@ -13436,8 +13436,8 @@
     {
       "index": 45,
       "attempt": 1,
-      "previousHash": "fnv1a64:4984ab48e7840437",
-      "eventHash": "fnv1a64:1628224f49558eba",
+      "previousHash": "fnv1a64:158dd91e303d44b1",
+      "eventHash": "fnv1a64:e11fd5d9a6138b4a",
       "body": {
         "type": "room_placed",
         "placement": {
@@ -13638,8 +13638,8 @@
     {
       "index": 46,
       "attempt": 1,
-      "previousHash": "fnv1a64:1628224f49558eba",
-      "eventHash": "fnv1a64:a84d693686df4157",
+      "previousHash": "fnv1a64:e11fd5d9a6138b4a",
+      "eventHash": "fnv1a64:8c929ab11c112ca0",
       "body": {
         "type": "room_domain_evaluated",
         "pieceId": "piece.room.room_region_resource_clue_1",
@@ -13663,8 +13663,8 @@
     {
       "index": 47,
       "attempt": 1,
-      "previousHash": "fnv1a64:a84d693686df4157",
-      "eventHash": "fnv1a64:b2cac8c2e07028df",
+      "previousHash": "fnv1a64:8c929ab11c112ca0",
+      "eventHash": "fnv1a64:36974a63f51ddd98",
       "body": {
         "type": "room_placed",
         "placement": {
@@ -13709,8 +13709,8 @@
     {
       "index": 48,
       "attempt": 1,
-      "previousHash": "fnv1a64:b2cac8c2e07028df",
-      "eventHash": "fnv1a64:5e0c8b6453cc2b7a",
+      "previousHash": "fnv1a64:36974a63f51ddd98",
+      "eventHash": "fnv1a64:aeb6994d8dcf4252",
       "body": {
         "type": "room_domain_evaluated",
         "pieceId": "piece.room.room_region_treasure_cache_1",
@@ -13734,8 +13734,8 @@
     {
       "index": 49,
       "attempt": 1,
-      "previousHash": "fnv1a64:5e0c8b6453cc2b7a",
-      "eventHash": "fnv1a64:5bb8b63c25c60f06",
+      "previousHash": "fnv1a64:aeb6994d8dcf4252",
+      "eventHash": "fnv1a64:e20ded6cc3337e3f",
       "body": {
         "type": "room_placed",
         "placement": {
@@ -13772,8 +13772,8 @@
     {
       "index": 50,
       "attempt": 1,
-      "previousHash": "fnv1a64:5bb8b63c25c60f06",
-      "eventHash": "fnv1a64:422a6ebac7164df0",
+      "previousHash": "fnv1a64:e20ded6cc3337e3f",
+      "eventHash": "fnv1a64:e5068e814d5c30cf",
       "body": {
         "type": "room_domain_evaluated",
         "pieceId": "piece.room.room_region_hazard_watch_1",
@@ -13881,8 +13881,8 @@
     {
       "index": 51,
       "attempt": 1,
-      "previousHash": "fnv1a64:422a6ebac7164df0",
-      "eventHash": "fnv1a64:e4864397c6a80973",
+      "previousHash": "fnv1a64:e5068e814d5c30cf",
+      "eventHash": "fnv1a64:46ba8ee8d2667e85",
       "body": {
         "type": "room_placed",
         "placement": {
@@ -14227,8 +14227,8 @@
     {
       "index": 52,
       "attempt": 1,
-      "previousHash": "fnv1a64:e4864397c6a80973",
-      "eventHash": "fnv1a64:4b810c482aa5e46c",
+      "previousHash": "fnv1a64:46ba8ee8d2667e85",
+      "eventHash": "fnv1a64:a1d7617c511ffb41",
       "body": {
         "type": "section_routing_started",
         "sectionId": "section.region_hub_central_1.region_start.open",
@@ -15037,8 +15037,8 @@
     {
       "index": 53,
       "attempt": 1,
-      "previousHash": "fnv1a64:4b810c482aa5e46c",
-      "eventHash": "fnv1a64:4b8ad127edb4ac2c",
+      "previousHash": "fnv1a64:a1d7617c511ffb41",
+      "eventHash": "fnv1a64:e70b8cbd2a96db57",
       "body": {
         "type": "section_routing_finished",
         "sectionId": "section.region_hub_central_1.region_start.open",
@@ -15879,8 +15879,8 @@
     {
       "index": 54,
       "attempt": 1,
-      "previousHash": "fnv1a64:4b8ad127edb4ac2c",
-      "eventHash": "fnv1a64:7a325e5db4cb7107",
+      "previousHash": "fnv1a64:e70b8cbd2a96db57",
+      "eventHash": "fnv1a64:8827d5107da226af",
       "body": {
         "type": "section_routing_started",
         "sectionId": "section.region_hub_central_1.region_junction_merge_1.open",
@@ -16617,8 +16617,8 @@
     {
       "index": 55,
       "attempt": 1,
-      "previousHash": "fnv1a64:7a325e5db4cb7107",
-      "eventHash": "fnv1a64:99210697b3563e80",
+      "previousHash": "fnv1a64:8827d5107da226af",
+      "eventHash": "fnv1a64:15263058654c912a",
       "body": {
         "type": "section_routing_finished",
         "sectionId": "section.region_hub_central_1.region_junction_merge_1.open",
@@ -17747,8 +17747,8 @@
     {
       "index": 56,
       "attempt": 1,
-      "previousHash": "fnv1a64:99210697b3563e80",
-      "eventHash": "fnv1a64:d05fddbdbbdd0363",
+      "previousHash": "fnv1a64:15263058654c912a",
+      "eventHash": "fnv1a64:3e7f78c46761afc5",
       "body": {
         "type": "section_routing_started",
         "sectionId": "section.region_junction_merge_1.region_start.open",
@@ -18289,8 +18289,8 @@
     {
       "index": 57,
       "attempt": 1,
-      "previousHash": "fnv1a64:d05fddbdbbdd0363",
-      "eventHash": "fnv1a64:c249bef88422a9e1",
+      "previousHash": "fnv1a64:3e7f78c46761afc5",
+      "eventHash": "fnv1a64:a562b4bab0251dd0",
       "body": {
         "type": "section_routing_finished",
         "sectionId": "section.region_junction_merge_1.region_start.open",
@@ -18983,8 +18983,8 @@
     {
       "index": 58,
       "attempt": 1,
-      "previousHash": "fnv1a64:c249bef88422a9e1",
-      "eventHash": "fnv1a64:f807419c02b37785",
+      "previousHash": "fnv1a64:a562b4bab0251dd0",
+      "eventHash": "fnv1a64:9a955b9ecd6305b7",
       "body": {
         "type": "section_routing_started",
         "sectionId": "section.region_goal.region_junction_merge_1.open",
@@ -19405,8 +19405,8 @@
     {
       "index": 59,
       "attempt": 1,
-      "previousHash": "fnv1a64:f807419c02b37785",
-      "eventHash": "fnv1a64:3ec50ab53a0fbaad",
+      "previousHash": "fnv1a64:9a955b9ecd6305b7",
+      "eventHash": "fnv1a64:60f70fbddbfd8fd0",
       "body": {
         "type": "section_routing_finished",
         "sectionId": "section.region_goal.region_junction_merge_1.open",
@@ -19875,8 +19875,8 @@
     {
       "index": 60,
       "attempt": 1,
-      "previousHash": "fnv1a64:3ec50ab53a0fbaad",
-      "eventHash": "fnv1a64:732c92d929e44e9f",
+      "previousHash": "fnv1a64:60f70fbddbfd8fd0",
+      "eventHash": "fnv1a64:e8db5661515d9e50",
       "body": {
         "type": "section_routing_started",
         "sectionId": "section.region_gate_locked_1.region_start.open",
@@ -20277,8 +20277,8 @@
     {
       "index": 61,
       "attempt": 1,
-      "previousHash": "fnv1a64:732c92d929e44e9f",
-      "eventHash": "fnv1a64:b8f23e233f112a5a",
+      "previousHash": "fnv1a64:e8db5661515d9e50",
+      "eventHash": "fnv1a64:ba07b1014c421e66",
       "body": {
         "type": "section_routing_finished",
         "sectionId": "section.region_gate_locked_1.region_start.open",
@@ -20791,8 +20791,8 @@
     {
       "index": 62,
       "attempt": 1,
-      "previousHash": "fnv1a64:b8f23e233f112a5a",
-      "eventHash": "fnv1a64:157bc5578a7fb6ec",
+      "previousHash": "fnv1a64:ba07b1014c421e66",
+      "eventHash": "fnv1a64:1e5401f2c802bd56",
       "body": {
         "type": "section_routing_started",
         "sectionId": "section.region_goal.region_hub_central_1.open",
@@ -21093,8 +21093,8 @@
     {
       "index": 63,
       "attempt": 1,
-      "previousHash": "fnv1a64:157bc5578a7fb6ec",
-      "eventHash": "fnv1a64:efd66c064a27d309",
+      "previousHash": "fnv1a64:1e5401f2c802bd56",
+      "eventHash": "fnv1a64:bb2de81e8de47e22",
       "body": {
         "type": "section_routing_finished",
         "sectionId": "section.region_goal.region_hub_central_1.open",
@@ -21106,8 +21106,8 @@
     {
       "index": 64,
       "attempt": 1,
-      "previousHash": "fnv1a64:efd66c064a27d309",
-      "eventHash": "fnv1a64:4f0533354b45b90d",
+      "previousHash": "fnv1a64:bb2de81e8de47e22",
+      "eventHash": "fnv1a64:ab01c7c0973fd9eb",
       "body": {
         "type": "attempt_finished",
         "classification": "generation_infeasibility",
@@ -21121,8 +21121,8 @@
     {
       "index": 65,
       "attempt": 2,
-      "previousHash": "fnv1a64:4f0533354b45b90d",
-      "eventHash": "fnv1a64:1d4081042c5b4beb",
+      "previousHash": "fnv1a64:ab01c7c0973fd9eb",
+      "eventHash": "fnv1a64:cf6e7cfef65c0bd8",
       "body": {
         "type": "attempt_started",
         "roomCompactionCells": 2
@@ -21131,8 +21131,8 @@
     {
       "index": 66,
       "attempt": 2,
-      "previousHash": "fnv1a64:1d4081042c5b4beb",
-      "eventHash": "fnv1a64:cf30ffdf7c7f69a7",
+      "previousHash": "fnv1a64:cf6e7cfef65c0bd8",
+      "eventHash": "fnv1a64:06f47bf23a7ae115",
       "body": {
         "type": "room_domain_evaluated",
         "pieceId": "piece.room.room_region_start",
@@ -21240,8 +21240,8 @@
     {
       "index": 67,
       "attempt": 2,
-      "previousHash": "fnv1a64:cf30ffdf7c7f69a7",
-      "eventHash": "fnv1a64:8a02168302b430f8",
+      "previousHash": "fnv1a64:06f47bf23a7ae115",
+      "eventHash": "fnv1a64:37bf76329a53dd05",
       "body": {
         "type": "room_placed",
         "placement": {
@@ -22042,8 +22042,8 @@
     {
       "index": 68,
       "attempt": 2,
-      "previousHash": "fnv1a64:8a02168302b430f8",
-      "eventHash": "fnv1a64:3c37dd6813be562e",
+      "previousHash": "fnv1a64:37bf76329a53dd05",
+      "eventHash": "fnv1a64:2b16eb59bdb948a5",
       "body": {
         "type": "room_domain_evaluated",
         "pieceId": "piece.room.room_region_junction_merge_1",
@@ -22079,8 +22079,8 @@
     {
       "index": 69,
       "attempt": 2,
-      "previousHash": "fnv1a64:3c37dd6813be562e",
-      "eventHash": "fnv1a64:8f12018c2e3d4df7",
+      "previousHash": "fnv1a64:2b16eb59bdb948a5",
+      "eventHash": "fnv1a64:3e220482269f94f5",
       "body": {
         "type": "room_placed",
         "placement": {
@@ -22281,8 +22281,8 @@
     {
       "index": 70,
       "attempt": 2,
-      "previousHash": "fnv1a64:8f12018c2e3d4df7",
-      "eventHash": "fnv1a64:70cea632c1c77348",
+      "previousHash": "fnv1a64:3e220482269f94f5",
+      "eventHash": "fnv1a64:d7ebaac4414969c5",
       "body": {
         "type": "room_domain_evaluated",
         "pieceId": "piece.room.room_region_hub_central_1",
@@ -22390,8 +22390,8 @@
     {
       "index": 71,
       "attempt": 2,
-      "previousHash": "fnv1a64:70cea632c1c77348",
-      "eventHash": "fnv1a64:3bdbdc2675cacb79",
+      "previousHash": "fnv1a64:d7ebaac4414969c5",
+      "eventHash": "fnv1a64:ed325e5f419129be",
       "body": {
         "type": "room_placed",
         "placement": {
@@ -23192,8 +23192,8 @@
     {
       "index": 72,
       "attempt": 2,
-      "previousHash": "fnv1a64:3bdbdc2675cacb79",
-      "eventHash": "fnv1a64:32a0aee22533c9e5",
+      "previousHash": "fnv1a64:ed325e5f419129be",
+      "eventHash": "fnv1a64:50ccdeed58387f84",
       "body": {
         "type": "room_domain_evaluated",
         "pieceId": "piece.room.room_region_gate_locked_1",
@@ -23229,8 +23229,8 @@
     {
       "index": 73,
       "attempt": 2,
-      "previousHash": "fnv1a64:32a0aee22533c9e5",
-      "eventHash": "fnv1a64:c3901a486dd63bfe",
+      "previousHash": "fnv1a64:50ccdeed58387f84",
+      "eventHash": "fnv1a64:0d371e4808c30760",
       "body": {
         "type": "room_placed",
         "placement": {
@@ -23431,8 +23431,8 @@
     {
       "index": 74,
       "attempt": 2,
-      "previousHash": "fnv1a64:c3901a486dd63bfe",
-      "eventHash": "fnv1a64:1a49407556622d47",
+      "previousHash": "fnv1a64:0d371e4808c30760",
+      "eventHash": "fnv1a64:902b69873bf96c9f",
       "body": {
         "type": "room_domain_evaluated",
         "pieceId": "piece.room.room_region_key_gate_1",
@@ -23540,8 +23540,8 @@
     {
       "index": 75,
       "attempt": 2,
-      "previousHash": "fnv1a64:1a49407556622d47",
-      "eventHash": "fnv1a64:1dfefd0a20c3340f",
+      "previousHash": "fnv1a64:902b69873bf96c9f",
+      "eventHash": "fnv1a64:359fa40bc2d18e6b",
       "body": {
         "type": "room_placed",
         "placement": {
@@ -23886,8 +23886,8 @@
     {
       "index": 76,
       "attempt": 2,
-      "previousHash": "fnv1a64:1dfefd0a20c3340f",
-      "eventHash": "fnv1a64:871c1bb9bfd319c4",
+      "previousHash": "fnv1a64:359fa40bc2d18e6b",
+      "eventHash": "fnv1a64:6eeec7d88fecb4a1",
       "body": {
         "type": "room_domain_evaluated",
         "pieceId": "piece.room.room_region_goal",
@@ -23947,8 +23947,8 @@
     {
       "index": 77,
       "attempt": 2,
-      "previousHash": "fnv1a64:871c1bb9bfd319c4",
-      "eventHash": "fnv1a64:d7b59a30106d21dd",
+      "previousHash": "fnv1a64:6eeec7d88fecb4a1",
+      "eventHash": "fnv1a64:97c7d235f2c4af59",
       "body": {
         "type": "room_placed",
         "placement": {
@@ -24149,8 +24149,8 @@
     {
       "index": 78,
       "attempt": 2,
-      "previousHash": "fnv1a64:d7b59a30106d21dd",
-      "eventHash": "fnv1a64:1c313dd4a21208a8",
+      "previousHash": "fnv1a64:97c7d235f2c4af59",
+      "eventHash": "fnv1a64:a05ded050f674e41",
       "body": {
         "type": "room_domain_evaluated",
         "pieceId": "piece.room.room_region_resource_clue_1",
@@ -24174,8 +24174,8 @@
     {
       "index": 79,
       "attempt": 2,
-      "previousHash": "fnv1a64:1c313dd4a21208a8",
-      "eventHash": "fnv1a64:4bda95b3a53a8fc3",
+      "previousHash": "fnv1a64:a05ded050f674e41",
+      "eventHash": "fnv1a64:aa903f99b7e4191e",
       "body": {
         "type": "room_placed",
         "placement": {
@@ -24220,8 +24220,8 @@
     {
       "index": 80,
       "attempt": 2,
-      "previousHash": "fnv1a64:4bda95b3a53a8fc3",
-      "eventHash": "fnv1a64:1e0a69ba988fba41",
+      "previousHash": "fnv1a64:aa903f99b7e4191e",
+      "eventHash": "fnv1a64:f58d316c3d38440d",
       "body": {
         "type": "room_domain_evaluated",
         "pieceId": "piece.room.room_region_treasure_cache_1",
@@ -24245,8 +24245,8 @@
     {
       "index": 81,
       "attempt": 2,
-      "previousHash": "fnv1a64:1e0a69ba988fba41",
-      "eventHash": "fnv1a64:fe3a8a4826846bd6",
+      "previousHash": "fnv1a64:f58d316c3d38440d",
+      "eventHash": "fnv1a64:8a522744744aac4c",
       "body": {
         "type": "room_placed",
         "placement": {
@@ -24283,8 +24283,8 @@
     {
       "index": 82,
       "attempt": 2,
-      "previousHash": "fnv1a64:fe3a8a4826846bd6",
-      "eventHash": "fnv1a64:b156e10e5b419575",
+      "previousHash": "fnv1a64:8a522744744aac4c",
+      "eventHash": "fnv1a64:af3d9df9a1f5991f",
       "body": {
         "type": "room_domain_evaluated",
         "pieceId": "piece.room.room_region_hazard_watch_1",
@@ -24392,8 +24392,8 @@
     {
       "index": 83,
       "attempt": 2,
-      "previousHash": "fnv1a64:b156e10e5b419575",
-      "eventHash": "fnv1a64:8b10a337babbb0e0",
+      "previousHash": "fnv1a64:af3d9df9a1f5991f",
+      "eventHash": "fnv1a64:ca30410ebb59520d",
       "body": {
         "type": "room_placed",
         "placement": {
@@ -24738,8 +24738,8 @@
     {
       "index": 84,
       "attempt": 2,
-      "previousHash": "fnv1a64:8b10a337babbb0e0",
-      "eventHash": "fnv1a64:297d5e6fda17b634",
+      "previousHash": "fnv1a64:ca30410ebb59520d",
+      "eventHash": "fnv1a64:4e27ce487e7c499b",
       "body": {
         "type": "section_routing_started",
         "sectionId": "section.region_hub_central_1.region_start.open",
@@ -25548,8 +25548,8 @@
     {
       "index": 85,
       "attempt": 2,
-      "previousHash": "fnv1a64:297d5e6fda17b634",
-      "eventHash": "fnv1a64:d96a1996479f179f",
+      "previousHash": "fnv1a64:4e27ce487e7c499b",
+      "eventHash": "fnv1a64:c540b04a8b6401fd",
       "body": {
         "type": "section_routing_finished",
         "sectionId": "section.region_hub_central_1.region_start.open",
@@ -26382,8 +26382,8 @@
     {
       "index": 86,
       "attempt": 2,
-      "previousHash": "fnv1a64:d96a1996479f179f",
-      "eventHash": "fnv1a64:aaa193b320b29e2e",
+      "previousHash": "fnv1a64:c540b04a8b6401fd",
+      "eventHash": "fnv1a64:d2ff807968bda890",
       "body": {
         "type": "section_routing_started",
         "sectionId": "section.region_hub_central_1.region_junction_merge_1.open",
@@ -27120,8 +27120,8 @@
     {
       "index": 87,
       "attempt": 2,
-      "previousHash": "fnv1a64:aaa193b320b29e2e",
-      "eventHash": "fnv1a64:dda09da2bfbf45eb",
+      "previousHash": "fnv1a64:d2ff807968bda890",
+      "eventHash": "fnv1a64:bcb52e56c106f873",
       "body": {
         "type": "section_routing_finished",
         "sectionId": "section.region_hub_central_1.region_junction_merge_1.open",
@@ -28242,8 +28242,8 @@
     {
       "index": 88,
       "attempt": 2,
-      "previousHash": "fnv1a64:dda09da2bfbf45eb",
-      "eventHash": "fnv1a64:ac75bbdb228e8e96",
+      "previousHash": "fnv1a64:bcb52e56c106f873",
+      "eventHash": "fnv1a64:cf91b0b4d255d437",
       "body": {
         "type": "section_routing_started",
         "sectionId": "section.region_junction_merge_1.region_start.open",
@@ -28784,8 +28784,8 @@
     {
       "index": 89,
       "attempt": 2,
-      "previousHash": "fnv1a64:ac75bbdb228e8e96",
-      "eventHash": "fnv1a64:284e9bc0d531aba5",
+      "previousHash": "fnv1a64:cf91b0b4d255d437",
+      "eventHash": "fnv1a64:5f1b5a39e9057fa1",
       "body": {
         "type": "section_routing_finished",
         "sectionId": "section.region_junction_merge_1.region_start.open",
@@ -29478,8 +29478,8 @@
     {
       "index": 90,
       "attempt": 2,
-      "previousHash": "fnv1a64:284e9bc0d531aba5",
-      "eventHash": "fnv1a64:71f8838ebc80e47e",
+      "previousHash": "fnv1a64:5f1b5a39e9057fa1",
+      "eventHash": "fnv1a64:0ef7bad5590760e1",
       "body": {
         "type": "section_routing_started",
         "sectionId": "section.region_goal.region_junction_merge_1.open",
@@ -29900,8 +29900,8 @@
     {
       "index": 91,
       "attempt": 2,
-      "previousHash": "fnv1a64:71f8838ebc80e47e",
-      "eventHash": "fnv1a64:9954e14e6e299948",
+      "previousHash": "fnv1a64:0ef7bad5590760e1",
+      "eventHash": "fnv1a64:ba53006f8509e8fb",
       "body": {
         "type": "section_routing_finished",
         "sectionId": "section.region_goal.region_junction_merge_1.open",
@@ -30362,8 +30362,8 @@
     {
       "index": 92,
       "attempt": 2,
-      "previousHash": "fnv1a64:9954e14e6e299948",
-      "eventHash": "fnv1a64:c420e2b74d6df043",
+      "previousHash": "fnv1a64:ba53006f8509e8fb",
+      "eventHash": "fnv1a64:4000dc5b3cb3525f",
       "body": {
         "type": "section_routing_started",
         "sectionId": "section.region_gate_locked_1.region_start.open",
@@ -30764,8 +30764,8 @@
     {
       "index": 93,
       "attempt": 2,
-      "previousHash": "fnv1a64:c420e2b74d6df043",
-      "eventHash": "fnv1a64:f62d3c0c5486a115",
+      "previousHash": "fnv1a64:4000dc5b3cb3525f",
+      "eventHash": "fnv1a64:789e73cc7dc9c762",
       "body": {
         "type": "section_routing_finished",
         "sectionId": "section.region_gate_locked_1.region_start.open",
@@ -31278,8 +31278,8 @@
     {
       "index": 94,
       "attempt": 2,
-      "previousHash": "fnv1a64:f62d3c0c5486a115",
-      "eventHash": "fnv1a64:6a0ed113d8169cfa",
+      "previousHash": "fnv1a64:789e73cc7dc9c762",
+      "eventHash": "fnv1a64:bd39c91e8f857758",
       "body": {
         "type": "section_routing_started",
         "sectionId": "section.region_goal.region_hub_central_1.open",
@@ -31580,8 +31580,8 @@
     {
       "index": 95,
       "attempt": 2,
-      "previousHash": "fnv1a64:6a0ed113d8169cfa",
-      "eventHash": "fnv1a64:edf4fca351d1b541",
+      "previousHash": "fnv1a64:bd39c91e8f857758",
+      "eventHash": "fnv1a64:745ad9d9631d7b2a",
       "body": {
         "type": "section_routing_finished",
         "sectionId": "section.region_goal.region_hub_central_1.open",
@@ -31593,8 +31593,8 @@
     {
       "index": 96,
       "attempt": 2,
-      "previousHash": "fnv1a64:edf4fca351d1b541",
-      "eventHash": "fnv1a64:8f4a89af6550c02a",
+      "previousHash": "fnv1a64:745ad9d9631d7b2a",
+      "eventHash": "fnv1a64:0f4fe80be17b9122",
       "body": {
         "type": "attempt_finished",
         "classification": "generation_infeasibility",
@@ -31608,8 +31608,8 @@
     {
       "index": 97,
       "attempt": 3,
-      "previousHash": "fnv1a64:8f4a89af6550c02a",
-      "eventHash": "fnv1a64:df01f42377bdc3da",
+      "previousHash": "fnv1a64:0f4fe80be17b9122",
+      "eventHash": "fnv1a64:576dc8421e3ad70f",
       "body": {
         "type": "attempt_started",
         "roomCompactionCells": 3
@@ -31618,8 +31618,8 @@
     {
       "index": 98,
       "attempt": 3,
-      "previousHash": "fnv1a64:df01f42377bdc3da",
-      "eventHash": "fnv1a64:99f812bb0931624b",
+      "previousHash": "fnv1a64:576dc8421e3ad70f",
+      "eventHash": "fnv1a64:51bd12e5ec907d9a",
       "body": {
         "type": "room_domain_evaluated",
         "pieceId": "piece.room.room_region_start",
@@ -31727,8 +31727,8 @@
     {
       "index": 99,
       "attempt": 3,
-      "previousHash": "fnv1a64:99f812bb0931624b",
-      "eventHash": "fnv1a64:62d8b42708821d03",
+      "previousHash": "fnv1a64:51bd12e5ec907d9a",
+      "eventHash": "fnv1a64:edb8f5ae2610be22",
       "body": {
         "type": "room_placed",
         "placement": {
@@ -32529,8 +32529,8 @@
     {
       "index": 100,
       "attempt": 3,
-      "previousHash": "fnv1a64:62d8b42708821d03",
-      "eventHash": "fnv1a64:7820f21922a13447",
+      "previousHash": "fnv1a64:edb8f5ae2610be22",
+      "eventHash": "fnv1a64:9ab7e92b954cfb3e",
       "body": {
         "type": "room_domain_evaluated",
         "pieceId": "piece.room.room_region_junction_merge_1",
@@ -32566,8 +32566,8 @@
     {
       "index": 101,
       "attempt": 3,
-      "previousHash": "fnv1a64:7820f21922a13447",
-      "eventHash": "fnv1a64:3a32b29745875e09",
+      "previousHash": "fnv1a64:9ab7e92b954cfb3e",
+      "eventHash": "fnv1a64:b80bd86980857990",
       "body": {
         "type": "room_placed",
         "placement": {
@@ -32768,8 +32768,8 @@
     {
       "index": 102,
       "attempt": 3,
-      "previousHash": "fnv1a64:3a32b29745875e09",
-      "eventHash": "fnv1a64:536eb995495563cd",
+      "previousHash": "fnv1a64:b80bd86980857990",
+      "eventHash": "fnv1a64:fcab0798743123c6",
       "body": {
         "type": "room_domain_evaluated",
         "pieceId": "piece.room.room_region_hub_central_1",
@@ -32877,8 +32877,8 @@
     {
       "index": 103,
       "attempt": 3,
-      "previousHash": "fnv1a64:536eb995495563cd",
-      "eventHash": "fnv1a64:daec0bb0be2482dc",
+      "previousHash": "fnv1a64:fcab0798743123c6",
+      "eventHash": "fnv1a64:d6150fd96ade8006",
       "body": {
         "type": "room_placed",
         "placement": {
@@ -33679,8 +33679,8 @@
     {
       "index": 104,
       "attempt": 3,
-      "previousHash": "fnv1a64:daec0bb0be2482dc",
-      "eventHash": "fnv1a64:395f69b3f91dda94",
+      "previousHash": "fnv1a64:d6150fd96ade8006",
+      "eventHash": "fnv1a64:0a0dee844448bea6",
       "body": {
         "type": "room_domain_evaluated",
         "pieceId": "piece.room.room_region_gate_locked_1",
@@ -33716,8 +33716,8 @@
     {
       "index": 105,
       "attempt": 3,
-      "previousHash": "fnv1a64:395f69b3f91dda94",
-      "eventHash": "fnv1a64:7993fd98b9679fd7",
+      "previousHash": "fnv1a64:0a0dee844448bea6",
+      "eventHash": "fnv1a64:b576bce0d2791a6f",
       "body": {
         "type": "room_placed",
         "placement": {
@@ -33918,8 +33918,8 @@
     {
       "index": 106,
       "attempt": 3,
-      "previousHash": "fnv1a64:7993fd98b9679fd7",
-      "eventHash": "fnv1a64:a9778d93b672880c",
+      "previousHash": "fnv1a64:b576bce0d2791a6f",
+      "eventHash": "fnv1a64:4fc7b0243e832923",
       "body": {
         "type": "room_domain_evaluated",
         "pieceId": "piece.room.room_region_key_gate_1",
@@ -34027,8 +34027,8 @@
     {
       "index": 107,
       "attempt": 3,
-      "previousHash": "fnv1a64:a9778d93b672880c",
-      "eventHash": "fnv1a64:328e3726341d49f2",
+      "previousHash": "fnv1a64:4fc7b0243e832923",
+      "eventHash": "fnv1a64:4df601a1b0204865",
       "body": {
         "type": "room_placed",
         "placement": {
@@ -34373,8 +34373,8 @@
     {
       "index": 108,
       "attempt": 3,
-      "previousHash": "fnv1a64:328e3726341d49f2",
-      "eventHash": "fnv1a64:ecab4fce3ed6f796",
+      "previousHash": "fnv1a64:4df601a1b0204865",
+      "eventHash": "fnv1a64:bf5507dd302f085f",
       "body": {
         "type": "room_domain_evaluated",
         "pieceId": "piece.room.room_region_goal",
@@ -34434,8 +34434,8 @@
     {
       "index": 109,
       "attempt": 3,
-      "previousHash": "fnv1a64:ecab4fce3ed6f796",
-      "eventHash": "fnv1a64:11a70e4161ae53ef",
+      "previousHash": "fnv1a64:bf5507dd302f085f",
+      "eventHash": "fnv1a64:12c6a2a98d0a9aa3",
       "body": {
         "type": "room_placed",
         "placement": {
@@ -34636,8 +34636,8 @@
     {
       "index": 110,
       "attempt": 3,
-      "previousHash": "fnv1a64:11a70e4161ae53ef",
-      "eventHash": "fnv1a64:5507d6f2c85013ef",
+      "previousHash": "fnv1a64:12c6a2a98d0a9aa3",
+      "eventHash": "fnv1a64:c04fb2d479db240b",
       "body": {
         "type": "room_domain_evaluated",
         "pieceId": "piece.room.room_region_resource_clue_1",
@@ -34661,8 +34661,8 @@
     {
       "index": 111,
       "attempt": 3,
-      "previousHash": "fnv1a64:5507d6f2c85013ef",
-      "eventHash": "fnv1a64:e1ee68ff0e30f433",
+      "previousHash": "fnv1a64:c04fb2d479db240b",
+      "eventHash": "fnv1a64:f88ccbafb695d2d4",
       "body": {
         "type": "room_placed",
         "placement": {
@@ -34707,8 +34707,8 @@
     {
       "index": 112,
       "attempt": 3,
-      "previousHash": "fnv1a64:e1ee68ff0e30f433",
-      "eventHash": "fnv1a64:be9788ad2b4cac36",
+      "previousHash": "fnv1a64:f88ccbafb695d2d4",
+      "eventHash": "fnv1a64:90b92d9bcafef903",
       "body": {
         "type": "room_domain_evaluated",
         "pieceId": "piece.room.room_region_treasure_cache_1",
@@ -34732,8 +34732,8 @@
     {
       "index": 113,
       "attempt": 3,
-      "previousHash": "fnv1a64:be9788ad2b4cac36",
-      "eventHash": "fnv1a64:8c41883146a8fb6d",
+      "previousHash": "fnv1a64:90b92d9bcafef903",
+      "eventHash": "fnv1a64:fc7694b07106aa39",
       "body": {
         "type": "room_placed",
         "placement": {
@@ -34770,8 +34770,8 @@
     {
       "index": 114,
       "attempt": 3,
-      "previousHash": "fnv1a64:8c41883146a8fb6d",
-      "eventHash": "fnv1a64:b832a1e0af6aa95f",
+      "previousHash": "fnv1a64:fc7694b07106aa39",
+      "eventHash": "fnv1a64:622c97385b3e59b1",
       "body": {
         "type": "room_domain_evaluated",
         "pieceId": "piece.room.room_region_hazard_watch_1",
@@ -34879,8 +34879,8 @@
     {
       "index": 115,
       "attempt": 3,
-      "previousHash": "fnv1a64:b832a1e0af6aa95f",
-      "eventHash": "fnv1a64:5e937d09da62c543",
+      "previousHash": "fnv1a64:622c97385b3e59b1",
+      "eventHash": "fnv1a64:84dcccfd2c8ca07e",
       "body": {
         "type": "room_placed",
         "placement": {
@@ -35225,8 +35225,8 @@
     {
       "index": 116,
       "attempt": 3,
-      "previousHash": "fnv1a64:5e937d09da62c543",
-      "eventHash": "fnv1a64:d19e38cf69b7b984",
+      "previousHash": "fnv1a64:84dcccfd2c8ca07e",
+      "eventHash": "fnv1a64:16b0edecbed316f2",
       "body": {
         "type": "section_routing_started",
         "sectionId": "section.region_hub_central_1.region_start.open",
@@ -36035,8 +36035,8 @@
     {
       "index": 117,
       "attempt": 3,
-      "previousHash": "fnv1a64:d19e38cf69b7b984",
-      "eventHash": "fnv1a64:5b896e5fee46a8e8",
+      "previousHash": "fnv1a64:16b0edecbed316f2",
+      "eventHash": "fnv1a64:028d292267c79e8b",
       "body": {
         "type": "section_routing_finished",
         "sectionId": "section.region_hub_central_1.region_start.open",
@@ -36861,8 +36861,8 @@
     {
       "index": 118,
       "attempt": 3,
-      "previousHash": "fnv1a64:5b896e5fee46a8e8",
-      "eventHash": "fnv1a64:16a49b05286a016f",
+      "previousHash": "fnv1a64:028d292267c79e8b",
+      "eventHash": "fnv1a64:4c49ce312b6f1527",
       "body": {
         "type": "section_routing_started",
         "sectionId": "section.region_hub_central_1.region_junction_merge_1.open",
@@ -37599,8 +37599,8 @@
     {
       "index": 119,
       "attempt": 3,
-      "previousHash": "fnv1a64:16a49b05286a016f",
-      "eventHash": "fnv1a64:76d867f54c914662",
+      "previousHash": "fnv1a64:4c49ce312b6f1527",
+      "eventHash": "fnv1a64:4df05c9bf9a3bdd9",
       "body": {
         "type": "section_routing_finished",
         "sectionId": "section.region_hub_central_1.region_junction_merge_1.open",
@@ -38713,8 +38713,8 @@
     {
       "index": 120,
       "attempt": 3,
-      "previousHash": "fnv1a64:76d867f54c914662",
-      "eventHash": "fnv1a64:7f6f815dc1f39bdc",
+      "previousHash": "fnv1a64:4df05c9bf9a3bdd9",
+      "eventHash": "fnv1a64:47edb4c16155a54b",
       "body": {
         "type": "section_routing_started",
         "sectionId": "section.region_junction_merge_1.region_start.open",
@@ -39255,8 +39255,8 @@
     {
       "index": 121,
       "attempt": 3,
-      "previousHash": "fnv1a64:7f6f815dc1f39bdc",
-      "eventHash": "fnv1a64:930df252ba2a6af6",
+      "previousHash": "fnv1a64:47edb4c16155a54b",
+      "eventHash": "fnv1a64:3d5958100c9b7da7",
       "body": {
         "type": "section_routing_finished",
         "sectionId": "section.region_junction_merge_1.region_start.open",
@@ -39949,8 +39949,8 @@
     {
       "index": 122,
       "attempt": 3,
-      "previousHash": "fnv1a64:930df252ba2a6af6",
-      "eventHash": "fnv1a64:e37352083e1ee51e",
+      "previousHash": "fnv1a64:3d5958100c9b7da7",
+      "eventHash": "fnv1a64:171d9565f5eddc44",
       "body": {
         "type": "section_routing_started",
         "sectionId": "section.region_goal.region_junction_merge_1.open",
@@ -40371,8 +40371,8 @@
     {
       "index": 123,
       "attempt": 3,
-      "previousHash": "fnv1a64:e37352083e1ee51e",
-      "eventHash": "fnv1a64:8208d1e9dd574c58",
+      "previousHash": "fnv1a64:171d9565f5eddc44",
+      "eventHash": "fnv1a64:6d3a6fe1880ac8b8",
       "body": {
         "type": "section_routing_finished",
         "sectionId": "section.region_goal.region_junction_merge_1.open",
@@ -40825,8 +40825,8 @@
     {
       "index": 124,
       "attempt": 3,
-      "previousHash": "fnv1a64:8208d1e9dd574c58",
-      "eventHash": "fnv1a64:3a26ccb32102af10",
+      "previousHash": "fnv1a64:6d3a6fe1880ac8b8",
+      "eventHash": "fnv1a64:24d03272b18fcc51",
       "body": {
         "type": "section_routing_started",
         "sectionId": "section.region_gate_locked_1.region_start.open",
@@ -41227,8 +41227,8 @@
     {
       "index": 125,
       "attempt": 3,
-      "previousHash": "fnv1a64:3a26ccb32102af10",
-      "eventHash": "fnv1a64:15cd61dae213a238",
+      "previousHash": "fnv1a64:24d03272b18fcc51",
+      "eventHash": "fnv1a64:6cdac9a150eb0e55",
       "body": {
         "type": "section_routing_finished",
         "sectionId": "section.region_gate_locked_1.region_start.open",
@@ -41741,8 +41741,8 @@
     {
       "index": 126,
       "attempt": 3,
-      "previousHash": "fnv1a64:15cd61dae213a238",
-      "eventHash": "fnv1a64:726af7cbdf1dc955",
+      "previousHash": "fnv1a64:6cdac9a150eb0e55",
+      "eventHash": "fnv1a64:6a953a618ecd8744",
       "body": {
         "type": "section_routing_started",
         "sectionId": "section.region_goal.region_hub_central_1.open",
@@ -42043,8 +42043,8 @@
     {
       "index": 127,
       "attempt": 3,
-      "previousHash": "fnv1a64:726af7cbdf1dc955",
-      "eventHash": "fnv1a64:800d6db69f326c30",
+      "previousHash": "fnv1a64:6a953a618ecd8744",
+      "eventHash": "fnv1a64:d9d4c007d84eb308",
       "body": {
         "type": "section_routing_finished",
         "sectionId": "section.region_goal.region_hub_central_1.open",
@@ -42056,8 +42056,8 @@
     {
       "index": 128,
       "attempt": 3,
-      "previousHash": "fnv1a64:800d6db69f326c30",
-      "eventHash": "fnv1a64:d3847820b63645e8",
+      "previousHash": "fnv1a64:d9d4c007d84eb308",
+      "eventHash": "fnv1a64:4100f123fe89cd6d",
       "body": {
         "type": "attempt_finished",
         "classification": "generation_infeasibility",
@@ -42071,8 +42071,8 @@
     {
       "index": 129,
       "attempt": null,
-      "previousHash": "fnv1a64:d3847820b63645e8",
-      "eventHash": "fnv1a64:e9005a426cc4e27a",
+      "previousHash": "fnv1a64:4100f123fe89cd6d",
+      "eventHash": "fnv1a64:d4d14411afddf755",
       "body": {
         "type": "run_finished",
         "selectedAttempt": null,
@@ -42084,7 +42084,7 @@
   ],
   "eventBodyBytes": 217009,
   "visualCellCount": 9420,
-  "finalEventHash": "fnv1a64:e9005a426cc4e27a",
+  "finalEventHash": "fnv1a64:d4d14411afddf755",
   "finalOutputHash": "fnv1a64:c53d26a5e115bf65",
   "selection": {
     "selectedAttempt": null,

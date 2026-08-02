@@ -2705,6 +2705,163 @@ mod shape_matching {
 
 mod piece_placement {
     use super::*;
+    use crate::core::ProcgenCore;
+
+    #[test]
+    fn scene_sockets_transform_and_validate_against_exact_catalog_chain() {
+        let mut shape = test_catalog_shape(
+            "shape.room.scene_asymmetric",
+            &["room"],
+            &["identity", "rotate90", "rotate180", "rotate270"],
+            vec![test_catalog_exit("exit.east", "east")],
+            Vec::new(),
+            &["room"],
+        );
+        shape.footprint = vec![
+            GridCell { x: 0, y: 0 },
+            GridCell { x: 1, y: 0 },
+            GridCell { x: 0, y: 1 },
+        ];
+        shape.exits[0].x = 2;
+        shape.exits[0].y = 0;
+        shape.scene_sockets = vec![
+            SceneSocket {
+                id: "torch_prop".to_owned(),
+                x: 1,
+                y: 0,
+                facing: SceneFacing::East,
+                tags: vec!["wall_fixture".to_owned()],
+                content: SceneSocketContent::Prop {
+                    content_id: "fixture.torch".to_owned(),
+                },
+            },
+            SceneSocket {
+                id: "torch_light".to_owned(),
+                x: 0,
+                y: 1,
+                facing: SceneFacing::North,
+                tags: vec!["warm".to_owned()],
+                content: SceneSocketContent::PointLight {
+                    color_rgb: "#ffb45f".to_owned(),
+                    intensity_milli: 2_500,
+                    range_cells: 6,
+                },
+            },
+        ];
+        let catalog = test_shape_catalog(vec![shape]);
+        let plan = test_piece_plan(vec![test_piece_requirement(
+            "piece.room.scene",
+            "room",
+            vec![test_piece_exit("exit.required.south", "south")],
+            Vec::new(),
+            &["room"],
+        )]);
+        let shape_match = match_shapes(&catalog, &plan, &test_match_args(61_001));
+        assert!(shape_match.ok, "{:?}", shape_match.diagnostics);
+        assert_eq!(shape_match.matches[0].transform, "rotate90");
+        let placement = assemble_piece_placement(
+            &catalog,
+            &plan,
+            &shape_match,
+            &BuildAssembleArgs {
+                catalog: PathBuf::from("memory/scene-catalog.json"),
+                piece_plan: PathBuf::from("memory/scene-plan.json"),
+                shape_match: PathBuf::from("memory/scene-match.json"),
+                connectivity: GridConnectivity::FourWay,
+                out: PathBuf::from("memory/scene-placement.json"),
+            },
+        )
+        .expect("scene catalog should assemble");
+        let instance = &placement.instances[0];
+        assert_eq!(instance.scene_placements.len(), 2);
+        assert!(instance.scene_placements.iter().any(|scene| {
+            scene.source_socket_id == "torch_prop"
+                && scene.x == instance.origin.x + 1
+                && scene.y == instance.origin.y + 1
+                && scene.facing == SceneFacing::South
+        }));
+        assert!(instance.scene_placements.iter().any(|scene| {
+            scene.source_socket_id == "torch_light"
+                && scene.x == instance.origin.x
+                && scene.y == instance.origin.y
+                && scene.facing == SceneFacing::East
+        }));
+        let accepted =
+            ProcgenCore::validate_placement_with_catalog(&catalog, &plan, &shape_match, &placement);
+        assert!(accepted.ok, "{:?}", accepted.diagnostics);
+
+        let mut forged = placement.clone();
+        forged.instances[0].scene_placements[0].x += 1;
+        let rejected =
+            ProcgenCore::validate_placement_with_catalog(&catalog, &plan, &shape_match, &forged);
+        assert!(!rejected.ok);
+        assert!(rejected
+            .diagnostics
+            .iter()
+            .any(|diagnostic| diagnostic.code == "catalog_scene_placements_stale"));
+
+        let mut forged_match = shape_match.clone();
+        forged_match.matches[0].candidate_rank += 1;
+        let stale_match = ProcgenCore::validate_placement_with_catalog(
+            &catalog,
+            &plan,
+            &forged_match,
+            &placement,
+        );
+        assert!(stale_match
+            .diagnostics
+            .iter()
+            .any(|diagnostic| diagnostic.code == "catalog_shape_match_stale"));
+        assert_eq!(placement.instances[0].scene_placements.len(), 2);
+    }
+
+    #[test]
+    fn scene_socket_json_and_catalog_validation_fail_closed() {
+        let unknown = serde_json::json!({
+            "id": "torch",
+            "x": 0,
+            "y": 0,
+            "facing": "north",
+            "tags": [],
+            "content": { "kind": "prop", "contentId": "fixture.torch", "url": "forbidden.glb" }
+        });
+        let error = serde_json::from_value::<SceneSocket>(unknown)
+            .expect_err("scene socket variants must reject unknown renderer fields");
+        assert!(error.to_string().contains("unknown field"));
+
+        let mut shape = test_catalog_shape(
+            "shape.room.invalid_scene",
+            &["room"],
+            &["identity"],
+            vec![test_catalog_exit("exit.east", "east")],
+            Vec::new(),
+            &["room"],
+        );
+        shape.scene_sockets.push(SceneSocket {
+            id: "light".to_owned(),
+            x: 99,
+            y: 99,
+            facing: SceneFacing::North,
+            tags: Vec::new(),
+            content: SceneSocketContent::PointLight {
+                color_rgb: "orange".to_owned(),
+                intensity_milli: 0,
+                range_cells: 0,
+            },
+        });
+        let report = inspect_shape_catalog(
+            &test_shape_catalog(vec![shape]),
+            Path::new("memory/invalid-scene-catalog.json"),
+        );
+        assert!(report
+            .diagnostics
+            .iter()
+            .any(|diagnostic| { diagnostic.code == "catalog_scene_socket_outside_footprint" }));
+        assert!(report
+            .diagnostics
+            .iter()
+            .any(|diagnostic| { diagnostic.code == "catalog_scene_point_light_invalid" }));
+    }
 
     #[test]
     fn piece_placement_assembles_full_stack_without_overlap() {
@@ -3552,6 +3709,7 @@ fn test_catalog_shape(
             .map(|transform| (*transform).to_owned())
             .collect(),
         feature_sockets,
+        scene_sockets: Vec::new(),
         tags: tags.iter().map(|tag| (*tag).to_owned()).collect(),
     }
 }
@@ -3923,6 +4081,10 @@ mod batch_and_catalog {
             assert!(report.exit_directions.contains(&required.to_owned()));
         }
         assert!(report.transforms.contains(&"rotate90".to_owned()));
+        assert_eq!(
+            report.scene_socket_kinds,
+            vec!["point_light".to_owned(), "prop".to_owned()]
+        );
     }
 
     #[test]

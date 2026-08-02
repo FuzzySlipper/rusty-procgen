@@ -3,6 +3,12 @@
 Rusty Procgen is a deterministic dungeon-generation and inspection product,
 not a complete game runtime.
 
+Prefab scene sockets are symbolic and explicitly authored. Procgen places and
+validates symbolic props and bounded point lights, but it does not resolve
+content ids, load meshes, create renderer resources, assess lighting density,
+or add automatic fill lights. Those remain downstream product/presentation
+concerns and future work.
+
 - The checked corpus and interactive workbench currently emphasize bounded
   single-floor 2D dungeon topology, catalog placement, and simple voxel
   extrusion.

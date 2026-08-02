@@ -2107,6 +2107,7 @@ pub(crate) fn catalog_piece_instance(
     shape: &CatalogShape,
     origin: GridCell,
 ) -> PieceInstance {
+    let instance_id = format!("instance.{}", slugify_label(requirement.piece_id.as_str()));
     let occupied_cells = transform_cells(&shape.footprint, matched.transform.as_str(), &origin);
     let reserved_cells =
         transform_cells(&shape.reserved_cells, matched.transform.as_str(), &origin);
@@ -2122,8 +2123,14 @@ pub(crate) fn catalog_piece_instance(
             width: exit.width,
         })
         .collect();
+    let scene_placements = transformed_scene_placements(
+        shape,
+        matched.transform.as_str(),
+        &origin,
+        instance_id.as_str(),
+    );
     PieceInstance {
-        instance_id: format!("instance.{}", slugify_label(requirement.piece_id.as_str())),
+        instance_id,
         piece_id: requirement.piece_id.clone(),
         requirement_kind: requirement.kind.clone(),
         role: requirement.role.clone(),
@@ -2134,6 +2141,7 @@ pub(crate) fn catalog_piece_instance(
         reserved_cells,
         exit_map,
         feature_placements: matched.socket_map.clone(),
+        scene_placements,
         source_requirement_ref: matched.source_requirement_ref.clone(),
         source_refs: requirement.source_refs.clone(),
         tags: requirement.tags.clone(),

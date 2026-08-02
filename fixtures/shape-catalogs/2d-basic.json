@@ -60,6 +60,29 @@
         {"id": "socket.container.1", "kind": "container", "x": 1, "y": 1, "tags": ["optional"]},
         {"id": "socket.marker", "kind": "marker", "x": 2, "y": 1, "tags": ["room_center"]}
       ],
+      "sceneSockets": [
+        {
+          "id": "socket.scene.wall_fixture.west",
+          "x": 0,
+          "y": 1,
+          "facing": "east",
+          "tags": ["wall_fixture", "optional"],
+          "content": {"kind": "prop", "contentId": "fixture.wall_sconce"}
+        },
+        {
+          "id": "socket.scene.warm_light.west",
+          "x": 0,
+          "y": 1,
+          "facing": "east",
+          "tags": ["warm", "optional"],
+          "content": {
+            "kind": "point_light",
+            "colorRgb": "#ffb45f",
+            "intensityMilli": 2500,
+            "rangeCells": 6
+          }
+        }
+      ],
       "tags": ["medium", "standard_room", "through_room"]
     },
     {

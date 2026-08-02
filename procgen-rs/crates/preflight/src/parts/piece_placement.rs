@@ -224,6 +224,12 @@ pub(crate) fn assemble_piece_placement_attempt(
                 width: exit.width,
             })
             .collect();
+        let scene_placements = transformed_scene_placements(
+            shape,
+            matched.transform.as_str(),
+            &origin,
+            instance_id.as_str(),
+        );
         instances.push(PieceInstance {
             instance_id,
             piece_id: matched.piece_id.clone(),
@@ -236,6 +242,7 @@ pub(crate) fn assemble_piece_placement_attempt(
             reserved_cells: reserved,
             exit_map,
             feature_placements: matched.socket_map.clone(),
+            scene_placements,
             source_requirement_ref: matched.source_requirement_ref.clone(),
             source_refs: requirement.source_refs.clone(),
             tags: requirement.tags.clone(),
@@ -2284,6 +2291,7 @@ pub(crate) fn validate_piece_placement(placement: &PiecePlacement) -> Validation
         ));
     }
     validate_placement_cells(placement, &mut diagnostics);
+    validate_placement_scene_placements(placement, &mut diagnostics);
     validate_placement_links(placement, &mut diagnostics);
     validate_placement_unplanned_contacts(placement, &mut diagnostics);
     validate_placement_reachability(placement, &mut diagnostics);
@@ -2299,6 +2307,268 @@ pub(crate) fn validate_piece_placement(placement: &PiecePlacement) -> Validation
         ok: fatal_count == 0,
         fatal_count,
         diagnostics,
+    }
+}
+
+pub(crate) fn validate_piece_placement_with_catalog(
+    catalog: &ShapeCatalog,
+    plan: &PieceBuildPlan,
+    shape_match: &PieceShapeMatchReport,
+    placement: &PiecePlacement,
+) -> ValidationReport {
+    let mut diagnostics = validate_piece_placement(placement).diagnostics;
+    diagnostics
+        .extend(inspect_shape_catalog(catalog, Path::new("memory/shape-catalog.json")).diagnostics);
+
+    if placement.catalog_id != catalog.catalog_id
+        || shape_match.catalog_id != catalog.catalog_id
+        || shape_match.plan_id != plan.plan_id
+        || placement.match_id != shape_match.match_id
+        || placement.plan_id != plan.plan_id
+    {
+        diagnostics.push(fatal(
+            "catalog_placement_identity_mismatch",
+            None,
+            None,
+            "Catalog, shape-match, and placement identities must describe the same accepted chain.",
+        ));
+    }
+
+    let recomputed_match = match_shapes(
+        catalog,
+        plan,
+        &BuildMatchShapesArgs {
+            catalog: PathBuf::from(shape_match.source_catalog_ref.as_str()),
+            piece_plan: PathBuf::from(shape_match.source_plan_ref.as_str()),
+            seed: shape_match.seed,
+            out: PathBuf::from("memory/recomputed-shape-match.json"),
+        },
+    );
+    if recomputed_match.match_id != shape_match.match_id
+        || recomputed_match.ok != shape_match.ok
+        || recomputed_match.unmatched_count != shape_match.unmatched_count
+        || serde_json::to_value(&recomputed_match.matches).ok()
+            != serde_json::to_value(&shape_match.matches).ok()
+    {
+        diagnostics.push(fatal(
+            "catalog_shape_match_stale",
+            None,
+            None,
+            "Shape match does not recompute from the exact catalog, plan, and declared seed.",
+        ));
+    }
+
+    let shapes = catalog
+        .shapes
+        .iter()
+        .map(|shape| (shape.shape_id.as_str(), shape))
+        .collect::<BTreeMap<_, _>>();
+    let mut matches = BTreeMap::new();
+    for matched in &shape_match.matches {
+        if matches.insert(matched.piece_id.as_str(), matched).is_some() {
+            diagnostics.push(fatal(
+                "catalog_shape_match_piece_duplicate",
+                None,
+                None,
+                format!("Shape match repeats piece {}.", matched.piece_id),
+            ));
+        }
+    }
+    if shape_match.unmatched_count != 0 || !shape_match.ok {
+        diagnostics.push(fatal(
+            "catalog_shape_match_not_accepted",
+            None,
+            None,
+            "Scene placement validation requires a fully accepted shape match.",
+        ));
+    }
+
+    let mut instance_pieces = BTreeSet::new();
+    for instance in &placement.instances {
+        if !instance_pieces.insert(instance.piece_id.as_str()) {
+            diagnostics.push(fatal(
+                "catalog_placement_piece_duplicate",
+                None,
+                None,
+                format!("Placement repeats piece {}.", instance.piece_id),
+            ));
+        }
+        let Some(matched) = matches.get(instance.piece_id.as_str()).copied() else {
+            diagnostics.push(fatal(
+                "catalog_placement_match_missing",
+                None,
+                None,
+                format!(
+                    "Placement piece {} has no accepted shape match.",
+                    instance.piece_id
+                ),
+            ));
+            continue;
+        };
+        if instance.shape_id != matched.shape_id || instance.transform != matched.transform {
+            diagnostics.push(fatal(
+                "catalog_placement_match_mismatch",
+                None,
+                None,
+                format!(
+                    "Placement piece {} does not retain its accepted shape and transform.",
+                    instance.piece_id
+                ),
+            ));
+            continue;
+        }
+        let Some(shape) = shapes.get(instance.shape_id.as_str()).copied() else {
+            diagnostics.push(fatal(
+                "catalog_placement_shape_missing",
+                None,
+                None,
+                format!("Placement references missing shape {}.", instance.shape_id),
+            ));
+            continue;
+        };
+        if !shape.allowed_transforms.contains(&instance.transform) {
+            diagnostics.push(fatal(
+                "catalog_placement_transform_not_allowed",
+                None,
+                None,
+                format!(
+                    "Shape {} does not allow transform {}.",
+                    shape.shape_id, instance.transform
+                ),
+            ));
+        }
+        let expected = transformed_scene_placements(
+            shape,
+            instance.transform.as_str(),
+            &instance.origin,
+            instance.instance_id.as_str(),
+        );
+        if instance.scene_placements != expected {
+            diagnostics.push(fatal(
+                "catalog_scene_placements_stale",
+                None,
+                None,
+                format!(
+                    "Scene placements for {} do not match the exact catalog shape, transform, and origin.",
+                    instance.instance_id
+                ),
+            ));
+        }
+    }
+    if instance_pieces.len() != matches.len() {
+        diagnostics.push(fatal(
+            "catalog_placement_match_count_mismatch",
+            None,
+            None,
+            "Every accepted matched piece must have exactly one placement instance.",
+        ));
+    }
+
+    let fatal_count = diagnostics
+        .iter()
+        .filter(|diagnostic| diagnostic.severity == Severity::Fatal)
+        .count();
+    ValidationReport {
+        kind: "rusty_procgen.validation.catalog_placement.v1".to_owned(),
+        schema_version: 1,
+        state_hash: hash_json(&(catalog, plan, shape_match, placement))
+            .unwrap_or_else(|_| "hash_error".to_owned()),
+        ok: fatal_count == 0,
+        fatal_count,
+        diagnostics,
+    }
+}
+
+pub(crate) fn validate_placement_scene_placements(
+    placement: &PiecePlacement,
+    diagnostics: &mut Vec<Diagnostic>,
+) {
+    let mut placement_ids = BTreeSet::new();
+    for instance in &placement.instances {
+        let occupied = instance
+            .occupied_cells
+            .iter()
+            .map(|cell| (cell.x, cell.y))
+            .collect::<BTreeSet<_>>();
+        let ordered_ids = instance
+            .scene_placements
+            .iter()
+            .map(|scene| scene.id.as_str())
+            .collect::<Vec<_>>();
+        if !ordered_ids.windows(2).all(|pair| pair[0] < pair[1]) {
+            diagnostics.push(fatal(
+                "piece_scene_placement_order_invalid",
+                None,
+                None,
+                format!(
+                    "Scene placements for {} must use stable unique id order.",
+                    instance.instance_id
+                ),
+            ));
+        }
+        for scene in &instance.scene_placements {
+            if scene.id.trim().is_empty() || !placement_ids.insert(scene.id.as_str()) {
+                diagnostics.push(fatal(
+                    "piece_scene_placement_identity_invalid",
+                    None,
+                    None,
+                    format!("Scene placement {} is empty or duplicated.", scene.id),
+                ));
+            }
+            if scene.instance_id != instance.instance_id {
+                diagnostics.push(fatal(
+                    "piece_scene_placement_owner_invalid",
+                    None,
+                    None,
+                    format!(
+                        "Scene placement {} names the wrong piece instance.",
+                        scene.id
+                    ),
+                ));
+            }
+            if scene.source_socket_id.trim().is_empty() || !occupied.contains(&(scene.x, scene.y)) {
+                diagnostics.push(fatal(
+                    "piece_scene_placement_cell_invalid",
+                    None,
+                    None,
+                    format!(
+                        "Scene placement {} must occupy a cell owned by its piece.",
+                        scene.id
+                    ),
+                ));
+            }
+            match &scene.content {
+                SceneSocketContent::Prop { content_id } if content_id.trim().is_empty() => {
+                    diagnostics.push(fatal(
+                        "piece_scene_prop_content_id_invalid",
+                        None,
+                        None,
+                        format!("Scene prop {} requires a contentId.", scene.id),
+                    ));
+                }
+                SceneSocketContent::PointLight {
+                    color_rgb,
+                    intensity_milli,
+                    range_cells,
+                } if !valid_rgb_color(color_rgb)
+                    || *intensity_milli == 0
+                    || *intensity_milli > 1_000_000
+                    || *range_cells == 0
+                    || *range_cells > 64 =>
+                {
+                    diagnostics.push(fatal(
+                        "piece_scene_point_light_invalid",
+                        None,
+                        None,
+                        format!(
+                            "Scene point light {} has invalid bounded parameters.",
+                            scene.id
+                        ),
+                    ));
+                }
+                _ => {}
+            }
+        }
     }
 }
 

@@ -13,6 +13,7 @@ pub(crate) fn inspect_shape_catalog(
 ) -> CatalogInspectionReport {
     let mut piece_kinds = BTreeSet::new();
     let mut feature_sockets = BTreeSet::new();
+    let mut scene_socket_kinds = BTreeSet::new();
     let mut exit_directions = BTreeSet::new();
     let mut transforms = BTreeSet::new();
     let mut diagnostics = Vec::new();
@@ -95,6 +96,7 @@ pub(crate) fn inspect_shape_catalog(
                 ),
             ));
         }
+        validate_scene_sockets(shape, &mut diagnostics);
 
         piece_kinds.extend(shape.piece_kinds.iter().cloned());
         transforms.extend(shape.allowed_transforms.iter().cloned());
@@ -104,6 +106,15 @@ pub(crate) fn inspect_shape_catalog(
                 .feature_sockets
                 .iter()
                 .map(|socket| socket.kind.clone()),
+        );
+        scene_socket_kinds.extend(
+            shape
+                .scene_sockets
+                .iter()
+                .map(|socket| match &socket.content {
+                    SceneSocketContent::Prop { .. } => "prop".to_owned(),
+                    SceneSocketContent::PointLight { .. } => "point_light".to_owned(),
+                }),
         );
         shapes.push(CatalogShapeSummary {
             shape_id: shape.shape_id.clone(),
@@ -118,6 +129,7 @@ pub(crate) fn inspect_shape_catalog(
                     .map(|socket| socket.kind.clone())
                     .collect(),
             ),
+            scene_socket_count: shape.scene_sockets.len(),
             allowed_transforms: shape.allowed_transforms.clone(),
             tags: shape.tags.clone(),
         });
@@ -133,11 +145,97 @@ pub(crate) fn inspect_shape_catalog(
         catalog_search_policy: catalog.catalog_search_policy.clone(),
         piece_kinds: piece_kinds.into_iter().collect(),
         feature_sockets: feature_sockets.into_iter().collect(),
+        scene_socket_kinds: scene_socket_kinds.into_iter().collect(),
         exit_directions: exit_directions.into_iter().collect(),
         transforms: transforms.into_iter().collect(),
         shapes,
         diagnostics,
     }
+}
+
+pub(crate) fn validate_scene_sockets(shape: &CatalogShape, diagnostics: &mut Vec<Diagnostic>) {
+    let footprint = shape
+        .footprint
+        .iter()
+        .map(|cell| (cell.x, cell.y))
+        .collect::<BTreeSet<_>>();
+    let mut ids = BTreeSet::new();
+    let mut placement_ids = BTreeSet::new();
+    for socket in &shape.scene_sockets {
+        if socket.id.trim().is_empty() || !ids.insert(socket.id.as_str()) {
+            diagnostics.push(fatal(
+                "catalog_scene_socket_identity_invalid",
+                None,
+                None,
+                format!(
+                    "Shape {} has an empty or duplicate scene socket id {}.",
+                    shape.shape_id, socket.id
+                ),
+            ));
+        }
+        if !placement_ids.insert(slugify_label(socket.id.as_str())) {
+            diagnostics.push(fatal(
+                "catalog_scene_socket_placement_identity_duplicate",
+                None,
+                None,
+                format!(
+                    "Scene socket {} on shape {} collides after stable placement-id normalization.",
+                    socket.id, shape.shape_id
+                ),
+            ));
+        }
+        if !footprint.contains(&(socket.x, socket.y)) {
+            diagnostics.push(fatal(
+                "catalog_scene_socket_outside_footprint",
+                None,
+                None,
+                format!(
+                    "Scene socket {} on shape {} is outside its footprint at {},{}.",
+                    socket.id, shape.shape_id, socket.x, socket.y
+                ),
+            ));
+        }
+        match &socket.content {
+            SceneSocketContent::Prop { content_id } if content_id.trim().is_empty() => {
+                diagnostics.push(fatal(
+                    "catalog_scene_prop_content_id_invalid",
+                    None,
+                    None,
+                    format!(
+                        "Prop scene socket {} on shape {} requires a contentId.",
+                        socket.id, shape.shape_id
+                    ),
+                ));
+            }
+            SceneSocketContent::PointLight {
+                color_rgb,
+                intensity_milli,
+                range_cells,
+            } if !valid_rgb_color(color_rgb)
+                || *intensity_milli == 0
+                || *intensity_milli > 1_000_000
+                || *range_cells == 0
+                || *range_cells > 64 =>
+            {
+                diagnostics.push(fatal(
+                    "catalog_scene_point_light_invalid",
+                    None,
+                    None,
+                    format!(
+                        "Point-light scene socket {} on shape {} must use #RRGGBB, intensityMilli 1..=1000000, and rangeCells 1..=64.",
+                        socket.id, shape.shape_id
+                    ),
+                ));
+            }
+            _ => {}
+        }
+    }
+}
+
+pub(crate) fn valid_rgb_color(value: &str) -> bool {
+    value.len() == 7
+        && value.starts_with('#')
+        && value[1..].bytes().all(|byte| byte.is_ascii_hexdigit())
 }
 
 pub(crate) fn validate_catalog_search_policy(

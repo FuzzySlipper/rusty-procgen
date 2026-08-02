@@ -30,9 +30,10 @@ simulated?"
 
 Kind: `rusty_procgen.shape_catalog.v1`
 
-Shape catalogs are reusable prefab metadata. A shape may eventually point at
-art assets or voxel volumes, but this first contract is JSON-only and 2D-grid
-focused.
+Shape catalogs are reusable prefab metadata. The catalog remains JSON-only and
+asset agnostic: it may name symbolic scene content for a downstream product to
+resolve, but it never owns asset URLs, renderer handles, mesh loading, or voxel
+publication.
 
 Important top-level fields:
 
@@ -71,6 +72,11 @@ Important shape fields:
 - `featureSockets`: gameplay/art sockets such as `container`, `boss_space`,
   `gate_line`, `hazard_zone`, `reward_cache`, `key_pickup`, `secret_marker`,
   `shortcut_marker`, or `resource_clue`.
+- `sceneSockets`: optional closed-schema prop or point-light content anchored
+  to a footprint cell with a cardinal facing. Prop content contains only a
+  symbolic `contentId`; point lights contain bounded `#RRGGBB`,
+  `intensityMilli`, and `rangeCells` parameters. Each variant rejects unknown
+  fields, so renderer or asset authority cannot leak into the catalog.
 - `tags`: matching hints such as `small`, `wide`, `locked_threshold`,
   `pressure`, `hidden`, `shortcut`, `rejoin`, or `landmark`.
 
@@ -288,6 +294,18 @@ Important instance fields:
 - `exitMap`: mapping from requirement exits to transformed catalog exits.
 - `featurePlacements`: mapping from content/socket requirements to feature
   sockets.
+- `scenePlacements`: stable absolute placements derived from every selected
+  shape's scene sockets. The placement id includes the piece instance and
+  source socket identity; position and facing are transformed by the selected
+  rotation/reflection and translated by the instance origin.
+
+`ProcgenCore::validate_placement_with_catalog` revalidates the exact catalog,
+piece plan, accepted shape-match seed/result, and placement chain. It rejects missing/extra instances,
+shape or transform substitution, scene placements outside their owning
+footprint, duplicate or unordered placement identities, invalid bounded light
+parameters, and any stale/tampered derived placement. This is stronger than
+the context-free structural `validate_placement` entry point and is the public
+boundary consumers use before admitting prefab scene metadata.
 
 ## Validation Artifact
 

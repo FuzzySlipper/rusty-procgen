@@ -1170,6 +1170,12 @@ pub(crate) fn add_pure_catalog_instance(
             width: exit.width,
         })
         .collect();
+    let scene_placements = transformed_scene_placements(
+        shape,
+        candidate.transform.as_str(),
+        &origin,
+        instance_id.as_str(),
+    );
     state.instances.push(PieceInstance {
         instance_id,
         piece_id: candidate.piece_id.clone(),
@@ -1182,6 +1188,7 @@ pub(crate) fn add_pure_catalog_instance(
         reserved_cells: reserved,
         exit_map,
         feature_placements: candidate.socket_map.clone(),
+        scene_placements,
         source_requirement_ref: candidate.source_requirement_ref.clone(),
         source_refs: requirement.source_refs.clone(),
         tags: requirement.tags.clone(),

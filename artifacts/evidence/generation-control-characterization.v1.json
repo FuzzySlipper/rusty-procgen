@@ -19,7 +19,7 @@
       "resultRef": "fixtures/catalog-generation/candidate-000-result.v1.json",
       "traceRef": "fixtures/catalog-generation/candidate-000-trace.v1.json",
       "outputHash": "fnv1a64:037092fd003e3258",
-      "traceRootHash": "fnv1a64:e63cade88c590d61",
+      "traceRootHash": "fnv1a64:a11bbcb92bc72cc5",
       "selectedAttempt": 2,
       "outcome": "accepted",
       "classification": "success",
@@ -61,7 +61,7 @@
       "resultRef": "fixtures/catalog-generation/control-sprawling-5201-tight-result.v1.json",
       "traceRef": "fixtures/catalog-generation/control-sprawling-5201-tight-trace.v1.json",
       "outputHash": "fnv1a64:c53d26a5e115bf65",
-      "traceRootHash": "fnv1a64:cff14ae02e507c88",
+      "traceRootHash": "fnv1a64:4f24b2435318fd94",
       "selectedAttempt": null,
       "outcome": "rejected",
       "classification": "generation_infeasibility",
@@ -84,7 +84,7 @@
       "resultRef": "fixtures/catalog-generation/control-compact-5801-tight-result.v1.json",
       "traceRef": "fixtures/catalog-generation/control-compact-5801-tight-trace.v1.json",
       "outputHash": "fnv1a64:3039d622f46ed151",
-      "traceRootHash": "fnv1a64:4a8a5ffa3b1e9dd4",
+      "traceRootHash": "fnv1a64:cc672782287392b0",
       "selectedAttempt": 2,
       "outcome": "accepted",
       "classification": "success",
@@ -126,7 +126,7 @@
       "status": "accepted",
       "classification": "catalog_aware_exact_assembly",
       "outputHash": "fnv1a64:f4776b813bbc0bfe",
-      "traceRootHash": "fnv1a64:679a6f5338710b7a",
+      "traceRootHash": "fnv1a64:5ab7ec0622164ede",
       "metrics": {
         "geometryWidth": 1656,
         "geometryHeight": 1104,
@@ -205,7 +205,7 @@
             "placementSpan": 0
           },
           "outputHash": "fnv1a64:0dad0da4814f2e43",
-          "traceRootHash": "fnv1a64:bddb8dc95ab58056"
+          "traceRootHash": "fnv1a64:ced5aff54ed2370a"
         }
       },
       {
@@ -242,7 +242,7 @@
             "placementSpan": 0
           },
           "outputHash": "fnv1a64:1973e572c151929d",
-          "traceRootHash": "fnv1a64:740ebe47bd0c18ee"
+          "traceRootHash": "fnv1a64:de60f660ef06cd92"
         }
       },
       {
@@ -279,7 +279,7 @@
             "placementSpan": 0
           },
           "outputHash": "fnv1a64:7478bcaa605cc681",
-          "traceRootHash": "fnv1a64:f136b11f10b6cc50"
+          "traceRootHash": "fnv1a64:acac84ace4512e2c"
         }
       },
       {
@@ -316,7 +316,7 @@
             "placementSpan": 0
           },
           "outputHash": "fnv1a64:31c98039b37afd2f",
-          "traceRootHash": "fnv1a64:938e1de7c67e2240"
+          "traceRootHash": "fnv1a64:cbda6951f05b2f9c"
         }
       },
       {
@@ -353,7 +353,7 @@
             "placementSpan": 0
           },
           "outputHash": "fnv1a64:f65861b327718a58",
-          "traceRootHash": "fnv1a64:8215d02743d7ff6d"
+          "traceRootHash": "fnv1a64:ff09489f137815ed"
         }
       },
       {
@@ -390,7 +390,7 @@
             "placementSpan": 0
           },
           "outputHash": "fnv1a64:9870eab65209e17d",
-          "traceRootHash": "fnv1a64:b046b2ecf7b2e5b9"
+          "traceRootHash": "fnv1a64:a6011ae1f0969a49"
         }
       },
       {
@@ -475,7 +475,7 @@
             "placementSpan": 0
           },
           "outputHash": "fnv1a64:7c64449d490b47fd",
-          "traceRootHash": "fnv1a64:fdc700ae17b4b736"
+          "traceRootHash": "fnv1a64:472519217ce183ea"
         }
       },
       {
@@ -499,7 +499,7 @@
           },
           "metricDeltas": null,
           "outputHash": "fnv1a64:873406fb7e0011fa",
-          "traceRootHash": "fnv1a64:c2001d8147ff0112"
+          "traceRootHash": "fnv1a64:4c038141b759530b"
         }
       },
       {
@@ -566,7 +566,7 @@
             "placementSpan": 0
           },
           "outputHash": "fnv1a64:09b0d1a3edca39c5",
-          "traceRootHash": "fnv1a64:82e09c29b34020f6"
+          "traceRootHash": "fnv1a64:0b94e12f529ce8c2"
         }
       },
       {
@@ -609,7 +609,7 @@
             "placementSpan": 0
           },
           "outputHash": "fnv1a64:e63787f4fc678e3c",
-          "traceRootHash": "fnv1a64:2fcbe3059d528570"
+          "traceRootHash": "fnv1a64:ad51aee8ae7786c4"
         }
       },
       {
@@ -652,7 +652,7 @@
             "placementSpan": 0
           },
           "outputHash": "fnv1a64:a69567aab2adc3b2",
-          "traceRootHash": "fnv1a64:c5dd66ce417883ae"
+          "traceRootHash": "fnv1a64:578691f16e40f7ca"
         }
       },
       {
@@ -693,7 +693,7 @@
             "placementSpan": 0
           },
           "outputHash": "fnv1a64:a9175170aee009c5",
-          "traceRootHash": "fnv1a64:c8ebeceacca25c6c"
+          "traceRootHash": "fnv1a64:130a1ea678a8ec40"
         }
       },
       {
@@ -736,7 +736,7 @@
             "placementSpan": 0
           },
           "outputHash": "fnv1a64:c5133efff3019a80",
-          "traceRootHash": "fnv1a64:4b626ec5d7ed307d"
+          "traceRootHash": "fnv1a64:7ea75840eea7c759"
         }
       },
       {
@@ -779,7 +779,7 @@
             "placementSpan": 0
           },
           "outputHash": "fnv1a64:ef9498e82aa6f1d6",
-          "traceRootHash": "fnv1a64:c6e4d896e2f2fd88"
+          "traceRootHash": "fnv1a64:64aad26e6f3ea5e4"
         }
       },
       {
@@ -822,7 +822,7 @@
             "placementSpan": 0
           },
           "outputHash": "fnv1a64:e877ba5f5228d6be",
-          "traceRootHash": "fnv1a64:c5e83eec6fa553f2"
+          "traceRootHash": "fnv1a64:80c5768b5def7ed6"
         }
       },
       {
@@ -865,7 +865,7 @@
             "placementSpan": 0
           },
           "outputHash": "fnv1a64:85b3f9765cd056be",
-          "traceRootHash": "fnv1a64:21c37d1241592344"
+          "traceRootHash": "fnv1a64:13f4b02605daded0"
         }
       },
       {
@@ -906,7 +906,7 @@
             "placementSpan": 0
           },
           "outputHash": "fnv1a64:a28ab4f725a3a49d",
-          "traceRootHash": "fnv1a64:e943cd933477e5f0"
+          "traceRootHash": "fnv1a64:cd8c4822d83d6e9c"
         }
       },
       {
@@ -947,7 +947,7 @@
             "placementSpan": 0
           },
           "outputHash": "fnv1a64:75b7d9d865ec9a96",
-          "traceRootHash": "fnv1a64:b140d9f649a59f58"
+          "traceRootHash": "fnv1a64:5ac493d9e0957ba4"
         }
       },
       {
@@ -988,7 +988,7 @@
             "placementSpan": 0
           },
           "outputHash": "fnv1a64:95bb841cf8c86269",
-          "traceRootHash": "fnv1a64:4d36c8392d33f07b"
+          "traceRootHash": "fnv1a64:d38037ee08d6e4ff"
         }
       },
       {
@@ -1029,7 +1029,7 @@
             "placementSpan": 0
           },
           "outputHash": "fnv1a64:89d274ed0d90fd17",
-          "traceRootHash": "fnv1a64:445eff5bb40519cf"
+          "traceRootHash": "fnv1a64:475da1374eab4a93"
         }
       },
       {
@@ -1070,7 +1070,7 @@
             "placementSpan": 0
           },
           "outputHash": "fnv1a64:63f0f48f28922e1d",
-          "traceRootHash": "fnv1a64:47f5462209a3d76f"
+          "traceRootHash": "fnv1a64:847ed30260cbd5b3"
         }
       },
       {
@@ -1111,7 +1111,7 @@
             "placementSpan": 0
           },
           "outputHash": "fnv1a64:afbdcca942e8af58",
-          "traceRootHash": "fnv1a64:f11a72907662c154"
+          "traceRootHash": "fnv1a64:7144f958d2a34720"
         }
       },
       {

@@ -744,6 +744,62 @@ pub(crate) fn transformed_catalog_exits(shape: &CatalogShape, transform: &str) -
         .collect()
 }
 
+pub(crate) fn transformed_scene_placements(
+    shape: &CatalogShape,
+    transform: &str,
+    origin: &GridCell,
+    instance_id: &str,
+) -> Vec<ScenePlacement> {
+    let transformed_footprint = shape
+        .footprint
+        .iter()
+        .map(|cell| transform_cell(cell.x, cell.y, transform))
+        .collect::<Vec<_>>();
+    let min_x = transformed_footprint
+        .iter()
+        .map(|cell| cell.0)
+        .min()
+        .unwrap_or(0);
+    let min_y = transformed_footprint
+        .iter()
+        .map(|cell| cell.1)
+        .min()
+        .unwrap_or(0);
+    let mut placements = shape
+        .scene_sockets
+        .iter()
+        .map(|socket| {
+            let (x, y) = transform_cell(socket.x, socket.y, transform);
+            ScenePlacement {
+                id: format!(
+                    "{}.scene.{}",
+                    instance_id,
+                    slugify_label(socket.id.as_str())
+                ),
+                instance_id: instance_id.to_owned(),
+                source_socket_id: socket.id.clone(),
+                x: x - min_x + origin.x,
+                y: y - min_y + origin.y,
+                facing: transform_scene_facing(socket.facing, transform),
+                tags: socket.tags.clone(),
+                content: socket.content.clone(),
+            }
+        })
+        .collect::<Vec<_>>();
+    placements.sort_by(|left, right| left.id.cmp(&right.id));
+    placements
+}
+
+pub(crate) fn transform_scene_facing(facing: SceneFacing, transform: &str) -> SceneFacing {
+    match transform_direction(facing.as_str(), transform) {
+        "north" => SceneFacing::North,
+        "east" => SceneFacing::East,
+        "south" => SceneFacing::South,
+        "west" => SceneFacing::West,
+        _ => facing,
+    }
+}
+
 pub(crate) fn transform_direction(direction: &str, transform: &str) -> &'static str {
     let steps = match transform {
         "identity" => 0,

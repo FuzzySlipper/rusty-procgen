@@ -32,13 +32,14 @@ use crate::{
     realization_scale_multiplier, repair_report, run_catalog_aware_generation,
     run_catalog_aware_generation_traced, score_graph, spatial_intent_report, validate_built_flow,
     validate_geometry_2d, validate_geometry_layout_policy, validate_graph,
-    validate_intermediate_breakdown, validate_piece_placement, BuildAssembleArgs,
-    BuildEmitPiecePlanArgs, BuildMatchShapesArgs, BuildValidateFlowArgs, Candidate,
-    CatalogAwareGenerationInput, CatalogInspectionReport, Diagnostic, Geometry2dArtifact,
-    GeometryEmit2dArgs, GeometryLayoutPolicy, GraphAnalysisReport, IntermediateBreakdown,
-    LayoutArtifact, PhysicalConnectionPlan, PhysicalConnectionPlanArgs, PieceBuildPlan,
-    PiecePlacement, PieceShapeMatchReport, RepairReport, RuleCompatibilityReport, ScoreReport,
-    SeedIntent, Severity, ShapeCatalog, SpatialIntentReport, ValidationReport,
+    validate_intermediate_breakdown, validate_piece_placement,
+    validate_piece_placement_with_catalog, BuildAssembleArgs, BuildEmitPiecePlanArgs,
+    BuildMatchShapesArgs, BuildValidateFlowArgs, Candidate, CatalogAwareGenerationInput,
+    CatalogInspectionReport, Diagnostic, Geometry2dArtifact, GeometryEmit2dArgs,
+    GeometryLayoutPolicy, GraphAnalysisReport, IntermediateBreakdown, LayoutArtifact,
+    PhysicalConnectionPlan, PhysicalConnectionPlanArgs, PieceBuildPlan, PiecePlacement,
+    PieceShapeMatchReport, RepairReport, RuleCompatibilityReport, ScoreReport, SeedIntent,
+    Severity, ShapeCatalog, SpatialIntentReport, ValidationReport,
 };
 
 pub use crate::{CorridorRealization, GraphRule, GridConnectivity, RepairAction};
@@ -295,6 +296,17 @@ impl ProcgenCore {
 
     pub fn validate_placement(placement: &PiecePlacement) -> ValidationReport {
         validate_piece_placement(placement)
+    }
+
+    /// Validate a placement against the exact catalog and accepted shape-match
+    /// artifacts that produced it, including transformed scene sockets.
+    pub fn validate_placement_with_catalog(
+        catalog: &ShapeCatalog,
+        plan: &PieceBuildPlan,
+        shape_match: &PieceShapeMatchReport,
+        placement: &PiecePlacement,
+    ) -> ValidationReport {
+        validate_piece_placement_with_catalog(catalog, plan, shape_match, placement)
     }
 
     pub fn validate_built_flow(
