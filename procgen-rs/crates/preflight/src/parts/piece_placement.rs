@@ -2334,22 +2334,26 @@ pub(crate) fn validate_piece_placement_with_catalog(
         ));
     }
 
-    let recomputed_match = match_shapes(
-        catalog,
-        plan,
-        &BuildMatchShapesArgs {
-            catalog: PathBuf::from(shape_match.source_catalog_ref.as_str()),
-            piece_plan: PathBuf::from(shape_match.source_plan_ref.as_str()),
-            seed: shape_match.seed,
-            out: PathBuf::from("memory/recomputed-shape-match.json"),
-        },
-    );
-    if recomputed_match.match_id != shape_match.match_id
-        || recomputed_match.ok != shape_match.ok
-        || recomputed_match.unmatched_count != shape_match.unmatched_count
-        || serde_json::to_value(&recomputed_match.matches).ok()
-            != serde_json::to_value(&shape_match.matches).ok()
-    {
+    let match_is_fresh = if shape_match.match_id.ends_with(".catalog_aware") {
+        validate_catalog_aware_shape_match(catalog, plan, shape_match, placement)
+    } else {
+        let recomputed_match = match_shapes(
+            catalog,
+            plan,
+            &BuildMatchShapesArgs {
+                catalog: PathBuf::from(shape_match.source_catalog_ref.as_str()),
+                piece_plan: PathBuf::from(shape_match.source_plan_ref.as_str()),
+                seed: shape_match.seed,
+                out: PathBuf::from("memory/recomputed-shape-match.json"),
+            },
+        );
+        recomputed_match.match_id == shape_match.match_id
+            && recomputed_match.ok == shape_match.ok
+            && recomputed_match.unmatched_count == shape_match.unmatched_count
+            && serde_json::to_value(&recomputed_match.matches).ok()
+                == serde_json::to_value(&shape_match.matches).ok()
+    };
+    if !match_is_fresh {
         diagnostics.push(fatal(
             "catalog_shape_match_stale",
             None,
@@ -2485,6 +2489,7 @@ pub(crate) fn validate_piece_placement_with_catalog(
                 != serde_json::to_value(&expected_exits).ok()
             || serde_json::to_value(&instance.feature_placements).ok()
                 != serde_json::to_value(&matched.socket_map).ok()
+            || instance.source_requirement_ref != matched.source_requirement_ref
         {
             diagnostics.push(fatal(
                 "catalog_instance_surface_stale",
@@ -2542,6 +2547,142 @@ pub(crate) fn validate_piece_placement_with_catalog(
         fatal_count,
         diagnostics,
     }
+}
+
+fn validate_catalog_aware_shape_match(
+    catalog: &ShapeCatalog,
+    plan: &PieceBuildPlan,
+    shape_match: &PieceShapeMatchReport,
+    placement: &PiecePlacement,
+) -> bool {
+    if shape_match.kind != "rusty_procgen.piece_shape_match.v1"
+        || shape_match.schema_version != 1
+        || shape_match.alternative_attempt != 0
+        || !shape_match.ok
+        || shape_match.unmatched_count != 0
+        || !shape_match.rejections.is_empty()
+        || !shape_match.diagnostics.is_empty()
+        || shape_match.matches.len() != plan.requirements.len()
+    {
+        return false;
+    }
+    let decisions = match placement.catalog_search.as_ref() {
+        Some(search) => search
+            .selected
+            .iter()
+            .map(|decision| (decision.piece_id.as_str(), decision))
+            .collect::<BTreeMap<_, _>>(),
+        None => return false,
+    };
+    if decisions.len() != shape_match.matches.len() {
+        return false;
+    }
+    let requirements = plan
+        .requirements
+        .iter()
+        .map(|requirement| (requirement.piece_id.as_str(), requirement))
+        .collect::<BTreeMap<_, _>>();
+    let mut observed = BTreeSet::new();
+    shape_match.matches.iter().all(|matched| {
+        let Some(requirement) = requirements.get(matched.piece_id.as_str()).copied() else {
+            return false;
+        };
+        let Some(decision) = decisions.get(matched.piece_id.as_str()).copied() else {
+            return false;
+        };
+        let (Ok(candidate_rank), Ok(candidate_count)) = (
+            u32::try_from(matched.candidate_rank),
+            u32::try_from(matched.candidate_count),
+        ) else {
+            return false;
+        };
+        if !observed.insert(matched.piece_id.as_str())
+            || matched.requirement_kind != requirement.kind
+            || decision.shape_id != matched.shape_id
+            || decision.transform != matched.transform
+            || decision.candidate_rank != candidate_rank
+            || decision.candidate_count != candidate_count
+        {
+            return false;
+        }
+        if !catalog_aware_match_surface_is_valid(catalog, requirement, matched) {
+            return false;
+        }
+        let valid_source = if let Some(section_ref) = requirement
+            .source_refs
+            .iter()
+            .find_map(|source| source.strip_prefix("physicalSection:"))
+        {
+            matched.score == 1_000
+                && matched.candidate_rank == 0
+                && matched.candidate_count == 1
+                && matched.source_requirement_ref
+                    == format!(
+                        "catalogAware:{section_ref}:{}:{}",
+                        shape_match.seed, matched.piece_id
+                    )
+        } else {
+            matched.source_requirement_ref.starts_with(&format!(
+                "piecePlan:{};requirement:{};semanticFacingOffset:",
+                plan.plan_id, matched.piece_id
+            ))
+        };
+        valid_source
+    })
+}
+
+fn catalog_aware_match_surface_is_valid(
+    catalog: &ShapeCatalog,
+    requirement: &PieceRequirement,
+    matched: &MatchedPiece,
+) -> bool {
+    let Some(shape) = catalog
+        .shapes
+        .iter()
+        .find(|shape| shape.shape_id == matched.shape_id)
+    else {
+        return false;
+    };
+    if !shape
+        .piece_kinds
+        .iter()
+        .any(|kind| kind == &requirement.kind)
+        || !shape.allowed_transforms.contains(&matched.transform)
+        || requirement
+            .required_shape_tags
+            .iter()
+            .any(|tag| !shape.tags.contains(tag))
+        || matched.exit_map.len() != requirement.required_exits.len()
+        || serde_json::to_value(&matched.socket_map).ok()
+            != serde_json::to_value(match_sockets(requirement, shape)).ok()
+    {
+        return false;
+    }
+    let transformed_exits = transformed_catalog_exits(shape, matched.transform.as_str());
+    let mut requirement_ids = BTreeSet::new();
+    let mut catalog_ids = BTreeSet::new();
+    matched.exit_map.iter().all(|mapped| {
+        let Some(required) = requirement
+            .required_exits
+            .iter()
+            .find(|exit| exit.id == mapped.requirement_exit_id)
+        else {
+            return false;
+        };
+        let Some(catalog_exit) = transformed_exits
+            .iter()
+            .find(|exit| exit.id == mapped.catalog_exit_id)
+        else {
+            return false;
+        };
+        requirement_ids.insert(mapped.requirement_exit_id.as_str())
+            && catalog_ids.insert(mapped.catalog_exit_id.as_str())
+            && required.direction == mapped.direction
+            && mapped.x == catalog_exit.x
+            && mapped.y == catalog_exit.y
+            && mapped.direction == catalog_exit.direction
+            && mapped.width == catalog_exit.width
+    })
 }
 
 pub(crate) fn validate_placement_scene_placements(

@@ -62,6 +62,15 @@ classification (`catalog_coverage_gap`, `generation_infeasibility`,
 `search_budget_exhaustion`, or `outcome_constraint_miss`). The runner does not
 mutate any caller value and does not interpret provenance labels as paths.
 
+`ProcgenCore::validate_placement_with_catalog` accepts both ordinary
+match/assemble chains and the catalog-aware runner's accepted chain. For the
+latter it revalidates the generated match against the exact final plan,
+catalog-search decisions, transformed catalog exits and sockets before
+recomputing every per-instance and aggregate placement surface. It does not
+feed catalog-aware evidence back through the ordinary matcher because the
+bounded runner materializes route pieces and room choices under a distinct,
+recorded search policy.
+
 `CatalogAwareOutcomeConstraints` owns hard maxima for final placement width,
 height, area, and routed catalog cells. `CatalogAwareOutcomePreferences` owns
 one bounded primary metric and preferred maximum. Rust evaluates the complete

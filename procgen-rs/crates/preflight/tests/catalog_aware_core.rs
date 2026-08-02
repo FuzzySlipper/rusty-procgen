@@ -242,6 +242,48 @@ fn public_catalog_aware_runner_is_filesystem_free_atomic_and_cli_equivalent() {
     )
     .expect("repeated public run");
     assert!(accepted.ok);
+    let accepted_plan = accepted.piece_plan.as_ref().expect("accepted plan");
+    let accepted_match = accepted.shape_match.as_ref().expect("accepted match");
+    let accepted_placement = accepted.placement.as_ref().expect("accepted placement");
+    let validation = ProcgenCore::validate_placement_with_catalog(
+        &catalog,
+        accepted_plan,
+        accepted_match,
+        accepted_placement,
+    );
+    assert!(validation.ok, "{:?}", validation.diagnostics);
+
+    let mut forged_match = accepted_match.clone();
+    forged_match.matches[0].candidate_rank += 1;
+    let forged_match_validation = ProcgenCore::validate_placement_with_catalog(
+        &catalog,
+        accepted_plan,
+        &forged_match,
+        accepted_placement,
+    );
+    assert!(forged_match_validation
+        .diagnostics
+        .iter()
+        .any(|diagnostic| diagnostic.code == "catalog_shape_match_stale"));
+
+    let mut forged_placement = accepted_placement.clone();
+    let cell = forged_placement
+        .instances
+        .iter_mut()
+        .flat_map(|instance| instance.occupied_cells.iter_mut())
+        .next()
+        .expect("catalog-aware fixture occupied cell");
+    cell.x += 10_000;
+    let forged_cell_validation = ProcgenCore::validate_placement_with_catalog(
+        &catalog,
+        accepted_plan,
+        accepted_match,
+        &forged_placement,
+    );
+    assert!(forged_cell_validation
+        .diagnostics
+        .iter()
+        .any(|diagnostic| diagnostic.code == "catalog_instance_surface_stale"));
     assert_eq!(
         serde_json::to_value(&accepted).expect("accepted JSON"),
         serde_json::to_value(&repeated).expect("repeated JSON")
